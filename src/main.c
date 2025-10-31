@@ -9,14 +9,17 @@
 #include <math.h>
 
 #include <structs.h>
+#include "renderer.h"
 
-/* We will use this renderer to draw into this window every frame. */
 SDL_Window *window = NULL;
+SDL_Window *glWindow = NULL;
 SDL_Renderer *renderer = NULL;
 
 SDL_Point windowScaleIntent = {320, 240};
 double windowScaleFactor;
 SDL_Point windowScale = {640, 480};
+
+Vector3 cameraPos;
 
 Uint64 last = 0;
 Uint64 now = 0;
@@ -40,11 +43,16 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[]){
 		return SDL_APP_FAILURE;
 	}
 
-	if (!SDL_CreateWindowAndRenderer("Kill People", windowScale.x, windowScale.y, SDL_WINDOW_RESIZABLE, &window, &renderer)){
+	if (!SDL_CreateWindowAndRenderer("Sandblox (2D Isometric)", windowScale.x, windowScale.y, SDL_WINDOW_RESIZABLE, &window, &renderer)){
 		SDL_Log("Couldn't create window/renderer: %s", SDL_GetError());
 		return SDL_APP_FAILURE;
 	}
+	glWindow = SDL_CreateWindow("Sandblox (3D OpenGL)", windowScale.x, windowScale.y, SDL_WINDOW_RESIZABLE | SDL_WINDOW_OPENGL);
+	SDL_SetWindowParent(glWindow, window); //SDL_SetWindowModal(glWindow, true);
+	
 	SDL_SetWindowMinimumSize(window, 320, 240);
+	
+	printf("eat thine shorteths\n");
 	
 	fontTex = newTexture("assets/font.png");
 	
@@ -62,9 +70,9 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[]){
 
 SDL_AppResult SDL_AppEvent(void *appstate, SDL_Event *event){
 	if (event->type == SDL_EVENT_QUIT){
-		return SDL_APP_SUCCESS;  /* end the program, reporting success to the OS. */
+		return SDL_APP_SUCCESS;
 	}
-	return SDL_APP_CONTINUE;  /* carry on with the program! */
+	return SDL_APP_CONTINUE;
 }
 
 SDL_AppResult SDL_AppIterate(void *appstate){
@@ -78,10 +86,11 @@ SDL_AppResult SDL_AppIterate(void *appstate){
 	SDL_GetWindowSize(window, &windowScale.x, &windowScale.y);
 	windowScaleFactor = min((float)windowScale.x / windowScaleIntent.x, (float)windowScale.y / windowScaleIntent.y);
 	
-	SDL_SetRenderDrawColor(renderer, 20, 22, 24, SDL_ALPHA_OPAQUE);  /* black, full alpha */
-	SDL_RenderClear(renderer);  /* start with a blank canvas. */
+	SDL_SetRenderDrawColor(renderer, 20, 22, 24, SDL_ALPHA_OPAQUE);
+	SDL_RenderClear(renderer);
+	
+	drawCube((Vector3){0, 0, 0}, (Vector3){1, 1, 1});
 
-	SDL_SetRenderScale(renderer, 1, 1);
 	SDL_SetRenderDrawColor(renderer, 255, 255, 255, SDL_ALPHA_OPAQUE);
 	if(keyList[0].down)SDL_RenderFillRect(renderer, &(SDL_FRect){28, windowScale.y - 52, 24, 24});
 	if(keyList[2].down)SDL_RenderFillRect(renderer, &(SDL_FRect){2, windowScale.y - 26, 24, 24});
@@ -93,8 +102,8 @@ SDL_AppResult SDL_AppIterate(void *appstate){
 	drawText(renderer, fontTex, guiText, 32, 0, 0, 16, 16, 12);
 	//SDL_RenderDebugText(renderer, 0, 0, guiText);
 	
-	SDL_RenderPresent(renderer);  /* put it all on the screen! */
-	return SDL_APP_CONTINUE;  /* carry on with the program! */
+	SDL_RenderPresent(renderer);
+	return SDL_APP_CONTINUE;
 }
 
 void SDL_AppQuit(void *appstate, SDL_AppResult result)
