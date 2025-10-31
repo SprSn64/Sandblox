@@ -19,21 +19,25 @@ SDL_FPoint isoProj(Vector3 pos){
 		(pos.x + pos.z/2 + windowScale.x/2) * 64, 
 		(pos.z + pos.x/2 + pos.y + windowScale.y/2) * 64
 	};*/
-	return (SDL_FPoint){(pos.x + pos.z/2) * 64 + windowScale.x / 2, (pos.z / 2) * 64 + windowScale.y / 2};
+	return (SDL_FPoint){(pos.x + pos.z/2) * 64 + windowScale.x / 2, (-pos.y + pos.z / 2) * 64 + windowScale.y / 2};
 }
 
-void drawCube(Vector3 pos, Vector3 scale){
-	SDL_Vertex verts[4];
-	verts[0].position = isoProj(pos); verts[0].color = (SDL_FColor){1, 1, 1, 1};
-	verts[1].position = isoProj((Vector3){pos.x + scale.x, pos.y, pos.z}); verts[1].color = (SDL_FColor){1, 1, 1, 1};
-	verts[2].position = isoProj((Vector3){pos.x + scale.x, pos.y, pos.z + scale.z}); verts[2].color = (SDL_FColor){1, 1, 1, 1};
-	verts[3].position = isoProj((Vector3){pos.x, pos.y, pos.z + scale.z}); verts[3].color = (SDL_FColor){1, 1, 1, 1};
-	//printf("eat my shorts!\n");
-	SDL_RenderGeometry(renderer, NULL, verts, 4, NULL, 0);
-	
-	SDL_SetRenderDrawColor(renderer, 255, 0, 0, SDL_ALPHA_OPAQUE);
-	SDL_RenderFillRect(renderer, &(SDL_FRect){verts[0].position.x - 2, verts[0].position.y - 2, 4, 4});
-	SDL_RenderFillRect(renderer, &(SDL_FRect){verts[1].position.x - 2, verts[1].position.y - 2, 4, 4});
-	SDL_RenderFillRect(renderer, &(SDL_FRect){verts[2].position.x - 2, verts[2].position.y - 2, 4, 4});
-	SDL_RenderFillRect(renderer, &(SDL_FRect){verts[3].position.x - 2, verts[3].position.y - 2, 4, 4});
+void drawTriangle(SDL_FPoint pointA, SDL_FPoint pointB, SDL_FPoint pointC, SDL_FColor colour){
+	SDL_Vertex verts[3];
+	verts[0].position = pointA; verts[0].color = colour;
+	verts[1].position = pointB; verts[1].color = colour;
+	verts[2].position = pointC; verts[2].color = colour;
+	SDL_RenderGeometry(renderer, NULL, verts, 3, NULL, 0);
+}
+
+void drawCube(Vector3 pos, Vector3 scale, SDL_FColor colour){
+	//top
+	drawTriangle(isoProj(pos), isoProj((Vector3){pos.x + scale.x, pos.y, pos.z}), isoProj((Vector3){pos.x + scale.x, pos.y, pos.z + scale.z}), colour);
+	drawTriangle(isoProj(pos), isoProj((Vector3){pos.x, pos.y, pos.z + scale.z}), isoProj((Vector3){pos.x + scale.x, pos.y, pos.z + scale.z}), colour);
+	//front
+	drawTriangle(isoProj((Vector3){pos.x, pos.y, pos.z + scale.z}), isoProj((Vector3){pos.x + scale.x, pos.y, pos.z + scale.z}), isoProj((Vector3){pos.x + scale.x, pos.y - scale.y, pos.z + scale.z}), (SDL_FColor){colour.r * 0.76, colour.g * 0.8, colour.b * 0.9, 1});
+	drawTriangle(isoProj((Vector3){pos.x, pos.y - scale.y, pos.z + scale.z}), isoProj((Vector3){pos.x, pos.y, pos.z + scale.z}), isoProj((Vector3){pos.x + scale.x, pos.y - scale.y, pos.z + scale.z}), (SDL_FColor){colour.r * 0.76, colour.g * 0.8, colour.b * 0.9, 1});
+	//side
+	drawTriangle(isoProj((Vector3){pos.x, pos.y, pos.z}), isoProj((Vector3){pos.x, pos.y, pos.z + scale.z}), isoProj((Vector3){pos.x, pos.y - scale.y, pos.z + scale.z}), (SDL_FColor){colour.r * 0.4, colour.g * 0.4, colour.b * 0.7, 1});
+	drawTriangle(isoProj((Vector3){pos.x, pos.y - scale.y, pos.z}), isoProj((Vector3){pos.x, pos.y, pos.z}), isoProj((Vector3){pos.x, pos.y - scale.y, pos.z + scale.z}), (SDL_FColor){colour.r * 0.4, colour.g * 0.4, colour.b * 0.7, 1});
 }
