@@ -52,3 +52,25 @@ void drawCube(Vector3 pos, Vector3 scale, SDL_FColor colour){
 	drawTriangle(isoProj(pos), isoProj((Vector3){pos.x + scale.x, pos.y, pos.z}), isoProj((Vector3){pos.x + scale.x, pos.y, pos.z + scale.z}), colour);
 	drawTriangle(isoProj((Vector3){pos.x, pos.y, pos.z + scale.z}), isoProj(pos), isoProj((Vector3){pos.x + scale.x, pos.y, pos.z + scale.z}), colour);
 }
+
+SDL_Texture *newTexture(char* path){
+	SDL_Surface *texSurface = NULL;
+	
+	texSurface = IMG_Load(path);
+	
+	SDL_Texture *texture = SDL_CreateTextureFromSurface(renderer, texSurface);
+	SDL_SetTextureScaleMode(texture, SDL_SCALEMODE_NEAREST);
+	SDL_DestroySurface(texSurface);
+	return texture;
+}
+
+void drawText(SDL_Renderer *renderer, SDL_Texture *texture, char* text, char charOff, short posX, short posY, short width, short height, short kern){
+	for(int i=0; i<=strlen(text); i++){
+		char charVal = (unsigned)text[i] - charOff;
+		int xOff = (charVal % 16) * width;
+		int yOff = floor((float)charVal / 16) * height;
+		SDL_FRect sprRect = {xOff, yOff, width, height};
+		SDL_FRect sprPos = {posX + kern * i, posY, width, height};
+		SDL_RenderTexture(renderer, texture, &sprRect, &sprPos);
+	}
+}

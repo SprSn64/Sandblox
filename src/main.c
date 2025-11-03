@@ -15,6 +15,8 @@ SDL_Window *window = NULL;
 SDL_Window *glWindow = NULL;
 SDL_Renderer *renderer = NULL;
 
+bool glEnabled = false;
+
 SDL_Point windowScaleIntent = {320, 240};
 double windowScaleFactor;
 SDL_Point windowScale = {640, 480};
@@ -32,11 +34,14 @@ SDL_Texture *fontTex = NULL;
 KeyMap keyList[4];
 
 void HandleKeyInput();
-SDL_Texture *newTexture(char* path);
-void drawText(SDL_Renderer *renderer, SDL_Texture *texture, char* text, char charOff, short posX, short posY, short width, short height, short kern);
 
 SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[]){
-	SDL_SetAppMetadata("Example Renderer Clear", "1.0", NULL);
+	SDL_SetAppMetadata("SandBlox", "0.0", NULL);
+	
+	for(int i=0; i < argc; i++){
+		printf("%s\n", argv[i]); 
+		glEnabled = !strcmp("-opengl", argv[i]);
+	}
 	
 	if (!SDL_Init(SDL_INIT_VIDEO)){
 		SDL_Log("Couldn't initialize SDL: %s", SDL_GetError());
@@ -47,8 +52,11 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[]){
 		SDL_Log("Couldn't create window/renderer: %s", SDL_GetError());
 		return SDL_APP_FAILURE;
 	}
-	glWindow = SDL_CreateWindow("Sandblox (3D OpenGL)", windowScale.x, windowScale.y, SDL_WINDOW_RESIZABLE | SDL_WINDOW_OPENGL);
-	SDL_SetWindowParent(glWindow, window); //SDL_SetWindowModal(glWindow, true);
+	if(glEnabled){
+		glWindow = SDL_CreateWindow("Sandblox (3D OpenGL)", windowScale.x, windowScale.y, SDL_WINDOW_RESIZABLE | SDL_WINDOW_OPENGL);
+		SDL_SetWindowParent(glWindow, window); //SDL_SetWindowModal(glWindow, true);
+		SDL_SetWindowMinimumSize(glWindow, 320, 240);
+	}
 	
 	SDL_SetWindowMinimumSize(window, 320, 240);
 	
@@ -116,27 +124,5 @@ void HandleKeyInput(){
 	const bool* keyState = SDL_GetKeyboardState(NULL);
 	for(int i = 0; i < 4; i++){
 		keyList[i].down = keyState[keyList[i].scanCode];
-	}
-}
-
-SDL_Texture *newTexture(char* path){
-	SDL_Surface *texSurface = NULL;
-	
-	texSurface = IMG_Load(path);
-	
-	SDL_Texture *texture = SDL_CreateTextureFromSurface(renderer, texSurface);
-	SDL_SetTextureScaleMode(texture, SDL_SCALEMODE_NEAREST);
-	SDL_DestroySurface(texSurface);
-	return texture;
-}
-
-void drawText(SDL_Renderer *renderer, SDL_Texture *texture, char* text, char charOff, short posX, short posY, short width, short height, short kern){
-	for(int i=0; i<=strlen(text); i++){
-		char charVal = (unsigned)text[i] - charOff;
-		int xOff = (charVal % 16) * width;
-		int yOff = floor((float)charVal / 16) * height;
-		SDL_FRect sprRect = {xOff, yOff, width, height};
-		SDL_FRect sprPos = {posX + kern * i, posY, width, height};
-		SDL_RenderTexture(renderer, texture, &sprRect, &sprPos);
 	}
 }
