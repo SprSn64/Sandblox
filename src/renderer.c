@@ -11,16 +11,22 @@
 extern SDL_Renderer *renderer;
 
 extern float timer;
+extern Vector3 currentCamera;
 
 extern SDL_Point windowScaleIntent;
 extern double windowScaleFactor;
 extern SDL_Point windowScale;
 
-SDL_FPoint isoProj(Vector3 pos){
+Vector3 worldToCamera(Vector3 pos){
+	return (Vector3){pos.x - currentCamera.x, pos.y - currentCamera.y, pos.z - currentCamera.z};
+}
+
+SDL_FPoint isoProj(Vector3 posA){
 	/*return (SDL_FPoint){
 		(pos.x + pos.z/2 + windowScale.x/2) * 64, 
 		(pos.z + pos.x/2 + pos.y + windowScale.y/2) * 64
 	};*/
+	Vector3 pos = worldToCamera(posA);
 	return (SDL_FPoint){(pos.x + (pos.z/2 * SDL_cos(timer / 3.14159))) * 64 + windowScale.x / 2, (-pos.y + pos.z / 2) * 64 + windowScale.y / 2};
 	//return (SDL_FPoint){(-pos.x / (pos.z - 4)) * (windowScaleFactor * 64) + windowScale.x / 2, ((pos.y - 4) / (pos.z - 4)) * (windowScaleFactor * 64) + windowScale.y / 2};
 }
