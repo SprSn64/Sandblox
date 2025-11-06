@@ -3,4 +3,8 @@
 
 #include <SDL3/SDL.h>
 
+#include <structs.h>
+
+void drawObjList(int posX, int posY);
+
 #endif

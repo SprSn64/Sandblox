@@ -14,9 +14,15 @@ typedef struct{
 	Uint8 r, g, b;
 } CharColour;
 
+typedef struct{
+	Vector3 pos, ori;
+} Camera;
+
 typedef struct DataObj{
 	Vector3 pos, scale, ori;
 	CharColour colour;
+	Uint8 *name;
+	//DataType* class;
 	
 	float *values;
 	

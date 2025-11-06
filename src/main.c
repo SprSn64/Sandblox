@@ -9,6 +9,7 @@
 #include <math.h>
 
 #include <structs.h>
+#include "instances.h"
 #include "renderer.h"
 
 SDL_Window *window = NULL;
@@ -21,7 +22,7 @@ SDL_Point windowScaleIntent = {320, 240};
 double windowScaleFactor;
 SDL_Point windowScale = {640, 480};
 
-Vector3 currentCamera;
+Camera currentCamera;
 
 Uint64 last = 0;
 Uint64 now = 0;
@@ -96,9 +97,9 @@ SDL_AppResult SDL_AppIterate(void *appstate){
 	SDL_SetRenderDrawColor(renderer, 20, 22, 24, SDL_ALPHA_OPAQUE);
 	SDL_RenderClear(renderer);
 	
-	currentCamera.x += (keyList[3].down - keyList[2].down) * 2 * deltaTime;
-	currentCamera.y += (keyList[4].down - keyList[5].down) * 2 * deltaTime;
-	currentCamera.z += (keyList[1].down - keyList[0].down) * 2 * deltaTime;
+	currentCamera.pos.x += (keyList[3].down - keyList[2].down) * 2 * deltaTime;
+	currentCamera.pos.y += (keyList[4].down - keyList[5].down) * 2 * deltaTime;
+	currentCamera.pos.z += (keyList[1].down - keyList[0].down) * 2 * deltaTime;
 	
 	drawCube((Vector3){(2 + SDL_cos(timer)) / -2, SDL_sin(timer) + 1, (2 + SDL_cos(timer)) / -2}, (Vector3){2 + SDL_cos(timer), SDL_sin(timer) + 1, 2 + SDL_cos(timer)}, (SDL_FColor){0.6, 0.8, 1, 1});
 	drawCube((Vector3){SDL_sin(timer) * 2 - 0.5, 0, SDL_cos(timer) * 2 - 0.5}, (Vector3){1, 1, 1}, (SDL_FColor){1, 0.2, 0.3, 1});
@@ -109,6 +110,8 @@ SDL_AppResult SDL_AppIterate(void *appstate){
 	if(keyList[1].down)SDL_RenderFillRect(renderer, &(SDL_FRect){28, windowScale.y - 26, 24, 24});
 	if(keyList[3].down)SDL_RenderFillRect(renderer, &(SDL_FRect){54, windowScale.y - 26, 24, 24});
 	if(keyList[4].down)SDL_RenderFillRect(renderer, &(SDL_FRect){64, windowScale.y - 26, 64, 24});
+	
+	drawObjList(0, 32);
 	
 	Uint8 guiText[256];
 	sprintf(guiText, "FPS: %d", (Uint16)floor(1/deltaTime));

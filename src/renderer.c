@@ -11,14 +11,14 @@
 extern SDL_Renderer *renderer;
 
 extern float timer;
-extern Vector3 currentCamera;
+extern Camera currentCamera;
 
 extern SDL_Point windowScaleIntent;
 extern double windowScaleFactor;
 extern SDL_Point windowScale;
 
 Vector3 worldToCamera(Vector3 pos){
-	return (Vector3){pos.x - currentCamera.x, pos.y - currentCamera.y, pos.z - currentCamera.z};
+	return (Vector3){pos.x - currentCamera.pos.x, pos.y - currentCamera.pos.y, pos.z - currentCamera.pos.z};
 }
 
 SDL_FPoint isoProj(Vector3 posA){
