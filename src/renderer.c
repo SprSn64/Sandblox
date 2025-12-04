@@ -21,26 +21,22 @@ Vector3 worldToCamera(Vector3 pos){
 	return (Vector3){pos.x - currentCamera.pos.x, pos.y - currentCamera.pos.y, pos.z - currentCamera.pos.z};
 }
 
-SDL_FPoint isoProj(Vector3 posA){
-	/*return (SDL_FPoint){
-		(pos.x + pos.z/2 + windowScale.x/2) * 64, 
-		(pos.z + pos.x/2 + pos.y + windowScale.y/2) * 64
-	};*/
+Vector3 isoProj(Vector3 posA){
 	Vector3 pos = worldToCamera(posA);
-	return (SDL_FPoint){(pos.x + (pos.z/2 * SDL_cos(timer / 3.14159))) * 32 + windowScale.x / 2, (-pos.y + pos.z / 2) * 32 + windowScale.y / 2};
-	//return (SDL_FPoint){(-pos.x / (pos.z - 4)) * (windowScaleFactor * 64) + windowScale.x / 2, ((pos.y - 4) / (pos.z - 4)) * (windowScaleFactor * 64) + windowScale.y / 2};
+	return (Vector3){(pos.x + (pos.z/2 * SDL_cos(timer / 3.14159))) * 32 + windowScale.x / 2, (-pos.y + pos.z / 2) * 32 + windowScale.y / 2, pos.z};
+	//return (Vector3){(-pos.x / (pos.z - 4)) * (windowScaleFactor * 32) + windowScale.x / 2, ((pos.y - 4) / (pos.z - 4)) * (windowScaleFactor * 32) + windowScale.y / 2, pos.z};
 }
 
-bool drawTriangle(SDL_FPoint pointA, SDL_FPoint pointB, SDL_FPoint pointC, SDL_FColor colour){
+bool drawTriangle(Vector3 pointA, Vector3 pointB, Vector3 pointC, SDL_FColor colour){
 	SDL_Vertex verts[3];
-	verts[0].position = pointA; verts[0].color = colour;
-	verts[1].position = pointB; verts[1].color = colour;
-	verts[2].position = pointC; verts[2].color = colour;
+	verts[0].position = (SDL_FPoint){pointA.x, pointA.y}; verts[0].color = colour;
+	verts[1].position = (SDL_FPoint){pointB.x, pointB.y}; verts[1].color = colour;
+	verts[2].position = (SDL_FPoint){pointC.x, pointC.y}; verts[2].color = colour;
 	float clockwiseAB = (verts[1].position.x - verts[0].position.x) * (verts[1].position.y + verts[0].position.y);
 	float clockwiseBC = (verts[2].position.x - verts[1].position.x) * (verts[2].position.y + verts[1].position.y);
 	float clockwiseCA = (verts[0].position.x - verts[2].position.x) * (verts[0].position.y + verts[2].position.y);
 
-	if(clockwiseAB + clockwiseBC + clockwiseCA <= 0){
+	if(clockwiseAB + clockwiseBC + clockwiseCA <= 0){// && max(pointA.z, max(pointB.z, pointC.z)) >= 0){
 		SDL_RenderGeometry(renderer, NULL, verts, 3, NULL, 0);
 		return 0;
 	}
@@ -75,11 +71,11 @@ SDL_Texture *newTexture(char* path){
 }
 
 void drawBillboard(SDL_Texture *texture, SDL_FRect rect, Vector3 pos, SDL_FPoint offset, SDL_FPoint scale){
-	SDL_FPoint projLoc[3] = {isoProj(pos), isoProj((Vector3){pos.x--, pos.y, pos.z}), isoProj((Vector3){pos.x++, pos.y, pos.z})};
-	double sizeMult = 1; //(projLoc[1].x - projLoc[2].x) / scale.x;
-	SDL_FRect sprPos = {projLoc[0].x - offset.x * sizeMult, projLoc[0].y - offset.y * sizeMult, scale.x * sizeMult * 32, scale.y * sizeMult * 32};
+	Vector3 projLoc[3] = {isoProj(pos), isoProj((Vector3){pos.x--, pos.y, pos.z}), isoProj((Vector3){pos.x++, pos.y, pos.z})};
+	double sizeMult = -(projLoc[2].x - projLoc[1].x) / scale.x;
+	SDL_FRect sprPos = {projLoc[0].x - offset.x * sizeMult, projLoc[0].y - offset.y * sizeMult, scale.x * 4 * sizeMult, scale.y * 4 * sizeMult};
 	//SDL_SetRenderDrawColor(renderer, 0, 0, 255, 255); SDL_RenderFillRect(renderer, &sprPos);
-	//SDL_SetRenderDrawColor(renderer, 255, 0, 0, 255); SDL_RenderFillRect(renderer, &(SDL_FRect){projLoc[0].x - 2, projLoc[0].y - 2, 4, 4});
+	SDL_SetRenderDrawColor(renderer, 255, 0, 0, 255); SDL_RenderFillRect(renderer, &(SDL_FRect){projLoc[0].x - 2, projLoc[0].y - 2, 4, 4});
 	//printf("%f, %f, %f, %f, %f\n", sizeMult, sprPos.x, sprPos.y, sprPos.w, sprPos.h);
 	SDL_RenderTexture(renderer, texture, &rect, &sprPos);
 }

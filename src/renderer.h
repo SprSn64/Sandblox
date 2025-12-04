@@ -10,8 +10,8 @@ SDL_Texture *newTexture(char* path);
 void drawText(SDL_Renderer *renderer, SDL_Texture *texture, char* text, char charOff, short posX, short posY, short width, short height, short kern);
 
 Vector3 worldToCamera(Vector3 pos);
-SDL_FPoint isoProj(Vector3 pos);
-bool drawTriangle(SDL_FPoint pointA, SDL_FPoint pointB, SDL_FPoint pointC, SDL_FColor colour);
+Vector3 isoProj(Vector3 posA);
+bool drawTriangle(Vector3 pointA, Vector3 pointB, Vector3 pointC, SDL_FColor colour);
 void drawCube(Vector3 pos, Vector3 scale, SDL_FColor colour);
 void drawBillboard(SDL_Texture *texture, SDL_FRect rect, Vector3 pos, SDL_FPoint offset, SDL_FPoint scale);
 
