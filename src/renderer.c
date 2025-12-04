@@ -27,7 +27,7 @@ SDL_FPoint isoProj(Vector3 posA){
 		(pos.z + pos.x/2 + pos.y + windowScale.y/2) * 64
 	};*/
 	Vector3 pos = worldToCamera(posA);
-	return (SDL_FPoint){(pos.x + (pos.z/2 * SDL_cos(timer / 3.14159))) * 64 + windowScale.x / 2, (-pos.y + pos.z / 2) * 64 + windowScale.y / 2};
+	return (SDL_FPoint){(pos.x + (pos.z/2 * SDL_cos(timer / 3.14159))) * 32 + windowScale.x / 2, (-pos.y + pos.z / 2) * 32 + windowScale.y / 2};
 	//return (SDL_FPoint){(-pos.x / (pos.z - 4)) * (windowScaleFactor * 64) + windowScale.x / 2, ((pos.y - 4) / (pos.z - 4)) * (windowScaleFactor * 64) + windowScale.y / 2};
 }
 
@@ -63,11 +63,25 @@ SDL_Texture *newTexture(char* path){
 	SDL_Surface *texSurface = NULL;
 	
 	texSurface = IMG_Load(path);
+	if(texSurface == NULL){
+		printf("Issue with loading texture %s!\n", path);
+		return NULL;
+	}
 	
 	SDL_Texture *texture = SDL_CreateTextureFromSurface(renderer, texSurface);
 	SDL_SetTextureScaleMode(texture, SDL_SCALEMODE_NEAREST);
 	SDL_DestroySurface(texSurface);
 	return texture;
+}
+
+void drawBillboard(SDL_Texture *texture, SDL_FRect rect, Vector3 pos, SDL_FPoint offset, SDL_FPoint scale){
+	SDL_FPoint projLoc[3] = {isoProj(pos), isoProj((Vector3){pos.x--, pos.y, pos.z}), isoProj((Vector3){pos.x++, pos.y, pos.z})};
+	double sizeMult = 1; //(projLoc[1].x - projLoc[2].x) / scale.x;
+	SDL_FRect sprPos = {projLoc[0].x - offset.x * sizeMult, projLoc[0].y - offset.y * sizeMult, scale.x * sizeMult * 32, scale.y * sizeMult * 32};
+	//SDL_SetRenderDrawColor(renderer, 0, 0, 255, 255); SDL_RenderFillRect(renderer, &sprPos);
+	//SDL_SetRenderDrawColor(renderer, 255, 0, 0, 255); SDL_RenderFillRect(renderer, &(SDL_FRect){projLoc[0].x - 2, projLoc[0].y - 2, 4, 4});
+	//printf("%f, %f, %f, %f, %f\n", sizeMult, sprPos.x, sprPos.y, sprPos.w, sprPos.h);
+	SDL_RenderTexture(renderer, texture, &rect, &sprPos);
 }
 
 void drawText(SDL_Renderer *renderer, SDL_Texture *texture, char* text, char charOff, short posX, short posY, short width, short height, short kern){

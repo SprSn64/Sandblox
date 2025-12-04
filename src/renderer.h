@@ -13,5 +13,6 @@ Vector3 worldToCamera(Vector3 pos);
 SDL_FPoint isoProj(Vector3 pos);
 bool drawTriangle(SDL_FPoint pointA, SDL_FPoint pointB, SDL_FPoint pointC, SDL_FColor colour);
 void drawCube(Vector3 pos, Vector3 scale, SDL_FColor colour);
+void drawBillboard(SDL_Texture *texture, SDL_FRect rect, Vector3 pos, SDL_FPoint offset, SDL_FPoint scale);
 
 #endif

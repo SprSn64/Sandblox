@@ -31,6 +31,7 @@ double deltaTime = 0;
 float timer = 0;
 
 SDL_Texture *fontTex = NULL;
+SDL_Texture *playerTex = NULL;
 
 KeyMap keyList[6];
 
@@ -64,6 +65,7 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[]){
 	printf("eat thine shorteths\n");
 	
 	fontTex = newTexture("assets/font.png");
+	playerTex = newTexture("assets/playerTemp.png");
 	
 	SDL_SetRenderVSync(renderer, 1);
 
@@ -103,13 +105,9 @@ SDL_AppResult SDL_AppIterate(void *appstate){
 	
 	drawCube((Vector3){(2 + SDL_cos(timer)) / -2, SDL_sin(timer) + 1, (2 + SDL_cos(timer)) / -2}, (Vector3){2 + SDL_cos(timer), SDL_sin(timer) + 1, 2 + SDL_cos(timer)}, (SDL_FColor){0.6, 0.8, 1, 1});
 	drawCube((Vector3){SDL_sin(timer) * 2 - 0.5, 0, SDL_cos(timer) * 2 - 0.5}, (Vector3){1, 1, 1}, (SDL_FColor){1, 0.2, 0.3, 1});
+	drawBillboard(playerTex, (SDL_FRect){0, 0, 128, 128}, (Vector3){0, 2, 0}, (SDL_FPoint){64, 128}, (SDL_FPoint){4, 4});
 
 	SDL_SetRenderDrawColor(renderer, 255, 255, 255, SDL_ALPHA_OPAQUE);
-	if(keyList[0].down)SDL_RenderFillRect(renderer, &(SDL_FRect){28, windowScale.y - 52, 24, 24});
-	if(keyList[2].down)SDL_RenderFillRect(renderer, &(SDL_FRect){2, windowScale.y - 26, 24, 24});
-	if(keyList[1].down)SDL_RenderFillRect(renderer, &(SDL_FRect){28, windowScale.y - 26, 24, 24});
-	if(keyList[3].down)SDL_RenderFillRect(renderer, &(SDL_FRect){54, windowScale.y - 26, 24, 24});
-	if(keyList[4].down)SDL_RenderFillRect(renderer, &(SDL_FRect){64, windowScale.y - 26, 64, 24});
 	
 	drawObjList(0, 32);
 	
