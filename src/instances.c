@@ -29,3 +29,7 @@ void drawObjList(int posX, int posY){
 	}
 }
 
+DataObj* newObject(DataType* class){
+	return NULL;
+}
+

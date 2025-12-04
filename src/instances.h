@@ -6,5 +6,6 @@
 #include <structs.h>
 
 void drawObjList(int posX, int posY);
+DataObj* newObject(DataType* class);
 
 #endif

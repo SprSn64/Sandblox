@@ -18,11 +18,20 @@ typedef struct{
 	Vector3 pos, ori;
 } Camera;
 
+typedef struct{
+	Uint8 *name;
+	Uint32 propType; //the avaliable options and properties and stuff for the object as an enum probably
+	
+	void (*init)(void);
+	void (*update)(void);
+	void (*draw)(void);
+} DataType;
+
 typedef struct DataObj{
 	Vector3 pos, scale, ori;
 	CharColour colour;
 	Uint8 *name;
-	//DataType* class;
+	DataType* class;
 	
 	float *values;
 	
@@ -30,6 +39,11 @@ typedef struct DataObj{
 	struct DataObj* nextItem;
 	struct DataObj* parent;
 	struct DataObj* firstChild;
+	
+	/* connect functions and whatnot
+	void (*collide)(void);
+	void (*destroy)(void);
+	*/
 } DataObj;
 
 typedef struct{
