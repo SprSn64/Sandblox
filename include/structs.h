@@ -15,7 +15,8 @@ typedef struct{
 } CharColour;
 
 typedef struct{
-	Vector3 pos, ori;
+	Vector3 pos, rot;
+	float fov;
 } Camera;
 
 typedef struct{

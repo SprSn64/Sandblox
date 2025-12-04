@@ -18,12 +18,17 @@ extern double windowScaleFactor;
 extern SDL_Point windowScale;
 
 Vector3 worldToCamera(Vector3 pos){
-	return (Vector3){pos.x - currentCamera.pos.x, pos.y - currentCamera.pos.y, pos.z - currentCamera.pos.z};
+	Vector3 firstPos = {pos.x - currentCamera.pos.x, pos.y - currentCamera.pos.y, pos.z - currentCamera.pos.z};
+	Vector3 newPos;
+		newPos.x = firstPos.x * SDL_cos(currentCamera.rot.y) + firstPos.z * -SDL_sin(currentCamera.rot.y); newPos.z = firstPos.x * SDL_sin(currentCamera.rot.y) + firstPos.z * SDL_cos(currentCamera.rot.y);
+		newPos.y = firstPos.y * SDL_cos(currentCamera.rot.x) + newPos.z * SDL_sin(currentCamera.rot.x); newPos.z = firstPos.y * -SDL_sin(currentCamera.rot.x) + newPos.z * SDL_cos(currentCamera.rot.x);
+		newPos.x = newPos.x * SDL_cos(currentCamera.rot.z) + newPos.y * -SDL_sin(currentCamera.rot.z); newPos.y = newPos.x * SDL_sin(currentCamera.rot.z) + newPos.y * SDL_cos(currentCamera.rot.z);
+	return newPos;
 }
 
 Vector3 isoProj(Vector3 posA){
 	Vector3 pos = worldToCamera(posA);
-	return (Vector3){(pos.x + (pos.z/2 * SDL_cos(timer / 3.14159))) * 32 + windowScale.x / 2, (-pos.y + pos.z / 2) * 32 + windowScale.y / 2, pos.z};
+	return (Vector3){(pos.x + (pos.z/2)) * 32 + windowScale.x / 2, (-pos.y + pos.z / 2) * 32 + windowScale.y / 2, pos.z};
 	//return (Vector3){(-pos.x / (pos.z - 4)) * (windowScaleFactor * 32) + windowScale.x / 2, ((pos.y - 4) / (pos.z - 4)) * (windowScaleFactor * 32) + windowScale.y / 2, pos.z};
 }
 
