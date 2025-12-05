@@ -5,6 +5,7 @@
 //#include <iostream>
 
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 #include <math.h>
 
@@ -36,6 +37,9 @@ SDL_Texture *playerTex = NULL;
 KeyMap keyList[6];
 
 void HandleKeyInput();
+
+extern DataType playerClass;
+extern DataObj gameHeader;
 
 SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[]){
 	SDL_SetAppMetadata("SandBlox", "0.0", NULL);
@@ -73,7 +77,10 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[]){
 	keyList[2].scanCode = SDL_SCANCODE_A; keyList[3].scanCode = SDL_SCANCODE_D;
 	keyList[4].scanCode = SDL_SCANCODE_SPACE; keyList[5].scanCode = SDL_SCANCODE_LSHIFT;
 	
-	//mikuTex = addTexture("miku.bmp");
+	DataObj* playerObj = newObject(&playerClass);
+	//playerObj->name = malloc(sizeof(Uint8) * 8); strcpy(playerObj->name, "Player");
+	//parentObject(playerObj, &gameHeader);
+	gameHeader->nextItem = playerObj;
 
 	return SDL_APP_CONTINUE;
 }	
@@ -99,9 +106,9 @@ SDL_AppResult SDL_AppIterate(void *appstate){
 	SDL_SetRenderDrawColor(renderer, 20, 22, 24, SDL_ALPHA_OPAQUE);
 	SDL_RenderClear(renderer);
 	
-	currentCamera.pos.x += (keyList[3].down - keyList[2].down) * 2 * deltaTime;
-	currentCamera.pos.y += (keyList[4].down - keyList[5].down) * 2 * deltaTime;
-	currentCamera.pos.z += (keyList[1].down - keyList[0].down) * 2 * deltaTime;
+	//currentCamera.pos.x += (keyList[3].down - keyList[2].down) * 2 * deltaTime;
+	//currentCamera.pos.y += (keyList[4].down - keyList[5].down) * 2 * deltaTime;
+	//currentCamera.pos.z += (keyList[1].down - keyList[0].down) * 2 * deltaTime;
 	//currentCamera.rot.y = timer / 4;
 	
 	drawCube((Vector3){(2 + SDL_cos(timer)) / -2, SDL_sin(timer) + 1, (2 + SDL_cos(timer)) / -2}, (Vector3){2 + SDL_cos(timer), SDL_sin(timer) + 1, 2 + SDL_cos(timer)}, (SDL_FColor){0.6, 0.8, 1, 1});

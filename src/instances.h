@@ -7,5 +7,6 @@
 
 void drawObjList(int posX, int posY);
 DataObj* newObject(DataType* class);
+bool parentObject(DataObj* child, DataObj* parent);
 
 #endif
