@@ -40,6 +40,7 @@ void HandleKeyInput();
 
 extern DataType playerClass;
 DataObj* playerObj;
+extern DataObj gameHeader;
 
 SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[]){
 	SDL_SetAppMetadata("SandBlox", "0.0", NULL);
@@ -79,7 +80,7 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[]){
 	
 	playerObj = newObject(&playerClass);
 	//playerObj->name = malloc(sizeof(Uint8) * 8); strcpy(playerObj->name, "Player");
-	//parentObject(playerObj, &gameHeader);
+	parentObject(playerObj, &gameHeader);
 
 	return SDL_APP_CONTINUE;
 }	

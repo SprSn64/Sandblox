@@ -24,6 +24,9 @@ void drawObjList(int posX, int posY){
 		SDL_SetRenderDrawColor(renderer, 64, 192, 24, SDL_ALPHA_OPAQUE);
 		SDL_RenderFillRect(renderer, &(SDL_FRect){posX, posY + i * 16, 16, 16});
 		drawText(renderer, fontTex, loopItem->name, 32, posX, posY + i * 16, 16, 16, 12);
+		if(loopItem->firstChild != NULL)drawText(renderer, fontTex, loopItem->firstChild->name, 32, posX + 256, posY + i * 16, 16, 16, 12); //temporary single child code
+		
+		//insert script for parented children here
 		
 		if(loopItem->nextItem == NULL) continue;
 		loopItem = loopItem->nextItem;
@@ -33,6 +36,7 @@ void drawObjList(int posX, int posY){
 
 DataObj* newObject(DataType* class){
 	DataObj newObj = {(Vector3){0, 0, 0}, (Vector3){1, 1, 1}, (Vector3){0, 0, 0}, (CharColour){255, 255, 255}, class->name, class};
+	printf("Created new object of type '%s'.\n", class->name);
 	
 	return &newObj;
 }
@@ -41,6 +45,7 @@ bool parentObject(DataObj* child, DataObj* parent){
 	DataObj* loopItem = parent->firstChild;
 	if(loopItem == NULL){
 		parent->firstChild = child;
+		//printf("%s -> %s\n", parent->name, parent->firstChild->name);
 		return 0;
 	}
 	
@@ -54,6 +59,8 @@ bool parentObject(DataObj* child, DataObj* parent){
 	child->parent = parent;
 	loopItem->nextItem = child;
 	child->prevItem = child;
+	
+	//printf("%s -> %s\n", parent->name, loopItem->nextItem->name);
 	
 	return 0;
 }
@@ -73,7 +80,7 @@ void playerUpdate(DataObj* object){
 }
 
 void playerDraw(DataObj* object){
-	drawBillboard(&playerTex, (SDL_FRect){0, 0, 128, 128}, (Vector3){0, 2, 0}, (SDL_FPoint){8, 16}, (SDL_FPoint){4, 4});
+	drawBillboard(&playerTex, (SDL_FRect){0, 0, 128, 128}, object->pos, (SDL_FPoint){8, 16}, (SDL_FPoint){4, 4});
 }
 
 DataType playerClass = {"Player", 0, NULL, playerUpdate, playerDraw};
