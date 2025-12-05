@@ -12,6 +12,8 @@
 extern SDL_Renderer *renderer;
 extern SDL_Texture *fontTex;
 
+extern DataObj* playerObj;
+
 DataObj gameHeader = {(Vector3){0, 0, 0}, (Vector3){1, 1, 1}, (Vector3){0, 0, 0}, (CharColour){0, 0, 0}, "Workspace"};
 DataObj itemB = {(Vector3){0, 0, 0}, (Vector3){1, 1, 1}, (Vector3){0, 0, 0}, (CharColour){0, 0, 0}, "beer drinker"};
 
@@ -22,10 +24,10 @@ void drawObjList(int posX, int posY){
 		SDL_SetRenderDrawColor(renderer, 64, 192, 24, SDL_ALPHA_OPAQUE);
 		SDL_RenderFillRect(renderer, &(SDL_FRect){posX, posY + i * 16, 16, 16});
 		drawText(renderer, fontTex, loopItem->name, 32, posX, posY + i * 16, 16, 16, 12);
-		if(loopItem->nextItem != NULL){
-			loopItem = loopItem->nextItem;
-			loopCount++;
-		}
+		
+		if(loopItem->nextItem == NULL) continue;
+		loopItem = loopItem->nextItem;
+		loopCount++;
 	}
 }
 
@@ -36,7 +38,23 @@ DataObj* newObject(DataType* class){
 }
 
 bool parentObject(DataObj* child, DataObj* parent){
-	DataObj* loopItem = gameHeader.nextItem;
+	DataObj* loopItem = parent->firstChild;
+	if(loopItem == NULL){
+		parent->firstChild = child;
+		return 0;
+	}
+	
+	Uint32 loopCount = 1;
+	for(int i = 0; i < loopCount; i++){
+		if(loopItem->nextItem == NULL) continue;
+		loopItem = loopItem->nextItem;
+		loopCount++;
+	}
+	
+	child->parent = parent;
+	loopItem->nextItem = child;
+	child->prevItem = child;
+	
 	return 0;
 }
 

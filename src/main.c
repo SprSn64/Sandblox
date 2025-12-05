@@ -39,7 +39,7 @@ KeyMap keyList[6];
 void HandleKeyInput();
 
 extern DataType playerClass;
-extern DataObj gameHeader;
+DataObj* playerObj;
 
 SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[]){
 	SDL_SetAppMetadata("SandBlox", "0.0", NULL);
@@ -77,10 +77,9 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[]){
 	keyList[2].scanCode = SDL_SCANCODE_A; keyList[3].scanCode = SDL_SCANCODE_D;
 	keyList[4].scanCode = SDL_SCANCODE_SPACE; keyList[5].scanCode = SDL_SCANCODE_LSHIFT;
 	
-	DataObj* playerObj = newObject(&playerClass);
+	playerObj = newObject(&playerClass);
 	//playerObj->name = malloc(sizeof(Uint8) * 8); strcpy(playerObj->name, "Player");
 	//parentObject(playerObj, &gameHeader);
-	gameHeader->nextItem = playerObj;
 
 	return SDL_APP_CONTINUE;
 }	
