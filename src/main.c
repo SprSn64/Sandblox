@@ -2,6 +2,11 @@
 #include <SDL3/SDL.h>
 #include <SDL3/SDL_main.h>
 #include <SDL3_image/SDL_image.h>
+
+#define GLFW_DLL
+#define GLFW_INCLUDE_NONE
+#include <glad/gl.h>
+#include <GLFW/glfw3.h>
 //#include <iostream>
 
 #include <stdio.h>
@@ -60,9 +65,14 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[]){
 		return SDL_APP_FAILURE;
 	}
 	if(glEnabled){
+		glfwInit();
 		glWindow = SDL_CreateWindow("Sandblox (3D OpenGL)", windowScale.x, windowScale.y, SDL_WINDOW_RESIZABLE | SDL_WINDOW_OPENGL);
 		SDL_SetWindowParent(glWindow, window); //SDL_SetWindowModal(glWindow, true);
 		SDL_SetWindowMinimumSize(glWindow, 320, 240);
+		
+		glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
+		glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
+		glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 	}
 	
 	SDL_SetWindowMinimumSize(window, 320, 240);
