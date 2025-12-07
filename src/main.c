@@ -135,6 +135,13 @@ SDL_AppResult SDL_AppIterate(void *appstate){
 	//SDL_RenderDebugText(renderer, 0, 0, guiText);
 	
 	SDL_RenderPresent(renderer);
+	
+	if(glEnabled){
+		//glClearColor(0.078f, 0.086f, 0.124f, 1.0f);
+		//glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		//glfwSwapBuffers(glWindow);
+	}
+	
 	return SDL_APP_CONTINUE;
 }
 

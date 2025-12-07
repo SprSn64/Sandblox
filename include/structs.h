@@ -50,6 +50,23 @@ typedef struct DataObj{
 } DataObj;
 
 typedef struct{
+	DataObj* headObj;
+	Camera* currCamera;
+} GameWorld;
+
+typedef struct{
+	Uint8 IPv4[4];
+	Uint16 IPv6[8];
+} IPAddress;
+
+typedef struct{
+	IPAddress serverIP, clientIP;
+	float avgPing;
+	
+	//i dont really know how to do server stuff so
+} Server;
+
+typedef struct{
 	bool debug, pause;
 } GlobalData;
 

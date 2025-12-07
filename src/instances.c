@@ -14,13 +14,13 @@ extern SDL_Texture *fontTex;
 
 extern DataObj* playerObj;
 
-DataObj gameHeader = {(Vector3){0, 0, 0}, (Vector3){1, 1, 1}, (Vector3){0, 0, 0}, (CharColour){0, 0, 0}, "Workspace"};
-DataObj itemB = {(Vector3){0, 0, 0}, (Vector3){1, 1, 1}, (Vector3){0, 0, 0}, (CharColour){0, 0, 0}, "beer drinker"};
+DataObj gameHeader = {(Vector3){0, 0, 0}, (Vector3){1, 1, 1}, (Vector3){0, 0, 0}, (CharColour){0, 0, 0}, "Workspace", NULL, NULL, NULL, NULL, NULL, NULL};
+DataObj itemB = {(Vector3){0, 0, 0}, (Vector3){1, 1, 1}, (Vector3){0, 0, 0}, (CharColour){0, 0, 0}, "beer drinker", NULL, NULL, NULL, NULL, NULL, NULL};
 
 void drawObjList(int posX, int posY){
 	DataObj* loopItem = &gameHeader;
 	Uint32 loopCount = 1;
-	for(int i = 0; i < loopCount; i++){
+	for(Uint32 i = 0; i < loopCount; i++){
 		SDL_SetRenderDrawColor(renderer, 64, 192, 24, SDL_ALPHA_OPAQUE);
 		SDL_RenderFillRect(renderer, &(SDL_FRect){posX, posY + i * 16, 16, 16});
 		drawText(renderer, fontTex, loopItem->name, 32, posX, posY + i * 16, 16, 16, 12);
@@ -34,8 +34,17 @@ void drawObjList(int posX, int posY){
 	}
 }
 
+void parentChildLoop(Uint16* yIndex, Uint16* depth){
+	//i have no idea what im doing
+	printf("%ls, %ls\n", yIndex, depth);
+}
+
+void updateObjects(DataObj* header){
+	printf("%s\n", header->name);
+}
+
 DataObj* newObject(DataType* class){
-	DataObj newObj = {(Vector3){0, 0, 0}, (Vector3){1, 1, 1}, (Vector3){0, 0, 0}, (CharColour){255, 255, 255}, class->name, class};
+	DataObj newObj = {(Vector3){0, 0, 0}, (Vector3){1, 1, 1}, (Vector3){0, 0, 0}, (CharColour){255, 255, 255}, class->name, class, NULL, NULL, NULL, NULL, NULL};
 	printf("Created new object of type '%s'.\n", class->name);
 	
 	return &newObj;
@@ -50,7 +59,7 @@ bool parentObject(DataObj* child, DataObj* parent){
 	}
 	
 	Uint32 loopCount = 1;
-	for(int i = 0; i < loopCount; i++){
+	for(Uint32 i = 0; i < loopCount; i++){
 		if(loopItem->nextItem == NULL) continue;
 		loopItem = loopItem->nextItem;
 		loopCount++;
