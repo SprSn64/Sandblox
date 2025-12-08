@@ -9,4 +9,6 @@ void drawObjList(int posX, int posY);
 DataObj* newObject(DataType* class);
 bool parentObject(DataObj* child, DataObj* parent);
 
+Uint8 parentChildLoop(DataObj* currObj, Uint16* yIndex, Uint16* depth);
+
 #endif

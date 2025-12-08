@@ -34,9 +34,17 @@ void drawObjList(int posX, int posY){
 	}
 }
 
-void parentChildLoop(Uint16* yIndex, Uint16* depth){
+Uint8 parentChildLoop(DataObj* currObj, Uint16* yIndex, Uint16* depth){
 	//i have no idea what im doing
-	printf("%ls, %ls\n", yIndex, depth);
+	printf("%s, %ls, %ls\n", currObj->name, yIndex, depth);
+	
+	if(currObj->firstChild != NULL){
+		parentChildLoop(currObj->firstChild, NULL, NULL);
+	}
+	if(currObj->nextItem != NULL){
+		parentChildLoop(currObj->nextItem, NULL, NULL);
+	}
+	return 0;
 }
 
 void updateObjects(DataObj* header){
@@ -92,4 +100,4 @@ void playerDraw(DataObj* object){
 	drawBillboard(&playerTex, (SDL_FRect){0, 0, 128, 128}, object->pos, (SDL_FPoint){8, 16}, (SDL_FPoint){4, 4});
 }
 
-DataType playerClass = {"Player", 0, NULL, playerUpdate, playerDraw};
+DataType playerClass = {"Player\0", 0, NULL, playerUpdate, playerDraw};
