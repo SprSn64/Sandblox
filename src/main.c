@@ -23,6 +23,7 @@ SDL_Window *glWindow = NULL;
 SDL_Renderer *renderer = NULL;
 
 bool glEnabled = false;
+Uint32 glVersion[2] = {0, 0};
 
 SDL_Point windowScaleIntent = {320, 240};
 double windowScaleFactor;
@@ -73,6 +74,8 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[]){
 		glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
 		glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
 		glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+		
+		//printf("OpenGl %s\n", glGetString(GL_VERSION));
 	}
 	
 	SDL_SetWindowMinimumSize(window, 320, 240);
