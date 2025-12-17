@@ -82,6 +82,16 @@ bool parentObject(DataObj* child, DataObj* parent){
 	return 0;
 }
 
+CollsionReturn* getCollision(CollisionHull* itemA, CollisionHull* itemB){
+	/*if(collide is yes) then do'eth
+		tell me the collision outputs then please
+	  else*/
+	return NULL;
+	//end
+}
+
+//--------------------------------------------- temporarys until i put them into their own little file johnson
+
 extern float timer;
 extern double deltaTime;
 extern Camera currentCamera;

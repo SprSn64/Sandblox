@@ -31,7 +31,7 @@ typedef struct{
 } DataType;
 
 typedef struct DataObj{
-	Vector3 pos, scale, ori;
+	Vector3 pos, scale, rot;
 	CharColour colour;
 	Uint8 *name;
 	DataType* class;
@@ -74,5 +74,27 @@ typedef struct{
 	bool down, pressed, released;
 	Uint32 scanCode;
 } KeyMap;
+
+//collision slop i think
+
+typedef enum CollisionHullShapes{
+	COLLHULL_POINT,
+	COLLHULL_SPHERE,
+	COLLHULL_CUBE,
+	COLLHULL_CYLINDER,
+	COLLHULL_FUNCTION,
+};
+
+typedef struct{
+	Uint32 shape;
+	Vector3 pos, rot, scale;
+	
+	void (*funkyCollision)(void); //custom collision function for COLLHULL_FUNCTION
+} CollisionHull;
+
+typedef struct{
+	float depth;
+	Vector3 outDir;
+} CollsionReturn;
 
 #endif
