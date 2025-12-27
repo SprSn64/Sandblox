@@ -32,6 +32,14 @@ Vector3 isoProj(Vector3 posA){
 	//return (Vector3){(-pos.x / (pos.z - 4)) * (windowScaleFactor * 32) + windowScale.x / 2, ((pos.y - 4) / (pos.z - 4)) * (windowScaleFactor * 32) + windowScale.y / 2, pos.z};
 }
 
+Vector3 viewProj(Vector3 pos){
+	return (Vector3){pos.x / pos.z * currentCamera.zoom, pos.y / pos.z * currentCamera.zoom, pos.z * currentCamera.zoom};
+}
+
+Vector3 projToScreen(Vector3 pos){
+	return (Vector3){((pos.x + 1) / 2) * windowScale.x, ((pos.y + 1) / 2) * windowScale.y, pos.z};
+}
+
 bool drawTriangle(Vector3 pointA, Vector3 pointB, Vector3 pointC, SDL_FColor colour){
 	SDL_Vertex verts[3];
 	verts[0].position = (SDL_FPoint){pointA.x, pointA.y}; verts[0].color = colour;
@@ -48,16 +56,24 @@ bool drawTriangle(Vector3 pointA, Vector3 pointB, Vector3 pointC, SDL_FColor col
 	return 1;
 }
 
+bool draw3DTriangle(Vector3 pointA, Vector3 pointB, Vector3 pointC, SDL_FColor colour){
+	//if(min(pointA.z, max(pointB.z, pointC.z)) >= 0){
+		drawTriangle(projToScreen(viewProj(worldToCamera(pointA))), projToScreen(viewProj(worldToCamera(pointB))), projToScreen(viewProj(worldToCamera(pointC))), colour);
+		return 0;
+	//}
+	//return 1;
+}
+
 void drawCube(Vector3 pos, Vector3 scale, SDL_FColor colour){
 	//side
-	drawTriangle(isoProj((Vector3){pos.x, pos.y, pos.z}), isoProj((Vector3){pos.x, pos.y, pos.z + scale.z}), isoProj((Vector3){pos.x, pos.y - scale.y, pos.z + scale.z}), (SDL_FColor){colour.r * 0.4, colour.g * 0.4, colour.b * 0.7, 1});
-	drawTriangle(isoProj((Vector3){pos.x, pos.y - scale.y, pos.z}), isoProj((Vector3){pos.x, pos.y, pos.z}), isoProj((Vector3){pos.x, pos.y - scale.y, pos.z + scale.z}), (SDL_FColor){colour.r * 0.4, colour.g * 0.4, colour.b * 0.7, 1});
+	draw3DTriangle((Vector3){pos.x, pos.y, pos.z}, (Vector3){pos.x, pos.y, pos.z + scale.z}, (Vector3){pos.x, pos.y - scale.y, pos.z + scale.z}, (SDL_FColor){colour.r * 0.4, colour.g * 0.4, colour.b * 0.7, 1});
+	draw3DTriangle((Vector3){pos.x, pos.y - scale.y, pos.z}, (Vector3){pos.x, pos.y, pos.z}, (Vector3){pos.x, pos.y - scale.y, pos.z + scale.z}, (SDL_FColor){colour.r * 0.4, colour.g * 0.4, colour.b * 0.7, 1});
 	//front
-	drawTriangle(isoProj((Vector3){pos.x, pos.y, pos.z + scale.z}), isoProj((Vector3){pos.x + scale.x, pos.y, pos.z + scale.z}), isoProj((Vector3){pos.x + scale.x, pos.y - scale.y, pos.z + scale.z}), (SDL_FColor){colour.r * 0.76, colour.g * 0.8, colour.b * 0.9, 1});
-	drawTriangle(isoProj((Vector3){pos.x, pos.y - scale.y, pos.z + scale.z}), isoProj((Vector3){pos.x, pos.y, pos.z + scale.z}), isoProj((Vector3){pos.x + scale.x, pos.y - scale.y, pos.z + scale.z}), (SDL_FColor){colour.r * 0.76, colour.g * 0.8, colour.b * 0.9, 1});
+	draw3DTriangle((Vector3){pos.x, pos.y, pos.z + scale.z}, (Vector3){pos.x + scale.x, pos.y, pos.z + scale.z}, (Vector3){pos.x + scale.x, pos.y - scale.y, pos.z + scale.z}, (SDL_FColor){colour.r * 0.76, colour.g * 0.8, colour.b * 0.9, 1});
+	draw3DTriangle((Vector3){pos.x, pos.y - scale.y, pos.z + scale.z}, (Vector3){pos.x, pos.y, pos.z + scale.z}, (Vector3){pos.x + scale.x, pos.y - scale.y, pos.z + scale.z}, (SDL_FColor){colour.r * 0.76, colour.g * 0.8, colour.b * 0.9, 1});
 	//top
-	drawTriangle(isoProj(pos), isoProj((Vector3){pos.x + scale.x, pos.y, pos.z}), isoProj((Vector3){pos.x + scale.x, pos.y, pos.z + scale.z}), colour);
-	drawTriangle(isoProj((Vector3){pos.x, pos.y, pos.z + scale.z}), isoProj(pos), isoProj((Vector3){pos.x + scale.x, pos.y, pos.z + scale.z}), colour);
+	draw3DTriangle(pos, (Vector3){pos.x + scale.x, pos.y, pos.z}, (Vector3){pos.x + scale.x, pos.y, pos.z + scale.z}, colour);
+	draw3DTriangle((Vector3){pos.x, pos.y, pos.z + scale.z}, pos, (Vector3){pos.x + scale.x, pos.y, pos.z + scale.z}, colour);
 }
 
 SDL_Texture *newTexture(char* path){
@@ -76,7 +92,7 @@ SDL_Texture *newTexture(char* path){
 }
 
 void drawBillboard(SDL_Texture *texture, SDL_FRect rect, Vector3 pos, SDL_FPoint offset, SDL_FPoint scale){
-	Vector3 projLoc[3] = {isoProj(pos), isoProj((Vector3){pos.x--, pos.y, pos.z}), isoProj((Vector3){pos.x++, pos.y, pos.z})};
+	Vector3 projLoc[3] = {projToScreen(viewProj(worldToCamera(pos))), projToScreen(viewProj(worldToCamera((Vector3){pos.x--, pos.y, pos.z}))), projToScreen(viewProj(worldToCamera((Vector3){pos.x++, pos.y, pos.z})))};
 	double sizeMult = -(projLoc[2].x - projLoc[1].x) / scale.x;
 	SDL_FRect sprPos = {projLoc[0].x - offset.x * sizeMult, projLoc[0].y - offset.y * sizeMult, scale.x * 4 * sizeMult, scale.y * 4 * sizeMult};
 	//SDL_SetRenderDrawColor(renderer, 0, 0, 255, 255); SDL_RenderFillRect(renderer, &sprPos);

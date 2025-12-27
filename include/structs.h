@@ -18,7 +18,7 @@ typedef struct{
 
 typedef struct{
 	Vector3 pos, rot;
-	float fov;
+	float fov, zoom;
 } Camera;
 
 typedef struct DataObj DataObj;
@@ -85,7 +85,7 @@ typedef enum CollisionHullShapes{
 	COLLHULL_CUBE,
 	COLLHULL_CYLINDER,
 	COLLHULL_FUNCTION,
-};
+} CollisionHullShapes;
 
 typedef struct{
 	Uint32 shape;

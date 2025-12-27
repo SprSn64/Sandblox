@@ -119,9 +119,9 @@ SDL_AppResult SDL_AppIterate(void *appstate){
 	SDL_SetRenderDrawColor(renderer, 20, 22, 24, SDL_ALPHA_OPAQUE);
 	SDL_RenderClear(renderer);
 	
-	//currentCamera.pos.x += (keyList[3].down - keyList[2].down) * 2 * deltaTime;
-	//currentCamera.pos.y += (keyList[4].down - keyList[5].down) * 2 * deltaTime;
-	//currentCamera.pos.z += (keyList[1].down - keyList[0].down) * 2 * deltaTime;
+	currentCamera.pos.x += (keyList[3].down - keyList[2].down) * 2 * deltaTime;
+	currentCamera.pos.y += (keyList[4].down - keyList[5].down) * 2 * deltaTime;
+	currentCamera.pos.z += (keyList[1].down - keyList[0].down) * 2 * deltaTime;
 	//currentCamera.rot.y = timer / 4;
 	
 	drawCube((Vector3){(2 + SDL_cos(timer)) / -2, SDL_sin(timer) + 1, (2 + SDL_cos(timer)) / -2}, (Vector3){2 + SDL_cos(timer), SDL_sin(timer) + 1, 2 + SDL_cos(timer)}, (SDL_FColor){0.6, 0.8, 1, 1});
