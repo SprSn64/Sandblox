@@ -6,6 +6,8 @@
 #define max(a,b) ((a) > (b) ? (a) : (b))
 #define min(a,b) ((a) < (b) ? (a) : (b))
 
+typedef float mat4[16];
+
 typedef struct{
 	float x, y, z;
 } Vector3;
@@ -67,8 +69,8 @@ typedef struct{
 } Server;
 
 typedef struct{
-	bool debug, pause;
-} GlobalData;
+	bool debug, pause, studio;
+} ClientData;
 
 typedef struct{
 	bool down, pressed, released;
