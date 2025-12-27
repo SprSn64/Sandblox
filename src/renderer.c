@@ -76,18 +76,13 @@ void drawCube(Vector3 pos, Vector3 scale, SDL_FColor colour){
 	draw3DTriangle((Vector3){pos.x, pos.y, pos.z + scale.z}, pos, (Vector3){pos.x + scale.x, pos.y, pos.z + scale.z}, colour);
 }
 
-SDL_Texture *newTexture(char* path){
-	SDL_Surface *texSurface = NULL;
-	
-	texSurface = IMG_Load(path);
-	if(texSurface == NULL){
+SDL_Texture *newTexture(char* path, SDL_ScaleMode scaleMode){
+	SDL_Texture *texture = IMG_LoadTexture(renderer, path);
+	if(texture == NULL){
 		printf("Issue with loading texture %s!\n", path);
 		return NULL;
 	}
-	
-	SDL_Texture *texture = SDL_CreateTextureFromSurface(renderer, texSurface);
-	SDL_SetTextureScaleMode(texture, SDL_SCALEMODE_NEAREST);
-	SDL_DestroySurface(texSurface);
+	SDL_SetTextureScaleMode(texture, scaleMode);
 	return texture;
 }
 

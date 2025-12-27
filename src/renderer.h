@@ -6,7 +6,7 @@
 
 #include <structs.h>
 
-SDL_Texture *newTexture(char* path);
+SDL_Texture *newTexture(char* path, SDL_ScaleMode scaleMode);
 void drawText(SDL_Renderer *renderer, SDL_Texture *texture, char* text, char charOff, short posX, short posY, short width, short height, short kern);
 
 Vector3 worldToCamera(Vector3 pos);
