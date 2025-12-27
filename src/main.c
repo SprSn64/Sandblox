@@ -83,7 +83,7 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[]){
 	printf("eat thine shorteths\n");
 	
 	fontTex = newTexture("assets/font.png");
-	playerTex = newTexture("assets/playerTemp.png");
+	playerTex = newTexture("assets/playertemp.png");
 	
 	SDL_SetRenderVSync(renderer, 1);
 
