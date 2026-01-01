@@ -29,7 +29,7 @@ SDL_Point windowScaleIntent = {320, 240};
 double windowScaleFactor;
 SDL_Point windowScale = {640, 480};
 
-Camera currentCamera;
+Camera currentCamera = {(Vector3){0, 0, 0}, (Vector3){0, 0, 0}, 90, 1};
 
 Uint64 last = 0;
 Uint64 now = 0;
@@ -43,6 +43,8 @@ SDL_Texture *playerTex = NULL;
 KeyMap keyList[6];
 
 void HandleKeyInput();
+
+extern float renderScale;
 
 extern DataType playerClass;
 DataObj* playerObj;
@@ -115,6 +117,7 @@ SDL_AppResult SDL_AppIterate(void *appstate){
 	
 	SDL_GetWindowSize(window, &windowScale.x, &windowScale.y);
 	windowScaleFactor = min((float)windowScale.x / windowScaleIntent.x, (float)windowScale.y / windowScaleIntent.y);
+	renderScale = min(windowScale.x, windowScale.y);
 	
 	SDL_SetRenderDrawColor(renderer, 20, 22, 24, SDL_ALPHA_OPAQUE);
 	SDL_RenderClear(renderer);
@@ -125,7 +128,7 @@ SDL_AppResult SDL_AppIterate(void *appstate){
 	//currentCamera.rot.y = timer / 4;
 	
 	drawCube((Vector3){(2 + SDL_cos(timer)) / -2, SDL_sin(timer) + 1, (2 + SDL_cos(timer)) / -2}, (Vector3){2 + SDL_cos(timer), SDL_sin(timer) + 1, 2 + SDL_cos(timer)}, (SDL_FColor){0.6, 0.8, 1, 1});
-	drawCube((Vector3){SDL_sin(timer) * 2 - 0.5, 0, SDL_cos(timer) * 2 - 0.5}, (Vector3){1, 1, 1}, (SDL_FColor){1, 0.2, 0.3, 1});
+	drawCube((Vector3){SDL_sin(timer) * 2 - 0.5, 1, SDL_cos(timer) * 2 - 0.5}, (Vector3){1, 1, 1}, (SDL_FColor){1, 0.2, 0.3, 1});
 	drawBillboard(playerTex, (SDL_FRect){0, 0, 128, 128}, (Vector3){0, 2, 0}, (SDL_FPoint){8, 16}, (SDL_FPoint){6, 6});
 
 	SDL_SetRenderDrawColor(renderer, 255, 255, 255, SDL_ALPHA_OPAQUE);
@@ -134,7 +137,7 @@ SDL_AppResult SDL_AppIterate(void *appstate){
 	
 	Uint8 guiText[256];
 	sprintf(guiText, "FPS: %d", (Uint16)floor(1/deltaTime));
-	drawText(renderer, fontTex, guiText, 32, 0, 0, 16, 16, 12);
+	//drawText(renderer, fontTex, guiText, 32, 0, 0, 16, 16, 12);
 	//SDL_RenderDebugText(renderer, 0, 0, guiText);
 	
 	SDL_RenderPresent(renderer);

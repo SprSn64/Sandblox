@@ -13,6 +13,10 @@ typedef struct{
 } Vector3;
 
 typedef struct{
+	float x, y, z, w;
+} Vector4;
+
+typedef struct{
 	Uint8 r, g, b;
 } CharColour;
 

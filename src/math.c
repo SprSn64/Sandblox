@@ -22,6 +22,10 @@ float dotProd3(Vector3 vecA, Vector3 vecB){
 	return vecA.x * vecB.x + vecA.y * vecB.y + vecA.z * vecB.z;
 }
 
+Vector3 transMatrix(Vector4 vector, mat4 matrix){
+	return (Vector3){0, 0, 0};
+}
+
 float *multMatrix(mat4 matrixA, mat4 matrixB){
 	// horrible code warning
 	float *output;

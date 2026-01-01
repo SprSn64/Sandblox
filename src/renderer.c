@@ -17,6 +17,8 @@ extern SDL_Point windowScaleIntent;
 extern double windowScaleFactor;
 extern SDL_Point windowScale;
 
+float renderScale = 480;
+
 Vector3 worldToCamera(Vector3 pos){
 	Vector3 firstPos = {pos.x - currentCamera.pos.x, pos.y - currentCamera.pos.y, pos.z - currentCamera.pos.z};
 	Vector3 newPos;
@@ -37,7 +39,7 @@ Vector3 viewProj(Vector3 pos){
 }
 
 Vector3 projToScreen(Vector3 pos){
-	return (Vector3){((pos.x + 1) / 2) * windowScale.x, ((pos.y + 1) / 2) * windowScale.y, pos.z};
+	return (Vector3){-pos.x * renderScale + windowScale.x / 2, pos.y * renderScale + windowScale.y / 2, pos.z};
 }
 
 bool drawTriangle(Vector3 pointA, Vector3 pointB, Vector3 pointC, SDL_FColor colour){
@@ -51,6 +53,7 @@ bool drawTriangle(Vector3 pointA, Vector3 pointB, Vector3 pointC, SDL_FColor col
 
 	if(clockwiseAB + clockwiseBC + clockwiseCA <= 0){// && max(pointA.z, max(pointB.z, pointC.z)) >= 0){
 		SDL_RenderGeometry(renderer, NULL, verts, 3, NULL, 0);
+		SDL_SetRenderDrawColor(renderer, 255, 0, 0, SDL_ALPHA_OPAQUE); SDL_RenderFillRect(renderer, &(SDL_FRect){verts[1].position.x, verts[1].position.y, 2, 2});
 		return 0;
 	}
 	return 1;
