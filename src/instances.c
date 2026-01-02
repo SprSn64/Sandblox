@@ -23,7 +23,7 @@ void drawObjList(int posX, int posY){
 	Uint16 offs = 0;
 	for(Uint32 i = 0; i < loopCount; i++){
 		SDL_SetRenderDrawColor(renderer, 64, 192, 24, SDL_ALPHA_OPAQUE);
-		SDL_RenderFillRect(renderer, &(SDL_FRect){posX, posY + i * 16, 16, 16});
+		SDL_RenderFillRect(renderer, &(SDL_FRect){posX, posY + (i + offs) * 16, 16, 16});
 		drawText(renderer, fontTex, loopItem->name, 32, posX, posY + (i + offs) * 16, 16, 16, 12);
 		if(loopItem->firstChild != NULL){
 			offs++;
