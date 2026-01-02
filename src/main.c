@@ -137,6 +137,9 @@ SDL_AppResult SDL_AppIterate(void *appstate){
 	drawCube((Vector3){SDL_sin(timer) * 2 - 0.5, 1, SDL_cos(timer) * 2 - 0.5}, (Vector3){1, 1, 1}, (SDL_FColor){1, 0.2, 0.3, 1});
 	SDL_SetRenderDrawColor(renderer, 255, 255, 255, SDL_ALPHA_OPAQUE);
 	
+	int idCounter = 0;
+	updateObject(&gameHeader, 0, &idCounter);
+	
 	char guiText[256];
 	if ((Uint32)(timer*100)%64 == 0) {
 		lastFPS = (Uint32)floor(1/deltaTime);
@@ -145,9 +148,6 @@ SDL_AppResult SDL_AppIterate(void *appstate){
 	drawText(renderer, fontTex, guiText, 32, 0, 0, 16, 16, 12);
 	//drawText(renderer, fontTex, "Diagnostics: Skill issue", 32, 0, 64, 16, 16, 12);
 	//SDL_RenderDebugText(renderer, 0, 0, guiText);
-	
-	int idCounter = 0;
-	updateObject(&gameHeader, 0, &idCounter);
 
 	SDL_RenderPresent(renderer);
 

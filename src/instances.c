@@ -22,8 +22,6 @@ DataObj gameHeader = {(Vector3){0, 0, 0}, (Vector3){1, 1, 1}, (Vector3){0, 0, 0}
 
 void updateObject(DataObj* item, int nodeDepth, int *idCount){
 	int i = (*idCount)++;
-	SDL_SetRenderDrawColor(renderer, 64, 192, 24, SDL_ALPHA_OPAQUE);
-	SDL_RenderFillRect(renderer, &(SDL_FRect){OBJLIST_HUD_POS_X, OBJLIST_HUD_POS_Y + i * 16, 16, 16});
 	drawText(renderer, fontTex, item->name, 32, OBJLIST_HUD_POS_X + (nodeDepth * 24), OBJLIST_HUD_POS_Y + i * 16, 16, 16, 12);
 	if (item->class) {
 		if (item->class->update) item->class->update(item);
@@ -57,9 +55,34 @@ DataObj* newObject(DataObj* parent, DataType* class){
 	newObj->class = class;
 	newObj->values = NULL;
 
-	printf("Created new object of type '%s' with name '%s'.\n", class->name, newObj->name);
+	printf("Created new object of type '%s'.\n", class->name, newObj->name);
 	
 	return newObj;
+}
+
+bool parentObject(DataObj* child, DataObj* parent){
+	if(parent->child == NULL){
+		parent->child = child;
+		//printf("%s -> %s\n", parent->name, parent->child->name);
+		return 0;
+	}
+
+	DataObj* loopItem = parent->child;
+	Uint32 loopCount = 1;
+	for(Uint32 i = 0; i < loopCount; i++){
+		if(loopItem->next == NULL) continue;
+		loopItem = loopItem->next;
+		loopCount++;
+	}
+
+	child->parent = parent;
+	loopItem->next = child;
+	child->prev = child;
+
+	//printf("%s -> %s\n", parent->name, loopItem->next->name);
+
+	return 0;
+
 }
 
 CollsionReturn* getCollision(CollisionHull* itemA, CollisionHull* itemB){
