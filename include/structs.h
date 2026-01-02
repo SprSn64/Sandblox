@@ -51,10 +51,10 @@ typedef struct DataObj{
 	
 	float *values;
 	
-	struct DataObj* prevItem;
-	struct DataObj* nextItem;
+	struct DataObj* prev;
+	struct DataObj* next;
 	struct DataObj* parent;
-	struct DataObj* firstChild;
+	struct DataObj* child;
 	
 	/* connect functions and whatnot
 	void (*collide)(void);
