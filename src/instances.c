@@ -21,18 +21,18 @@ DataObj gameHeader = {(Vector3){0, 0, 0}, (Vector3){1, 1, 1}, (Vector3){0, 0, 0}
 #define OBJLIST_HUD_POS_X 0
 #define OBJLIST_HUD_POS_Y 32
 
-void updateObject(DataObj* item, int nodeDepth, int *idCount){
+void updateObjects(DataObj* item, int nodeDepth, int *idCount, bool uord){ //uord = update or draw
 	int i = (*idCount)++;
 	drawText(renderer, fontTex, item->name, 32, OBJLIST_HUD_POS_X + (nodeDepth * 24), OBJLIST_HUD_POS_Y + i * 16, 16, 16, 12);
 	if (item->class) {
-		if (item->class->update) item->class->update(item);
-		if (item->class->draw) item->class->draw(item);
+		if (item->class->update && !uord) item->class->update(item);
+		if (item->class->draw && uord) item->class->draw(item);
 	}
 
 	DataObj* child = item->child;
 	while (child) {
 		DataObj *next = child->next;
-		updateObject(child, nodeDepth + 1, idCount);
+		updateObjects(child, nodeDepth + 1, idCount, uord);
 		child = next;
 	}
 }

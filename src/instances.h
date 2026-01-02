@@ -6,7 +6,7 @@
 #include <structs.h>
 
 DataObj* newObject(DataObj* parent, DataType* class);
-void updateObject(DataObj* item, int nodeDepth, int *idCount);
+void updateObjects(DataObj* item, int nodeDepth, int *idCount, bool uord);
 bool parentObject(DataObj* child, DataObj* parent);
 
 #endif
