@@ -103,14 +103,16 @@ extern KeyMap keyList[6];
 extern SDL_Texture *playerTex;
 
 void playerUpdate(DataObj* object){
-	//object->pos.x += (keyList[KEYBIND_D].down - keyList[KEYBIND_A].down) * 2 * deltaTime;
-	//object->pos.z += (keyList[KEYBIND_S].down - keyList[KEYBIND_W].down) * 2 * deltaTime;
+	object->pos.x += ((SDL_cos(currentCamera.rot.y) * (keyList[KEYBIND_D].down - keyList[KEYBIND_A].down)) + (SDL_sin(currentCamera.rot.y) * (keyList[KEYBIND_S].down - keyList[KEYBIND_W].down))) * 2 * deltaTime;
+	object->pos.y += (keyList[KEYBIND_SPACE].down - keyList[KEYBIND_SHIFT].down) * 2 * deltaTime;
+	object->pos.z += ((-SDL_sin(currentCamera.rot.y) * (keyList[KEYBIND_D].down - keyList[KEYBIND_A].down)) + (SDL_cos(currentCamera.rot.y) * (keyList[KEYBIND_S].down - keyList[KEYBIND_W].down))) * 2 * deltaTime;
 
-	object->pos.y = SDL_cos(timer) / 2 + 2;
-	//currentCamera.pos = object->pos;
+	//object->pos.y = SDL_cos(timer) / 2 + 2;
+	//currentCamera.pos = (Vector3){object->pos.x - SDL_cos(currentCamera.rot.y) * 4, object->pos.y + 2, object->pos.z - SDL_sin(currentCamera.rot.y) * 4};
 }
 
 void playerDraw(DataObj* object){
+	drawCube((Vector3){object->pos.x - 1, object->pos.y + 4, object->pos.z - 1}, (Vector3){2, 4, 2}, (SDL_FColor){1, 1, 1, 1});
 	drawBillboard(playerTex, (SDL_FRect){0, 0, 128, 128}, object->pos, (SDL_FPoint){8, 16}, (SDL_FPoint){4, 4});
 }
 
