@@ -29,7 +29,7 @@ SDL_Point windowScaleIntent = {320, 240};
 double windowScaleFactor;
 SDL_Point windowScale = {640, 480};
 
-Camera currentCamera = {(Vector3){0, 0, 0}, (Vector3){0, 0, 0}, 90, 1};
+Camera currentCamera = {(Vector3){0, 4, 10}, (Vector3){0, 0, 0}, 90, 1};
 
 Uint64 last = 0;
 Uint64 now = 0;
@@ -137,7 +137,7 @@ SDL_AppResult SDL_AppIterate(void *appstate){
 	
 	Uint8 guiText[256];
 	sprintf(guiText, "FPS: %d", (Uint16)floor(1/deltaTime));
-	//drawText(renderer, fontTex, guiText, 32, 0, 0, 16, 16, 12);
+	drawText(renderer, fontTex, guiText, 32, 0, 0, 16, 16, 12);
 	//SDL_RenderDebugText(renderer, 0, 0, guiText);
 	
 	SDL_RenderPresent(renderer);

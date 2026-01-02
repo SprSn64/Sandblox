@@ -53,18 +53,19 @@ bool drawTriangle(Vector3 pointA, Vector3 pointB, Vector3 pointC, SDL_FColor col
 
 	if(clockwiseAB + clockwiseBC + clockwiseCA <= 0){// && max(pointA.z, max(pointB.z, pointC.z)) >= 0){
 		SDL_RenderGeometry(renderer, NULL, verts, 3, NULL, 0);
-		SDL_SetRenderDrawColor(renderer, 255, 0, 0, SDL_ALPHA_OPAQUE); SDL_RenderFillRect(renderer, &(SDL_FRect){verts[1].position.x, verts[1].position.y, 2, 2});
+		//SDL_SetRenderDrawColor(renderer, 255, 0, 0, SDL_ALPHA_OPAQUE); SDL_RenderFillRect(renderer, &(SDL_FRect){verts[1].position.x, verts[1].position.y, 2, 2});
 		return 0;
 	}
 	return 1;
 }
 
 bool draw3DTriangle(Vector3 pointA, Vector3 pointB, Vector3 pointC, SDL_FColor colour){
-	//if(min(pointA.z, max(pointB.z, pointC.z)) >= 0){
-		drawTriangle(projToScreen(viewProj(worldToCamera(pointA))), projToScreen(viewProj(worldToCamera(pointB))), projToScreen(viewProj(worldToCamera(pointC))), colour);
+	Vector3 projLoc[3] = {projToScreen(viewProj(worldToCamera(pointA))), projToScreen(viewProj(worldToCamera(pointB))), projToScreen(viewProj(worldToCamera(pointC)))};
+	if(max(projLoc[0].z, max(projLoc[1].z, projLoc[2].z)) < 0){
+		drawTriangle(projLoc[0], projLoc[1], projLoc[2], colour);
 		return 0;
-	//}
-	//return 1;
+	}
+	return 1;
 }
 
 void drawCube(Vector3 pos, Vector3 scale, SDL_FColor colour){
@@ -91,12 +92,14 @@ SDL_Texture *newTexture(char* path, SDL_ScaleMode scaleMode){
 
 void drawBillboard(SDL_Texture *texture, SDL_FRect rect, Vector3 pos, SDL_FPoint offset, SDL_FPoint scale){
 	Vector3 projLoc[3] = {projToScreen(viewProj(worldToCamera(pos))), projToScreen(viewProj(worldToCamera((Vector3){pos.x--, pos.y, pos.z}))), projToScreen(viewProj(worldToCamera((Vector3){pos.x++, pos.y, pos.z})))};
-	double sizeMult = -(projLoc[2].x - projLoc[1].x) / scale.x;
-	SDL_FRect sprPos = {projLoc[0].x - offset.x * sizeMult, projLoc[0].y - offset.y * sizeMult, scale.x * 4 * sizeMult, scale.y * 4 * sizeMult};
-	//SDL_SetRenderDrawColor(renderer, 0, 0, 255, 255); SDL_RenderFillRect(renderer, &sprPos);
-	//SDL_SetRenderDrawColor(renderer, 255, 0, 0, 255); SDL_RenderFillRect(renderer, &(SDL_FRect){projLoc[0].x - 2, projLoc[0].y - 2, 4, 4});
-	//printf("%f, %f, %f, %f, %f\n", sizeMult, sprPos.x, sprPos.y, sprPos.w, sprPos.h);
-	SDL_RenderTexture(renderer, texture, &rect, &sprPos);
+	if(projLoc[0].z < 0){
+		double sizeMult = -(projLoc[2].x - projLoc[1].x) / scale.x;
+		SDL_FRect sprPos = {projLoc[0].x - offset.x * sizeMult, projLoc[0].y - offset.y * sizeMult, scale.x * 3 * sizeMult, scale.y * 3 * sizeMult};
+		//SDL_SetRenderDrawColor(renderer, 0, 0, 255, 255); SDL_RenderFillRect(renderer, &sprPos);
+		//SDL_SetRenderDrawColor(renderer, 255, 0, 0, 255); SDL_RenderFillRect(renderer, &(SDL_FRect){projLoc[0].x - 2, projLoc[0].y - 2, 4, 4});
+		//printf("%f, %f, %f, %f, %f\n", sizeMult, sprPos.x, sprPos.y, sprPos.w, sprPos.h);
+		SDL_RenderTexture(renderer, texture, &rect, &sprPos);
+	}
 }
 
 void drawText(SDL_Renderer *renderer, SDL_Texture *texture, char* text, char charOff, short posX, short posY, short width, short height, short kern){
