@@ -72,12 +72,21 @@ void drawCube(Vector3 pos, Vector3 scale, SDL_FColor colour){
 	//side
 	draw3DTriangle((Vector3){pos.x, pos.y, pos.z}, (Vector3){pos.x, pos.y, pos.z + scale.z}, (Vector3){pos.x, pos.y - scale.y, pos.z + scale.z}, (SDL_FColor){colour.r * 0.4, colour.g * 0.4, colour.b * 0.7, 1});
 	draw3DTriangle((Vector3){pos.x, pos.y - scale.y, pos.z}, (Vector3){pos.x, pos.y, pos.z}, (Vector3){pos.x, pos.y - scale.y, pos.z + scale.z}, (SDL_FColor){colour.r * 0.4, colour.g * 0.4, colour.b * 0.7, 1});
+	
+	draw3DTriangle((Vector3){pos.x + scale.x, pos.y, pos.z}, (Vector3){pos.x + scale.x, pos.y - scale.y, pos.z + scale.z}, (Vector3){pos.x + scale.x, pos.y, pos.z + scale.z}, (SDL_FColor){colour.r * 0.4, colour.g * 0.4, colour.b * 0.7, 1});
+	draw3DTriangle((Vector3){pos.x + scale.x, pos.y, pos.z}, (Vector3){pos.x + scale.x, pos.y - scale.y, pos.z}, (Vector3){pos.x + scale.x, pos.y - scale.y, pos.z + scale.z}, (SDL_FColor){colour.r * 0.4, colour.g * 0.4, colour.b * 0.7, 1});
 	//front
 	draw3DTriangle((Vector3){pos.x, pos.y, pos.z + scale.z}, (Vector3){pos.x + scale.x, pos.y, pos.z + scale.z}, (Vector3){pos.x + scale.x, pos.y - scale.y, pos.z + scale.z}, (SDL_FColor){colour.r * 0.76, colour.g * 0.8, colour.b * 0.9, 1});
 	draw3DTriangle((Vector3){pos.x, pos.y - scale.y, pos.z + scale.z}, (Vector3){pos.x, pos.y, pos.z + scale.z}, (Vector3){pos.x + scale.x, pos.y - scale.y, pos.z + scale.z}, (SDL_FColor){colour.r * 0.76, colour.g * 0.8, colour.b * 0.9, 1});
+	
+	draw3DTriangle((Vector3){pos.x + scale.x, pos.y, pos.z}, (Vector3){pos.x, pos.y, pos.z}, (Vector3){pos.x + scale.x, pos.y - scale.y, pos.z}, (SDL_FColor){colour.r * 0.76, colour.g * 0.8, colour.b * 0.9, 1});
+	draw3DTriangle((Vector3){pos.x, pos.y, pos.z}, (Vector3){pos.x, pos.y - scale.y, pos.z}, (Vector3){pos.x + scale.x, pos.y - scale.y, pos.z}, (SDL_FColor){colour.r * 0.76, colour.g * 0.8, colour.b * 0.9, 1});
 	//top
 	draw3DTriangle(pos, (Vector3){pos.x + scale.x, pos.y, pos.z}, (Vector3){pos.x + scale.x, pos.y, pos.z + scale.z}, colour);
 	draw3DTriangle((Vector3){pos.x, pos.y, pos.z + scale.z}, pos, (Vector3){pos.x + scale.x, pos.y, pos.z + scale.z}, colour);
+	
+	draw3DTriangle((Vector3){pos.x + scale.x, pos.y - scale.y, pos.z}, (Vector3){pos.x, pos.y - scale.y, pos.z}, (Vector3){pos.x + scale.x, pos.y - scale.y, pos.z + scale.z}, (SDL_FColor){colour.r * 0.28, colour.g * 0.28, colour.b * 0.6, 1});
+	draw3DTriangle((Vector3){pos.x, pos.y - scale.y, pos.z}, (Vector3){pos.x, pos.y - scale.y, pos.z + scale.z}, (Vector3){pos.x + scale.x, pos.y - scale.y, pos.z + scale.z}, (SDL_FColor){colour.r * 0.28, colour.g * 0.28, colour.b * 0.6, 1});
 }
 
 SDL_Texture *newTexture(char* path, SDL_ScaleMode scaleMode){
