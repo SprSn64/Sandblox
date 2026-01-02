@@ -90,6 +90,7 @@ SDL_Texture *newTexture(char* path, SDL_ScaleMode scaleMode){
 	return texture;
 }
 
+//fix soon
 void drawBillboard(SDL_Texture *texture, SDL_FRect rect, Vector3 pos, SDL_FPoint offset, SDL_FPoint scale){
 	Vector3 projLoc[3] = {projToScreen(viewProj(worldToCamera(pos))), projToScreen(viewProj(worldToCamera((Vector3){pos.x--, pos.y, pos.z}))), projToScreen(viewProj(worldToCamera((Vector3){pos.x++, pos.y, pos.z})))};
 	if(projLoc[0].z < 0){
@@ -112,3 +113,5 @@ void drawText(SDL_Renderer *renderer, SDL_Texture *texture, char* text, char cha
 		SDL_RenderTexture(renderer, texture, &sprRect, &sprPos);
 	}
 }
+
+//add stuff for adding triangles to list from mesh, sorting list based off z value then rendering to screen

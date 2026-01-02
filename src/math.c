@@ -22,8 +22,13 @@ float dotProd3(Vector3 vecA, Vector3 vecB){
 	return vecA.x * vecB.x + vecA.y * vecB.y + vecA.z * vecB.z;
 }
 
-Vector3 transMatrix(Vector4 vector, mat4 matrix){
-	return (Vector3){0, 0, 0};
+Vector4 transMatrix(Vector4 vector, mat4 matrix){
+	return (Vector4){
+		vector.x * matrix[0] + vector.y * matrix[1] + vector.z * matrix[2] + vector.w * matrix[3], 
+		vector.x * matrix[4] + vector.y * matrix[5] + vector.z * matrix[6] + vector.w * matrix[7],  
+		vector.x * matrix[8] + vector.y * matrix[9] + vector.z * matrix[10] + vector.w * matrix[11], 
+		vector.x * matrix[12] + vector.y * matrix[13] + vector.z * matrix[14] + vector.w * matrix[15], 
+	};
 }
 
 float *multMatrix(mat4 matrixA, mat4 matrixB){

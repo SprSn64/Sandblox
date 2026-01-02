@@ -29,7 +29,7 @@ SDL_Point windowScaleIntent = {320, 240};
 double windowScaleFactor;
 SDL_Point windowScale = {640, 480};
 
-Camera currentCamera = {(Vector3){0, 4, 10}, (Vector3){0, 0, 0}, 90, 1};
+Camera currentCamera = {(Vector3){0, 2, 10}, (Vector3){0, 0, 0}, 90, 1};
 
 Uint64 last = 0;
 Uint64 now = 0;
