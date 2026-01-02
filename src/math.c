@@ -53,7 +53,7 @@ float *scaleMatrix(mat4 matrix, Vector3 scale){
 		matrix[12], matrix[13], matrix[24], matrix[15],
 	};
 	
-	memcpy(output, &tempMatrix, sizeof(mat4));
+	memcpy(output, &tempMatrix, sizeof(float) * 16);
 	return output;
 }
 
@@ -93,7 +93,7 @@ float *axisRotMatrix(Uint8 axis, float angle){ //axis 0 = x (yz planes), axis 1 
 		-angSin * (axis == 1), angSin * (axis == 0), angCos * (axis != 2) + (axis == 2), 0,
 		0, 0, 0, 1,
 	};
-	memcpy(output, &tempMatrix, sizeof(mat4));
+	memcpy(output, &tempMatrix, sizeof(float) * 16);
 	return output;
 }
 
@@ -101,6 +101,10 @@ float *rotateMatrix(mat4 matrix, Vector3 angle){
 	float *output;
 	output = malloc(sizeof(mat4));
 	
-	//memcpy(output, &tempMatrix, sizeof(mat4));
+	float *xMatrix = multMatrix(matrix, axisRotMatrix(0, angle.x));
+	float *yMatrix = multMatrix(xMatrix, axisRotMatrix(1, angle.y));
+	float *zMatrix = multMatrix(yMatrix, axisRotMatrix(2, angle.z));
+	
+	memcpy(output, &zMatrix, sizeof(float) * 16);
 	return output;
 }
