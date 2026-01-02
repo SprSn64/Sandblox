@@ -22,6 +22,12 @@ SDL_Window *window = NULL;
 SDL_Window *glWindow = NULL;
 SDL_Renderer *renderer = NULL;
 
+typedef enum gameKeybinds{
+	KEYBIND_W, KEYBIND_S, KEYBIND_A, KEYBIND_D,
+	KEYBIND_SPACE, KEYBIND_SHIFT,
+	KEYBIND_UP, KEYBIND_DOWN, KEYBIND_LEFT, KEYBIND_RIGHT,
+} gameKeybinds;
+
 bool glEnabled = false;
 Uint32 glVersion[2] = {0, 0};
 
@@ -40,7 +46,7 @@ float timer = 0;
 SDL_Texture *fontTex = NULL;
 SDL_Texture *playerTex = NULL;
 
-KeyMap keyList[6];
+KeyMap keyList[10];
 
 void HandleKeyInput();
 
@@ -89,9 +95,9 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[]){
 	
 	SDL_SetRenderVSync(renderer, 1);
 
-	keyList[0].scanCode = SDL_SCANCODE_W; keyList[1].scanCode = SDL_SCANCODE_S; 
-	keyList[2].scanCode = SDL_SCANCODE_A; keyList[3].scanCode = SDL_SCANCODE_D;
-	keyList[4].scanCode = SDL_SCANCODE_SPACE; keyList[5].scanCode = SDL_SCANCODE_LSHIFT;
+	keyList[KEYBIND_W].scanCode = SDL_SCANCODE_W; keyList[KEYBIND_S].scanCode = SDL_SCANCODE_S; keyList[KEYBIND_A].scanCode = SDL_SCANCODE_A; keyList[KEYBIND_D].scanCode = SDL_SCANCODE_D;
+	keyList[KEYBIND_SPACE].scanCode = SDL_SCANCODE_SPACE; keyList[KEYBIND_SHIFT].scanCode = SDL_SCANCODE_LSHIFT;
+	keyList[KEYBIND_UP].scanCode = SDL_SCANCODE_UP; keyList[KEYBIND_DOWN].scanCode = SDL_SCANCODE_DOWN; keyList[KEYBIND_LEFT].scanCode = SDL_SCANCODE_LEFT; keyList[KEYBIND_RIGHT].scanCode = SDL_SCANCODE_RIGHT;
 	
 	playerObj = newObject(&playerClass);
 	//playerObj->name = malloc(sizeof(Uint8) * 8); strcpy(playerObj->name, "Player");
@@ -122,10 +128,12 @@ SDL_AppResult SDL_AppIterate(void *appstate){
 	SDL_SetRenderDrawColor(renderer, 20, 22, 24, SDL_ALPHA_OPAQUE);
 	SDL_RenderClear(renderer);
 	
-	currentCamera.pos.x += (keyList[3].down - keyList[2].down) * 2 * deltaTime;
-	currentCamera.pos.y += (keyList[4].down - keyList[5].down) * 2 * deltaTime;
-	currentCamera.pos.z += (keyList[1].down - keyList[0].down) * 2 * deltaTime;
-	//currentCamera.rot.y = timer / 4;
+	currentCamera.pos.x += (keyList[KEYBIND_D].down - keyList[KEYBIND_A].down) * 2 * deltaTime;
+	currentCamera.pos.y += (keyList[KEYBIND_SPACE].down - keyList[KEYBIND_SHIFT].down) * 2 * deltaTime;
+	currentCamera.pos.z += (keyList[KEYBIND_S].down - keyList[KEYBIND_W].down) * 2 * deltaTime;
+	
+	currentCamera.rot.x += (keyList[KEYBIND_UP].down - keyList[KEYBIND_DOWN].down) * 0.5 * deltaTime;
+	currentCamera.rot.y += (keyList[KEYBIND_LEFT].down - keyList[KEYBIND_RIGHT].down) * 0.5 * deltaTime;
 	
 	drawCube((Vector3){(2 + SDL_cos(timer)) / -2, SDL_sin(timer) + 1, (2 + SDL_cos(timer)) / -2}, (Vector3){2 + SDL_cos(timer), SDL_sin(timer) + 1, 2 + SDL_cos(timer)}, (SDL_FColor){0.6, 0.8, 1, 1});
 	drawCube((Vector3){SDL_sin(timer) * 2 - 0.5, 1, SDL_cos(timer) * 2 - 0.5}, (Vector3){1, 1, 1}, (SDL_FColor){1, 0.2, 0.3, 1});
@@ -158,7 +166,7 @@ void SDL_AppQuit(void *appstate, SDL_AppResult result)
     
 void HandleKeyInput(){
 	const bool* keyState = SDL_GetKeyboardState(NULL);
-	for(int i = 0; i < 6; i++){
+	for(int i = 0; i < 10; i++){
 		keyList[i].down = keyState[keyList[i].scanCode];
 	}
 }

@@ -99,8 +99,7 @@ typedef struct{
 } CollisionHull;
 
 typedef struct{
-	float depth;
-	Vector3 outDir;
+	Vector3 outNorm;
 } CollsionReturn;
 
 #endif
