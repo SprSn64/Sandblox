@@ -17,59 +17,38 @@ extern DataObj* playerObj;
 
 DataObj gameHeader = {(Vector3){0, 0, 0}, (Vector3){1, 1, 1}, (Vector3){0, 0, 0}, (CharColour){0, 0, 0}, "Workspace", NULL, NULL, NULL, NULL, NULL, NULL};
 
-void drawObjList(int posX, int posY){
-	DataObj* loopItem = &gameHeader;
-	Uint32 loopCount = 1;
-	Uint16 offs = 0;
-	Uint16 depth = 0;
-	for(Uint32 i = 0; i < loopCount; i++){
-		SDL_SetRenderDrawColor(renderer, 64, 192, 24, SDL_ALPHA_OPAQUE);
-		SDL_RenderFillRect(renderer, &(SDL_FRect){posX, posY + (i + offs) * 16, 16, 16});
-		drawText(renderer, fontTex, loopItem->name, 32, posX, posY + (i + offs) * 16, 16, 16, 12);
-		if(loopItem->firstChild != NULL){
-			offs++; depth++;
-			drawText(renderer, fontTex, loopItem->firstChild->name, 32, posX + depth * 24, posY + (i + offs) * 16, 16, 16, 12);
-			depth--;
-		}
-		if(loopItem->nextItem != NULL){
-			loopItem = loopItem->nextItem;
-		}else{
-			break;
-		}
-		loopCount++;
-	}
-}
+#define OBJLIST_HUD_POS_X 0
+#define OBJLIST_HUD_POS_Y 32
 
-Uint8 loopUpdate(DataObj* item){
-	//i have no idea what im doing
-	DataObj* currItem = item;
-	for(;;){
-		updateObject(currItem);
-		//printf("->%s\n", currItem->name);
-		if(currItem->firstChild != NULL){loopUpdate(currItem->firstChild);}
-		if(currItem->nextItem != NULL){
-			currItem = currItem->nextItem;
-			continue;
-		}
-		break;
-	}
-	return 0;
-}
-
-void updateObject(DataObj* item){
-	//printf("Updating %s...\n", item->name);
-	if(item->class != NULL){
+void updateObject(DataObj* item, int nodeDepth, int *idCount){
+	int i = (*idCount)++;
+	SDL_SetRenderDrawColor(renderer, 64, 192, 24, SDL_ALPHA_OPAQUE);
+	SDL_RenderFillRect(renderer, &(SDL_FRect){OBJLIST_HUD_POS_X, OBJLIST_HUD_POS_Y + i * 16, 16, 16});
+	drawText(renderer, fontTex, item->name, 32, OBJLIST_HUD_POS_X + (nodeDepth * 24), OBJLIST_HUD_POS_Y + i * 16, 16, 16, 12);
+	if (item->class) {
 		if (item->class->update) item->class->update(item);
 		if (item->class->draw) item->class->draw(item);
 	}
+
+	DataObj* child = item->child;
+	while (child) {
+		DataObj *next = child->next;
+		updateObject(child, nodeDepth + 1, idCount);
+		child = next;
+	}
 }
 
-void updateObjects(DataObj* header){
-	printf("%s\n", header->name);
-}
-
-DataObj* newObject(DataType* class){
+DataObj* newObject(DataObj* parent, DataType* class){
 	DataObj *newObj = calloc(1, sizeof(DataObj)); 
+	if (parent == NULL) parent = &gameHeader;
+	newObj->parent = parent;
+	newObj->prev = NULL;
+	newObj->next = parent->child;
+	if (parent->child) {
+		parent->child->prev = newObj;
+	}
+	parent->child = newObj;
+
 	newObj->pos = (Vector3){0,0,0};
 	newObj->scale = (Vector3){1,1,1};
 	newObj->rot = (Vector3){0,0,0};
@@ -77,36 +56,11 @@ DataObj* newObject(DataType* class){
 	newObj->name = class->name;
 	newObj->class = class;
 	newObj->values = NULL;
-	newObj->prevItem, newObj->nextItem, newObj->parent, newObj->firstChild = NULL, NULL, NULL, NULL;
-	parentObject(newObj, &gameHeader);
+	newObj->nodeDepth = 0;
 
 	printf("Created new object of type '%s' with name '%s'.\n", class->name, newObj->name);
 	
 	return newObj;
-}
-
-bool parentObject(DataObj* child, DataObj* parent){
-	if(parent->firstChild == NULL){
-		parent->firstChild = child;
-		//printf("%s -> %s\n", parent->name, parent->firstChild->name);
-		return 0;
-	}
-	
-	DataObj* loopItem = parent->firstChild;
-	Uint32 loopCount = 1;
-	for(Uint32 i = 0; i < loopCount; i++){
-		if(loopItem->nextItem == NULL) continue;
-		loopItem = loopItem->nextItem;
-		loopCount++;
-	}
-	
-	child->parent = parent;
-	loopItem->nextItem = child;
-	child->prevItem = child;
-	
-	//printf("%s -> %s\n", parent->name, loopItem->nextItem->name);
-	
-	return 0;
 }
 
 CollsionReturn* getCollision(CollisionHull* itemA, CollisionHull* itemB){

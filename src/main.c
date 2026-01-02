@@ -93,8 +93,8 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[]){
 	keyList[KEYBIND_SPACE].scanCode = SDL_SCANCODE_SPACE; keyList[KEYBIND_SHIFT].scanCode = SDL_SCANCODE_LSHIFT;
 	keyList[KEYBIND_UP].scanCode = SDL_SCANCODE_UP; keyList[KEYBIND_DOWN].scanCode = SDL_SCANCODE_DOWN; keyList[KEYBIND_LEFT].scanCode = SDL_SCANCODE_LEFT; keyList[KEYBIND_RIGHT].scanCode = SDL_SCANCODE_RIGHT;
 
-	playerObj = newObject(&playerClass);
-	gameHeader.nextItem = newObject(&fuckingBeerdrinkerClass);
+	playerObj = newObject(NULL, &playerClass);
+	newObject(NULL, &fuckingBeerdrinkerClass);
 
 	if (playerObj == NULL) {
 		printf("player is fucking null\n");
@@ -146,8 +146,8 @@ SDL_AppResult SDL_AppIterate(void *appstate){
 	//drawText(renderer, fontTex, "Diagnostics: Skill issue", 32, 0, 64, 16, 16, 12);
 	//SDL_RenderDebugText(renderer, 0, 0, guiText);
 	
-	loopUpdate(&gameHeader);
-	drawObjList(0, 32);
+	int idCounter = 0;
+	updateObject(&gameHeader, 0, &idCounter);
 
 	SDL_RenderPresent(renderer);
 
