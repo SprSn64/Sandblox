@@ -48,6 +48,7 @@ void HandleKeyInput();
 extern float renderScale;
 
 extern DataType playerClass;
+extern DataType fuckingBeerdrinkerClass;
 DataObj* playerObj = NULL;
 extern DataObj gameHeader;
 
@@ -93,7 +94,7 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[]){
 	keyList[KEYBIND_UP].scanCode = SDL_SCANCODE_UP; keyList[KEYBIND_DOWN].scanCode = SDL_SCANCODE_DOWN; keyList[KEYBIND_LEFT].scanCode = SDL_SCANCODE_LEFT; keyList[KEYBIND_RIGHT].scanCode = SDL_SCANCODE_RIGHT;
 
 	playerObj = newObject(&playerClass);
-	parentObject(playerObj, &gameHeader);
+	gameHeader.nextItem = newObject(&fuckingBeerdrinkerClass);
 
 	if (playerObj == NULL) {
 		printf("player is fucking null\n");
@@ -147,8 +148,6 @@ SDL_AppResult SDL_AppIterate(void *appstate){
 	
 	loopUpdate(&gameHeader);
 	drawObjList(0, 32);
-
-	//drawBillboard(playerTex, (SDL_FRect){0, 0, 128, 128}, (Vector3){0,2,0}, (SDL_FPoint){8, 16}, (SDL_FPoint){4, 4});
 
 	SDL_RenderPresent(renderer);
 

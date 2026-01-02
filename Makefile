@@ -1,10 +1,11 @@
 DIRS := src
-TARGET := sandblox
 CC := gcc
 CFLAGS := -Wall -Wextra -O3 -Iinclude
 ifeq ($(OS),Windows_NT)
+	TARGET := sandblox
 	LDFLAGS := -lSDL3 -lSDL3_image -lgdi32 -lopengl32 -lglfw3 resource.res
 else
+	TARGET := sandblox.$(shell uname -m)
 	LDFLAGS := -lm -lSDL3 -lSDL3_image -lGL -lglfw
 endif
 

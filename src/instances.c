@@ -16,17 +16,18 @@ extern SDL_Texture *fontTex;
 extern DataObj* playerObj;
 
 DataObj gameHeader = {(Vector3){0, 0, 0}, (Vector3){1, 1, 1}, (Vector3){0, 0, 0}, (CharColour){0, 0, 0}, "Workspace", NULL, NULL, NULL, NULL, NULL, NULL};
-DataObj itemB = {(Vector3){0, 0, 0}, (Vector3){1, 1, 1}, (Vector3){0, 0, 0}, (CharColour){0, 0, 0}, "beer drinker", NULL, NULL, NULL, NULL, NULL, NULL};
 
 void drawObjList(int posX, int posY){
 	DataObj* loopItem = &gameHeader;
 	Uint32 loopCount = 1;
+	Uint16 offs = 0;
 	for(Uint32 i = 0; i < loopCount; i++){
 		SDL_SetRenderDrawColor(renderer, 64, 192, 24, SDL_ALPHA_OPAQUE);
 		SDL_RenderFillRect(renderer, &(SDL_FRect){posX, posY + i * 16, 16, 16});
-		drawText(renderer, fontTex, loopItem->name, 32, posX, posY + i * 16, 16, 16, 12);
+		drawText(renderer, fontTex, loopItem->name, 32, posX, posY + (i + offs) * 16, 16, 16, 12);
 		if(loopItem->firstChild != NULL){
-			drawText(renderer, fontTex, loopItem->firstChild->name, 32, posX + 256, posY + i * 16, 16, 16, 12);
+			offs++;
+			drawText(renderer, fontTex, loopItem->firstChild->name, 32, posX, posY + (i + offs) * 16, 16, 16, 12);
 		}
 		if(loopItem->nextItem != NULL){
 			loopItem = loopItem->nextItem;
@@ -58,8 +59,8 @@ Uint8 loopUpdate(DataObj* item){
 void updateObject(DataObj* item){
 	//printf("Updating %s...\n", item->name);
 	if(item->class != NULL){
-		item->class->update(item);
-		item->class->draw(item);
+		if (item->class->update) item->class->update(item);
+		if (item->class->draw) item->class->draw(item);
 	}
 }
 
@@ -76,7 +77,8 @@ DataObj* newObject(DataType* class){
 	newObj->name = class->name;
 	newObj->class = class;
 	newObj->values = NULL;
-	newObj->prevItem, newObj->nextItem, newObj->parent, newObj->firstChild = NULL, NULL, &gameHeader, NULL;
+	newObj->prevItem, newObj->nextItem, newObj->parent, newObj->firstChild = NULL, NULL, NULL, NULL;
+	parentObject(newObj, &gameHeader);
 
 	printf("Created new object of type '%s' with name '%s'.\n", class->name, newObj->name);
 	
@@ -137,3 +139,4 @@ void playerDraw(DataObj* object){
 }
 
 DataType playerClass = {"Player\0", 0, NULL, playerUpdate, playerDraw};
+DataType fuckingBeerdrinkerClass = {"beer drinker\0", 0, NULL, NULL, NULL};
