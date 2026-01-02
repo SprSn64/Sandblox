@@ -102,6 +102,8 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[]){
 	playerObj = newObject(&playerClass);
 	//playerObj->name = malloc(sizeof(Uint8) * 8); strcpy(playerObj->name, "Player");
 	parentObject(playerObj, &gameHeader);
+	
+	loopUpdate(&gameHeader);
 
 	return SDL_APP_CONTINUE;
 }	

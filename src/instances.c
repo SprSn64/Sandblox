@@ -34,17 +34,29 @@ void drawObjList(int posX, int posY){
 	}
 }
 
-Uint8 parentChildLoop(DataObj* currObj, Uint16* yIndex, Uint16* depth){
+Uint8 loopUpdate(DataObj* item){
 	//i have no idea what im doing
-	printf("%s, %ls, %ls\n", currObj->name, yIndex, depth);
-	
-	if(currObj->firstChild != NULL){
-		parentChildLoop(currObj->firstChild, NULL, NULL);
-	}
-	if(currObj->nextItem != NULL){
-		parentChildLoop(currObj->nextItem, NULL, NULL);
+	DataObj* currItem = item;
+	for(;;){
+		updateObject(currItem);
+		printf("->%s\n", currItem->name);
+		if(currItem->firstChild != NULL){
+			loopUpdate(currItem->firstChild);
+		}
+		if(currItem->nextItem != NULL){
+			currItem = currItem->nextItem;
+		}else{
+			break;
+		}
 	}
 	return 0;
+}
+
+void updateObject(DataObj* item){
+	printf("Updating %s...\n", item->name);
+	if(item->class != NULL){
+		item->class->update(item);
+	}
 }
 
 void updateObjects(DataObj* header){
@@ -53,19 +65,19 @@ void updateObjects(DataObj* header){
 
 DataObj* newObject(DataType* class){
 	DataObj newObj = {(Vector3){0, 0, 0}, (Vector3){1, 1, 1}, (Vector3){0, 0, 0}, (CharColour){255, 255, 255}, class->name, class, NULL, NULL, NULL, NULL, NULL};
-	printf("Created new object of type '%s'.\n", class->name);
+	printf("Created new object of type '%s' with name '%s'.\n", class->name, newObj.name);
 	
 	return &newObj;
 }
 
 bool parentObject(DataObj* child, DataObj* parent){
-	DataObj* loopItem = parent->firstChild;
-	if(loopItem == NULL){
+	if(parent->firstChild == NULL){
 		parent->firstChild = child;
 		//printf("%s -> %s\n", parent->name, parent->firstChild->name);
 		return 0;
 	}
 	
+	DataObj* loopItem = parent->firstChild;
 	Uint32 loopCount = 1;
 	for(Uint32 i = 0; i < loopCount; i++){
 		if(loopItem->nextItem == NULL) continue;
