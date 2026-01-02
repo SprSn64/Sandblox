@@ -22,12 +22,6 @@ SDL_Window *window = NULL;
 SDL_Window *glWindow = NULL;
 SDL_Renderer *renderer = NULL;
 
-typedef enum gameKeybinds{
-	KEYBIND_W, KEYBIND_S, KEYBIND_A, KEYBIND_D,
-	KEYBIND_SPACE, KEYBIND_SHIFT,
-	KEYBIND_UP, KEYBIND_DOWN, KEYBIND_LEFT, KEYBIND_RIGHT,
-} gameKeybinds;
-
 bool glEnabled = false;
 Uint32 glVersion[2] = {0, 0};
 
@@ -40,6 +34,7 @@ Camera currentCamera = {(Vector3){0, 2, 10}, (Vector3){0, 0, 0}, 90, 1};
 Uint64 last = 0;
 Uint64 now = 0;
 double deltaTime = 0;
+Uint32 lastFPS = 0;
 
 float timer = 0;
 
@@ -53,7 +48,7 @@ void HandleKeyInput();
 extern float renderScale;
 
 extern DataType playerClass;
-DataObj* playerObj;
+DataObj* playerObj = NULL;
 extern DataObj gameHeader;
 
 SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[]){
@@ -88,8 +83,6 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[]){
 	
 	SDL_SetWindowMinimumSize(window, 320, 240);
 	
-	printf("eat thine shorteths\n");
-	
 	fontTex = newTexture("assets/font.png", SDL_SCALEMODE_NEAREST);
 	playerTex = newTexture("assets/playertemp.png", SDL_SCALEMODE_NEAREST);
 	
@@ -98,12 +91,14 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[]){
 	keyList[KEYBIND_W].scanCode = SDL_SCANCODE_W; keyList[KEYBIND_S].scanCode = SDL_SCANCODE_S; keyList[KEYBIND_A].scanCode = SDL_SCANCODE_A; keyList[KEYBIND_D].scanCode = SDL_SCANCODE_D;
 	keyList[KEYBIND_SPACE].scanCode = SDL_SCANCODE_SPACE; keyList[KEYBIND_SHIFT].scanCode = SDL_SCANCODE_LSHIFT;
 	keyList[KEYBIND_UP].scanCode = SDL_SCANCODE_UP; keyList[KEYBIND_DOWN].scanCode = SDL_SCANCODE_DOWN; keyList[KEYBIND_LEFT].scanCode = SDL_SCANCODE_LEFT; keyList[KEYBIND_RIGHT].scanCode = SDL_SCANCODE_RIGHT;
-	
+
 	playerObj = newObject(&playerClass);
-	//playerObj->name = malloc(sizeof(Uint8) * 8); strcpy(playerObj->name, "Player");
 	parentObject(playerObj, &gameHeader);
-	
-	loopUpdate(&gameHeader);
+
+	if (playerObj == NULL) {
+		printf("player is fucking null\n");
+		exit(1);
+	}
 
 	return SDL_APP_CONTINUE;
 }	
@@ -139,25 +134,24 @@ SDL_AppResult SDL_AppIterate(void *appstate){
 	
 	drawCube((Vector3){(2 + SDL_cos(timer)) / -2, SDL_sin(timer) + 1, (2 + SDL_cos(timer)) / -2}, (Vector3){2 + SDL_cos(timer), SDL_sin(timer) + 1, 2 + SDL_cos(timer)}, (SDL_FColor){0.6, 0.8, 1, 1});
 	drawCube((Vector3){SDL_sin(timer) * 2 - 0.5, 1, SDL_cos(timer) * 2 - 0.5}, (Vector3){1, 1, 1}, (SDL_FColor){1, 0.2, 0.3, 1});
-	drawBillboard(playerTex, (SDL_FRect){0, 0, 128, 128}, (Vector3){0, 2, 0}, (SDL_FPoint){8, 16}, (SDL_FPoint){6, 6});
-
 	SDL_SetRenderDrawColor(renderer, 255, 255, 255, SDL_ALPHA_OPAQUE);
 	
-	drawObjList(0, 32);
-	
-	Uint8 guiText[256];
-	sprintf(guiText, "FPS: %d", (Uint16)floor(1/deltaTime));
+	char guiText[256];
+	if ((Uint32)(timer*100)%64 == 0) {
+		lastFPS = (Uint32)floor(1/deltaTime);
+	}
+	sprintf(guiText, "FPS: %d", lastFPS);
 	drawText(renderer, fontTex, guiText, 32, 0, 0, 16, 16, 12);
+	//drawText(renderer, fontTex, "Diagnostics: Skill issue", 32, 0, 64, 16, 16, 12);
 	//SDL_RenderDebugText(renderer, 0, 0, guiText);
 	
+	loopUpdate(&gameHeader);
+	drawObjList(0, 32);
+
+	//drawBillboard(playerTex, (SDL_FRect){0, 0, 128, 128}, (Vector3){0,2,0}, (SDL_FPoint){8, 16}, (SDL_FPoint){4, 4});
+
 	SDL_RenderPresent(renderer);
-	
-	if(glEnabled){
-		//glClearColor(0.078f, 0.086f, 0.124f, 1.0f);
-		//glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-		//glfwSwapBuffers(glWindow);
-	}
-	
+
 	return SDL_APP_CONTINUE;
 }
 

@@ -3,6 +3,12 @@
 
 #include <SDL3/SDL.h>
 
+typedef enum gameKeybinds{
+	KEYBIND_W, KEYBIND_S, KEYBIND_A, KEYBIND_D,
+	KEYBIND_SPACE, KEYBIND_SHIFT,
+	KEYBIND_UP, KEYBIND_DOWN, KEYBIND_LEFT, KEYBIND_RIGHT,
+} gameKeybinds;
+
 #define max(a,b) ((a) > (b) ? (a) : (b))
 #define min(a,b) ((a) < (b) ? (a) : (b))
 
@@ -28,18 +34,19 @@ typedef struct{
 typedef struct DataObj DataObj;
 
 typedef struct{
-	Uint8 *name;
+	char *name;
 	Uint32 propType; //the avaliable options and properties and stuff for the object as an enum probably
 	
 	void (*init)(DataObj*);
 	void (*update)(DataObj*);
+	// virgin sm64 geo asm vs chad sandblox per-actor draw function
 	void (*draw)(DataObj*);
 } DataType;
 
 typedef struct DataObj{
 	Vector3 pos, scale, rot;
 	CharColour colour;
-	Uint8 *name;
+	char *name;
 	DataType* class;
 	
 	float *values;

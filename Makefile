@@ -1,4 +1,4 @@
-COMPILE_FOLDERS := src
+DIRS := src
 TARGET := sandblox
 CC := gcc
 CFLAGS := -Wall -Wextra -O3 -Iinclude
@@ -8,7 +8,7 @@ else
 	LDFLAGS := -lm -lSDL3 -lSDL3_image -lGL -lglfw
 endif
 
-SOURCES := $(wildcard $(addsuffix /*.c,$(COMPILE_FOLDERS)))
+SOURCES := $(wildcard $(addsuffix /*.c,$(DIRS)))
 OBJECTS := $(SOURCES:.c=.o)
 
 all: $(TARGET)
