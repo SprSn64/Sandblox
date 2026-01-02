@@ -21,13 +21,15 @@ void drawObjList(int posX, int posY){
 	DataObj* loopItem = &gameHeader;
 	Uint32 loopCount = 1;
 	Uint16 offs = 0;
+	Uint16 depth = 0;
 	for(Uint32 i = 0; i < loopCount; i++){
 		SDL_SetRenderDrawColor(renderer, 64, 192, 24, SDL_ALPHA_OPAQUE);
 		SDL_RenderFillRect(renderer, &(SDL_FRect){posX, posY + (i + offs) * 16, 16, 16});
 		drawText(renderer, fontTex, loopItem->name, 32, posX, posY + (i + offs) * 16, 16, 16, 12);
 		if(loopItem->firstChild != NULL){
-			offs++;
-			drawText(renderer, fontTex, loopItem->firstChild->name, 32, posX, posY + (i + offs) * 16, 16, 16, 12);
+			offs++; depth++;
+			drawText(renderer, fontTex, loopItem->firstChild->name, 32, posX + depth * 24, posY + (i + offs) * 16, 16, 16, 12);
+			depth--;
 		}
 		if(loopItem->nextItem != NULL){
 			loopItem = loopItem->nextItem;
@@ -44,14 +46,12 @@ Uint8 loopUpdate(DataObj* item){
 	for(;;){
 		updateObject(currItem);
 		//printf("->%s\n", currItem->name);
-		if(currItem->firstChild != NULL){
-			loopUpdate(currItem->firstChild);
-		}
+		if(currItem->firstChild != NULL){loopUpdate(currItem->firstChild);}
 		if(currItem->nextItem != NULL){
 			currItem = currItem->nextItem;
-		}else{
-			break;
+			continue;
 		}
+		break;
 	}
 	return 0;
 }
@@ -130,7 +130,7 @@ void playerUpdate(DataObj* object){
 	//object->pos.x += (keyList[KEYBIND_D].down - keyList[KEYBIND_A].down) * 2 * deltaTime;
 	//object->pos.z += (keyList[KEYBIND_S].down - keyList[KEYBIND_W].down) * 2 * deltaTime;
 
-	object->pos.y = 2;
+	object->pos.y = SDL_cos(timer) / 2 + 2;
 	//currentCamera.pos = object->pos;
 }
 
