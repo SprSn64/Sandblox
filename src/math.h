@@ -6,6 +6,7 @@ float invLerp(float a, float b, float v);
 float dotProd2(SDL_FPoint vecA, SDL_FPoint vecB);
 float dotProd3(Vector3 vecA, Vector3 vecB);
 
+float *newMatrix();
 Vector4 matrixMult(Vector4 vector, mat4 matrix);
 float *scaleMatrix(mat4 matrix, Vector3 scale);
 

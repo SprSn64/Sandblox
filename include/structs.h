@@ -45,6 +45,7 @@ typedef struct{
 
 typedef struct DataObj{
 	Vector3 pos, scale, rot;
+	float *localMat;
 	CharColour colour;
 	char *name;
 	DataType* class;
@@ -65,6 +66,7 @@ typedef struct DataObj{
 typedef struct{
 	DataObj* headObj;
 	Camera* currCamera;
+	DataObj* currPlayer;
 } GameWorld;
 
 typedef struct{

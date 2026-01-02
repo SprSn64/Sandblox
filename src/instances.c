@@ -9,13 +9,14 @@
 #include <structs.h>
 #include "instances.h"
 #include "renderer.h"
+//#include "math.h" //causes "error: storage class specified for parameter..." for some reason
 
 extern SDL_Renderer *renderer;
 extern SDL_Texture *fontTex;
 
 extern DataObj* playerObj;
 
-DataObj gameHeader = {(Vector3){0, 0, 0}, (Vector3){1, 1, 1}, (Vector3){0, 0, 0}, (CharColour){0, 0, 0}, "Workspace", NULL, NULL, NULL, NULL, NULL, NULL};
+DataObj gameHeader = {(Vector3){0, 0, 0}, (Vector3){1, 1, 1}, (Vector3){0, 0, 0}, NULL, (CharColour){0, 0, 0}, "Workspace", NULL, NULL, NULL, NULL, NULL, NULL};
 
 #define OBJLIST_HUD_POS_X 0
 #define OBJLIST_HUD_POS_Y 32
@@ -48,6 +49,7 @@ DataObj* newObject(DataObj* parent, DataType* class){
 	parent->child = newObj;
 
 	newObj->pos = (Vector3){0,0,0};
+	newObj->localMat = NULL;//newMatrix();
 	newObj->scale = (Vector3){1,1,1};
 	newObj->rot = (Vector3){0,0,0};
 	newObj->colour = (CharColour){255, 255, 255};
@@ -55,7 +57,7 @@ DataObj* newObject(DataObj* parent, DataType* class){
 	newObj->class = class;
 	newObj->values = NULL;
 
-	printf("Created new object of type '%s'.\n", class->name, newObj->name);
+	printf("Created new object of type '%s'.\n", class->name);
 	
 	return newObj;
 }
@@ -103,12 +105,12 @@ extern KeyMap keyList[6];
 extern SDL_Texture *playerTex;
 
 void playerUpdate(DataObj* object){
-	object->pos.x += ((SDL_cos(currentCamera.rot.y) * (keyList[KEYBIND_D].down - keyList[KEYBIND_A].down)) + (SDL_sin(currentCamera.rot.y) * (keyList[KEYBIND_S].down - keyList[KEYBIND_W].down))) * 2 * deltaTime;
-	object->pos.y += (keyList[KEYBIND_SPACE].down - keyList[KEYBIND_SHIFT].down) * 2 * deltaTime;
-	object->pos.z += ((-SDL_sin(currentCamera.rot.y) * (keyList[KEYBIND_D].down - keyList[KEYBIND_A].down)) + (SDL_cos(currentCamera.rot.y) * (keyList[KEYBIND_S].down - keyList[KEYBIND_W].down))) * 2 * deltaTime;
+	object->pos.x += ((SDL_cos(currentCamera.rot.y) * (keyList[KEYBIND_D].down - keyList[KEYBIND_A].down)) + (SDL_sin(currentCamera.rot.y) * (keyList[KEYBIND_S].down - keyList[KEYBIND_W].down))) * 4 * deltaTime;
+	object->pos.y += (keyList[KEYBIND_SPACE].down - keyList[KEYBIND_SHIFT].down) * 4 * deltaTime;
+	object->pos.z += ((-SDL_sin(currentCamera.rot.y) * (keyList[KEYBIND_D].down - keyList[KEYBIND_A].down)) + (SDL_cos(currentCamera.rot.y) * (keyList[KEYBIND_S].down - keyList[KEYBIND_W].down))) * 4 * deltaTime;
 
 	//object->pos.y = SDL_cos(timer) / 2 + 2;
-	//currentCamera.pos = (Vector3){object->pos.x - SDL_cos(currentCamera.rot.y) * 4, object->pos.y + 2, object->pos.z - SDL_sin(currentCamera.rot.y) * 4};
+	currentCamera.pos = (Vector3){object->pos.x + (SDL_cos(currentCamera.rot.x) * SDL_sin(currentCamera.rot.y)) * 16, object->pos.y + 2 - SDL_sin(currentCamera.rot.x) * 16, object->pos.z + (SDL_cos(currentCamera.rot.x) * SDL_cos(currentCamera.rot.y)) * 16};
 }
 
 void playerDraw(DataObj* object){
