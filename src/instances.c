@@ -56,7 +56,6 @@ DataObj* newObject(DataObj* parent, DataType* class){
 	newObj->name = class->name;
 	newObj->class = class;
 	newObj->values = NULL;
-	newObj->nodeDepth = 0;
 
 	printf("Created new object of type '%s' with name '%s'.\n", class->name, newObj->name);
 	

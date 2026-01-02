@@ -55,8 +55,6 @@ typedef struct DataObj{
 	struct DataObj* next;
 	struct DataObj* parent;
 	struct DataObj* child;
-
-	int nodeDepth;
 	
 	/* connect functions and whatnot
 	void (*collide)(void);
