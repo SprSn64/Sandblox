@@ -41,12 +41,12 @@ void updateObjects(DataObj* item, int nodeDepth, int *idCount, bool uord){ //uor
 
 void cleanupObjects(DataObj* item){
 	DataObj* child = item->child;
-	free(item);
 	while (child) {
 		DataObj *next = child->next;
 		cleanupObjects(child);
 		child = next;
 	}
+	free(item);
 }
 
 DataObj* newObject(DataObj* parent, DataType* class){
@@ -118,7 +118,7 @@ extern double deltaTime;
 extern Camera currentCamera;
 extern KeyMap keyList[10];
 
-extern Mesh teapotMesh;
+extern Mesh *teapotMesh;
 
 extern SDL_Texture *playerTex;
 
@@ -138,7 +138,7 @@ void playerDraw(DataObj* object){
 
 void blockDraw(DataObj* object){
 	//drawCube(object->pos, object->scale, charColConv(object->colour));
-	drawMesh(&teapotMesh, object->transform);
+	drawMesh(teapotMesh, object->transform);
 }
 
 DataType playerClass = {"Player\0", 0, NULL, playerUpdate, playerDraw};

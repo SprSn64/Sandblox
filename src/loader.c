@@ -6,106 +6,75 @@
 #include <stdlib.h>
 #include <math.h>
 
-#include "structs.h"
-#include "renderer.h"
+#include "loader.h"
 
-MeshVert teapotVerts[45] = {
-	(MeshVert){(Vector3){0, 0, 0}}, 
-	(MeshVert){(Vector3){1.408866, 2.498437, 0}}, 
-	(MeshVert){(Vector3){0, 1.341141, -1.938592}}, 
-	(MeshVert){(Vector3){0, 2.498437, -1.408866}}, 
-	(MeshVert){(Vector3){0, 2.498437, 1.408866}}, 
-	(MeshVert){(Vector3){-1.408866, 2.498437, 0}}, 
-	(MeshVert){(Vector3){1.819296, 1.383070, 0}}, 
-	(MeshVert){(Vector3){0, 0, -1.289630}}, 
-	(MeshVert){(Vector3){0, 1.341141, 1.938592}}, 
-	(MeshVert){(Vector3){-1.289630, 0, 0}}, 
-	(MeshVert){(Vector3){-1.938592, 1.341141, 0}}, 
-	(MeshVert){(Vector3){1.289630, 0, 0}}, 
-	(MeshVert){(Vector3){0, 0, 1.289630}}, 
-	(MeshVert){(Vector3){-1.534069, 0.539011, 0}}, 
-	(MeshVert){(Vector3){-2.518750, 2.095313, 0.225000}}, 
-	(MeshVert){(Vector3){-2.625000, 2.193750, 0}}, 
-	(MeshVert){(Vector3){-2.518750, 2.095313, 0.225000}}, 
-	(MeshVert){(Vector3){-2.634375, 1.253906, 0.225000}}, 
-	(MeshVert){(Vector3){-2.731250, 1.157813, 0}}, 
-	(MeshVert){(Vector3){-2.634375, 1.253906, 0.225000}}, 
-	(MeshVert){(Vector3){3.126563, 2.466797, 0.150000}}, 
-	(MeshVert){(Vector3){2.537500, 1.621875, 0.341250}}, 
-	(MeshVert){(Vector3){2.687500, 1.443750, 0}}, 
-	(MeshVert){(Vector3){3.126562, 2.466797, 0.150000}}, 
-	(MeshVert){(Vector3){1.700000, 1.012500, 0.495000}}, 
-	(MeshVert){(Vector3){1.700000, 0.600000, 0}}, 
-	(MeshVert){(Vector3){2.825000, 2.456250, 0}}, 
-	(MeshVert){(Vector3){2.387500, 1.800000, 0}}, 
-	(MeshVert){(Vector3){3.126562, 2.466797, 0.150000}}, 
-	(MeshVert){(Vector3){2.537500, 1.621875, 0.341250}}, 
-	(MeshVert){(Vector3){1.700000, 1.012500, 0.495000}}, 
-	(MeshVert){(Vector3){3.126563, 2.466797, 0.150000}}, 
-	(MeshVert){(Vector3){2.825000, 2.456250, 0}}, 
-	(MeshVert){(Vector3){0, 2.700000, 0}}, 
-	(MeshVert){(Vector3){0.307988, 2.981250, 0}}, 
-	(MeshVert){(Vector3){0.153994, 2.981250, 0.266725}}, 
-	(MeshVert){(Vector3){0.153994, 2.981250, 0.266725}}, 
-	(MeshVert){(Vector3){0, 2.400000, 1.300000}}, 
-	(MeshVert){(Vector3){-1.300000, 2.400000, 0}}, 
-	(MeshVert){(Vector3){0, 2.400000, -1.300000}}, 
-	(MeshVert){(Vector3){1.300000, 2.400000, 0}}, 
-};
+void objCountVT(const char* path, Uint32*amount_V, Uint32*amount_T) {
+	Uint32 vcount = 0;
+	Uint32 tcount = 0;
 
-MeshFace teapotFaces[58] = {
-	(MeshFace){&teapotVerts[2], &teapotVerts[1], &teapotVerts[6]},
-	(MeshFace){&teapotVerts[6], &teapotVerts[1], &teapotVerts[8]},
-	(MeshFace){&teapotVerts[8], &teapotVerts[5], &teapotVerts[10]},
-	(MeshFace){&teapotVerts[10], &teapotVerts[5], &teapotVerts[2]},
-	(MeshFace){&teapotVerts[7], &teapotVerts[2], &teapotVerts[11]},
-	(MeshFace){&teapotVerts[11], &teapotVerts[6], &teapotVerts[8]},
-	(MeshFace){&teapotVerts[12], &teapotVerts[8], &teapotVerts[9]},
-	(MeshFace){&teapotVerts[9], &teapotVerts[2], &teapotVerts[7]},
-	(MeshFace){&teapotVerts[7], &teapotVerts[12], &teapotVerts[9]},
-	(MeshFace){&teapotVerts[11], &teapotVerts[12], &teapotVerts[7]},
-	(MeshFace){&teapotVerts[16], &teapotVerts[5], &teapotVerts[14]},
-	(MeshFace){&teapotVerts[17], &teapotVerts[13], &teapotVerts[19]},
-	(MeshFace){&teapotVerts[19], &teapotVerts[18], &teapotVerts[15], &teapotVerts[16]},
-	(MeshFace){&teapotVerts[13], &teapotVerts[18], &teapotVerts[19]},
-	(MeshFace){&teapotVerts[18], &teapotVerts[13], &teapotVerts[17]},
-	(MeshFace){&teapotVerts[15], &teapotVerts[18], &teapotVerts[17], &teapotVerts[14]},
-	(MeshFace){&teapotVerts[17], &teapotVerts[19], &teapotVerts[16], &teapotVerts[14]},
-	(MeshFace){&teapotVerts[20], &teapotVerts[22], &teapotVerts[23]},
-	(MeshFace){&teapotVerts[21], &teapotVerts[24], &teapotVerts[22]},
-	(MeshFace){&teapotVerts[26], &teapotVerts[27], &teapotVerts[20]},
-	(MeshFace){&teapotVerts[27], &teapotVerts[6], &teapotVerts[21]},
-	(MeshFace){&teapotVerts[28], &teapotVerts[27], &teapotVerts[26]},
-	(MeshFace){&teapotVerts[29], &teapotVerts[6], &teapotVerts[27]},
-	(MeshFace){&teapotVerts[23], &teapotVerts[22], &teapotVerts[29], &teapotVerts[28]},
-	(MeshFace){&teapotVerts[22], &teapotVerts[30], &teapotVerts[29]},
-	(MeshFace){&teapotVerts[32], &teapotVerts[26], &teapotVerts[20], &teapotVerts[31]},
-	(MeshFace){&teapotVerts[23], &teapotVerts[28], &teapotVerts[26], &teapotVerts[32]},
-	(MeshFace){&teapotVerts[22], &teapotVerts[20], &teapotVerts[21]},
-	(MeshFace){&teapotVerts[33], &teapotVerts[34], &teapotVerts[35]},
-	(MeshFace){&teapotVerts[33], &teapotVerts[35], &teapotVerts[36]},
-	(MeshFace){&teapotVerts[35], &teapotVerts[34], &teapotVerts[36]},
-	(MeshFace){&teapotVerts[33], &teapotVerts[36], &teapotVerts[34]},
-	(MeshFace){&teapotVerts[40], &teapotVerts[33], &teapotVerts[37]},
-	(MeshFace){&teapotVerts[37], &teapotVerts[33], &teapotVerts[38]},
-	(MeshFace){&teapotVerts[38], &teapotVerts[33], &teapotVerts[39]},
-	(MeshFace){&teapotVerts[39], &teapotVerts[33], &teapotVerts[40]},
-	(MeshFace){&teapotVerts[8], &teapotVerts[12], &teapotVerts[11]},
-	(MeshFace){&teapotVerts[11], &teapotVerts[2], &teapotVerts[6]},
-	(MeshFace){&teapotVerts[1], &teapotVerts[2], &teapotVerts[3]},
-	(MeshFace){&teapotVerts[8], &teapotVerts[1], &teapotVerts[4]},
-	(MeshFace){&teapotVerts[5], &teapotVerts[8], &teapotVerts[4]},
-	(MeshFace){&teapotVerts[9], &teapotVerts[8], &teapotVerts[10]},
-	(MeshFace){&teapotVerts[2], &teapotVerts[5], &teapotVerts[3]},
-	(MeshFace){&teapotVerts[2], &teapotVerts[9], &teapotVerts[10]},
-	(MeshFace){&teapotVerts[6], &teapotVerts[29], &teapotVerts[30]},
-	(MeshFace){&teapotVerts[21], &teapotVerts[6], &teapotVerts[24]},
-	(MeshFace){&teapotVerts[20], &teapotVerts[27], &teapotVerts[21]},
-	(MeshFace){&teapotVerts[27], &teapotVerts[28], &teapotVerts[29]},
-	(MeshFace){&teapotVerts[22], &teapotVerts[24], &teapotVerts[25]},
-	(MeshFace){&teapotVerts[30], &teapotVerts[22], &teapotVerts[25]},
-	(MeshFace){&teapotVerts[14], &teapotVerts[5], &teapotVerts[15]},
-	(MeshFace){&teapotVerts[5], &teapotVerts[16], &teapotVerts[15]},
-};
+	FILE *f = fopen(path, "r");
+	if (!f) {
+		printf("Couldn't load object file %s\n", path);
+		return;
+	}
 
-Mesh teapotMesh = {45, teapotVerts, 58, teapotFaces};
+	char line[512];
+	while (fgets(line, sizeof(line), f)) {
+		if (line[0] == 'v' && line[1] == ' ') {
+			vcount++;
+		} else if (line[0] == 'f' && line[1] == ' ') {
+			tcount++;
+		}
+	}
+	fclose(f);
+	
+	*amount_V = vcount;
+	*amount_T = tcount;
+}
+
+Mesh *loadMeshFromObj(const char* path) {
+	Uint32 vcount = 0;
+	Uint32 tcount = 0;
+	objCountVT(path, &vcount, &tcount);
+
+	FILE *f = fopen(path, "r");
+	if (!f) {
+		printf("Couldn't load object file %s\n", path);
+		return NULL;
+	}
+
+	Mesh *outMesh = calloc(1, sizeof(Mesh));
+
+	outMesh->vertCount = vcount;
+	outMesh->faceCount = tcount;
+	outMesh->verts = calloc(vcount, sizeof(MeshVert));
+	outMesh->faces = calloc(tcount, sizeof(MeshFace));
+
+	printf("Loading mesh %s, vcount: %u, tcount: %u\n", path, vcount, tcount);
+
+	char line[512];
+	Uint32 vi = 0;
+	Uint32 ti = 0;
+	while (fgets(line, sizeof(line), f)) {
+		if (line[0] == 'v' && line[1] == ' ') {
+			float x,y,z;
+			sscanf(line, "v %f %f %f", &x, &y, &z);
+			outMesh->verts[vi].pos.x = x;
+			outMesh->verts[vi].pos.y = y;
+			outMesh->verts[vi].pos.z = z;
+			//printf("VTX %f, %f, %f\n", x,y,z);
+			vi++;
+		} else if (line[0] == 'f' && line[1] == ' ') {
+			int a,b,c;
+			sscanf(line, "f %d %d %d", &a, &b, &c);
+			a--;b--;c--;
+			outMesh->faces[ti].vertA = &outMesh->verts[a];
+			outMesh->faces[ti].vertB = &outMesh->verts[b];
+			outMesh->faces[ti].vertC = &outMesh->verts[c];
+			//printf("FACE %d, %d, %d\n", a,b,c);
+			ti++;
+		}
+	}
+	fclose(f);
+	return outMesh;
+}

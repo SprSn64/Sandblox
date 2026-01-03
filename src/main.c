@@ -17,6 +17,7 @@
 #include <structs.h>
 #include "instances.h"
 #include "renderer.h"
+#include "loader.h"
 
 SDL_Window *window = NULL;
 SDL_Window *glWindow = NULL;
@@ -40,6 +41,8 @@ float timer = 0;
 
 SDL_Texture *fontTex = NULL;
 SDL_Texture *playerTex = NULL;
+
+Mesh *teapotMesh = NULL;
 
 KeyMap keyList[10];
 
@@ -90,6 +93,8 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[]){
 	
 	fontTex = newTexture("assets/font.png", SDL_SCALEMODE_NEAREST);
 	playerTex = newTexture("assets/playertemp.png", SDL_SCALEMODE_NEAREST);
+
+	teapotMesh = loadMeshFromObj("assets/lowpolyteapot.obj");
 	
 	SDL_SetRenderVSync(renderer, 1);
 
