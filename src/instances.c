@@ -25,6 +25,7 @@ DataObj gameHeader = {(Vector3){0, 0, 0}, (Vector3){1, 1, 1}, (Vector3){0, 0, 0}
 void updateObjects(DataObj* item, int nodeDepth, int *idCount, bool uord){ //uord = update or draw
 	int i = (*idCount)++;
 	if(uord)drawText(renderer, fontTex, item->name, 32, OBJLIST_HUD_POS_X + (nodeDepth * 24), OBJLIST_HUD_POS_Y + i * 16, 16, 16, 12);
+	//item->transform = genMatrix(item->pos, item->scale, item->rot);
 	if (item->class) {
 		if (item->class->update && !uord) item->class->update(item);
 		if (item->class->draw && uord) item->class->draw(item);
@@ -133,11 +134,11 @@ void playerUpdate(DataObj* object){
 void playerDraw(DataObj* object){
 	drawCube((Vector3){object->pos.x - 1, object->pos.y + 4, object->pos.z - 1}, (Vector3){2, 4, 2}, (SDL_FColor){1, 1, 1, 1});
 	drawBillboard(playerTex, (SDL_FRect){0, 0, 128, 128}, object->pos, (SDL_FPoint){8, 16}, (SDL_FPoint){4, 4});
-	drawMesh(&teapotMesh, object->transform);
 }
 
 void blockDraw(DataObj* object){
 	//drawCube(object->pos, object->scale, charColConv(object->colour));
+	drawMesh(&teapotMesh, object->transform);
 }
 
 DataType playerClass = {"Player\0", 0, NULL, playerUpdate, playerDraw};

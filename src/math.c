@@ -22,6 +22,10 @@ float dotProd3(Vector3 vecA, Vector3 vecB){
 	return vecA.x * vecB.x + vecA.y * vecB.y + vecA.z * vecB.z;
 }
 
+float closest(float input, float snap){
+	return floor(input / snap) * snap;
+}
+
 float *newMatrix(){
 	float *output;
 	output = calloc(1, sizeof(mat4));
@@ -50,6 +54,20 @@ float *scaleMatrix(mat4 matrix, Vector3 scale){
 		matrix[0] * scale.x, matrix[1], matrix[2], matrix[3],
 		matrix[4], matrix[5] * scale.y, matrix[6], matrix[7],
 		matrix[8], matrix[9], matrix[10] * scale.z, matrix[11],
+		matrix[12], matrix[13], matrix[24], matrix[15],
+	};
+	
+	memcpy(output, &tempMatrix, sizeof(float) * 16);
+	return output;
+}
+
+float *translateMatrix(mat4 matrix, Vector3 move){
+	float *output;
+	output = malloc(sizeof(mat4));
+	float tempMatrix[16] = {
+		matrix[0], matrix[1], matrix[2], matrix[3] + move.x,
+		matrix[4], matrix[5], matrix[6], matrix[7] + move.y,
+		matrix[8], matrix[9], matrix[10], matrix[11] + move.z,
 		matrix[12], matrix[13], matrix[24], matrix[15],
 	};
 	
@@ -106,5 +124,19 @@ float *rotateMatrix(mat4 matrix, Vector3 angle){
 	float *zMatrix = multMatrix(yMatrix, axisRotMatrix(2, angle.z));
 	
 	memcpy(output, &zMatrix, sizeof(float) * 16);
+	free(xMatrix); free(yMatrix); free(zMatrix); 
+	return output;
+}
+
+float *genMatrix(Vector3 pos, Vector3 scale, Vector3 rot){
+	float *output;
+	output = malloc(sizeof(mat4));
+	
+	float *blankMatrix = newMatrix();
+	float *translated = scaleMatrix(translateMatrix(blankMatrix, pos), scale);
+	float *rotated = rotateMatrix(translated, rot);
+	
+	memcpy(output, &rotated, sizeof(float) * 16);
+	free(blankMatrix); free(translated); free(rotated); 
 	return output;
 }
