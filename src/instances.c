@@ -125,6 +125,7 @@ extern Mesh *playerMesh;
 extern Mesh *cubeMesh;
 
 extern SDL_Texture *playerTex;
+extern SDL_Texture *homerTex;
 
 void playerUpdate(DataObj* object){
 	Vector3 oldPos = object->pos;
@@ -156,6 +157,11 @@ void blockDraw(DataObj* object){
 	}
 }
 
+void homerDraw(DataObj* object){
+	//drawCube(object->pos, object->scale, charColConv(object->colour));
+	drawBillboard(homerTex, (SDL_FRect){0, 0, 300, 500}, object->pos, (SDL_FPoint){1.5, 2.5}, (SDL_FPoint){3, 5});
+}
+
 DataType playerClass = {"Player\0", 0, NULL, playerUpdate, playerDraw};
-DataType fuckingBeerdrinkerClass = {"beer drinker\0", 0, NULL, NULL, NULL};
+DataType fuckingBeerdrinkerClass = {"beer drinker\0", 0, NULL, NULL, homerDraw};
 DataType blockClass = {"Block\0", 0, NULL, NULL, blockDraw};

@@ -41,6 +41,7 @@ float timer = 0;
 
 SDL_Texture *fontTex = NULL;
 SDL_Texture *playerTex = NULL;
+SDL_Texture *homerTex = NULL;
 
 Mesh *teapotMesh = NULL;
 Mesh *playerMesh = NULL;
@@ -93,8 +94,9 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[]){
 	
 	SDL_SetWindowMinimumSize(window, 320, 240);
 	
-	fontTex = newTexture("assets/font.png", SDL_SCALEMODE_NEAREST);
-	playerTex = newTexture("assets/playertemp.png", SDL_SCALEMODE_NEAREST);
+	fontTex = newTexture("assets/textures/font.png", SDL_SCALEMODE_NEAREST);
+	playerTex = newTexture("assets/textures/playertemp.png", SDL_SCALEMODE_NEAREST);
+	homerTex = newTexture("assets/textures/homer.png", SDL_SCALEMODE_NEAREST);
 
 	teapotMesh = loadMeshFromObj("assets/models/teapot.obj");
 	playerMesh = loadMeshFromObj("assets/models/oldplayer.obj");
