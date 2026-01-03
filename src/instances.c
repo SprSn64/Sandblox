@@ -24,7 +24,6 @@ DataObj gameHeader = {(Vector3){0, 0, 0}, (Vector3){1, 1, 1}, (Vector3){0, 0, 0}
 
 void updateObjects(DataObj* item, int nodeDepth, int *idCount, bool uord){ //uord = update or draw
 	int i = (*idCount)++;
-	if(uord)drawText(renderer, fontTex, item->name, 32, OBJLIST_HUD_POS_X + (nodeDepth * 24), OBJLIST_HUD_POS_Y + i * 16, 16, 16, 12);
 	item->transform = newMatrix();
 	translateMatrix2(item->transform, (Vector3){item->pos.x, item->pos.y, item->pos.z});
 	scaleMatrix2(item->transform, (Vector3){item->scale.x, item->scale.y, item->scale.z});
@@ -33,7 +32,7 @@ void updateObjects(DataObj* item, int nodeDepth, int *idCount, bool uord){ //uor
 		if (item->class->draw && uord) item->class->draw(item);
 	}
 	free(item->transform);
-
+	if(uord)drawText(renderer, fontTex, item->name, 32, OBJLIST_HUD_POS_X + (nodeDepth * 24), OBJLIST_HUD_POS_Y + i * 16, 16, 16, 12);
 	DataObj* child = item->child;
 	while (child) {
 		DataObj *next = child->next;
@@ -128,9 +127,14 @@ extern Mesh *cubeMesh;
 extern SDL_Texture *playerTex;
 
 void playerUpdate(DataObj* object){
+	Vector3 oldPos = object->pos;
 	object->pos.x += ((SDL_cos(currentCamera.rot.y) * (keyList[KEYBIND_D].down - keyList[KEYBIND_A].down)) + (SDL_sin(currentCamera.rot.y) * (keyList[KEYBIND_S].down - keyList[KEYBIND_W].down))) * 4 * deltaTime;
 	object->pos.y += (keyList[KEYBIND_SPACE].down - keyList[KEYBIND_SHIFT].down) * 4 * deltaTime;
 	object->pos.z += ((-SDL_sin(currentCamera.rot.y) * (keyList[KEYBIND_D].down - keyList[KEYBIND_A].down)) + (SDL_cos(currentCamera.rot.y) * (keyList[KEYBIND_S].down - keyList[KEYBIND_W].down))) * 4 * deltaTime;
+	
+	if(keyList[KEYBIND_W].down || keyList[KEYBIND_A].down || keyList[KEYBIND_S].down || keyList[KEYBIND_D].down){
+		object->rot.y = atan2(oldPos.y - object->pos.y, oldPos.x - object->pos.x);
+	}
 
 	//object->pos.y = SDL_cos(timer) / 2 + 2;
 	currentCamera.pos = (Vector3){object->pos.x + (SDL_cos(currentCamera.rot.x) * SDL_sin(currentCamera.rot.y)) * 16, object->pos.y + 2 - SDL_sin(currentCamera.rot.x) * 16, object->pos.z + (SDL_cos(currentCamera.rot.x) * SDL_cos(currentCamera.rot.y)) * 16};

@@ -20,6 +20,7 @@ extern SDL_Point windowScale;
 
 float renderScale = 480;
 Vector3 lightNormal = {0.33, 0.33, 0.33};
+SDL_FColor lightAmbient = {0.2, 0.2, 0.2, 1};//{0.1, 0.2, 0.3, 1};
 
 Vector3 worldToCamera(Vector3 pos){
 	Vector3 firstPos = {pos.x - currentCamera.pos.x, pos.y - currentCamera.pos.y, pos.z - currentCamera.pos.z};
@@ -108,9 +109,9 @@ void drawMesh(Mesh* mesh, mat4 transform){
 				(mesh->faces[i].vertA->norm.y + mesh->faces[i].vertB->norm.y + mesh->faces[i].vertC->norm.y) / 3,
 				(mesh->faces[i].vertA->norm.z + mesh->faces[i].vertB->norm.z + mesh->faces[i].vertC->norm.z) / 3,
 			};
-			float faceDot = (dotProd3(faceNormal, lightNormal) + 1) / 2;
+			float faceDot = max(dotProd3(faceNormal, lightNormal), 0);
 			
-			draw3DTriangle((Vector3){pointCalcs[0].x, pointCalcs[0].y, pointCalcs[0].z}, (Vector3){pointCalcs[1].x, pointCalcs[1].y, pointCalcs[1].z}, (Vector3){pointCalcs[2].x, pointCalcs[2].y, pointCalcs[2].z}, (SDL_FColor){faceDot, faceDot, faceDot, 1});
+			draw3DTriangle((Vector3){pointCalcs[0].x, pointCalcs[0].y, pointCalcs[0].z}, (Vector3){pointCalcs[1].x, pointCalcs[1].y, pointCalcs[1].z}, (Vector3){pointCalcs[2].x, pointCalcs[2].y, pointCalcs[2].z}, (SDL_FColor){lerp(lightAmbient.r, 1, faceDot), lerp(lightAmbient.g, 1, faceDot), lerp(lightAmbient.b, 1, faceDot), 1});
 		}
 	}
 }
