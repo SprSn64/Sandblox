@@ -96,7 +96,7 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[]){
 	fontTex = newTexture("assets/font.png", SDL_SCALEMODE_NEAREST);
 	playerTex = newTexture("assets/playertemp.png", SDL_SCALEMODE_NEAREST);
 
-	teapotMesh = loadMeshFromObj("assets/models/lowpolyteapot.obj");
+	teapotMesh = loadMeshFromObj("assets/models/teapot.obj");
 	playerMesh = loadMeshFromObj("assets/models/oldplayer.obj");
 	cubeMesh = loadMeshFromObj("assets/models/testcube.obj");
 	

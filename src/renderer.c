@@ -19,6 +19,7 @@ extern double windowScaleFactor;
 extern SDL_Point windowScale;
 
 float renderScale = 480;
+Vector3 lightNormal = {0.33, 0.33, 0.33};
 
 Vector3 worldToCamera(Vector3 pos){
 	Vector3 firstPos = {pos.x - currentCamera.pos.x, pos.y - currentCamera.pos.y, pos.z - currentCamera.pos.z};
@@ -52,7 +53,7 @@ bool drawTriangle(Vector3 pointA, Vector3 pointB, Vector3 pointC, SDL_FColor col
 	float clockwiseBC = (verts[2].position.x - verts[1].position.x) * (verts[2].position.y + verts[1].position.y);
 	float clockwiseCA = (verts[0].position.x - verts[2].position.x) * (verts[0].position.y + verts[2].position.y);
 
-	if(clockwiseAB + clockwiseBC + clockwiseCA <= 0){// && max(pointA.z, max(pointB.z, pointC.z)) >= 0){
+	if(clockwiseAB + clockwiseBC + clockwiseCA >= 0){// && max(pointA.z, max(pointB.z, pointC.z)) >= 0){
 		SDL_RenderGeometry(renderer, NULL, verts, 3, NULL, 0);
 		//SDL_SetRenderDrawColor(renderer, 255, 0, 0, SDL_ALPHA_OPAQUE); SDL_RenderFillRect(renderer, &(SDL_FRect){verts[1].position.x, verts[1].position.y, 2, 2});
 		return 0;
@@ -101,7 +102,15 @@ void drawMesh(Mesh* mesh, mat4 transform){
 			pointCalcs[0] = matrixMult((Vector4){mesh->faces[i].vertA->pos.x, mesh->faces[i].vertA->pos.y, mesh->faces[i].vertA->pos.z, 1}, transform);
 			pointCalcs[1] = matrixMult((Vector4){mesh->faces[i].vertB->pos.x, mesh->faces[i].vertB->pos.y, mesh->faces[i].vertB->pos.z, 1}, transform);
 			pointCalcs[2] = matrixMult((Vector4){mesh->faces[i].vertC->pos.x, mesh->faces[i].vertC->pos.y, mesh->faces[i].vertC->pos.z, 1}, transform);
-			draw3DTriangle((Vector3){pointCalcs[0].x, pointCalcs[0].y, pointCalcs[0].z}, (Vector3){pointCalcs[1].x, pointCalcs[1].y, pointCalcs[1].z}, (Vector3){pointCalcs[2].x, pointCalcs[2].y, pointCalcs[2].z}, (SDL_FColor){1, 1, 1, 1});
+			
+			Vector3 faceNormal = {
+				(mesh->faces[i].vertA->norm.x + mesh->faces[i].vertB->norm.x + mesh->faces[i].vertC->norm.x) / 3,
+				(mesh->faces[i].vertA->norm.y + mesh->faces[i].vertB->norm.y + mesh->faces[i].vertC->norm.y) / 3,
+				(mesh->faces[i].vertA->norm.z + mesh->faces[i].vertB->norm.z + mesh->faces[i].vertC->norm.z) / 3,
+			};
+			float faceDot = (dotProd3(faceNormal, lightNormal) + 1) / 2;
+			
+			draw3DTriangle((Vector3){pointCalcs[0].x, pointCalcs[0].y, pointCalcs[0].z}, (Vector3){pointCalcs[1].x, pointCalcs[1].y, pointCalcs[1].z}, (Vector3){pointCalcs[2].x, pointCalcs[2].y, pointCalcs[2].z}, (SDL_FColor){faceDot, faceDot, faceDot, 1});
 		}
 	}
 }
