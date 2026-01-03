@@ -18,4 +18,8 @@ float *rotateMatrix(mat4 matrix, Vector3 angle);
 
 float *genMatrix(Vector3 pos, Vector3 scale, Vector3 rot);
 
+//versions of above functions but without generating new ones
+void translateMatrix2(mat4 matrix, Vector3 move);
+void scaleMatrix2(mat4 matrix, Vector3 scale);
+
 #endif

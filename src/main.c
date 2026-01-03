@@ -44,6 +44,7 @@ SDL_Texture *playerTex = NULL;
 
 Mesh *teapotMesh = NULL;
 Mesh *playerMesh = NULL;
+Mesh *cubeMesh = NULL;
 
 KeyMap keyList[10];
 
@@ -97,6 +98,7 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[]){
 
 	teapotMesh = loadMeshFromObj("assets/models/lowpolyteapot.obj");
 	playerMesh = loadMeshFromObj("assets/models/oldplayer.obj");
+	cubeMesh = loadMeshFromObj("assets/models/testcube.obj");
 	
 	SDL_SetRenderVSync(renderer, 1);
 
@@ -110,7 +112,7 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[]){
 	blockAObj->pos = (Vector3){-1, 2, -1}; blockAObj->scale = (Vector3){2, 2, 2}; blockAObj->colour = (CharColour){153, 204, 255};
 	blockAObj->name = "BlueBlock\0";
 	blockBObj = newObject(blockAObj, &blockClass);
-	blockBObj->pos = (Vector3){0, 3, 0}; blockBObj->scale = (Vector3){1, 1, 1}; blockBObj->colour = (CharColour){255, 51, 76};
+	blockBObj->pos = (Vector3){6, 5, 0}; blockBObj->scale = (Vector3){1, 1, 1}; blockBObj->colour = (CharColour){255, 51, 76};
 	blockBObj->name = "RedBlock\0";
 
 	if (playerObj == NULL) {

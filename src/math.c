@@ -28,7 +28,7 @@ float closest(float input, float snap){
 
 float *newMatrix(){
 	float *output;
-	output = calloc(sizeof(mat4), sizeof(float));
+	output = calloc(1, sizeof(mat4));;
 	output[0] = 1; output[5] = 1; output[10] = 1; output[15] = 1; 
 	return output;
 }
@@ -49,7 +49,7 @@ matrix[12], matrix[13], matrix[24], matrix[15],*/
 
 float *scaleMatrix(mat4 matrix, Vector3 scale){
 	float *output;
-	output = calloc(sizeof(mat4), sizeof(float));
+	output = calloc(1, sizeof(mat4));
 	float tempMatrix[16] = {
 		matrix[0] * scale.x, matrix[1], matrix[2], matrix[3],
 		matrix[4], matrix[5] * scale.y, matrix[6], matrix[7],
@@ -57,13 +57,13 @@ float *scaleMatrix(mat4 matrix, Vector3 scale){
 		matrix[12], matrix[13], matrix[24], matrix[15],
 	};
 	
-	memcpy(output, &tempMatrix, sizeof(float) * 16);
+	memcpy(output, &tempMatrix, sizeof(mat4));
 	return output;
 }
 
 float *translateMatrix(mat4 matrix, Vector3 move){
 	float *output;
-	output = calloc(sizeof(mat4), sizeof(float));
+	output = calloc(1, sizeof(mat4));
 	float tempMatrix[16] = {
 		matrix[0], matrix[1], matrix[2], matrix[3] + move.x,
 		matrix[4], matrix[5], matrix[6], matrix[7] + move.y,
@@ -71,14 +71,14 @@ float *translateMatrix(mat4 matrix, Vector3 move){
 		matrix[12], matrix[13], matrix[24], matrix[15],
 	};
 	
-	memcpy(output, &tempMatrix, sizeof(float) * 16);
+	memcpy(output, &tempMatrix, sizeof(mat4));
 	return output;
 }
 
 float *multMatrix(mat4 matrixA, mat4 matrixB){
 	// horrible code warning
 	float *output;
-	output = calloc(sizeof(mat4), sizeof(float));
+	output = calloc(1, sizeof(mat4));
 
 	output[0] = matrixA[0] * matrixB[0] + matrixA[4] * matrixB[1] + matrixA[8] * matrixB[2] + matrixA[12] * matrixB[3];
 	output[1] = matrixA[1] * matrixB[0] + matrixA[5] * matrixB[1] + matrixA[9] * matrixB[2] + matrixA[13] * matrixB[3];
@@ -102,7 +102,7 @@ float *multMatrix(mat4 matrixA, mat4 matrixB){
 
 float *axisRotMatrix(Uint8 axis, float angle){ //axis 0 = x (yz planes), axis 1 = y (xz planes), axis 2 = z (xy planes)
 	float *output;
-	output = calloc(sizeof(mat4), sizeof(float));
+	output = calloc(1, sizeof(mat4));;
 	float angSin = SDL_sin(angle);
 	float angCos = SDL_cos(angle);
 	float tempMatrix[16] = {
@@ -111,32 +111,46 @@ float *axisRotMatrix(Uint8 axis, float angle){ //axis 0 = x (yz planes), axis 1 
 		-angSin * (axis == 1), angSin * (axis == 0), angCos * (axis != 2) + (axis == 2), 0,
 		0, 0, 0, 1,
 	};
-	memcpy(output, &tempMatrix, sizeof(float) * 16);
+	memcpy(output, &tempMatrix, sizeof(mat4));
 	return output;
 }
 
 float *rotateMatrix(mat4 matrix, Vector3 angle){
 	float *output;
-	output = calloc(sizeof(mat4), sizeof(float));
+	output = calloc(1, sizeof(mat4));
 	
 	float *xMatrix = multMatrix(matrix, axisRotMatrix(0, angle.x));
 	float *yMatrix = multMatrix(xMatrix, axisRotMatrix(1, angle.y));
 	float *zMatrix = multMatrix(yMatrix, axisRotMatrix(2, angle.z));
 	
-	memcpy(output, &zMatrix, sizeof(float) * 16);
+	memcpy(output, &zMatrix, sizeof(mat4));
 	free(xMatrix); free(yMatrix); free(zMatrix); 
 	return output;
 }
 
 float *genMatrix(Vector3 pos, Vector3 scale, Vector3 rot){
 	float *output;
-	output = calloc(sizeof(mat4), sizeof(float));
+	output = calloc(1, sizeof(mat4));
 	
 	float *blankMatrix = newMatrix();
 	float *translated = scaleMatrix(translateMatrix(blankMatrix, pos), scale);
 	float *rotated = rotateMatrix(translated, rot);
 	
-	memcpy(output, &rotated, sizeof(float) * 16);
+	memcpy(output, rotated, sizeof(mat4));
 	free(blankMatrix); free(translated); free(rotated); 
 	return output;
+}
+
+//versions of above functions but without generating new ones
+
+void translateMatrix2(mat4 matrix, Vector3 move){
+	matrix[3] += move.x;
+	matrix[7] += move.y;
+	matrix[11] += move.z;
+}
+
+void scaleMatrix2(mat4 matrix, Vector3 scale){
+	matrix[0] *= scale.x;
+	matrix[5] *= scale.y;
+	matrix[10] *= scale.z;
 }
