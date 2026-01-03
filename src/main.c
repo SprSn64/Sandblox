@@ -43,6 +43,7 @@ SDL_Texture *fontTex = NULL;
 SDL_Texture *playerTex = NULL;
 
 Mesh *teapotMesh = NULL;
+Mesh *playerMesh = NULL;
 
 KeyMap keyList[10];
 
@@ -94,7 +95,8 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[]){
 	fontTex = newTexture("assets/font.png", SDL_SCALEMODE_NEAREST);
 	playerTex = newTexture("assets/playertemp.png", SDL_SCALEMODE_NEAREST);
 
-	teapotMesh = loadMeshFromObj("assets/lowpolyteapot.obj");
+	teapotMesh = loadMeshFromObj("assets/models/lowpolyteapot.obj");
+	playerMesh = loadMeshFromObj("assets/models/oldplayer.obj");
 	
 	SDL_SetRenderVSync(renderer, 1);
 

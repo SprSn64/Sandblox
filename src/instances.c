@@ -52,7 +52,7 @@ void cleanupObjects(DataObj* item){
 DataObj* newObject(DataObj* parent, DataType* class){
 	DataObj *newObj = calloc(1, sizeof(DataObj)); 
 	if(newObj == NULL){
-		printf("Created to create object of type '%s'.\n", class->name);
+		printf("Failed to create object of type '%s'.\n", class->name);
 		return NULL;
 	}
 	if (parent == NULL) parent = &gameHeader;
@@ -119,6 +119,7 @@ extern Camera currentCamera;
 extern KeyMap keyList[10];
 
 extern Mesh *teapotMesh;
+extern Mesh *playerMesh;
 
 extern SDL_Texture *playerTex;
 
@@ -132,13 +133,14 @@ void playerUpdate(DataObj* object){
 }
 
 void playerDraw(DataObj* object){
+	drawMesh(playerMesh, object->transform);
 	drawCube((Vector3){object->pos.x - 1, object->pos.y + 4, object->pos.z - 1}, (Vector3){2, 4, 2}, (SDL_FColor){1, 1, 1, 1});
 	drawBillboard(playerTex, (SDL_FRect){0, 0, 128, 128}, object->pos, (SDL_FPoint){8, 16}, (SDL_FPoint){4, 4});
 }
 
 void blockDraw(DataObj* object){
 	//drawCube(object->pos, object->scale, charColConv(object->colour));
-	drawMesh(teapotMesh, object->transform);
+	//drawMesh(teapotMesh, object->transform);
 }
 
 DataType playerClass = {"Player\0", 0, NULL, playerUpdate, playerDraw};
