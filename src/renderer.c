@@ -7,6 +7,7 @@
 
 #include <structs.h>
 #include "renderer.h"
+#include "math.h"
 
 extern SDL_Renderer *renderer;
 
@@ -87,6 +88,22 @@ void drawCube(Vector3 pos, Vector3 scale, SDL_FColor colour){
 	
 	draw3DTriangle((Vector3){pos.x + scale.x, pos.y - scale.y, pos.z}, (Vector3){pos.x, pos.y - scale.y, pos.z}, (Vector3){pos.x + scale.x, pos.y - scale.y, pos.z + scale.z}, (SDL_FColor){colour.r * 0.28, colour.g * 0.28, colour.b * 0.6, 1});
 	draw3DTriangle((Vector3){pos.x, pos.y - scale.y, pos.z}, (Vector3){pos.x, pos.y - scale.y, pos.z + scale.z}, (Vector3){pos.x + scale.x, pos.y - scale.y, pos.z + scale.z}, (SDL_FColor){colour.r * 0.28, colour.g * 0.28, colour.b * 0.6, 1});
+}
+
+bool drawMesh(Mesh* mesh, mat4 transform){
+	if(!mesh) return 1;
+	
+	/*Vector4 pointCalcs[3];
+	
+	for(int i=0; i < mesh->faceCount; i++){
+		pointCalcs[0] = matrixMult((Vector4){mesh->faces[i].vertA->pos.x, mesh->faces[i].vertA->pos.y, mesh->faces[i].vertA->pos.z, 1}, transform);
+		pointCalcs[1] = matrixMult((Vector4){mesh->faces[i].vertB->pos.x, mesh->faces[i].vertB->pos.y, mesh->faces[i].vertB->pos.z, 1}, transform);
+		pointCalcs[2] = matrixMult((Vector4){mesh->faces[i].vertC->pos.x, mesh->faces[i].vertC->pos.y, mesh->faces[i].vertC->pos.z, 1}, transform);
+		
+		draw3DTriangle((Vector3){pointCalcs[0].x, pointCalcs[0].y, pointCalcs[0].z}, (Vector3){pointCalcs[1].x, pointCalcs[1].y, pointCalcs[1].z}, (Vector3){pointCalcs[2].x, pointCalcs[2].y, pointCalcs[2].z}, (SDL_FColor){1, 1, 1, 1});
+	}*/
+	
+	return 0;
 }
 
 SDL_Texture *newTexture(char* path, SDL_ScaleMode scaleMode){

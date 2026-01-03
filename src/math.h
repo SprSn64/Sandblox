@@ -13,6 +13,6 @@ float *scaleMatrix(mat4 matrix, Vector3 scale);
 float *multMatrix(mat4 matrixA, mat4 matrixB);
 
 float *axisRotMatrix(Uint8 axis, float angle);
-float *rotateMatrix(mat4 matrix, Vector3 angle)
+float *rotateMatrix(mat4 matrix, Vector3 angle);
 
 #endif

@@ -45,7 +45,7 @@ typedef struct{
 
 typedef struct DataObj{
 	Vector3 pos, scale, rot;
-	float *localMat;
+	float *transform;
 	CharColour colour;
 	char *name;
 	DataType* class;

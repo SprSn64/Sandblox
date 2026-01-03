@@ -9,7 +9,8 @@
 #include <structs.h>
 #include "instances.h"
 #include "renderer.h"
-//#include "math.h" //causes "error: storage class specified for parameter..." for some reason
+#include "math.h" //causes "error: storage class specified for parameter..." for some reason
+#include "loader.h"
 
 extern SDL_Renderer *renderer;
 extern SDL_Texture *fontTex;
@@ -49,7 +50,7 @@ DataObj* newObject(DataObj* parent, DataType* class){
 	parent->child = newObj;
 
 	newObj->pos = (Vector3){0,0,0};
-	newObj->localMat = NULL;//newMatrix();
+	newObj->transform = newMatrix();
 	newObj->scale = (Vector3){1,1,1};
 	newObj->rot = (Vector3){0,0,0};
 	newObj->colour = (CharColour){255, 255, 255};
@@ -100,7 +101,9 @@ CollsionReturn* getCollision(CollisionHull* itemA, CollisionHull* itemB){
 extern float timer;
 extern double deltaTime;
 extern Camera currentCamera;
-extern KeyMap keyList[6];
+extern KeyMap keyList[10];
+
+//extern Mesh teapotMesh;
 
 extern SDL_Texture *playerTex;
 
@@ -116,6 +119,7 @@ void playerUpdate(DataObj* object){
 void playerDraw(DataObj* object){
 	drawCube((Vector3){object->pos.x - 1, object->pos.y + 4, object->pos.z - 1}, (Vector3){2, 4, 2}, (SDL_FColor){1, 1, 1, 1});
 	drawBillboard(playerTex, (SDL_FRect){0, 0, 128, 128}, object->pos, (SDL_FPoint){8, 16}, (SDL_FPoint){4, 4});
+	//drawMesh(&teapotMesh, object->transform);
 }
 
 void blockDraw(DataObj* object){

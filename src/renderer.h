@@ -6,6 +6,24 @@
 
 #include <structs.h>
 
+typedef struct{
+	Vector3 pos, norm;
+	SDL_FPoint uv;
+	CharColour colour;
+} MeshVert;
+
+typedef struct{
+	MeshVert *vertA, *vertB, *vertC;
+	//Material material; or something
+} MeshFace;
+
+typedef struct{
+	Uint32 vertCount;
+	MeshVert *verts;
+	Uint32 faceCount;
+	MeshFace *faces;
+} Mesh;
+
 SDL_Texture *newTexture(char* path, SDL_ScaleMode scaleMode);
 void drawText(SDL_Renderer *renderer, SDL_Texture *texture, char* text, char charOff, short posX, short posY, short width, short height, short kern);
 
@@ -21,6 +39,7 @@ bool draw3DTriangle(Vector3 pointA, Vector3 pointB, Vector3 pointC, SDL_FColor c
 SDL_FColor charColConv(CharColour colour);
 
 void drawCube(Vector3 pos, Vector3 scale, SDL_FColor colour);
+bool drawMesh(Mesh* mesh, mat4 transform);
 void drawBillboard(SDL_Texture *texture, SDL_FRect rect, Vector3 pos, SDL_FPoint offset, SDL_FPoint scale);
 
 #endif
