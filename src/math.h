@@ -6,6 +6,7 @@ float invLerp(float a, float b, float v);
 float dotProd2(SDL_FPoint vecA, SDL_FPoint vecB);
 float dotProd3(Vector3 vecA, Vector3 vecB);
 float closest(float input, float snap);
+bool between(float input, float min, float max);
 
 float *newMatrix();
 Vector4 matrixMult(Vector4 vector, mat4 matrix);

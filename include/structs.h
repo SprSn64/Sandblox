@@ -63,6 +63,12 @@ typedef struct DataObj{
 	*/
 } DataObj;
 
+typedef enum objValues{ //array items for the pointers (the void *values)
+	OBJVAL_COLLIDER,
+	OBJVAL_VELOCITY,
+	OBJVAL_MESH,
+} objValues;
+
 typedef struct{
 	DataObj* headObj;
 	Camera* currCamera;

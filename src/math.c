@@ -26,6 +26,10 @@ float closest(float input, float snap){
 	return floor(input / snap) * snap;
 }
 
+bool between(float input, float min, float max){
+	return(input >= min && input <= max);
+}
+
 float *newMatrix(){
 	float *output;
 	output = calloc(1, sizeof(mat4));;
