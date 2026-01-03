@@ -126,7 +126,7 @@ CollsionReturn* getCollision(CollisionHull* itemA, CollisionHull* itemB){
 extern float timer;
 extern double deltaTime;
 extern Camera currentCamera;
-extern KeyMap keyList[10];
+extern KeyMap keyList[KEYBINDCOUNT];
 
 extern Mesh *teapotMesh;
 extern Mesh *playerMesh;
@@ -146,7 +146,7 @@ void playerUpdate(DataObj* object){
 	}
 
 	//object->pos.y = SDL_cos(timer) / 2 + 2;
-	currentCamera.pos = (Vector3){object->pos.x + (SDL_cos(currentCamera.rot.x) * SDL_sin(currentCamera.rot.y)) * 16, object->pos.y + 2 - SDL_sin(currentCamera.rot.x) * 16, object->pos.z + (SDL_cos(currentCamera.rot.x) * SDL_cos(currentCamera.rot.y)) * 16};
+	currentCamera.pos = (Vector3){object->pos.x + (SDL_cos(currentCamera.rot.x) * SDL_sin(currentCamera.rot.y)) * currentCamera.focusDist, object->pos.y + 2 - SDL_sin(currentCamera.rot.x) * currentCamera.focusDist, object->pos.z + (SDL_cos(currentCamera.rot.x) * SDL_cos(currentCamera.rot.y)) * currentCamera.focusDist};
 }
 
 void playerDraw(DataObj* object){

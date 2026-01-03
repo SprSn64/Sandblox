@@ -3,10 +3,12 @@
 
 #include <SDL3/SDL.h>
 
+#define KEYBINDCOUNT 12
 typedef enum gameKeybinds{
 	KEYBIND_W, KEYBIND_S, KEYBIND_A, KEYBIND_D,
 	KEYBIND_SPACE, KEYBIND_SHIFT,
 	KEYBIND_UP, KEYBIND_DOWN, KEYBIND_LEFT, KEYBIND_RIGHT,
+	KEYBIND_I, KEYBIND_O,
 } gameKeybinds;
 
 #define max(a,b) ((a) > (b) ? (a) : (b))
@@ -25,11 +27,6 @@ typedef struct{
 typedef struct{
 	Uint8 r, g, b, a;
 } CharColour;
-
-typedef struct{
-	Vector3 pos, rot;
-	float fov, zoom;
-} Camera;
 
 typedef struct DataObj DataObj;
 
@@ -64,10 +61,17 @@ typedef struct DataObj{
 } DataObj;
 
 typedef enum objValues{ //array items for the pointers (the void *values)
+	OBJVAL_SCRIPT,
 	OBJVAL_COLLIDER,
 	OBJVAL_VELOCITY,
 	OBJVAL_MESH,
 } objValues;
+
+typedef struct{
+	Vector3 pos, rot;
+	float fov, zoom, focusDist;
+	DataObj* focusObj;
+} Camera;
 
 typedef struct{
 	DataObj* headObj;
@@ -88,7 +92,8 @@ typedef struct{
 } Server;
 
 typedef struct{
-	bool debug, pause, studio;
+	bool debug, pause, studio, online;
+	Uint32 playerID;
 } ClientData;
 
 typedef struct{

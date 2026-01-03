@@ -1,6 +1,9 @@
 #ifndef MATH_H
 #define MATH_H
 
+#define RAD2DEG 180 / 3.14159
+#define DEG2RAD 3.14159 / 180
+
 float lerp(float a, float b, float t);
 float invLerp(float a, float b, float v);
 float dotProd2(SDL_FPoint vecA, SDL_FPoint vecB);

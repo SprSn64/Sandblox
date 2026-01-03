@@ -109,9 +109,14 @@ void drawMesh(Mesh* mesh, mat4 transform){
 				(mesh->faces[i].vertA->norm.y + mesh->faces[i].vertB->norm.y + mesh->faces[i].vertC->norm.y) / 3,
 				(mesh->faces[i].vertA->norm.z + mesh->faces[i].vertB->norm.z + mesh->faces[i].vertC->norm.z) / 3,
 			};
+			SDL_FPoint faceUV = {
+				(mesh->faces[i].vertA->uv.x + mesh->faces[i].vertA->uv.x) / 2,
+				(mesh->faces[i].vertA->uv.y + mesh->faces[i].vertA->uv.y) / 2,
+			};
 			float faceDot = max(dotProd3(faceNormal, lightNormal), 0);
 			
 			draw3DTriangle((Vector3){pointCalcs[0].x, pointCalcs[0].y, pointCalcs[0].z}, (Vector3){pointCalcs[1].x, pointCalcs[1].y, pointCalcs[1].z}, (Vector3){pointCalcs[2].x, pointCalcs[2].y, pointCalcs[2].z}, (SDL_FColor){lerp(lightAmbient.r, 1, faceDot), lerp(lightAmbient.g, 1, faceDot), lerp(lightAmbient.b, 1, faceDot), 1});
+			//draw3DTriangle((Vector3){pointCalcs[0].x, pointCalcs[0].y, pointCalcs[0].z}, (Vector3){pointCalcs[1].x, pointCalcs[1].y, pointCalcs[1].z}, (Vector3){pointCalcs[2].x, pointCalcs[2].y, pointCalcs[2].z}, (SDL_FColor){faceUV.x, faceUV.y, 0, 1});
 		}
 	}
 }
@@ -134,7 +139,7 @@ SDL_FColor charColConv(CharColour colour){
 void drawBillboard(SDL_Texture *texture, SDL_FRect rect, Vector3 pos, SDL_FPoint offset, SDL_FPoint scale){
 	Vector3 projLoc[3] = {projToScreen(viewProj(worldToCamera(pos))), projToScreen(viewProj(worldToCamera((Vector3){pos.x--, pos.y, pos.z}))), projToScreen(viewProj(worldToCamera((Vector3){pos.x++, pos.y, pos.z})))};
 	if(projLoc[0].z < 0){
-		double sizeMult = -(projLoc[2].x - projLoc[1].x) / scale.x;
+		double sizeMult = fabs(-(projLoc[2].x - projLoc[1].x) / scale.x);
 		SDL_FRect sprPos = {projLoc[0].x - offset.x * sizeMult, projLoc[0].y - offset.y * sizeMult, scale.x * 3 * sizeMult, scale.y * 3 * sizeMult};
 		//SDL_SetRenderDrawColor(renderer, 0, 0, 255, 255); SDL_RenderFillRect(renderer, &sprPos);
 		//SDL_SetRenderDrawColor(renderer, 255, 0, 0, 255); SDL_RenderFillRect(renderer, &(SDL_FRect){projLoc[0].x - 2, projLoc[0].y - 2, 4, 4});

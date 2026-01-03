@@ -17,6 +17,7 @@
 #include <structs.h>
 #include "instances.h"
 #include "renderer.h"
+#include "math.h"
 #include "loader.h"
 
 SDL_Window *window = NULL;
@@ -30,7 +31,7 @@ SDL_Point windowScaleIntent = {320, 240};
 double windowScaleFactor;
 SDL_Point windowScale = {640, 480};
 
-Camera currentCamera = {(Vector3){0, 2, 10}, (Vector3){0, 0, 0}, 90, 1};
+Camera currentCamera = {(Vector3){0, 2, 10}, (Vector3){0, 0, 0}, 90, 1, 16, NULL};
 
 Uint64 last = 0;
 Uint64 now = 0;
@@ -47,7 +48,7 @@ Mesh *teapotMesh = NULL;
 Mesh *playerMesh = NULL;
 Mesh *cubeMesh = NULL;
 
-KeyMap keyList[10];
+KeyMap keyList[KEYBINDCOUNT];
 
 void HandleKeyInput();
 
@@ -107,6 +108,7 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[]){
 	keyList[KEYBIND_W].scanCode = SDL_SCANCODE_W; keyList[KEYBIND_S].scanCode = SDL_SCANCODE_S; keyList[KEYBIND_A].scanCode = SDL_SCANCODE_A; keyList[KEYBIND_D].scanCode = SDL_SCANCODE_D;
 	keyList[KEYBIND_SPACE].scanCode = SDL_SCANCODE_SPACE; keyList[KEYBIND_SHIFT].scanCode = SDL_SCANCODE_LSHIFT;
 	keyList[KEYBIND_UP].scanCode = SDL_SCANCODE_UP; keyList[KEYBIND_DOWN].scanCode = SDL_SCANCODE_DOWN; keyList[KEYBIND_LEFT].scanCode = SDL_SCANCODE_LEFT; keyList[KEYBIND_RIGHT].scanCode = SDL_SCANCODE_RIGHT;
+	keyList[KEYBIND_I].scanCode = SDL_SCANCODE_I; keyList[KEYBIND_O].scanCode = SDL_SCANCODE_O;
 
 	playerObj = newObject(NULL, &playerClass);
 	newObject(NULL, &fuckingBeerdrinkerClass);
@@ -153,6 +155,7 @@ SDL_AppResult SDL_AppIterate(void *appstate){
 	
 	currentCamera.rot.x += (keyList[KEYBIND_UP].down - keyList[KEYBIND_DOWN].down) * 1 * deltaTime;
 	currentCamera.rot.y += (keyList[KEYBIND_LEFT].down - keyList[KEYBIND_RIGHT].down) * 1 * deltaTime;
+	currentCamera.focusDist = min(max(currentCamera.focusDist + (keyList[KEYBIND_O].down - keyList[KEYBIND_I].down) * 4 * sqrt(currentCamera.focusDist + 1) * deltaTime, 0), 64);
 	
 	int idCounter = 0;
 	updateObjects(&gameHeader, 0, &idCounter, false);
@@ -170,6 +173,8 @@ SDL_AppResult SDL_AppIterate(void *appstate){
 	}
 	sprintf(guiText, "FPS: %d", lastFPS);
 	drawText(renderer, fontTex, guiText, 32, 0, 0, 16, 16, 12);
+	sprintf(guiText, "Camera Rot: %f, %f", currentCamera.rot.x, currentCamera.rot.y);
+	drawText(renderer, fontTex, guiText, 32, 0, 16, 16, 16, 12);
 	//drawText(renderer, fontTex, "Diagnostics: Skill issue", 32, 0, 64, 16, 16, 12);
 	//SDL_RenderDebugText(renderer, 0, 0, guiText);
 
@@ -185,7 +190,7 @@ void SDL_AppQuit(void *appstate, SDL_AppResult result){
     
 void HandleKeyInput(){
 	const bool* keyState = SDL_GetKeyboardState(NULL);
-	for(int i = 0; i < 10; i++){
+	for(int i = 0; i < KEYBINDCOUNT; i++){
 		keyList[i].down = keyState[keyList[i].scanCode];
 	}
 }
