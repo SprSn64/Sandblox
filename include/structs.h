@@ -23,7 +23,7 @@ typedef struct{
 } Vector4;
 
 typedef struct{
-	Uint8 r, g, b;
+	Uint8 r, g, b, a;
 } CharColour;
 
 typedef struct{
@@ -50,7 +50,7 @@ typedef struct DataObj{
 	char *name;
 	DataType* class;
 	
-	float *values;
+	void *values; //pointers to floats, ints, arrays and other stuffs
 	
 	struct DataObj* prev;
 	struct DataObj* next;

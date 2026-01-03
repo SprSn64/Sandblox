@@ -118,5 +118,10 @@ void playerDraw(DataObj* object){
 	drawBillboard(playerTex, (SDL_FRect){0, 0, 128, 128}, object->pos, (SDL_FPoint){8, 16}, (SDL_FPoint){4, 4});
 }
 
+void blockDraw(DataObj* object){
+	drawCube(object->pos, object->scale, charColConv(object->colour));
+}
+
 DataType playerClass = {"Player\0", 0, NULL, playerUpdate, playerDraw};
 DataType fuckingBeerdrinkerClass = {"beer drinker\0", 0, NULL, NULL, NULL};
+DataType blockClass = {"Block\0", 0, NULL, NULL, blockDraw};

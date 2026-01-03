@@ -49,8 +49,12 @@ extern float renderScale;
 
 extern DataType playerClass;
 extern DataType fuckingBeerdrinkerClass;
-DataObj* playerObj = NULL;
+extern DataType blockClass;
 extern DataObj gameHeader;
+
+DataObj* playerObj = NULL;
+DataObj* blockAObj = NULL;
+DataObj* blockBObj = NULL;
 
 SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[]){
 	SDL_SetAppMetadata("SandBlox", "0.0", NULL);
@@ -95,6 +99,12 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[]){
 
 	playerObj = newObject(NULL, &playerClass);
 	newObject(NULL, &fuckingBeerdrinkerClass);
+	blockAObj = newObject(NULL, &blockClass);
+	blockAObj->pos = (Vector3){-1, 2, -1}; blockAObj->scale = (Vector3){2, 2, 2}; blockAObj->colour = (CharColour){153, 204, 255};
+	blockAObj->name = "BlueBlock\0";
+	blockBObj = newObject(blockAObj, &blockClass);
+	blockBObj->pos = (Vector3){0, 3, 0}; blockBObj->scale = (Vector3){1, 1, 1}; blockBObj->colour = (CharColour){255, 51, 76};
+	blockBObj->name = "RedBlock\0";
 
 	if (playerObj == NULL) {
 		printf("player is fucking null\n");
@@ -136,8 +146,8 @@ SDL_AppResult SDL_AppIterate(void *appstate){
 	int idCounter = 0;
 	updateObjects(&gameHeader, 0, &idCounter, false);
 	
-	drawCube((Vector3){(2 + SDL_cos(timer)) / -2, SDL_sin(timer) + 1, (2 + SDL_cos(timer)) / -2}, (Vector3){2 + SDL_cos(timer), SDL_sin(timer) + 1, 2 + SDL_cos(timer)}, (SDL_FColor){0.6, 0.8, 1, 1});
-	drawCube((Vector3){SDL_sin(timer) * 2 - 0.5, 1, SDL_cos(timer) * 2 - 0.5}, (Vector3){1, 1, 1}, (SDL_FColor){1, 0.2, 0.3, 1});
+	//drawCube((Vector3){(2 + SDL_cos(timer)) / -2, SDL_sin(timer) + 1, (2 + SDL_cos(timer)) / -2}, (Vector3){2 + SDL_cos(timer), SDL_sin(timer) + 1, 2 + SDL_cos(timer)}, (SDL_FColor){0.6, 0.8, 1, 1});
+	//drawCube((Vector3){SDL_sin(timer) * 2 - 0.5, 1, SDL_cos(timer) * 2 - 0.5}, (Vector3){1, 1, 1}, (SDL_FColor){1, 0.2, 0.3, 1});
 	SDL_SetRenderDrawColor(renderer, 255, 255, 255, SDL_ALPHA_OPAQUE);
 	
 	idCounter = 0;

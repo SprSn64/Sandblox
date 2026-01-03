@@ -18,6 +18,8 @@ Vector3 projToScreen(Vector3 pos);
 bool drawTriangle(Vector3 pointA, Vector3 pointB, Vector3 pointC, SDL_FColor colour);
 bool draw3DTriangle(Vector3 pointA, Vector3 pointB, Vector3 pointC, SDL_FColor colour);
 
+SDL_FColor charColConv(CharColour colour);
+
 void drawCube(Vector3 pos, Vector3 scale, SDL_FColor colour);
 void drawBillboard(SDL_Texture *texture, SDL_FRect rect, Vector3 pos, SDL_FPoint offset, SDL_FPoint scale);
 
