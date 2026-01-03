@@ -9,7 +9,7 @@
 #include "structs.h"
 #include "renderer.h"
 
-/*MeshVert teapotVerts[45] = {
+MeshVert teapotVerts[45] = {
 	(MeshVert){(Vector3){0, 0, 0}}, 
 	(MeshVert){(Vector3){1.408866, 2.498437, 0}}, 
 	(MeshVert){(Vector3){0, 1.341141, -1.938592}}, 
@@ -108,4 +108,4 @@ MeshFace teapotFaces[58] = {
 	(MeshFace){&teapotVerts[5], &teapotVerts[16], &teapotVerts[15]},
 };
 
-Mesh teapotMesh = {41, teapotVerts, 58, teapotFaces};*/
+Mesh teapotMesh = {45, teapotVerts, 58, teapotFaces};

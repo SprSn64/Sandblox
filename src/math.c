@@ -24,7 +24,7 @@ float dotProd3(Vector3 vecA, Vector3 vecB){
 
 float *newMatrix(){
 	float *output;
-	output = calloc(0, sizeof(mat4));
+	output = calloc(1, sizeof(mat4));
 	output[0] = 1; output[5] = 1; output[10] = 1; output[15] = 1; 
 	return output;
 }

@@ -103,7 +103,7 @@ extern double deltaTime;
 extern Camera currentCamera;
 extern KeyMap keyList[10];
 
-//extern Mesh teapotMesh;
+extern Mesh teapotMesh;
 
 extern SDL_Texture *playerTex;
 
@@ -119,11 +119,11 @@ void playerUpdate(DataObj* object){
 void playerDraw(DataObj* object){
 	drawCube((Vector3){object->pos.x - 1, object->pos.y + 4, object->pos.z - 1}, (Vector3){2, 4, 2}, (SDL_FColor){1, 1, 1, 1});
 	drawBillboard(playerTex, (SDL_FRect){0, 0, 128, 128}, object->pos, (SDL_FPoint){8, 16}, (SDL_FPoint){4, 4});
-	//drawMesh(&teapotMesh, object->transform);
+	drawMesh(&teapotMesh, object->transform);
 }
 
 void blockDraw(DataObj* object){
-	drawCube(object->pos, object->scale, charColConv(object->colour));
+	//drawCube(object->pos, object->scale, charColConv(object->colour));
 }
 
 DataType playerClass = {"Player\0", 0, NULL, playerUpdate, playerDraw};
