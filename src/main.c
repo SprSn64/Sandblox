@@ -167,8 +167,8 @@ SDL_AppResult SDL_AppIterate(void *appstate){
 	return SDL_APP_CONTINUE;
 }
 
-void SDL_AppQuit(void *appstate, SDL_AppResult result)
-{
+void SDL_AppQuit(void *appstate, SDL_AppResult result){
+	cleanupObjects(&gameHeader);
 	SDL_DestroyTexture(fontTex);
 }
     

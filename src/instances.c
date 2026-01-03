@@ -24,7 +24,7 @@ DataObj gameHeader = {(Vector3){0, 0, 0}, (Vector3){1, 1, 1}, (Vector3){0, 0, 0}
 
 void updateObjects(DataObj* item, int nodeDepth, int *idCount, bool uord){ //uord = update or draw
 	int i = (*idCount)++;
-	drawText(renderer, fontTex, item->name, 32, OBJLIST_HUD_POS_X + (nodeDepth * 24), OBJLIST_HUD_POS_Y + i * 16, 16, 16, 12);
+	if(uord)drawText(renderer, fontTex, item->name, 32, OBJLIST_HUD_POS_X + (nodeDepth * 24), OBJLIST_HUD_POS_Y + i * 16, 16, 16, 12);
 	if (item->class) {
 		if (item->class->update && !uord) item->class->update(item);
 		if (item->class->draw && uord) item->class->draw(item);
@@ -38,8 +38,22 @@ void updateObjects(DataObj* item, int nodeDepth, int *idCount, bool uord){ //uor
 	}
 }
 
+void cleanupObjects(DataObj* item){
+	DataObj* child = item->child;
+	free(item);
+	while (child) {
+		DataObj *next = child->next;
+		cleanupObjects(child);
+		child = next;
+	}
+}
+
 DataObj* newObject(DataObj* parent, DataType* class){
 	DataObj *newObj = calloc(1, sizeof(DataObj)); 
+	if(newObj == NULL){
+		printf("Created to create object of type '%s'.\n", class->name);
+		return NULL;
+	}
 	if (parent == NULL) parent = &gameHeader;
 	newObj->parent = parent;
 	newObj->prev = NULL;

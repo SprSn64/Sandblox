@@ -7,6 +7,7 @@
 
 DataObj* newObject(DataObj* parent, DataType* class);
 void updateObjects(DataObj* item, int nodeDepth, int *idCount, bool uord);
+void cleanupObjects(DataObj* item);
 bool parentObject(DataObj* child, DataObj* parent);
 
 #endif
