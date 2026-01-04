@@ -20,6 +20,8 @@
 #include "math.h"
 #include "loader.h"
 
+#include "studio/studio.h"
+
 SDL_Window *window = NULL;
 SDL_Window *glWindow = NULL;
 SDL_Renderer *renderer = NULL;
