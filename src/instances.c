@@ -17,7 +17,7 @@ extern SDL_Texture *fontTex;
 
 extern DataObj* playerObj;
 
-DataObj gameHeader = {(Vector3){0, 0, 0}, (Vector3){1, 1, 1}, (Vector3){0, 0, 0}, NULL, (CharColour){0, 0, 0}, "Workspace", NULL, NULL, NULL, NULL, NULL, NULL};
+DataObj gameHeader = {(Vector3){0, 0, 0}, (Vector3){1, 1, 1}, (Vector3){0, 0, 0}, NULL, (CharColour){0, 0, 0, 255}, "Workspace", NULL, NULL, NULL, NULL, NULL, NULL};
 
 #define OBJLIST_HUD_POS_X 0
 #define OBJLIST_HUD_POS_Y 32
@@ -27,6 +27,7 @@ void updateObjects(DataObj* item, int nodeDepth, int *idCount, bool uord){ //uor
 	item->transform = newMatrix();
 	translateMatrix2(item->transform, (Vector3){item->pos.x, item->pos.y, item->pos.z});
 	scaleMatrix2(item->transform, (Vector3){item->scale.x, item->scale.y, item->scale.z});
+	//insert rotation here
 	if (item->class) {
 		if (item->class->update && !uord) item->class->update(item);
 		if (item->class->draw && uord) item->class->draw(item);
@@ -70,7 +71,7 @@ DataObj* newObject(DataObj* parent, DataType* class){
 	newObj->transform = NULL;
 	newObj->scale = (Vector3){1,1,1};
 	newObj->rot = (Vector3){0,0,0};
-	newObj->colour = (CharColour){255, 255, 255};
+	newObj->colour = (CharColour){255, 255, 255, 255};
 	newObj->name = class->name;
 	newObj->class = class;
 	newObj->values = NULL;
@@ -150,14 +151,14 @@ void playerUpdate(DataObj* object){
 }
 
 void playerDraw(DataObj* object){
-	drawMesh(playerMesh, object->transform);
+	drawMesh(playerMesh, object->transform, (SDL_FColor){1, 1, 1, 1});
 	//drawCube((Vector3){object->pos.x - 1, object->pos.y + 4, object->pos.z - 1}, (Vector3){2, 4, 2}, (SDL_FColor){1, 1, 1, 1});
 	//drawBillboard(playerTex, (SDL_FRect){0, 0, 128, 128}, object->pos, (SDL_FPoint){8, 16}, (SDL_FPoint){4, 4});
 }
 
 void blockDraw(DataObj* object){
 	//drawCube(object->pos, object->scale, charColConv(object->colour));
-	drawMesh(teapotMesh, object->transform);
+	drawMesh(teapotMesh, object->transform, charColConv(object->colour));
 
 	if (!strcmp(object->name, "RedBlock")) {
 		Vector3 scaleNew = (Vector3){2 + SDL_cos(timer), SDL_sin(timer) + 1, 2 + SDL_cos(timer)};

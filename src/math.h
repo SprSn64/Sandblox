@@ -26,4 +26,6 @@ float *genMatrix(Vector3 pos, Vector3 scale, Vector3 rot);
 void translateMatrix2(mat4 matrix, Vector3 move);
 void scaleMatrix2(mat4 matrix, Vector3 scale);
 
+float *perspMatrix(float fov, float aspect, float zNear, float zFar);
+
 #endif

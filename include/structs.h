@@ -71,6 +71,7 @@ typedef struct{
 	Vector3 pos, rot;
 	float fov, zoom, focusDist;
 	DataObj* focusObj;
+	float *transform;
 } Camera;
 
 typedef struct{

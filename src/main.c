@@ -31,7 +31,7 @@ SDL_Point windowScaleIntent = {320, 240};
 double windowScaleFactor;
 SDL_Point windowScale = {640, 480};
 
-Camera currentCamera = {(Vector3){0, 2, 10}, (Vector3){0, 0, 0}, 90, 1, 16, NULL};
+Camera currentCamera = {(Vector3){0, 2, 10}, (Vector3){0, 0, 0}, 90, 1, 16, NULL, NULL};
 
 Uint64 last = 0;
 Uint64 now = 0;
@@ -104,6 +104,8 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[]){
 	cubeMesh = loadMeshFromObj("assets/models/testcube.obj");
 	
 	SDL_SetRenderVSync(renderer, 1);
+	
+	currentCamera.transform = perspMatrix(90, 4/3, 0.01, 100);
 
 	keyList[KEYBIND_W].scanCode = SDL_SCANCODE_W; keyList[KEYBIND_S].scanCode = SDL_SCANCODE_S; keyList[KEYBIND_A].scanCode = SDL_SCANCODE_A; keyList[KEYBIND_D].scanCode = SDL_SCANCODE_D;
 	keyList[KEYBIND_SPACE].scanCode = SDL_SCANCODE_SPACE; keyList[KEYBIND_SHIFT].scanCode = SDL_SCANCODE_LSHIFT;
@@ -113,10 +115,10 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[]){
 	playerObj = newObject(NULL, &playerClass);
 	newObject(NULL, &fuckingBeerdrinkerClass);
 	blockAObj = newObject(NULL, &blockClass);
-	blockAObj->pos = (Vector3){-1, 2, -1}; blockAObj->scale = (Vector3){2, 2, 2}; blockAObj->colour = (CharColour){153, 204, 255};
+	blockAObj->pos = (Vector3){-1, 2, -1}; blockAObj->scale = (Vector3){2, 2, 2}; blockAObj->colour = (CharColour){153, 204, 255, 255};
 	blockAObj->name = "BlueBlock\0";
 	blockBObj = newObject(blockAObj, &blockClass);
-	blockBObj->pos = (Vector3){6, 5, 0}; blockBObj->scale = (Vector3){1, 1, 1}; blockBObj->colour = (CharColour){255, 51, 76};
+	blockBObj->pos = (Vector3){6, 5, 0}; blockBObj->scale = (Vector3){1, 1, 1}; blockBObj->colour = (CharColour){255, 51, 76, 255};
 	blockBObj->name = "RedBlock\0";
 
 	if (playerObj == NULL) {
@@ -175,7 +177,7 @@ SDL_AppResult SDL_AppIterate(void *appstate){
 	}
 	sprintf(guiText, "FPS: %d", lastFPS);
 	drawText(renderer, fontTex, guiText, 32, 0, 0, 16, 16, 12);
-	sprintf(guiText, "Camera Rot: %f, %f", currentCamera.rot.x, currentCamera.rot.y);
+	sprintf(guiText, "Camera Rot: %d, %d", (int)(currentCamera.rot.y * RAD2DEG), (int)(currentCamera.rot.x * RAD2DEG));
 	drawText(renderer, fontTex, guiText, 32, 0, 16, 16, 16, 12);
 	//drawText(renderer, fontTex, "Diagnostics: Skill issue", 32, 0, 64, 16, 16, 12);
 	//SDL_RenderDebugText(renderer, 0, 0, guiText);

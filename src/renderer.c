@@ -20,7 +20,7 @@ extern SDL_Point windowScale;
 
 float renderScale = 480;
 Vector3 lightNormal = {0.33, 0.33, 0.33};
-SDL_FColor lightAmbient = {0.2, 0.2, 0.2, 1};//{0.1, 0.2, 0.3, 1};
+SDL_FColor lightAmbient = {0.2, 0.2, 0.3, 1};//{0.1, 0.2, 0.3, 1};
 
 Vector3 worldToCamera(Vector3 pos){
 	Vector3 firstPos = {pos.x - currentCamera.pos.x, pos.y - currentCamera.pos.y, pos.z - currentCamera.pos.z};
@@ -39,6 +39,8 @@ Vector3 isoProj(Vector3 posA){
 
 Vector3 viewProj(Vector3 pos){
 	return (Vector3){pos.x / pos.z * currentCamera.zoom, pos.y / pos.z * currentCamera.zoom, pos.z * currentCamera.zoom};
+	//Vector4 matrixed = matrixMult((Vector4){pos.x, pos.y, pos.z, 1}, currentCamera.transform);
+	//return (Vector3){matrixed.x, matrixed.y, matrixed.z};
 }
 
 Vector3 projToScreen(Vector3 pos){
@@ -92,7 +94,7 @@ void drawCube(Vector3 pos, Vector3 scale, SDL_FColor colour){
 	draw3DTriangle((Vector3){pos.x, pos.y - scale.y, pos.z}, (Vector3){pos.x, pos.y - scale.y, pos.z + scale.z}, (Vector3){pos.x + scale.x, pos.y - scale.y, pos.z + scale.z}, (SDL_FColor){colour.r * 0.28, colour.g * 0.28, colour.b * 0.6, 1});
 }
 
-void drawMesh(Mesh* mesh, mat4 transform){
+void drawMesh(Mesh* mesh, mat4 transform, SDL_FColor colour){
 	if(!mesh) return;
 	if(!transform) return;
 	
@@ -115,7 +117,11 @@ void drawMesh(Mesh* mesh, mat4 transform){
 			};
 			float faceDot = max(dotProd3(faceNormal, lightNormal), 0);
 			
-			draw3DTriangle((Vector3){pointCalcs[0].x, pointCalcs[0].y, pointCalcs[0].z}, (Vector3){pointCalcs[1].x, pointCalcs[1].y, pointCalcs[1].z}, (Vector3){pointCalcs[2].x, pointCalcs[2].y, pointCalcs[2].z}, (SDL_FColor){lerp(lightAmbient.r, 1, faceDot), lerp(lightAmbient.g, 1, faceDot), lerp(lightAmbient.b, 1, faceDot), 1});
+			draw3DTriangle((Vector3){pointCalcs[0].x, pointCalcs[0].y, pointCalcs[0].z}, (Vector3){pointCalcs[1].x, pointCalcs[1].y, pointCalcs[1].z}, (Vector3){pointCalcs[2].x, pointCalcs[2].y, pointCalcs[2].z}, (SDL_FColor){
+				colour.r * (faceDot + lightAmbient.r - lightAmbient.r * faceDot), 
+				colour.g * (faceDot + lightAmbient.g - lightAmbient.g * faceDot), 
+				colour.b * (faceDot + lightAmbient.b - lightAmbient.b * faceDot), colour.a
+			});
 			//draw3DTriangle((Vector3){pointCalcs[0].x, pointCalcs[0].y, pointCalcs[0].z}, (Vector3){pointCalcs[1].x, pointCalcs[1].y, pointCalcs[1].z}, (Vector3){pointCalcs[2].x, pointCalcs[2].y, pointCalcs[2].z}, (SDL_FColor){faceUV.x, faceUV.y, 0, 1});
 		}
 	}
