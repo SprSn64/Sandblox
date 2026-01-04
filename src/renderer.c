@@ -12,7 +12,7 @@
 extern SDL_Renderer *renderer;
 
 extern float timer;
-extern Camera currentCamera;
+extern ClientData client;
 
 extern SDL_Point windowScaleIntent;
 extern double windowScaleFactor;
@@ -24,11 +24,11 @@ SDL_FColor lightColour = {1, 1, 1, 1};
 SDL_FColor lightAmbient = {0.2, 0.2, 0.3, 1};//{0.1, 0.2, 0.3, 1};
 
 Vector3 worldToCamera(Vector3 pos){
-	Vector3 firstPos = {pos.x - currentCamera.pos.x, pos.y - currentCamera.pos.y, pos.z - currentCamera.pos.z};
+	Vector3 firstPos = {pos.x - client.gameWorld->currCamera->pos.x, pos.y - client.gameWorld->currCamera->pos.y, pos.z - client.gameWorld->currCamera->pos.z};
 	Vector3 newPos;
-		newPos.x = firstPos.x * SDL_cos(currentCamera.rot.y) + firstPos.z * -SDL_sin(currentCamera.rot.y); newPos.z = firstPos.x * SDL_sin(currentCamera.rot.y) + firstPos.z * SDL_cos(currentCamera.rot.y);
-		newPos.y = firstPos.y * SDL_cos(currentCamera.rot.x) + newPos.z * SDL_sin(currentCamera.rot.x); newPos.z = firstPos.y * -SDL_sin(currentCamera.rot.x) + newPos.z * SDL_cos(currentCamera.rot.x);
-		newPos.x = newPos.x * SDL_cos(currentCamera.rot.z) + newPos.y * -SDL_sin(currentCamera.rot.z); newPos.y = newPos.x * SDL_sin(currentCamera.rot.z) + newPos.y * SDL_cos(currentCamera.rot.z);
+		newPos.x = firstPos.x * SDL_cos(client.gameWorld->currCamera->rot.y) + firstPos.z * -SDL_sin(client.gameWorld->currCamera->rot.y); newPos.z = firstPos.x * SDL_sin(client.gameWorld->currCamera->rot.y) + firstPos.z * SDL_cos(client.gameWorld->currCamera->rot.y);
+		newPos.y = firstPos.y * SDL_cos(client.gameWorld->currCamera->rot.x) + newPos.z * SDL_sin(client.gameWorld->currCamera->rot.x); newPos.z = firstPos.y * -SDL_sin(client.gameWorld->currCamera->rot.x) + newPos.z * SDL_cos(client.gameWorld->currCamera->rot.x);
+		newPos.x = newPos.x * SDL_cos(client.gameWorld->currCamera->rot.z) + newPos.y * -SDL_sin(client.gameWorld->currCamera->rot.z); newPos.y = newPos.x * SDL_sin(client.gameWorld->currCamera->rot.z) + newPos.y * SDL_cos(client.gameWorld->currCamera->rot.z);
 	return newPos;
 }
 
@@ -39,8 +39,8 @@ Vector3 isoProj(Vector3 posA){
 }
 
 Vector3 viewProj(Vector3 pos){
-	return (Vector3){pos.x / pos.z * currentCamera.zoom, pos.y / pos.z * currentCamera.zoom, pos.z * currentCamera.zoom};
-	//Vector4 matrixed = matrixMult((Vector4){pos.x, pos.y, pos.z, 1}, currentCamera.transform);
+	return (Vector3){pos.x / pos.z * client.gameWorld->currCamera->zoom, pos.y / pos.z * client.gameWorld->currCamera->zoom, pos.z * client.gameWorld->currCamera->zoom};
+	//Vector4 matrixed = matrixMult((Vector4){pos.x, pos.y, pos.z, 1}, client.gameWorld->currCamera->transform);
 	//return (Vector3){matrixed.x, matrixed.y, matrixed.z};
 }
 
@@ -117,7 +117,7 @@ void drawMesh(Mesh* mesh, mat4 transform, SDL_FColor colour){
 				(mesh->faces[i].vertA->uv.y + mesh->faces[i].vertA->uv.y) / 2,
 			};
 			float faceDot = max(dotProd3(faceNormal, lightNormal), 0);
-			Vector3 cameraNorm = rotToNorm3(currentCamera.rot);
+			Vector3 cameraNorm = rotToNorm3(client.gameWorld->currCamera->rot);
 			Vector3 reflectSource = normalize3(reflect((Vector3){-lightNormal.x, -lightNormal.y, -lightNormal.z}, faceNormal));
 			float specular = pow(max(dotProd3(cameraNorm, reflectSource), 0), 32);
 			

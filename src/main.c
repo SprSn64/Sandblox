@@ -29,6 +29,9 @@ SDL_Renderer *renderer = NULL;
 bool glEnabled = false;
 Uint32 glVersion[2] = {0, 0};
 
+ClientData client;
+GameWorld game;
+
 SDL_Point windowScaleIntent = {320, 240};
 double windowScaleFactor;
 SDL_Point windowScale = {640, 480};
@@ -74,8 +77,15 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[]){
 	SDL_SetAppMetadata("SandBlox", "0.0", NULL);
 	
 	for(int i=0; i < argc; i++){
-		printf("%s\n", argv[i]); 
-		glEnabled = !strcmp("-opengl", argv[i]);
+		//printf("%s\n", argv[i]); 
+		if(!strcmp("-opengl", argv[i]))glEnabled = true;
+		if(!strcmp("-debug", argv[i]))client.debug = true;
+		if(!strcmp("-studio", argv[i]))client.studio = true;
+		
+		if(!strcmp("-mapfile", argv[i])) printf("cant load map '%s'... not implemented yet sorry\n", argv[i+1]);
+			//loadMap(argv[i++]);
+		if(!strcmp("-server", argv[i])) printf("cant join server '%s'... not implemented yet sorry\n", argv[i+1]);
+			//connectServer(argv[i++]);
 	}
 	
 	if(!SDL_Init(SDL_INIT_VIDEO)){
@@ -122,6 +132,9 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[]){
 	keyList[KEYBIND_UP].scanCode = SDL_SCANCODE_UP; keyList[KEYBIND_DOWN].scanCode = SDL_SCANCODE_DOWN; keyList[KEYBIND_LEFT].scanCode = SDL_SCANCODE_LEFT; keyList[KEYBIND_RIGHT].scanCode = SDL_SCANCODE_RIGHT;
 	keyList[KEYBIND_I].scanCode = SDL_SCANCODE_I; keyList[KEYBIND_O].scanCode = SDL_SCANCODE_O;
 
+	client.gameWorld = &game;
+	client.gameWorld->headObj = &gameHeader;
+
 	playerObj = newObject(NULL, &playerClass);
 	newObject(NULL, &fuckingBeerdrinkerClass);
 	blockAObj = newObject(NULL, &blockClass);
@@ -131,7 +144,10 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[]){
 	blockBObj->pos = (Vector3){6, 5, 0}; blockBObj->scale = (Vector3){1, 1, 1}; blockBObj->colour = (CharColour){255, 51, 76, 255};
 	blockBObj->name = "RedBlock\0";
 
-	if (playerObj == NULL) {
+	client.gameWorld->currPlayer = playerObj;
+	client.gameWorld->currCamera = &currentCamera;
+
+	if (client.gameWorld->currPlayer == NULL) {
 		printf("player is fucking null\n");
 		exit(1);
 	}
@@ -191,6 +207,9 @@ SDL_AppResult SDL_AppIterate(void *appstate){
 	drawText(renderer, fontTex, guiText, 32, 0, 0, 16, 16, 12);
 	sprintf(guiText, "Camera Rot: %d, %d", (int)(currentCamera.rot.y * RAD2DEG), (int)(currentCamera.rot.x * RAD2DEG));
 	drawText(renderer, fontTex, guiText, 32, 0, 16, 16, 16, 12);
+	
+	if(client.debug)drawText(renderer, fontTex, "Debug Enabled", 32, 0, windowScale.y - 16, 16, 16, 12);
+	if(client.studio)drawText(renderer, fontTex, "Studio Enabled", 32, 0, windowScale.y - 32, 16, 16, 12);
 	//drawText(renderer, fontTex, "Diagnostics: Skill issue", 32, 0, 64, 16, 16, 12);
 	//SDL_RenderDebugText(renderer, 0, 0, guiText);
 

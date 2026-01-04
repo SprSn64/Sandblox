@@ -15,7 +15,7 @@
 extern SDL_Renderer *renderer;
 extern SDL_Texture *fontTex;
 
-extern DataObj* playerObj;
+extern GameWorld game;
 
 DataObj gameHeader = {(Vector3){0, 0, 0}, (Vector3){1, 1, 1}, (Vector3){0, 0, 0}, NULL, (CharColour){0, 0, 0, 255}, "Workspace", NULL, NULL, NULL, NULL, NULL, NULL};
 
@@ -126,7 +126,7 @@ CollsionReturn* getCollision(CollisionHull* itemA, CollisionHull* itemB){
 
 extern float timer;
 extern double deltaTime;
-extern Camera currentCamera;
+//extern Camera currentCamera;
 extern KeyMap keyList[KEYBINDCOUNT];
 
 extern Mesh *teapotMesh;
@@ -140,16 +140,16 @@ extern SDL_Texture *homerTex;
 
 void playerUpdate(DataObj* object){
 	Vector3 oldPos = object->pos;
-	object->pos.x += ((SDL_cos(currentCamera.rot.y) * (keyList[KEYBIND_D].down - keyList[KEYBIND_A].down)) + (SDL_sin(currentCamera.rot.y) * (keyList[KEYBIND_S].down - keyList[KEYBIND_W].down))) * 4 * deltaTime;
+	object->pos.x += ((SDL_cos(game.currCamera->rot.y) * (keyList[KEYBIND_D].down - keyList[KEYBIND_A].down)) + (SDL_sin(game.currCamera->rot.y) * (keyList[KEYBIND_S].down - keyList[KEYBIND_W].down))) * 4 * deltaTime;
 	object->pos.y += (keyList[KEYBIND_SPACE].down - keyList[KEYBIND_SHIFT].down) * 4 * deltaTime;
-	object->pos.z += ((-SDL_sin(currentCamera.rot.y) * (keyList[KEYBIND_D].down - keyList[KEYBIND_A].down)) + (SDL_cos(currentCamera.rot.y) * (keyList[KEYBIND_S].down - keyList[KEYBIND_W].down))) * 4 * deltaTime;
+	object->pos.z += ((-SDL_sin(game.currCamera->rot.y) * (keyList[KEYBIND_D].down - keyList[KEYBIND_A].down)) + (SDL_cos(game.currCamera->rot.y) * (keyList[KEYBIND_S].down - keyList[KEYBIND_W].down))) * 4 * deltaTime;
 	
 	if(keyList[KEYBIND_W].down || keyList[KEYBIND_A].down || keyList[KEYBIND_S].down || keyList[KEYBIND_D].down){
 		object->rot.y = atan2(oldPos.y - object->pos.y, oldPos.x - object->pos.x);
 	}
 
 	//object->pos.y = SDL_cos(timer) / 2 + 2;
-	currentCamera.pos = (Vector3){object->pos.x + (SDL_cos(currentCamera.rot.x) * SDL_sin(currentCamera.rot.y)) * currentCamera.focusDist, object->pos.y + 2 - SDL_sin(currentCamera.rot.x) * currentCamera.focusDist, object->pos.z + (SDL_cos(currentCamera.rot.x) * SDL_cos(currentCamera.rot.y)) * currentCamera.focusDist};
+	game.currCamera->pos = (Vector3){object->pos.x + (SDL_cos(game.currCamera->rot.x) * SDL_sin(game.currCamera->rot.y)) * game.currCamera->focusDist, object->pos.y + 2 - SDL_sin(game.currCamera->rot.x) * game.currCamera->focusDist, object->pos.z + (SDL_cos(game.currCamera->rot.x) * SDL_cos(game.currCamera->rot.y)) * game.currCamera->focusDist};
 }
 
 void playerDraw(DataObj* object){

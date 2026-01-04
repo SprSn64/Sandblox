@@ -95,6 +95,7 @@ typedef struct{
 typedef struct{
 	bool debug, pause, studio, online;
 	Uint32 playerID;
+	GameWorld *gameWorld;
 } ClientData;
 
 typedef struct{
