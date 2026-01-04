@@ -19,7 +19,7 @@ extern double windowScaleFactor;
 extern SDL_Point windowScale;
 
 float renderScale = 480;
-Vector3 lightNormal = {0.33, 0.33, 0.33};
+Vector3 lightNormal = {0.25, 0.42, 0.33};
 SDL_FColor lightAmbient = {0.2, 0.2, 0.3, 1};//{0.1, 0.2, 0.3, 1};
 
 Vector3 worldToCamera(Vector3 pos){
