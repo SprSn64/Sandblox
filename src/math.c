@@ -158,3 +158,26 @@ void scaleMatrix2(mat4 matrix, Vector3 scale){
 	matrix[5] *= scale.y;
 	matrix[10] *= scale.z;
 }
+
+float *perspMatrix(float fov, float aspect, float zNear, float zFar){
+	//bool rORl = false;
+	//bool ZOorNO = true;
+	float halfFov = tan(fov / 2);
+	float *output = newMatrix();
+
+	output[0] = 1 / (halfFov * aspect);
+	output[5] = 1 / halfFov;
+	output[11] = 1;// - 2 * rORl;
+	/*if (!ZOorNO)
+	{
+		output[10] = zFar / (zNear - zFar);
+		output[14] = -(zFar * zNear) / (zNear - zFar);
+	}
+	else
+	{*/
+		output[10] = -(zFar + zNear) / (zNear - zFar);
+		output[14] = -(2 * zFar * zNear) / (zNear - zFar);
+	//}
+
+	return output;
+}
