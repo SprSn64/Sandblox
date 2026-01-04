@@ -160,7 +160,7 @@ void playerDraw(DataObj* object){
 
 void blockDraw(DataObj* object){
 	//drawCube(object->pos, object->scale, charColConv(object->colour));
-	drawMesh(cubePrim, object->transform, charColConv(object->colour));
+	drawMesh(teapotMesh, object->transform, charColConv(object->colour));
 
 	if (!strcmp(object->name, "RedBlock")) {
 		Vector3 scaleNew = (Vector3){2 + SDL_cos(timer), SDL_sin(timer) + 1, 2 + SDL_cos(timer)};

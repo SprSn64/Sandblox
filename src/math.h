@@ -10,6 +10,9 @@ float dotProd2(SDL_FPoint vecA, SDL_FPoint vecB);
 float dotProd3(Vector3 vecA, Vector3 vecB);
 float closest(float input, float snap);
 bool between(float input, float min, float max);
+Vector3 normalize3(Vector3 vec);
+Vector3 reflect(Vector3 incident, Vector3 normal);
+Vector3 rotToNorm3(Vector3 rot);
 
 float *newMatrix();
 Vector4 matrixMult(Vector4 vector, mat4 matrix);

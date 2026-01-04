@@ -6,9 +6,7 @@
 
 #include "structs.h"
 
-float lerp(float a, float b, float t){
-	return a + (b - a) * t;
-}
+float lerp(float a, float b, float t){return a + (b - a) * t;}
 
 float invLerp(float a, float b, float v){ //gives the t value for getting a specific output from lerp()
 	return (v - a) / (b - a);
@@ -22,13 +20,22 @@ float dotProd3(Vector3 vecA, Vector3 vecB){
 	return vecA.x * vecB.x + vecA.y * vecB.y + vecA.z * vecB.z;
 }
 
-float closest(float input, float snap){
-	return floor(input / snap) * snap;
+Vector3 normalize3(Vector3 vec){
+	float length = sqrt(vec.x * vec.x + vec.y * vec.y + vec.z * vec.z);
+	return (Vector3){vec.x / length, vec.y / length, vec.z / length};
 }
 
-bool between(float input, float min, float max){
-	return(input >= min && input <= max);
+Vector3 reflect(Vector3 incident, Vector3 normal){
+	float dot = dotProd3(normal, incident);
+	return (Vector3){incident.x - 2 * dot * normal.x, incident.y - 2 * dot * normal.y, incident.z - 2 * dot * normal.z};
 }
+
+Vector3 rotToNorm3(Vector3 rot){
+	return normalize3((Vector3){SDL_cos(rot.x) * SDL_sin(rot.y), -SDL_sin(rot.x) * SDL_cos(rot.y), SDL_cos(rot.y)});
+}
+
+float closest(float input, float snap){return floor(input / snap) * snap;}
+bool between(float input, float min, float max){return(input >= min && input <= max);}
 
 float *newMatrix(){
 	float *output;
