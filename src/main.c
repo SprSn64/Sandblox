@@ -48,6 +48,9 @@ Mesh *teapotMesh = NULL;
 Mesh *playerMesh = NULL;
 Mesh *cubeMesh = NULL;
 
+Mesh *cubePrim = NULL;
+Mesh *spherePrim = NULL;
+
 KeyMap keyList[KEYBINDCOUNT];
 
 void HandleKeyInput();
@@ -58,6 +61,8 @@ extern DataType playerClass;
 extern DataType fuckingBeerdrinkerClass;
 extern DataType blockClass;
 extern DataObj gameHeader;
+
+extern Vector3 lightNormal;
 
 DataObj* playerObj = NULL;
 DataObj* blockAObj = NULL;
@@ -102,6 +107,9 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[]){
 	teapotMesh = loadMeshFromObj("assets/models/teapot.obj");
 	playerMesh = loadMeshFromObj("assets/models/oldplayer.obj");
 	cubeMesh = loadMeshFromObj("assets/models/testcube.obj");
+	
+	cubePrim = loadMeshFromObj("assets/models/primitives/cube.obj");
+	spherePrim = loadMeshFromObj("assets/models/primitives/sphere.obj");
 	
 	SDL_SetRenderVSync(renderer, 1);
 	
@@ -150,6 +158,8 @@ SDL_AppResult SDL_AppIterate(void *appstate){
 	
 	SDL_SetRenderDrawColor(renderer, 20, 22, 24, SDL_ALPHA_OPAQUE);
 	SDL_RenderClear(renderer);
+	
+	//lightNormal = (Vector3){SDL_cos(timer / 2), SDL_sin(timer / 2), 0};
 	
 	//currentCamera.pos.x += ((SDL_cos(currentCamera.rot.y) * (keyList[KEYBIND_D].down - keyList[KEYBIND_A].down)) + (SDL_sin(currentCamera.rot.y) * (keyList[KEYBIND_S].down - keyList[KEYBIND_W].down))) * 2 * deltaTime;
 	//currentCamera.pos.y += (keyList[KEYBIND_SPACE].down - keyList[KEYBIND_SHIFT].down) * 2 * deltaTime;
