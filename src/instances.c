@@ -18,9 +18,7 @@ extern SDL_Texture *fontTex;
 extern GameWorld game;
 
 void mapDraw(DataObj* object){
-	if (object->values) {
-		drawMesh(object->values[OBJVAL_MESH], object->transform, (SDL_FColor){1, 1, 1, 1});
-	}
+	drawMesh(object->values[OBJVAL_MESH], object->transform, (SDL_FColor){1, 1, 1, 1});
 }
 
 DataObj gameHeader = {
