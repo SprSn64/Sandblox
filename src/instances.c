@@ -19,7 +19,7 @@ extern GameWorld game;
 
 void mapDraw(DataObj* object){
 	if (object->values) {
-		drawMesh(object->values, object->transform, (SDL_FColor){1, 1, 1, 1});
+		drawMesh(object->values[OBJVAL_MESH], object->transform, (SDL_FColor){1, 1, 1, 1});
 	}
 }
 
@@ -79,7 +79,7 @@ DataObj* newObject(DataObj* parent, DataType* classData){
 		printf("Failed to create object of type '%s'.\n", classData->name);
 		return NULL;
 	}
-	if (parent == NULL) parent = &gameHeader;
+	if (parent == NULL) parent = game.headObj;
 	newObj->parent = parent;
 	newObj->prev = NULL;
 	newObj->next = parent->child;
@@ -95,7 +95,7 @@ DataObj* newObject(DataObj* parent, DataType* classData){
 	newObj->colour = (CharColour){255, 255, 255, 255};
 	newObj->name = classData->name;
 	newObj->classData = classData;
-	newObj->values = NULL;
+	//newObj->values = NULL;
 
 	printf("Created new object of type '%s'.\n", classData->name);
 	

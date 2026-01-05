@@ -41,6 +41,7 @@ typedef struct{
 	void (*draw)(DataObj*);
 } DataType;
 
+#define MAXOBJVALS 32
 typedef struct DataObj{
 	Vector3 pos, scale, rot;
 	float *transform;
@@ -48,7 +49,7 @@ typedef struct DataObj{
 	char *name;
 	DataType* classData;
 	
-	void *values; //pointers to floats, ints, arrays and other stuffs
+	void *values[MAXOBJVALS]; //pointers to floats, ints, arrays and other stuffs
 	
 	struct DataObj* prev;
 	struct DataObj* next;
