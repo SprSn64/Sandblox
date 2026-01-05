@@ -135,6 +135,8 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[]){
 	keyList[KEYBIND_SPACE].scanCode = SDL_SCANCODE_SPACE; keyList[KEYBIND_SHIFT].scanCode = SDL_SCANCODE_LSHIFT;
 	keyList[KEYBIND_UP].scanCode = SDL_SCANCODE_UP; keyList[KEYBIND_DOWN].scanCode = SDL_SCANCODE_DOWN; keyList[KEYBIND_LEFT].scanCode = SDL_SCANCODE_LEFT; keyList[KEYBIND_RIGHT].scanCode = SDL_SCANCODE_RIGHT;
 	keyList[KEYBIND_I].scanCode = SDL_SCANCODE_I; keyList[KEYBIND_O].scanCode = SDL_SCANCODE_O;
+	
+	initStudio();
 
 	client.gameWorld = &game;
 	client.gameWorld->headObj = &gameHeader;
