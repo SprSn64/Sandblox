@@ -79,7 +79,7 @@ DataObj* newObject(DataObj* parent, DataType* classData){
 		printf("Failed to create object of type '%s'.\n", classData->name);
 		return NULL;
 	}
-	if (parent == NULL) parent = &gameHeader;
+	if (parent == NULL) parent = game.headObj;
 	newObj->parent = parent;
 	newObj->prev = NULL;
 	newObj->next = parent->child;

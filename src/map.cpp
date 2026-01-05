@@ -18,7 +18,7 @@ LINK_WITH_C {
 extern DataObj* playerObj;
 extern DataType playerClass;
 extern DataType blockClass;
-extern DataObj gameHeader;
+extern GameWorld game;
 }
 
 std::map<std::string, DataType*> nameToClass = {
@@ -42,7 +42,7 @@ LINK_WITH_C void loadMapFromSBMap(const char *path) {
             std::string pathToObj = pathToDir + "/" + mapmeshFile;
 
             Mesh *levelmesh = loadMeshFromObj(pathToObj.c_str());
-            gameHeader.values = levelmesh;
+            game.headObj->values = levelmesh;
         } else if (strncmp(line, "startpos", 8) == 0) {
             float x,y,z;
             sscanf(line, "startpos %f, %f, %f", &x,&y,&z);
