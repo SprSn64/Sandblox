@@ -17,7 +17,28 @@ extern SDL_Texture *fontTex;
 
 extern GameWorld game;
 
-DataObj gameHeader = {(Vector3){0, 0, 0}, (Vector3){1, 1, 1}, (Vector3){0, 0, 0}, NULL, (CharColour){0, 0, 0, 255}, "Workspace", NULL, NULL, NULL, NULL, NULL, NULL};
+void mapDraw(DataObj* object){
+	if (object->values) {
+		drawMesh(object->values, object->transform, (SDL_FColor){1, 1, 1, 1});
+	}
+}
+
+DataObj gameHeader = {
+	(Vector3){0, 0, 0},
+	(Vector3){1, 1, 1},
+	(Vector3){0, 0, 0},
+	NULL,
+	(CharColour){0, 0, 0, 255},
+	"Workspace",
+	&(DataType){
+		"Workspace",
+		0,
+		NULL,
+		NULL,
+		mapDraw
+	},
+	NULL, NULL, NULL, NULL, NULL
+};
 
 #define OBJLIST_HUD_POS_X 0
 #define OBJLIST_HUD_POS_Y 32
@@ -28,9 +49,9 @@ void updateObjects(DataObj* item, int nodeDepth, int *idCount, bool uord){ //uor
 	translateMatrix2(item->transform, (Vector3){item->pos.x, item->pos.y, item->pos.z});
 	scaleMatrix2(item->transform, (Vector3){item->scale.x, item->scale.y, item->scale.z});
 	//insert rotation here
-	if (item->class) {
-		if (item->class->update && !uord) item->class->update(item);
-		if (item->class->draw && uord) item->class->draw(item);
+	if (item->classData) {
+		if (item->classData->update && !uord) item->classData->update(item);
+		if (item->classData->draw && uord) item->classData->draw(item);
 	}
 	free(item->transform);
 	if(uord)drawText(renderer, fontTex, item->name, 32, OBJLIST_HUD_POS_X + (nodeDepth * 24), OBJLIST_HUD_POS_Y + i * 16, 16, 16, 12);
@@ -52,10 +73,10 @@ void cleanupObjects(DataObj* item){
 	free(item);
 }
 
-DataObj* newObject(DataObj* parent, DataType* class){
+DataObj* newObject(DataObj* parent, DataType* classData){
 	DataObj *newObj = calloc(1, sizeof(DataObj)); 
 	if(newObj == NULL){
-		printf("Failed to create object of type '%s'.\n", class->name);
+		printf("Failed to create object of type '%s'.\n", classData->name);
 		return NULL;
 	}
 	if (parent == NULL) parent = &gameHeader;
@@ -72,11 +93,11 @@ DataObj* newObject(DataObj* parent, DataType* class){
 	newObj->scale = (Vector3){1,1,1};
 	newObj->rot = (Vector3){0,0,0};
 	newObj->colour = (CharColour){255, 255, 255, 255};
-	newObj->name = class->name;
-	newObj->class = class;
+	newObj->name = classData->name;
+	newObj->classData = classData;
 	newObj->values = NULL;
 
-	printf("Created new object of type '%s'.\n", class->name);
+	printf("Created new object of type '%s'.\n", classData->name);
 	
 	return newObj;
 }

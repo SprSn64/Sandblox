@@ -46,7 +46,7 @@ typedef struct DataObj{
 	float *transform;
 	CharColour colour;
 	char *name;
-	DataType* class;
+	DataType* classData;
 	
 	void *values; //pointers to floats, ints, arrays and other stuffs
 	

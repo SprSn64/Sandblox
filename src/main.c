@@ -19,6 +19,7 @@
 #include "renderer.h"
 #include "math.h"
 #include "loader.h"
+#include "map.h"
 
 #include "studio/studio.h"
 
@@ -82,8 +83,11 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[]){
 		if(!strcmp("-debug", argv[i]))client.debug = true;
 		if(!strcmp("-studio", argv[i]))client.studio = true;
 		
-		if(!strcmp("-mapfile", argv[i])) printf("cant load map '%s'... not implemented yet sorry\n", argv[i+1]);
-			//loadMap(argv[i++]);
+		if(!strcmp("-mapfile", argv[i])) {
+			const char *mapName = argv[++i];
+			printf("Opening map %s\n", mapName);
+			loadMapFromSBMap(mapName);
+		}
 		if(!strcmp("-server", argv[i])) printf("cant join server '%s'... not implemented yet sorry\n", argv[i+1]);
 			//connectServer(argv[i++]);
 	}
@@ -135,21 +139,11 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[]){
 	client.gameWorld = &game;
 	client.gameWorld->headObj = &gameHeader;
 
-	playerObj = newObject(NULL, &playerClass);
-	newObject(NULL, &fuckingBeerdrinkerClass);
-	blockAObj = newObject(NULL, &blockClass);
-	blockAObj->pos = (Vector3){-1, 2, -1}; blockAObj->scale = (Vector3){2, 2, 2}; blockAObj->colour = (CharColour){153, 204, 255, 255};
-	blockAObj->name = "BlueBlock\0";
-	blockBObj = newObject(blockAObj, &blockClass);
-	blockBObj->pos = (Vector3){6, 5, 0}; blockBObj->scale = (Vector3){1, 1, 1}; blockBObj->colour = (CharColour){255, 51, 76, 255};
-	blockBObj->name = "RedBlock\0";
-
 	client.gameWorld->currPlayer = playerObj;
 	client.gameWorld->currCamera = &currentCamera;
 
 	if (client.gameWorld->currPlayer == NULL) {
-		printf("player is fucking null\n");
-		exit(1);
+		playerObj = newObject(NULL, &playerClass);
 	}
 
 	return SDL_APP_CONTINUE;
