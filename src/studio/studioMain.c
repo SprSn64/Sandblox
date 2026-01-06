@@ -38,6 +38,7 @@ void initStudio(){
 	studioActive = true;
 	SDL_SetWindowParent(studioWindow, window);
 	//SDL_SetWindowMinimumSize(studioWindow, 320, 240);
+	SDL_SetRenderVSync(studioRenderer, 1);
 	
 	mouseButtons[0].code = SDL_BUTTON_LMASK; mouseButtons[1].code = SDL_BUTTON_MMASK; mouseButtons[2].code = SDL_BUTTON_RMASK;
 }
