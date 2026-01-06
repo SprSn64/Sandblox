@@ -171,6 +171,14 @@ void scaleMatrix2(mat4 matrix, Vector3 scale){
 	matrix[10] *= scale.z;
 }
 
+void rotateMatrix2(mat4 matrix, Vector3 angle){
+	float *xMatrix = multMatrix(matrix, axisRotMatrix(0, angle.x));
+	float *yMatrix = multMatrix(xMatrix, axisRotMatrix(1, angle.y));
+	float *zMatrix = multMatrix(yMatrix, axisRotMatrix(2, angle.z));
+	
+	memcpy(matrix, &zMatrix, sizeof(mat4));
+}
+
 float *perspMatrix(float fov, float aspect, float zNear, float zFar){
 	//bool rORl = false;
 	//bool ZOorNO = true;

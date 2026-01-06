@@ -46,7 +46,7 @@ void updateObjects(DataObj* item, int nodeDepth, int *idCount, bool uord){ //uor
 	item->transform = newMatrix();
 	translateMatrix2(item->transform, (Vector3){item->pos.x, item->pos.y, item->pos.z});
 	scaleMatrix2(item->transform, (Vector3){item->scale.x, item->scale.y, item->scale.z});
-	//insert rotation here
+	//rotateMatrix2(item->transform, item->rot);
 	if (item->classData) {
 		if (item->classData->update && !uord) item->classData->update(item);
 		if (item->classData->draw && uord) item->classData->draw(item);
@@ -167,7 +167,7 @@ void playerInit(DataObj* object){
 }
 
 void playerUpdate(DataObj* object){
-	Vector3 playerVel = object->objVel;
+	Vector3 *playerVel = &object->objVel;
 	
 	SDL_FPoint playerMove = {0, 0};
 	Vector3 oldPos = object->pos;
@@ -181,13 +181,13 @@ void playerUpdate(DataObj* object){
 		});
 	}
 	
-	//playerVel->x += playerMove.x;
-	//playerVel->z += playerMove.z;
+	playerVel->x = (playerVel->x + playerMove.x) * 0.92;
+	playerVel->z = (playerVel->z + playerMove.y) * 0.92;
 	
-	object->pos.x += playerMove.x * 4 * deltaTime;
+	//object->pos.x += playerMove.x * 4 * deltaTime;
 	//object->pos.y += (keyList[KEYBIND_SPACE].down - keyList[KEYBIND_SHIFT].down) * 4 * deltaTime;
-	object->pos.z += playerMove.y * 4 * deltaTime;
-	//object->pos = (Vector3){object->pos.x + playerVel->x, object->pos.y + playerVel->y, object->pos.z + playerVel->z};
+	//object->pos.z += playerMove.y * 4 * deltaTime;
+	object->pos = (Vector3){object->pos.x + playerVel->x * deltaTime, object->pos.y + playerVel->y * deltaTime, object->pos.z + playerVel->z * deltaTime};
 	
 	if(plrMoving){
 		object->rot.y = atan2(oldPos.z - object->pos.z, oldPos.x - object->pos.x);
