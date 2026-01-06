@@ -42,7 +42,7 @@ LINK_WITH_C void loadMapFromSBMap(const char *path) {
             std::string pathToObj = pathToDir + "/" + mapmeshFile;
 
             Mesh *levelmesh = loadMeshFromObj(pathToObj.c_str());
-            gameHeader.values[OBJVAL_MESH] = levelmesh;
+            gameHeader.objMesh = levelmesh;
         } else if (strncmp(line, "startpos", 8) == 0) {
             float x,y,z;
             sscanf(line, "startpos %f, %f, %f", &x,&y,&z);

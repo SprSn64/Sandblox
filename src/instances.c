@@ -18,7 +18,7 @@ extern SDL_Texture *fontTex;
 extern GameWorld game;
 
 void mapDraw(DataObj* object){
-	drawMesh(object->values[OBJVAL_MESH], object->transform, (SDL_FColor){1, 1, 1, 1});
+	drawMesh(object->objMesh, object->transform, (SDL_FColor){1, 1, 1, 1});
 }
 
 DataObj gameHeader = {
@@ -151,7 +151,7 @@ CollsionReturn* getCollision(CollisionHull* itemA, CollisionHull* itemB){
 extern float timer;
 extern double deltaTime;
 //extern Camera currentCamera;
-extern KeyMap keyList[KEYBINDCOUNT];
+extern ButtonMap keyList[KEYBINDCOUNT];
 
 extern Mesh *teapotMesh;
 extern Mesh *playerMesh;
@@ -167,7 +167,7 @@ void playerInit(DataObj* object){
 }
 
 void playerUpdate(DataObj* object){
-	Vector3 *playerVel = object->values[OBJVAL_VELOCITY];
+	Vector3 playerVel = object->objVel;
 	
 	SDL_FPoint playerMove = {0, 0};
 	Vector3 oldPos = object->pos;

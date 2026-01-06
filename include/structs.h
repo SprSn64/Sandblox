@@ -44,16 +44,25 @@ typedef struct{
 	void (*draw)(DataObj*);
 } DataType;
 
-#define MAXOBJVALS 32
+typedef enum objValues{ //array items for the pointers (the void *values)
+	OBJVAL_SCRIPT,
+	OBJVAL_COLLIDER, OBJVAL_VELOCITY,
+	OBJVAL_MESH, OBJVAL_TEXTURE,
+	OBJVAL_MAX, //always put in end
+} objValues;
+
 typedef struct DataObj{
 	Vector3 pos, scale, rot;
 	float *transform;
 	CharColour colour;
 	char *name;
 	DataType* classData;
-	
-	void *values[MAXOBJVALS]; //pointers to floats, ints, arrays and other stuffs
-	
+
+	void *asVoidptr[OBJVAL_MAX];
+	Vector3 asVec3[OBJVAL_MAX];
+	int asInt[OBJVAL_MAX];
+	float asFloat[OBJVAL_MAX];
+
 	struct DataObj* prev;
 	struct DataObj* next;
 	struct DataObj* parent;
@@ -64,12 +73,6 @@ typedef struct DataObj{
 	void (*destroy)(void);
 	*/
 } DataObj;
-
-typedef enum objValues{ //array items for the pointers (the void *values)
-	OBJVAL_SCRIPT,
-	OBJVAL_COLLIDER, OBJVAL_VELOCITY,
-	OBJVAL_MESH, OBJVAL_TEXTURE,
-} objValues;
 
 typedef struct{
 	Vector3 pos, rot;

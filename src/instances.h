@@ -4,6 +4,7 @@
 #include <SDL3/SDL.h>
 
 #include <structs.h>
+#include <obj_fields.h>
 
 DataObj* newObject(DataObj* parent, DataType* classData);
 void updateObjects(DataObj* item, int nodeDepth, int *idCount, bool uord);
