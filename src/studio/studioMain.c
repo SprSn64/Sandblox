@@ -49,6 +49,10 @@ void updateStudio(){
 	SDL_SetRenderDrawColor(studioRenderer, 148, 150, 152, 255);
 	SDL_RenderClear(studioRenderer);
 	
+	for(int i=0; i<3; i++){
+		stuMouseButtons[i].down = (SDL_GetWindowFlags(studioWindow) & SDL_WINDOW_INPUT_FOCUS && (mouseState & stuMouseButtons[i].code));
+	}
+	
 	int idCounter = 0;
 	drawObjectList(client.gameWorld->headObj, 0, &idCounter);
 	
