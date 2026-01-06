@@ -1,0 +1,4 @@
+startpos 0, 0, 0
+object -3, 34, 0, 14, 1, 1, blockClass, block, 85, 85, 85
+object -5, 33, 0, 1, 1, 1, blockClass, block, 0, 0, 0
+object 4, 33, 0, 7, 1, 1, blockClass, block, 0, 0, 0
