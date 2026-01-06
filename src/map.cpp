@@ -30,7 +30,9 @@ std::string getDirFromFile(std::string path) {
 }
 
 LINK_WITH_C void loadMapFromSBMap(const char *path) {
-    FILE *f = fopen(path, "r");
+	char fullPath[512];
+	sprintf(fullPath, "%s%s", SDL_GetCurrentDirectory(), path);
+    FILE *f = fopen(fullPath, "r");
     if (!f) return;
 
     char line[512];
