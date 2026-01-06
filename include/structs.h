@@ -35,7 +35,7 @@ typedef struct DataObj DataObj;
 
 typedef struct{
 	char *name;
-	//Uint16 id;
+	Uint16 id;
 	Uint32 propType; //the avaliable options and properties and stuff for the object as an enum probably
 	
 	void (*init)(DataObj*);

@@ -30,6 +30,7 @@ DataObj gameHeader = {
 	"Workspace",
 	&(DataType){
 		"Workspace",
+		1,
 		0,
 		NULL,
 		NULL,
@@ -219,6 +220,6 @@ void homerDraw(DataObj* object){
 	drawBillboard(homerTex, (SDL_FRect){0, 0, 300, 500}, object->pos, (SDL_FPoint){1.5, 2.5}, (SDL_FPoint){3, 5});
 }
 
-DataType playerClass = {"Player\0", 0, playerInit, playerUpdate, playerDraw};
-DataType fuckingBeerdrinkerClass = {"beer drinker\0", 0, NULL, NULL, homerDraw};
-DataType blockClass = {"Block\0", 0, NULL, NULL, blockDraw};
+DataType playerClass = {"Player\0", 2, 0, playerInit, playerUpdate, playerDraw};
+DataType fuckingBeerdrinkerClass = {"beer drinker\0", 666, 0, NULL, NULL, homerDraw};
+DataType blockClass = {"Block\0", 3, 0, NULL, NULL, blockDraw};

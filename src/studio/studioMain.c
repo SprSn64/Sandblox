@@ -16,6 +16,8 @@ SDL_Window *studioWindow = NULL;
 SDL_Renderer *studioRenderer = NULL;
 bool studioActive = false;
 
+SDL_Texture *classIconTex = NULL;
+
 SDL_Point studioWindowScale = {240, 320};
 
 DataObj *focusObject = NULL;
@@ -40,6 +42,8 @@ void initStudio(){
 	SDL_SetRenderVSync(studioRenderer, 1);
 	
 	stuMouseButtons[0].code = SDL_BUTTON_LMASK; stuMouseButtons[1].code = SDL_BUTTON_MMASK; stuMouseButtons[2].code = SDL_BUTTON_RMASK;
+	
+	classIconTex = IMG_LoadTexture(studioRenderer, "assets/textures/classicons.png");
 }
 
 void updateStudio(){
@@ -63,17 +67,22 @@ void updateStudio(){
 
 void drawObjectList(DataObj* item, int nodeDepth, int *idCount){
 	int i = (*idCount)++;
-	if(mousePos.y >= 3 + i * 8 && mousePos.y <= 9 + i * 8 && stuMouseButtons[0].down){
+	if(mousePos.y >= 3 + i * 16 && mousePos.y <= 15 + i * 16 && stuMouseButtons[0].down){
 		focusObject = item;
 		goto focusSkip;
 	}
 	if(focusObject == item){
 		focusSkip:
 		SDL_SetRenderDrawColor(studioRenderer, 64, 192, 24, SDL_ALPHA_OPAQUE);
-		SDL_RenderFillRect(studioRenderer, &(SDL_FRect){0, 2 + i * 8, 96, 8});
+		SDL_RenderFillRect(studioRenderer, &(SDL_FRect){0, 1 + i * 16, 256, 16});
 	}
 	SDL_SetRenderDrawColor(studioRenderer, 255, 255, 255, 255);
-	SDL_RenderDebugText(studioRenderer, 2/**/ + (nodeDepth * 12), 2/**/ + i * 8, item->name);
+	SDL_RenderDebugText(studioRenderer, 18/**/ + (nodeDepth * 24), 2/**/ + i * 16, item->name);
+	
+	SDL_FRect iconRect = {(item->classData->id % 16) * 16, (int)floor((float)item->classData->id / 16) * 16 % 16, 16, 16};
+	SDL_FRect iconPos = {2 + (nodeDepth * 24), 2/**/ + i * 16, 16, 16};
+	SDL_RenderTexture(studioRenderer, classIconTex, &iconRect, &iconPos);
+	
 	DataObj* child = item->child;
 	while (child) {
 		DataObj *next = child->next;
