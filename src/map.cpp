@@ -58,9 +58,8 @@ LINK_WITH_C void loadMapFromSBMap(const char *path) {
             sscanf(line, "object %f, %f, %f, %f, %f, %f, %s", &x,&y,&z, &rx,&ry,&rz, className);
             DataType *type = nameToClass[className];
             DataObj *newObj = newObject(NULL, type);
-            newObj->pos.x = x;
-            newObj->pos.y = y;
-            newObj->pos.z = z;
+            newObj->pos = (Vector3){x, y, z};
+		newObj->scale = (Vector3){rx, ry, rz};
         }
     }
     fclose(f);

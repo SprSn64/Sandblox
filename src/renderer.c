@@ -2,6 +2,7 @@
 #include <SDL3_image/SDL_image.h>
 
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 #include <math.h>
 
@@ -17,6 +18,10 @@ extern ClientData client;
 //extern SDL_Point windowScaleIntent;
 //extern double windowScaleFactor;
 extern SDL_Point windowScale;
+
+SortTri *triListHead = NULL;
+SortTri *triListLast = NULL;
+Uint32 triListLength = 0;
 
 float renderScale = 480;
 Vector3 lightNormal = {0.25, 0.42, 0.33};
@@ -177,3 +182,37 @@ void drawText(SDL_Renderer *renderer, SDL_Texture *texture, char* text, char cha
 }
 
 //add stuff for adding triangles to list from mesh, sorting list based off z value then rendering to screen
+
+bool addListTri(Vector3 pointA, Vector3 pointB, Vector3 pointC, SDL_FColor colour){
+	SortTri *newItem = malloc(sizeof(SortTri));
+	if(!newItem) return 1;
+	newItem->vertA = pointA; newItem->vertB = pointB; newItem->vertC = pointC; newItem->colour = colour; 
+	
+	if(!triListHead){
+		triListHead = newItem;
+		goto triListEnd;
+	}
+	
+	triListLast->next = newItem;
+	
+triListEnd:
+	triListLength++;
+	triListLast = newItem;
+	return 0;
+}
+
+int SDLCALL compare(const void *userdata, const void *a, const void *b){
+	const SortTri *A = (const SortTri *)a;
+	const SortTri *B = (const SortTri *)b;
+	
+	float avgZA = (A->vertA.z + A->vertB.z + A->vertC.z) / 3;
+	float avgZB = (B->vertA.z + B->vertB.z + B->vertC.z) / 3;
+
+	if(avgZA == avgZB) return 0;
+	return 1 - (avgZA < avgZB) * 2;
+}
+
+void renderTriList(){
+	//quicksort or whatever but with link list instead of regular array
+	//SDL_qsort(values, SDL_arraysize(values), sizeof(values[0]), compare);
+}

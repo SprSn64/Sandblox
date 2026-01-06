@@ -10,4 +10,7 @@ typedef struct{
 	bool enabled, visible, hover, down;
 } Button;
 
+bool updateButton(Button* item);
+void drawButton(Button* item);
+
 #endif
