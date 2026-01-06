@@ -94,6 +94,11 @@ DataObj* newObject(DataObj* parent, DataType* classData){
 	newObj->name = classData->name;
 	newObj->classData = classData;
 	//newObj->values = NULL;
+	if (classData) {
+		if (classData->init) {
+			classData->init(newObj);
+		}
+	}
 
 	printf("Created new object of type '%s'.\n", classData->name);
 	
@@ -158,8 +163,7 @@ extern SDL_Texture *playerTex;
 extern SDL_Texture *homerTex;
 
 void playerInit(DataObj* object){
-	Vector3 *playerVel = calloc(1, sizeof(Vector3));
-	object->values[OBJVAL_VELOCITY] = playerVel;
+	
 }
 
 void playerUpdate(DataObj* object){
