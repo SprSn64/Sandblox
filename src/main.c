@@ -38,6 +38,8 @@ GameWorld game;
 SDL_Point windowScale = {640, 480};
 
 Camera currentCamera = {(Vector3){0, 2, 10}, (Vector3){0, 0, 0}, 90, 1, 16, NULL, NULL};
+Uint8 camMoveMode = 0;
+float mouseSense = 0.2;
 
 bool mapLoaded = false;
 
@@ -60,6 +62,11 @@ Mesh *cubePrim = NULL;
 Mesh *spherePrim = NULL;
 
 ButtonMap keyList[KEYBINDCOUNT];
+
+SDL_MouseButtonFlags mouseState;
+SDL_FPoint mousePos;
+SDL_FPoint storedMousePos;
+ButtonMap mouseButtons[3];
 
 void HandleKeyInput();
 
@@ -139,6 +146,8 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[]){
 	keyList[KEYBIND_UP].code = SDL_SCANCODE_UP; keyList[KEYBIND_DOWN].code = SDL_SCANCODE_DOWN; keyList[KEYBIND_LEFT].code = SDL_SCANCODE_LEFT; keyList[KEYBIND_RIGHT].code = SDL_SCANCODE_RIGHT;
 	keyList[KEYBIND_I].code = SDL_SCANCODE_I; keyList[KEYBIND_O].code = SDL_SCANCODE_O;
 	
+	mouseButtons[0].code = SDL_BUTTON_LMASK; mouseButtons[1].code = SDL_BUTTON_MMASK; mouseButtons[2].code = SDL_BUTTON_RMASK;
+	
 	initStudio();
 
 	client.gameWorld = &game;
@@ -172,6 +181,11 @@ SDL_AppResult SDL_AppEvent(void *appstate, SDL_Event *event){
 SDL_AppResult SDL_AppIterate(void *appstate){
 	HandleKeyInput();
 	
+	mouseState = SDL_GetMouseState(&mousePos.x, &mousePos.y);
+	for(int i=0; i<3; i++){
+		mouseButtons[i].down = (SDL_GetWindowFlags(window) & SDL_WINDOW_INPUT_FOCUS && (mouseState & mouseButtons[i].code));
+	}
+	
 	last = now;
 	now = SDL_GetTicks();
 	deltaTime = min(((double)now - (double)last) / 1000.0f, 1);
@@ -191,6 +205,18 @@ SDL_AppResult SDL_AppIterate(void *appstate){
 	//currentCamera.pos.x += ((SDL_cos(currentCamera.rot.y) * (keyList[KEYBIND_D].down - keyList[KEYBIND_A].down)) + (SDL_sin(currentCamera.rot.y) * (keyList[KEYBIND_S].down - keyList[KEYBIND_W].down))) * 2 * deltaTime;
 	//currentCamera.pos.y += (keyList[KEYBIND_SPACE].down - keyList[KEYBIND_SHIFT].down) * 2 * deltaTime;
 	//currentCamera.pos.z += ((-SDL_sin(currentCamera.rot.y) * (keyList[KEYBIND_D].down - keyList[KEYBIND_A].down)) + (SDL_cos(currentCamera.rot.y) * (keyList[KEYBIND_S].down - keyList[KEYBIND_W].down))) * 2 * deltaTime;
+	
+	SDL_ShowCursor();
+	if(mouseButtons[2].down){
+		if(camMoveMode){
+			currentCamera.rot.x += -(mousePos.y - storedMousePos.y) * mouseSense * deltaTime;
+			currentCamera.rot.y += -(mousePos.x - storedMousePos.x) * mouseSense * deltaTime;  
+			SDL_WarpMouseInWindow(window, storedMousePos.x, storedMousePos.y); SDL_HideCursor();
+		}else{
+			storedMousePos = mousePos;
+			camMoveMode = 1;
+		}
+	}else camMoveMode = 0;
 	
 	currentCamera.rot.x += (keyList[KEYBIND_UP].down - keyList[KEYBIND_DOWN].down) * 1 * deltaTime;
 	currentCamera.rot.y += (keyList[KEYBIND_LEFT].down - keyList[KEYBIND_RIGHT].down) * 1 * deltaTime;
