@@ -33,8 +33,8 @@ Uint32 glVersion[2] = {0, 0};
 ClientData client;
 GameWorld game;
 
-SDL_Point windowScaleIntent = {320, 240};
-double windowScaleFactor;
+//SDL_Point windowScaleIntent = {320, 240};
+//double windowScaleFactor;
 SDL_Point windowScale = {640, 480};
 
 Camera currentCamera = {(Vector3){0, 2, 10}, (Vector3){0, 0, 0}, 90, 1, 16, NULL, NULL};
@@ -173,11 +173,13 @@ SDL_AppResult SDL_AppIterate(void *appstate){
 	timer += deltaTime;
 	
 	SDL_GetWindowSize(window, &windowScale.x, &windowScale.y);
-	windowScaleFactor = min((float)windowScale.x / windowScaleIntent.x, (float)windowScale.y / windowScaleIntent.y);
+	//windowScaleFactor = min((float)windowScale.x / windowScaleIntent.x, (float)windowScale.y / windowScaleIntent.y);
 	renderScale = min(windowScale.x, windowScale.y);
 	
 	SDL_SetRenderDrawColor(renderer, 20, 22, 24, SDL_ALPHA_OPAQUE);
 	SDL_RenderClear(renderer);
+	
+	updateStudio();
 	
 	//lightNormal = (Vector3){SDL_cos(timer / 2), SDL_sin(timer / 2), 0};
 	

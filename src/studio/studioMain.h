@@ -2,5 +2,6 @@
 #define DEVSTUDIO_MAIN_H
 
 void initStudio();
+void updateStudio();
 
 #endif

@@ -14,8 +14,8 @@ extern SDL_Renderer *renderer;
 extern float timer;
 extern ClientData client;
 
-extern SDL_Point windowScaleIntent;
-extern double windowScaleFactor;
+//extern SDL_Point windowScaleIntent;
+//extern double windowScaleFactor;
 extern SDL_Point windowScale;
 
 float renderScale = 480;
