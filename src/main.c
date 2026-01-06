@@ -236,6 +236,8 @@ SDL_AppResult SDL_AppIterate(void *appstate){
 	idCounter = 0;
 	updateObjects(&gameHeader, 0, &idCounter, true);
 	
+	//renderTriList();
+	
 	char guiText[256];
 	if ((Uint32)(timer*100)%64 == 0) {
 		lastFPS = (Uint32)floor(1/deltaTime);

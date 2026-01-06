@@ -70,11 +70,31 @@ bool drawTriangle(Vector3 pointA, Vector3 pointB, Vector3 pointC, SDL_FColor col
 	return 1;
 }
 
+bool addListTri(Vector3 pointA, Vector3 pointB, Vector3 pointC, SDL_FColor colour){
+	SortTri *newItem = malloc(sizeof(SortTri)); //memory leak culprit
+	if(!newItem) return 1;
+	newItem->vertA = pointA; newItem->vertB = pointB; newItem->vertC = pointC; newItem->colour = colour; 
+	
+	if(!triListHead){
+		triListHead = newItem;
+		goto triListEnd;
+	}
+	
+	triListLast->next = newItem;
+	
+triListEnd:
+	triListLength++;
+	triListLast = newItem;
+	return 0;
+}
+
 bool draw3DTriangle(Vector3 pointA, Vector3 pointB, Vector3 pointC, SDL_FColor colour){
 	Vector3 projLoc[3] = {projToScreen(viewProj(worldToCamera(pointA))), projToScreen(viewProj(worldToCamera(pointB))), projToScreen(viewProj(worldToCamera(pointC)))};
 	if(max(projLoc[0].z, max(projLoc[1].z, projLoc[2].z)) < 0){
-		drawTriangle(projLoc[0], projLoc[1], projLoc[2], colour);
-		return 0;
+		drawTriangle(projLoc[0], projLoc[1], projLoc[2], colour); return 0;
+		
+		//memory leak incoming
+		//return addListTri(projLoc[0], projLoc[1], projLoc[2], colour);
 	}
 	return 1;
 }
@@ -183,24 +203,6 @@ void drawText(SDL_Renderer *renderer, SDL_Texture *texture, char* text, char cha
 
 //add stuff for adding triangles to list from mesh, sorting list based off z value then rendering to screen
 
-bool addListTri(Vector3 pointA, Vector3 pointB, Vector3 pointC, SDL_FColor colour){
-	SortTri *newItem = malloc(sizeof(SortTri));
-	if(!newItem) return 1;
-	newItem->vertA = pointA; newItem->vertB = pointB; newItem->vertC = pointC; newItem->colour = colour; 
-	
-	if(!triListHead){
-		triListHead = newItem;
-		goto triListEnd;
-	}
-	
-	triListLast->next = newItem;
-	
-triListEnd:
-	triListLength++;
-	triListLast = newItem;
-	return 0;
-}
-
 int SDLCALL compare(const void *userdata, const void *a, const void *b){
 	const SortTri *A = (const SortTri *)a;
 	const SortTri *B = (const SortTri *)b;
@@ -212,13 +214,39 @@ int SDLCALL compare(const void *userdata, const void *a, const void *b){
 	return 1 - (avgZA < avgZB) * 2;
 }
 
-void bubbleSort(void *list){
-	
-}
-
-void renderTriList(){
+void sortTriList(){
 	//quicksort or whatever but with link list instead of regular array
 	//SDL_qsort(values, SDL_arraysize(values), sizeof(values[0]), compare);
 	
+	//bubble sort
+	SortTri *triA = triListHead; 
+	SortTri *triB = triListHead->next;
+	for(int i=0; i < triListLength; i++){
+		float avgZA = (triA->vertA.z + triA->vertB.z + triA->vertC.z) / 3;
+		float avgZB = (triB->vertA.z + triB->vertB.z + triB->vertC.z) / 3;
+		if(avgZA < avgZB){
+			//fuck
+		}
+	}
+}
+
+void renderTriList(){
+	sortTriList();
 	
+	SortTri *loopItem = triListHead;
+	for(;;){
+		drawTriangle(loopItem->vertA, loopItem->vertB, loopItem->vertC, loopItem->colour);
+		
+		if(!loopItem->next) break;
+		loopItem = loopItem->next;
+	}
+	
+	loopItem = triListHead;
+	bool stopLoop = false;
+	while(!stopLoop){
+		SortTri *clearItem = loopItem;
+		if(!loopItem->next) stopLoop = true;
+		loopItem = loopItem->next;
+		free(clearItem);
+	}
 }
