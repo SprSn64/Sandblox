@@ -18,7 +18,10 @@ bool studioActive = false;
 
 SDL_Point studioWindowScale = {240, 320};
 
+DataObj *focusObject = NULL;
+
 void drawObjectList(DataObj* item, int nodeDepth, int *idCount);
+void drawObjectProperties(DataObj* item, int posY);
 
 void initStudio(){
 	//printf("Studio Initiated\n");
@@ -41,14 +44,20 @@ void updateStudio(){
 	SDL_RenderClear(studioRenderer);
 	
 	int idCounter = 0;
-	SDL_SetRenderDrawColor(studioRenderer, 0, 0, 0, 255);
 	drawObjectList(client.gameWorld->headObj, 0, &idCounter);
+	
+	drawObjectProperties(focusObject, 160);
 	
 	SDL_RenderPresent(studioRenderer);
 }
 
 void drawObjectList(DataObj* item, int nodeDepth, int *idCount){
 	int i = (*idCount)++;
+	if(focusObject == item){
+		SDL_SetRenderDrawColor(studioRenderer, 64, 192, 24, SDL_ALPHA_OPAQUE);
+		SDL_RenderFillRect(studioRenderer, &(SDL_FRect){0, 2 + i * 8, 96, 8});
+	}
+	SDL_SetRenderDrawColor(studioRenderer, 255, 255, 255, 255);
 	SDL_RenderDebugText(studioRenderer, 2/**/ + (nodeDepth * 12), 2/**/ + i * 8, item->name);
 	DataObj* child = item->child;
 	while (child) {
@@ -56,4 +65,20 @@ void drawObjectList(DataObj* item, int nodeDepth, int *idCount){
 		drawObjectList(child, nodeDepth + 1, idCount);
 		child = next;
 	}
+}
+
+void drawObjectProperties(DataObj* item, int posY){
+	//excuse the slop
+	char string[256];
+	
+	sprintf(string, "Name: %s", item->name);
+	SDL_RenderDebugText(studioRenderer, 2, posY, string);
+	sprintf(string, "Class: %s", item->classData->name);
+	SDL_RenderDebugText(studioRenderer, 2, posY + 8, string);
+	sprintf(string, "Position: %.2f, %.2f, %.2f", item->pos.x, item->pos.y, item->pos.z);
+	SDL_RenderDebugText(studioRenderer, 2, posY + 16, string);
+	sprintf(string, "Rotation: %.2f, %.2f, %.2f", item->rot.x, item->rot.y, item->rot.z);
+	SDL_RenderDebugText(studioRenderer, 2, posY + 24, string);
+	sprintf(string, "Scale: %.2f, %.2f, %.2f", item->scale.x, item->scale.y, item->scale.z);
+	SDL_RenderDebugText(studioRenderer, 2, posY + 32, string);
 }
