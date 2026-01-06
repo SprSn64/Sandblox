@@ -212,7 +212,13 @@ int SDLCALL compare(const void *userdata, const void *a, const void *b){
 	return 1 - (avgZA < avgZB) * 2;
 }
 
+void bubbleSort(void *list){
+	
+}
+
 void renderTriList(){
 	//quicksort or whatever but with link list instead of regular array
 	//SDL_qsort(values, SDL_arraysize(values), sizeof(values[0]), compare);
+	
+	
 }
