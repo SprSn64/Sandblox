@@ -165,15 +165,14 @@ void playerInit(DataObj* object){
 void playerUpdate(DataObj* object){
 	Vector3 *playerVel = object->values[OBJVAL_VELOCITY];
 	
+	SDL_FPoint playerMove = {0, 0};
 	Vector3 oldPos = object->pos;
-	Vector3 playerMove = (Vector3){0, 0, 0};
 	
-	if(keyList[KEYBIND_W].down || keyList[KEYBIND_A].down || keyList[KEYBIND_S].down || keyList[KEYBIND_D].down){
-		object->rot.y = atan2(oldPos.y - object->pos.y, oldPos.x - object->pos.x);
-		
-		playerMove = normalize3((Vector3){
+	bool plrMoving = abs(keyList[KEYBIND_D].down - keyList[KEYBIND_A].down) + abs(keyList[KEYBIND_S].down - keyList[KEYBIND_W].down);
+	
+	if(plrMoving){
+		playerMove = normalize2((SDL_FPoint){
 			(SDL_cos(game.currCamera->rot.y) * (keyList[KEYBIND_D].down - keyList[KEYBIND_A].down)) + (SDL_sin(game.currCamera->rot.y) * (keyList[KEYBIND_S].down - keyList[KEYBIND_W].down)),
-			0,
 			(-SDL_sin(game.currCamera->rot.y) * (keyList[KEYBIND_D].down - keyList[KEYBIND_A].down)) + (SDL_cos(game.currCamera->rot.y) * (keyList[KEYBIND_S].down - keyList[KEYBIND_W].down)),
 		});
 	}
@@ -183,8 +182,12 @@ void playerUpdate(DataObj* object){
 	
 	object->pos.x += playerMove.x * 4 * deltaTime;
 	//object->pos.y += (keyList[KEYBIND_SPACE].down - keyList[KEYBIND_SHIFT].down) * 4 * deltaTime;
-	object->pos.z += playerMove.z * 4 * deltaTime;
+	object->pos.z += playerMove.y * 4 * deltaTime;
 	//object->pos = (Vector3){object->pos.x + playerVel->x, object->pos.y + playerVel->y, object->pos.z + playerVel->z};
+	
+	if(plrMoving){
+		object->rot.y = atan2(oldPos.z - object->pos.z, oldPos.x - object->pos.x);
+	}
 
 	//object->pos.y = SDL_cos(timer) / 2 + 2;
 	game.currCamera->pos = (Vector3){object->pos.x + (SDL_cos(game.currCamera->rot.x) * SDL_sin(game.currCamera->rot.y)) * game.currCamera->focusDist, object->pos.y + 2 - SDL_sin(game.currCamera->rot.x) * game.currCamera->focusDist, object->pos.z + (SDL_cos(game.currCamera->rot.x) * SDL_cos(game.currCamera->rot.y)) * game.currCamera->focusDist};

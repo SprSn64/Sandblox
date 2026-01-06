@@ -20,6 +20,11 @@ float dotProd3(Vector3 vecA, Vector3 vecB){
 	return vecA.x * vecB.x + vecA.y * vecB.y + vecA.z * vecB.z;
 }
 
+SDL_FPoint normalize2(SDL_FPoint vec){
+	float length = sqrt(vec.x * vec.x + vec.y * vec.y);
+	return (SDL_FPoint){vec.x / length, vec.y / length};
+}
+
 Vector3 normalize3(Vector3 vec){
 	float length = sqrt(vec.x * vec.x + vec.y * vec.y + vec.z * vec.z);
 	return (Vector3){vec.x / length, vec.y / length, vec.z / length};

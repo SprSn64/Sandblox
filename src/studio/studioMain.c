@@ -77,7 +77,7 @@ void drawObjectProperties(DataObj* item, int posY){
 	SDL_RenderDebugText(studioRenderer, 2, posY + 8, string);
 	sprintf(string, "Position: %.2f, %.2f, %.2f", item->pos.x, item->pos.y, item->pos.z);
 	SDL_RenderDebugText(studioRenderer, 2, posY + 16, string);
-	sprintf(string, "Rotation: %.2f, %.2f, %.2f", item->rot.x, item->rot.y, item->rot.z);
+	sprintf(string, "Rotation: %d, %d, %d", (int)(item->rot.x * RAD2DEG), (int)(item->rot.y * RAD2DEG), (int)(item->rot.z * RAD2DEG));
 	SDL_RenderDebugText(studioRenderer, 2, posY + 24, string);
 	sprintf(string, "Scale: %.2f, %.2f, %.2f", item->scale.x, item->scale.y, item->scale.z);
 	SDL_RenderDebugText(studioRenderer, 2, posY + 32, string);

@@ -1,15 +1,13 @@
 #ifndef MATH_H
 #define MATH_H
 
-#define RAD2DEG 180 / 3.14159
-#define DEG2RAD 3.14159 / 180
-
 float lerp(float a, float b, float t);
 float invLerp(float a, float b, float v);
 float dotProd2(SDL_FPoint vecA, SDL_FPoint vecB);
 float dotProd3(Vector3 vecA, Vector3 vecB);
 float closest(float input, float snap);
 bool between(float input, float min, float max);
+SDL_FPoint normalize2(SDL_FPoint vec);
 Vector3 normalize3(Vector3 vec);
 Vector3 reflect(Vector3 incident, Vector3 normal);
 Vector3 rotToNorm3(Vector3 rot);
