@@ -104,8 +104,8 @@ typedef struct{
 
 typedef struct{
 	bool down, pressed, released;
-	Uint32 scanCode;
-} KeyMap;
+	Uint32 code;
+} ButtonMap;
 
 //collision slop i think
 

@@ -59,7 +59,7 @@ Mesh *cubeMesh = NULL;
 Mesh *cubePrim = NULL;
 Mesh *spherePrim = NULL;
 
-KeyMap keyList[KEYBINDCOUNT];
+ButtonMap keyList[KEYBINDCOUNT];
 
 void HandleKeyInput();
 
@@ -134,10 +134,10 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[]){
 	
 	currentCamera.transform = perspMatrix(90, 4/3, 0.01, 100);
 
-	keyList[KEYBIND_W].scanCode = SDL_SCANCODE_W; keyList[KEYBIND_S].scanCode = SDL_SCANCODE_S; keyList[KEYBIND_A].scanCode = SDL_SCANCODE_A; keyList[KEYBIND_D].scanCode = SDL_SCANCODE_D;
-	keyList[KEYBIND_SPACE].scanCode = SDL_SCANCODE_SPACE; keyList[KEYBIND_SHIFT].scanCode = SDL_SCANCODE_LSHIFT;
-	keyList[KEYBIND_UP].scanCode = SDL_SCANCODE_UP; keyList[KEYBIND_DOWN].scanCode = SDL_SCANCODE_DOWN; keyList[KEYBIND_LEFT].scanCode = SDL_SCANCODE_LEFT; keyList[KEYBIND_RIGHT].scanCode = SDL_SCANCODE_RIGHT;
-	keyList[KEYBIND_I].scanCode = SDL_SCANCODE_I; keyList[KEYBIND_O].scanCode = SDL_SCANCODE_O;
+	keyList[KEYBIND_W].code = SDL_SCANCODE_W; keyList[KEYBIND_S].code = SDL_SCANCODE_S; keyList[KEYBIND_A].code = SDL_SCANCODE_A; keyList[KEYBIND_D].code = SDL_SCANCODE_D;
+	keyList[KEYBIND_SPACE].code = SDL_SCANCODE_SPACE; keyList[KEYBIND_SHIFT].code = SDL_SCANCODE_LSHIFT;
+	keyList[KEYBIND_UP].code = SDL_SCANCODE_UP; keyList[KEYBIND_DOWN].code = SDL_SCANCODE_DOWN; keyList[KEYBIND_LEFT].code = SDL_SCANCODE_LEFT; keyList[KEYBIND_RIGHT].code = SDL_SCANCODE_RIGHT;
+	keyList[KEYBIND_I].code = SDL_SCANCODE_I; keyList[KEYBIND_O].code = SDL_SCANCODE_O;
 	
 	initStudio();
 
@@ -157,6 +157,7 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[]){
 	
 	DataObj *blockObj = newObject(NULL, &blockClass);
 	blockObj->scale = (Vector3){8, 1, 8}; blockObj->pos = (Vector3){-4, 0, -4};
+	blockObj->colour = (CharColour){0.6 * 255, 0.8 * 255, 255, 255};
 
 	return SDL_APP_CONTINUE;
 }	
@@ -195,7 +196,7 @@ SDL_AppResult SDL_AppIterate(void *appstate){
 	currentCamera.rot.y += (keyList[KEYBIND_LEFT].down - keyList[KEYBIND_RIGHT].down) * 1 * deltaTime;
 	currentCamera.rot = (Vector3){fmod(currentCamera.rot.x, 360 * DEG2RAD), fmod(currentCamera.rot.y, 360 * DEG2RAD), fmod(currentCamera.rot.z, 360 * DEG2RAD)};
 	
-	currentCamera.focusDist = min(max(currentCamera.focusDist + (keyList[KEYBIND_O].down - keyList[KEYBIND_I].down) * 4 * fmax(1, sqrt(currentCamera.focusDist)) * deltaTime, 0), 64);
+	currentCamera.focusDist = min(max(currentCamera.focusDist + (keyList[KEYBIND_I].down - keyList[KEYBIND_O].down) * 4 * fmax(1, sqrt(currentCamera.focusDist)) * deltaTime, 0), 64);
 	
 	int idCounter = 0;
 	updateObjects(&gameHeader, 0, &idCounter, false);
@@ -234,6 +235,6 @@ void SDL_AppQuit(void *appstate, SDL_AppResult result){
 void HandleKeyInput(){
 	const bool* keyState = SDL_GetKeyboardState(NULL);
 	for(int i = 0; i < KEYBINDCOUNT; i++){
-		keyList[i].down = keyState[keyList[i].scanCode];
+		keyList[i].down = keyState[keyList[i].code] && SDL_GetWindowFlags(window) & SDL_WINDOW_INPUT_FOCUS;
 	}
 }
