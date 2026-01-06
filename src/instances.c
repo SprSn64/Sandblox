@@ -157,19 +157,39 @@ extern Mesh *spherePrim;
 extern SDL_Texture *playerTex;
 extern SDL_Texture *homerTex;
 
+void playerInit(DataObj* object){
+	Vector3 *playerVel = calloc(1, sizeof(Vector3));
+	object->values[OBJVAL_VELOCITY] = playerVel;
+}
+
 void playerUpdate(DataObj* object){
+	Vector3 *playerVel = object->values[OBJVAL_VELOCITY];
+	
 	Vector3 oldPos = object->pos;
-	object->pos.x += ((SDL_cos(game.currCamera->rot.y) * (keyList[KEYBIND_D].down - keyList[KEYBIND_A].down)) + (SDL_sin(game.currCamera->rot.y) * (keyList[KEYBIND_S].down - keyList[KEYBIND_W].down))) * 4 * deltaTime;
-	object->pos.y += (keyList[KEYBIND_SPACE].down - keyList[KEYBIND_SHIFT].down) * 4 * deltaTime;
-	object->pos.z += ((-SDL_sin(game.currCamera->rot.y) * (keyList[KEYBIND_D].down - keyList[KEYBIND_A].down)) + (SDL_cos(game.currCamera->rot.y) * (keyList[KEYBIND_S].down - keyList[KEYBIND_W].down))) * 4 * deltaTime;
+	Vector3 playerMove = (Vector3){0, 0, 0};
 	
 	if(keyList[KEYBIND_W].down || keyList[KEYBIND_A].down || keyList[KEYBIND_S].down || keyList[KEYBIND_D].down){
 		object->rot.y = atan2(oldPos.y - object->pos.y, oldPos.x - object->pos.x);
+		
+		playerMove = normalize3((Vector3){
+			(SDL_cos(game.currCamera->rot.y) * (keyList[KEYBIND_D].down - keyList[KEYBIND_A].down)) + (SDL_sin(game.currCamera->rot.y) * (keyList[KEYBIND_S].down - keyList[KEYBIND_W].down)),
+			0,
+			(-SDL_sin(game.currCamera->rot.y) * (keyList[KEYBIND_D].down - keyList[KEYBIND_A].down)) + (SDL_cos(game.currCamera->rot.y) * (keyList[KEYBIND_S].down - keyList[KEYBIND_W].down)),
+		});
 	}
+	
+	//playerVel->x += playerMove.x;
+	//playerVel->z += playerMove.z;
+	
+	object->pos.x += playerMove.x * 4 * deltaTime;
+	//object->pos.y += (keyList[KEYBIND_SPACE].down - keyList[KEYBIND_SHIFT].down) * 4 * deltaTime;
+	object->pos.z += playerMove.z * 4 * deltaTime;
+	//object->pos = (Vector3){object->pos.x + playerVel->x, object->pos.y + playerVel->y, object->pos.z + playerVel->z};
 
 	//object->pos.y = SDL_cos(timer) / 2 + 2;
 	game.currCamera->pos = (Vector3){object->pos.x + (SDL_cos(game.currCamera->rot.x) * SDL_sin(game.currCamera->rot.y)) * game.currCamera->focusDist, object->pos.y + 2 - SDL_sin(game.currCamera->rot.x) * game.currCamera->focusDist, object->pos.z + (SDL_cos(game.currCamera->rot.x) * SDL_cos(game.currCamera->rot.y)) * game.currCamera->focusDist};
 }
+
 
 void playerDraw(DataObj* object){
 	drawMesh(playerMesh, object->transform, (SDL_FColor){1, 1, 1, 1});
@@ -179,7 +199,7 @@ void playerDraw(DataObj* object){
 
 void blockDraw(DataObj* object){
 	//drawCube(object->pos, object->scale, charColConv(object->colour));
-	drawMesh(teapotMesh, object->transform, charColConv(object->colour));
+	drawMesh(cubePrim, object->transform, charColConv(object->colour));
 
 	if (!strcmp(object->name, "RedBlock")) {
 		Vector3 scaleNew = (Vector3){2 + SDL_cos(timer), SDL_sin(timer) + 1, 2 + SDL_cos(timer)};
@@ -192,6 +212,6 @@ void homerDraw(DataObj* object){
 	drawBillboard(homerTex, (SDL_FRect){0, 0, 300, 500}, object->pos, (SDL_FPoint){1.5, 2.5}, (SDL_FPoint){3, 5});
 }
 
-DataType playerClass = {"Player\0", 0, NULL, playerUpdate, playerDraw};
+DataType playerClass = {"Player\0", 0, playerInit, playerUpdate, playerDraw};
 DataType fuckingBeerdrinkerClass = {"beer drinker\0", 0, NULL, NULL, homerDraw};
 DataType blockClass = {"Block\0", 0, NULL, NULL, blockDraw};

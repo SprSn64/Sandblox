@@ -39,6 +39,8 @@ SDL_Point windowScale = {640, 480};
 
 Camera currentCamera = {(Vector3){0, 2, 10}, (Vector3){0, 0, 0}, 90, 1, 16, NULL, NULL};
 
+bool mapLoaded = false;
+
 Uint64 last = 0;
 Uint64 now = 0;
 double deltaTime = 0;
@@ -71,8 +73,6 @@ extern DataObj gameHeader;
 extern Vector3 lightNormal;
 
 DataObj* playerObj = NULL;
-DataObj* blockAObj = NULL;
-DataObj* blockBObj = NULL;
 
 SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[]){
 	SDL_SetAppMetadata("SandBlox", "0.0", NULL);
@@ -87,6 +87,7 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[]){
 			const char *mapName = argv[++i];
 			printf("Opening map %s\n", mapName);
 			loadMapFromSBMap(mapName);
+			mapLoaded = true;
 		}
 		if(!strcmp("-server", argv[i])) printf("cant join server '%s'... not implemented yet sorry\n", argv[i+1]);
 			//connectServer(argv[i++]);
@@ -147,6 +148,11 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[]){
 	if (client.gameWorld->currPlayer == NULL) {
 		playerObj = newObject(NULL, &playerClass);
 	}
+	
+	if(mapLoaded) return SDL_APP_CONTINUE;
+	
+	DataObj *blockObj = newObject(NULL, &blockClass);
+	blockObj->scale = (Vector3){8, 1, 8}; blockObj->pos = (Vector3){-4, 0, -4};
 
 	return SDL_APP_CONTINUE;
 }	

@@ -31,7 +31,7 @@ Vector3 reflect(Vector3 incident, Vector3 normal){
 }
 
 Vector3 rotToNorm3(Vector3 rot){
-	return normalize3((Vector3){SDL_sin(rot.y), -SDL_sin(rot.x) * SDL_cos(rot.y), SDL_cos(rot.x) * SDL_cos(rot.y)});
+	return normalize3((Vector3){SDL_cos(rot.x) * SDL_sin(rot.y), -SDL_sin(rot.x) * SDL_cos(rot.y), SDL_cos(rot.x) * SDL_cos(rot.y)});
 }
 
 float closest(float input, float snap){return floor(input / snap) * snap;}
@@ -117,9 +117,9 @@ float *axisRotMatrix(Uint8 axis, float angle){ //axis 0 = x (yz planes), axis 1 
 	float angSin = SDL_sin(angle);
 	float angCos = SDL_cos(angle);
 	float tempMatrix[16] = {
-		angCos * (axis != 0) + (axis == 0), -angSin * (axis == 2), angSin * (axis == 1), 0,
-		angSin * (axis == 2), angCos * (axis != 1) + (axis == 1), -angSin * (axis == 0), 0,
-		-angSin * (axis == 1), angSin * (axis == 0), angCos * (axis != 2) + (axis == 2), 0,
+		angCos * axis + !axis, -angSin * (axis == 2) + (axis != 2), angSin * (axis == 1) + (axis != 1), 1,
+		angSin * (axis == 2) + (axis != 2), angCos * (axis != 1) + (axis == 1), -angSin * !axis + axis, 1,
+		-angSin * (axis == 1) + (axis != 1), angSin * !axis + (axis), angCos * (axis != 2) + (axis == 2), 1,
 		0, 0, 0, 1,
 	};
 	memcpy(output, &tempMatrix, sizeof(mat4));
