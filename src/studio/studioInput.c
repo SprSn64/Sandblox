@@ -48,8 +48,11 @@ void drawButton(Button* item){
 }
 
 extern DataType blockClass;
+extern DataObj *focusObject;
 void buttonAddObject(Button* item){
-	newObject(NULL, &blockClass);
+	DataObj *newItem = newObject(focusObject, &blockClass);
+	newItem->pos = (Vector3){focusObject->pos.x + 1, focusObject->pos.y + 1, focusObject->pos.z + 1};
+	//focusObject = newItem;
 }
 
 void StudioHandleKeys(){
