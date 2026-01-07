@@ -51,7 +51,7 @@ extern DataType blockClass;
 extern DataObj *focusObject;
 void buttonAddObject(Button* item){
 	DataObj *newItem = newObject(focusObject, &blockClass);
-	newItem->pos = (Vector3){focusObject->pos.x + 1, focusObject->pos.y + 1, focusObject->pos.z + 1};
+	newItem->pos = (Vector3){floor(focusObject->pos.x) + 1, floor(focusObject->pos.y) + 1, floor(focusObject->pos.z) + 1};
 	//focusObject = newItem;
 }
 

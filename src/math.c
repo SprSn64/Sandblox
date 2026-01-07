@@ -36,7 +36,7 @@ Vector3 reflect(Vector3 incident, Vector3 normal){
 }
 
 Vector3 rotToNorm3(Vector3 rot){
-	return normalize3((Vector3){SDL_cos(rot.x) * SDL_sin(rot.y), -SDL_sin(rot.x) * SDL_cos(rot.y), SDL_cos(rot.x) * SDL_cos(rot.y)});
+	return (Vector3){SDL_cos(rot.x) * SDL_sin(rot.y), -SDL_sin(rot.x), SDL_cos(rot.x) * SDL_cos(rot.y)};
 }
 
 float closest(float input, float snap){return floor(input / snap) * snap;}

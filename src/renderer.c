@@ -136,6 +136,7 @@ void drawMesh(Mesh* mesh, mat4 transform, SDL_FColor colour){
 				(mesh->faces[i].vertA->colour.r + mesh->faces[i].vertB->colour.r + mesh->faces[i].vertC->colour.r) / 3,
 				(mesh->faces[i].vertA->colour.g + mesh->faces[i].vertB->colour.g + mesh->faces[i].vertC->colour.g) / 3,
 				(mesh->faces[i].vertA->colour.b + mesh->faces[i].vertB->colour.b + mesh->faces[i].vertC->colour.b) / 3,
+				1
 			};
 			Vector3 faceNormal = {
 				(mesh->faces[i].vertA->norm.x + mesh->faces[i].vertB->norm.x + mesh->faces[i].vertC->norm.x) / 3,
@@ -254,4 +255,7 @@ void renderTriList(){
 		loopItem = loopItem->next;
 		free(clearItem);
 	}
+	
+	triListLength = 0;
+	triListHead, triListLast = NULL;
 }
