@@ -50,7 +50,7 @@ Vector3 viewProj(Vector3 pos){
 }
 
 Vector3 projToScreen(Vector3 pos){
-	return (Vector3){-pos.x * renderScale + windowScale.x / 2, pos.y * renderScale + windowScale.y / 2, pos.z};
+	return (Vector3){-pos.x * client.gameWorld->currCamera->zoom * renderScale + windowScale.x / 2, pos.y * client.gameWorld->currCamera->zoom * renderScale + windowScale.y / 2, pos.z};
 }
 
 bool drawTriangle(Vector3 pointA, Vector3 pointB, Vector3 pointC, SDL_FColor colour){

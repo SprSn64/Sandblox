@@ -5,6 +5,7 @@
 #include <SDL3_image/SDL_image.h>
 
 #include "../instances.h"
+#include "../math.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -51,6 +52,8 @@ extern DataObj *focusObject;
 void buttonAddObject(Button* item){
 	DataObj *newItem = newObject(focusObject, &blockClass);
 	newItem->pos = (Vector3){floor(focusObject->pos.x) + 1, floor(focusObject->pos.y) + 1, floor(focusObject->pos.z) + 1};
+	Vector3 normalizedColour = normalize3((Vector3){SDL_randf(), SDL_randf(), SDL_randf()});
+	newItem->colour = (CharColour){normalizedColour.x * 255, normalizedColour.y * 255, normalizedColour.z * 255, 255};
 	//focusObject = newItem;
 }
 

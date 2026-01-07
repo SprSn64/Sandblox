@@ -202,6 +202,12 @@ SDL_AppResult SDL_AppIterate(void *appstate){
 	
 	updateStudio();
 	
+	/*for(int i = 0; i < playerMesh->vertCount; i++){
+		playerMesh->verts[i].pos.x += (1 - SDL_randf() * 2) * 0.002;
+		playerMesh->verts[i].pos.y += (1 - SDL_randf() * 2) * 0.002;
+		playerMesh->verts[i].pos.z += (1 - SDL_randf() * 2) * 0.002;
+	}*/
+	
 	//lightNormal = (Vector3){SDL_cos(timer / 2), SDL_sin(timer / 2), 0};
 	
 	//currentCamera.pos.x += ((SDL_cos(currentCamera.rot.y) * (keyList[KEYBIND_D].down - keyList[KEYBIND_A].down)) + (SDL_sin(currentCamera.rot.y) * (keyList[KEYBIND_S].down - keyList[KEYBIND_W].down))) * 2 * deltaTime;
@@ -213,7 +219,7 @@ SDL_AppResult SDL_AppIterate(void *appstate){
 		if(camMoveMode){
 			currentCamera.rot.x += -(mousePos.y - storedMousePos.y) * mouseSense * deltaTime;
 			currentCamera.rot.y += -(mousePos.x - storedMousePos.x) * mouseSense * deltaTime;  
-			SDL_WarpMouseInWindow(window, storedMousePos.x, storedMousePos.y); SDL_HideCursor();
+			SDL_WarpMouseInWindow(window, storedMousePos.x, storedMousePos.y); //SDL_HideCursor();
 		}else{
 			storedMousePos = mousePos;
 			camMoveMode = 1;
