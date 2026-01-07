@@ -43,7 +43,7 @@ DataObj gameHeader = {
 #define OBJLIST_HUD_POS_Y 32
 
 void updateObjects(DataObj* item, int nodeDepth, int *idCount, bool uord){ //uord = update or draw
-	int i = (*idCount)++;
+	//int i = (*idCount)++;
 	item->transform = newMatrix();
 	translateMatrix2(item->transform, (Vector3){item->pos.x, item->pos.y, item->pos.z});
 	scaleMatrix2(item->transform, (Vector3){item->scale.x, item->scale.y, item->scale.z});
@@ -164,7 +164,7 @@ extern SDL_Texture *playerTex;
 extern SDL_Texture *homerTex;
 
 void playerInit(DataObj* object){
-	
+	object->pos.y = 0;
 }
 
 void playerUpdate(DataObj* object){
@@ -184,11 +184,17 @@ void playerUpdate(DataObj* object){
 	
 	playerVel->x = (playerVel->x + playerMove.x) * 0.92;
 	playerVel->z = (playerVel->z + playerMove.y) * 0.92;
+	playerVel->y += -1;
 	
 	//object->pos.x += playerMove.x * 4 * deltaTime;
 	//object->pos.y += (keyList[KEYBIND_SPACE].down - keyList[KEYBIND_SHIFT].down) * 4 * deltaTime;
 	//object->pos.z += playerMove.y * 4 * deltaTime;
 	object->pos = (Vector3){object->pos.x + playerVel->x * deltaTime, object->pos.y + playerVel->y * deltaTime, object->pos.z + playerVel->z * deltaTime};
+	
+	if(object->pos.y < 0){
+		object->pos.y = 0;
+		playerVel->y = 24 * keyList[KEYBIND_SPACE].down;
+	}
 	
 	if(plrMoving){
 		object->rot.y = atan2(oldPos.z - object->pos.z, oldPos.x - object->pos.x);
