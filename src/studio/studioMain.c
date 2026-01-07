@@ -62,6 +62,7 @@ void updateStudio(){
 	for(int i=0; i<3; i++){
 		stuMouseButtons[i].down = (SDL_GetWindowFlags(studioWindow) & SDL_WINDOW_INPUT_FOCUS && (mouseState & stuMouseButtons[i].code));
 	}
+	SDL_SetCursor(SDL_CreateSystemCursor(SDL_SYSTEM_CURSOR_DEFAULT));
 	
 	int idCounter = 0;
 	drawObjectList(client.gameWorld->headObj, 0, &idCounter);

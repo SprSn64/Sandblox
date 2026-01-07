@@ -171,7 +171,6 @@ void playerUpdate(DataObj* object){
 	Vector3 *playerVel = &object->objVel;
 	
 	SDL_FPoint playerMove = {0, 0};
-	Vector3 oldPos = object->pos;
 	
 	bool plrMoving = abs(keyList[KEYBIND_D].down - keyList[KEYBIND_A].down) + abs(keyList[KEYBIND_S].down - keyList[KEYBIND_W].down);
 	
@@ -180,6 +179,11 @@ void playerUpdate(DataObj* object){
 			(SDL_cos(game.currCamera->rot.y) * (keyList[KEYBIND_D].down - keyList[KEYBIND_A].down)) + (SDL_sin(game.currCamera->rot.y) * (keyList[KEYBIND_S].down - keyList[KEYBIND_W].down)),
 			(-SDL_sin(game.currCamera->rot.y) * (keyList[KEYBIND_D].down - keyList[KEYBIND_A].down)) + (SDL_cos(game.currCamera->rot.y) * (keyList[KEYBIND_S].down - keyList[KEYBIND_W].down)),
 		});
+		object->rot.y = atan2(playerMove.x, playerMove.y) + 3.14159;
+	}
+	
+	if(game.currCamera->focusDist == 0){
+		object->rot.y = game.currCamera->rot.y;
 	}
 	
 	playerVel->x = (playerVel->x + playerMove.x) * 0.92;
@@ -194,10 +198,6 @@ void playerUpdate(DataObj* object){
 	if(object->pos.y < 0){
 		object->pos.y = 0;
 		playerVel->y = 24 * keyList[KEYBIND_SPACE].down;
-	}
-	
-	if(plrMoving){
-		object->rot.y = atan2(oldPos.z - object->pos.z, oldPos.x - object->pos.x);
 	}
 
 	//object->pos.y = SDL_cos(timer) / 2 + 2;

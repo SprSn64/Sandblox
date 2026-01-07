@@ -27,12 +27,11 @@ bool updateButton(Button* item){
 	if(item->hover){
 		SDL_SetCursor(SDL_CreateSystemCursor(SDL_SYSTEM_CURSOR_POINTER));
 		//item->pressed();
-		if(!stuMouseButtons[0].down){item->down = false;}else{
-			if(!item->down){
-				item->down = true;
-				item->pressed(item);
-			}
-		}
+		if(!stuMouseButtons[0].down){item->down = false; return 1;}
+		
+		if(item->down) return 1;
+		item->down = true;
+		item->pressed(item);
 	}
 	
 	return 0;
