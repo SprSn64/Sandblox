@@ -1,4 +1,5 @@
 #include "studioMain.h"
+#include "studioInput.h"
 #include <structs.h>
 
 #include <SDL3/SDL.h>
@@ -23,10 +24,15 @@ SDL_Point studioWindowScale = {240, 320};
 DataObj *focusObject = NULL;
 extern SDL_MouseButtonFlags mouseState;
 extern SDL_FPoint mousePos;
-ButtonMap stuMouseButtons[3];
+extern ButtonMap stuMouseButtons[3];
+
+extern ButtonMap stuKeyList[5];
 
 void drawObjectList(DataObj* item, int nodeDepth, int *idCount);
 void drawObjectProperties(DataObj* item, int posY);
+
+Button addObjButton = {"+", (SDL_FRect){224, 304, 16, 16}, buttonAddObject, true, true, false, false};
+Button fileButton = {"File", (SDL_FRect){0, 0, 48, 16}, NULL, false, true, false, false};
 
 void initStudio(){
 	//printf("Studio Initiated\n");
@@ -60,27 +66,30 @@ void updateStudio(){
 	int idCounter = 0;
 	drawObjectList(client.gameWorld->headObj, 0, &idCounter);
 	
-	drawObjectProperties(focusObject, 160);
+	updateButton(&addObjButton);
+	drawButton(&addObjButton); drawButton(&fileButton);
+	
+	drawObjectProperties(focusObject, 240);
 	
 	SDL_RenderPresent(studioRenderer);
 }
 
 void drawObjectList(DataObj* item, int nodeDepth, int *idCount){
 	int i = (*idCount)++;
-	if(mousePos.y >= 3 + i * 16 && mousePos.y <= 15 + i * 16 && stuMouseButtons[0].down){
+	if(mousePos.y >= 19 + i * 16 && mousePos.y <= 31 + i * 16 && stuMouseButtons[0].down){
 		focusObject = item;
 		goto focusSkip;
 	}
 	if(focusObject == item){
 		focusSkip:
 		SDL_SetRenderDrawColor(studioRenderer, 64, 192, 24, SDL_ALPHA_OPAQUE);
-		SDL_RenderFillRect(studioRenderer, &(SDL_FRect){0, 1 + i * 16, 256, 16});
+		SDL_RenderFillRect(studioRenderer, &(SDL_FRect){0, 17 + i * 16, 256, 16});
 	}
 	SDL_SetRenderDrawColor(studioRenderer, 255, 255, 255, 255);
-	SDL_RenderDebugText(studioRenderer, 18/**/ + (nodeDepth * 24), 2/**/ + i * 16, item->name);
+	SDL_RenderDebugText(studioRenderer, 18/**/ + (nodeDepth * 24), 18/**/ + i * 16, item->name);
 	
 	SDL_FRect iconRect = {(item->classData->id % 16) * 16, (int)floor((float)item->classData->id / 16) * 16 % 16, 16, 16};
-	SDL_FRect iconPos = {2 + (nodeDepth * 24), 2/**/ + i * 16, 16, 16};
+	SDL_FRect iconPos = {2 + (nodeDepth * 24), 18/**/ + i * 16, 16, 16};
 	SDL_RenderTexture(studioRenderer, classIconTex, &iconRect, &iconPos);
 	
 	DataObj* child = item->child;
@@ -94,6 +103,8 @@ void drawObjectList(DataObj* item, int nodeDepth, int *idCount){
 void drawObjectProperties(DataObj* item, int posY){
 	//excuse the slop
 	char string[256];
+	
+	SDL_SetRenderDrawColor(studioRenderer, 255, 255, 255, 255);
 	
 	sprintf(string, "Name: %s", item->name);
 	SDL_RenderDebugText(studioRenderer, 2, posY, string);
