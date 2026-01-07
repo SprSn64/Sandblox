@@ -171,7 +171,7 @@ void scaleMatrix2(mat4 matrix, Vector3 scale){
 	matrix[10] *= scale.z;
 }
 
-void rotateMatrix2(mat4 matrix, Vector3 angle){
+void rotateMatrix2(mat4 matrix, Vector3 angle){ //how 2.... fix??
 	float *xMatrix = multMatrix(matrix, axisRotMatrix(0, angle.x));
 	float *yMatrix = multMatrix(xMatrix, axisRotMatrix(1, angle.y));
 	float *zMatrix = multMatrix(yMatrix, axisRotMatrix(2, angle.z));

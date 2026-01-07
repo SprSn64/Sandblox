@@ -78,11 +78,28 @@ DataObj* newObject(DataObj* parent, DataType* classData){
 		printf("Failed to create object of type '%s'.\n", classData->name);
 		return NULL;
 	}
-	if (parent == NULL) parent = &gameHeader;
 	newObj->parent = parent;
+	if (parent == NULL) parent = &gameHeader;
+	
+	/* first added is first rendered/updated, last added is last rendered/updated
+	newObj->next = NULL;
+	//newObj->next = parent->child;
+	if(!parent->child){
+		parent->child = newObj;
+	}else{
+		DataObj *loopItem = parent->child;
+		while(loopItem->next){
+			loopItem = loopItem->next;
+		}
+		loopItem->next = newObj;
+		newObj->prev = loopItem;
+	}
+	*/
+	
+	// first added is last rendered/updated, last added is first rendered/updated
 	newObj->prev = NULL;
 	newObj->next = parent->child;
-	if (parent->child) {
+	if (parent->child){
 		parent->child->prev = newObj;
 	}
 	parent->child = newObj;
