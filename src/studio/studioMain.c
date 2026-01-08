@@ -124,4 +124,10 @@ void drawObjectProperties(DataObj* item, int posY){
 	SDL_RenderDebugText(studioRenderer, 2, posY + 24, string);
 	sprintf(string, "Scale: %.2f, %.2f, %.2f", item->scale.x, item->scale.y, item->scale.z);
 	SDL_RenderDebugText(studioRenderer, 2, posY + 32, string);
+	
+	SDL_RenderDebugText(studioRenderer, 2, posY + 40, "Colour: ");
+	SDL_SetRenderDrawColor(studioRenderer, item->colour.r, item->colour.g, item->colour.b, 255); 
+	SDL_RenderFillRect(studioRenderer, &(SDL_FRect){64, posY + 40, 24, 8});
+	SDL_SetRenderDrawColor(studioRenderer, item->colour.r * item->colour.a / 255, item->colour.g * item->colour.a / 255, item->colour.b * item->colour.a / 255, 255); 
+	SDL_RenderFillRect(studioRenderer, &(SDL_FRect){88, posY + 40, 24, 8});
 }

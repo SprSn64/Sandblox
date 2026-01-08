@@ -26,7 +26,7 @@ DataObj gameHeader = {
 	(Vector3){1, 1, 1},
 	(Vector3){0, 0, 0},
 	NULL,
-	(CharColour){0, 0, 0, 255},
+	(CharColour){0, 0, 0, 255, 0, COLOURMODE_RGB},
 	"Workspace",
 	&(DataType){
 		"Workspace",
@@ -107,7 +107,7 @@ DataObj* newObject(DataObj* parent, DataType* classData){
 	newObj->transform = NULL;
 	newObj->scale = (Vector3){1,1,1};
 	newObj->rot = (Vector3){0,0,0};
-	newObj->colour = (CharColour){255, 255, 255, 255};
+	newObj->colour = (CharColour){255, 255, 255, 255, 0, COLOURMODE_RGB};
 	newObj->name = classData->name;
 	newObj->classData = classData;
 	//newObj->values = NULL;
@@ -133,7 +133,14 @@ void removeObject(DataObj* object){
 	
 	if(childItem){
 		childItem->parent = parentItem;
-		DataObj *loopItem = parentItem->child;
+		
+		DataObj *loopItem = object->child;
+		while(loopItem->next){
+			loopItem->parent = parentItem;
+			loopItem = loopItem->next;
+		}
+		
+		loopItem = parentItem->child;
 		while(loopItem->next){
 			loopItem = loopItem->next;
 		}
@@ -142,8 +149,8 @@ void removeObject(DataObj* object){
 	
 	//segmentation fault... wtf? getting data from gameHeader headObj causes error????
 	
-	//if(parentItem->child == object)
-	//	parentItem->child = nextItem;
+	if(parentItem->child == object)
+		parentItem->child = nextItem;
 	
 	printf("Object '%s' removed.\n", object->name);
 	free(object);
@@ -255,8 +262,8 @@ void playerDraw(DataObj* object){
 }
 
 void blockDraw(DataObj* object){
-	//drawCube(object->pos, object->scale, charColConv(object->colour));
-	drawMesh(cubePrim, object->transform, charColConv(object->colour));
+	//drawCube(object->pos, object->scale, ConvertSDLColour(object->colour));
+	drawMesh(cubePrim, object->transform, ConvertSDLColour(object->colour));
 
 	if (!strcmp(object->name, "RedBlock")) {
 		Vector3 scaleNew = (Vector3){2 + SDL_cos(timer), SDL_sin(timer) + 1, 2 + SDL_cos(timer)};
@@ -265,7 +272,7 @@ void blockDraw(DataObj* object){
 }
 
 void homerDraw(DataObj* object){
-	//drawCube(object->pos, object->scale, charColConv(object->colour));
+	//drawCube(object->pos, object->scale, ConvertSDLColour(object->colour));
 	drawBillboard(homerTex, (SDL_FRect){0, 0, 300, 500}, object->pos, (SDL_FPoint){1.5, 2.5}, (SDL_FPoint){3, 5});
 }
 

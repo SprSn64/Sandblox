@@ -1,3 +1,5 @@
+//probably should split this up into several files soon
+
 #ifndef STRUCTS_H
 #define STRUCTS_H
 
@@ -27,8 +29,14 @@ typedef struct{
 	float x, y, z, w;
 } Vector4;
 
+typedef enum colourModes{
+	COLOURMODE_RGB, COLOURMODE_HSV, COLOURMODE_CMYK, COLOURMODE_OKLAB
+} colourModes;
+
 typedef struct{
 	Uint8 r, g, b, a;
+	float hue;
+	Uint32 mode; //colourModes enum
 } CharColour;
 
 typedef struct DataObj DataObj;

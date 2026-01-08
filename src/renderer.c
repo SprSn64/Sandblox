@@ -179,9 +179,14 @@ SDL_Texture *newTexture(char* path, SDL_ScaleMode scaleMode){
 	return texture;
 }
 
-SDL_FColor charColConv(CharColour colour){
+SDL_FColor ConvertSDLColour(CharColour colour){
 	return (SDL_FColor){(float)colour.r / 255, (float)colour.g / 255, (float)colour.b / 255, (float)colour.a / 255};
 }
+
+CharColour ConvertColour(CharColour colour, Uint32 mode){
+	return colour;
+}
+
 
 //fix soon
 void drawBillboard(SDL_Texture *texture, SDL_FRect rect, Vector3 pos, SDL_FPoint offset, SDL_FPoint scale){
