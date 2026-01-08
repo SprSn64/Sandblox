@@ -230,6 +230,7 @@ SDL_AppResult SDL_AppIterate(void *appstate){
 	
 	currentCamera.rot.x += (keyList[KEYBIND_UP].down - keyList[KEYBIND_DOWN].down) * 1 * deltaTime;
 	currentCamera.rot.y += (keyList[KEYBIND_LEFT].down - keyList[KEYBIND_RIGHT].down) * 1 * deltaTime;
+	
 	currentCamera.rot = (Vector3){fmod(currentCamera.rot.x, 360 * DEG2RAD), fmod(currentCamera.rot.y, 360 * DEG2RAD), fmod(currentCamera.rot.z, 360 * DEG2RAD)};
 	
 	currentCamera.focusDist = min(max(currentCamera.focusDist + (keyList[KEYBIND_I].down - keyList[KEYBIND_O].down) * 4 * fmax(1, sqrt(currentCamera.focusDist)) * deltaTime, 0), 64);

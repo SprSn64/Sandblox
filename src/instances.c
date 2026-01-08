@@ -122,6 +122,10 @@ DataObj* newObject(DataObj* parent, DataType* classData){
 void removeObject(DataObj* object){
 	//object->onRemove(object);
 	
+	if(object->parent == game.headObj){
+		printf("are you out of your mind?\n");
+	}
+	
 	DataObj *prevItem = object->prev; DataObj *nextItem = object->next; DataObj *parentItem = object->parent; DataObj *childItem = object->child;
 	
 	if(prevItem)
@@ -136,8 +140,10 @@ void removeObject(DataObj* object){
 		loopItem->next = childItem;
 	}
 	
-	if(parentItem->child == object)
-		parentItem->child = nextItem;
+	//segmentation fault... wtf? getting data from gameHeader headObj causes error????
+	
+	//if(parentItem->child == object)
+	//	parentItem->child = nextItem;
 	
 	printf("Object '%s' removed.\n", object->name);
 	free(object);
