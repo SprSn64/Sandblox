@@ -148,6 +148,8 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[]){
 	
 	mouseButtons[0].code = SDL_BUTTON_LMASK; mouseButtons[1].code = SDL_BUTTON_MMASK; mouseButtons[2].code = SDL_BUTTON_RMASK;
 	
+	lightNormal = normalize3(lightNormal);
+	
 	initStudio();
 
 	client.gameWorld = &game;

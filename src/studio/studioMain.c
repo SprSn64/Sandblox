@@ -33,7 +33,7 @@ void drawObjectProperties(DataObj* item, int posY);
 
 //TODO: Make button list thing for less ugly looking button implementations
 
-Button addObjButton = {"+", (SDL_FRect){224, 304, 16, 16}, buttonAddObject, false, true, false, false};
+Button addObjButton = {"+", (SDL_FRect){224, 304, 16, 16}, buttonAddObject, true, true, false, false};
 Button removeObjButton = {"-", (SDL_FRect){206, 304, 16, 16}, buttonRemoveObject, true, true, false, false};
 Button fileButton = {"File", (SDL_FRect){0, 0, 48, 16}, NULL, false, true, false, false};
 
@@ -109,6 +109,10 @@ void drawObjectProperties(DataObj* item, int posY){
 	char string[256];
 	
 	SDL_SetRenderDrawColor(studioRenderer, 255, 255, 255, 255);
+	
+	if(!item){
+		SDL_RenderDebugText(studioRenderer, 2, posY, "No object selected!"); return;
+	}
 	
 	sprintf(string, "Name: %s", item->name);
 	SDL_RenderDebugText(studioRenderer, 2, posY, string);

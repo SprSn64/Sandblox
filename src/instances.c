@@ -99,9 +99,8 @@ DataObj* newObject(DataObj* parent, DataType* classData){
 	// first added is last rendered/updated, last added is first rendered/updated
 	newObj->prev = NULL;
 	newObj->next = parent->child;
-	if (parent->child){
+	if (parent->child)
 		parent->child->prev = newObj;
-	}
 	parent->child = newObj;
 
 	newObj->pos = (Vector3){0,0,0};
@@ -112,15 +111,36 @@ DataObj* newObject(DataObj* parent, DataType* classData){
 	newObj->name = classData->name;
 	newObj->classData = classData;
 	//newObj->values = NULL;
-	if (classData) {
-		if (classData->init) {
-			classData->init(newObj);
-		}
-	}
+	if (classData->init)
+		classData->init(newObj);
 
 	printf("Created new object of type '%s'.\n", classData->name);
 	
 	return newObj;
+}
+
+void removeObject(DataObj* object){
+	//object->onRemove(object);
+	
+	DataObj *prevItem = object->prev; DataObj *nextItem = object->next; DataObj *parentItem = object->parent; DataObj *childItem = object->child;
+	
+	if(prevItem)
+		prevItem->next = nextItem;
+	
+	if(childItem){
+		childItem->parent = parentItem;
+		DataObj *loopItem = parentItem->child;
+		while(loopItem->next){
+			loopItem = loopItem->next;
+		}
+		loopItem->next = childItem;
+	}
+	
+	if(parentItem->child == object)
+		parentItem->child = nextItem;
+	
+	printf("Object '%s' removed.\n", object->name);
+	free(object);
 }
 
 bool parentObject(DataObj* child, DataObj* parent){

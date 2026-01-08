@@ -60,15 +60,8 @@ void buttonAddObject(Button* item){
 
 void buttonRemoveObject(Button* item){
 	if(!focusObject) return;
-	
-	DataObj *prevItem = focusObject->prev; DataObj *nextItem = focusObject->next; DataObj *parentItem = focusObject->parent; DataObj *childItem = focusObject->child;
-	
-	//if(prevItem)
-	//	prevItem->next = nextItem;
-	//nextItem->prev = prevItem;
-	
-	if(parentItem->child == focusObject)
-		parentItem->child = nextItem;
+	removeObject(focusObject);
+	focusObject = NULL;
 }
 
 void StudioHandleKeys(){

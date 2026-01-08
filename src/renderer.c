@@ -24,7 +24,7 @@ SortTri *triListLast = NULL;
 Uint32 triListLength = 0;
 
 float renderScale = 480;
-Vector3 lightNormal = {0.25, 0.42, 0.33};
+Vector3 lightNormal = (Vector3){0.25, 0.42, 0.33};
 SDL_FColor lightColour = {1, 1, 1, 1};
 SDL_FColor lightAmbient = {0.2, 0.2, 0.3, 1};//{0.1, 0.2, 0.3, 1};
 
@@ -147,7 +147,7 @@ void drawMesh(Mesh* mesh, mat4 transform, SDL_FColor colour){
 				(mesh->faces[i].vertA->uv.x + mesh->faces[i].vertA->uv.x) / 2,
 				(mesh->faces[i].vertA->uv.y + mesh->faces[i].vertA->uv.y) / 2,
 			};
-			float faceDot = max(dotProd3(faceNormal, lightNormal), 0) * 1.618033;
+			float faceDot = max(dotProd3(faceNormal, lightNormal), 0);
 			Vector3 cameraNorm = rotToNorm3(client.gameWorld->currCamera->rot);
 			Vector3 reflectSource = normalize3(reflect((Vector3){-lightNormal.x, -lightNormal.y, -lightNormal.z}, faceNormal));
 			float specular = pow(max(dotProd3(cameraNorm, reflectSource), 0), 32);
