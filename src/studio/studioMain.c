@@ -31,7 +31,10 @@ extern ButtonMap stuKeyList[5];
 void drawObjectList(DataObj* item, int nodeDepth, int *idCount);
 void drawObjectProperties(DataObj* item, int posY);
 
-Button addObjButton = {"+", (SDL_FRect){224, 304, 16, 16}, buttonAddObject, true, true, false, false};
+//TODO: Make button list thing for less ugly looking button implementations
+
+Button addObjButton = {"+", (SDL_FRect){224, 304, 16, 16}, buttonAddObject, false, true, false, false};
+Button removeObjButton = {"-", (SDL_FRect){206, 304, 16, 16}, buttonRemoveObject, true, true, false, false};
 Button fileButton = {"File", (SDL_FRect){0, 0, 48, 16}, NULL, false, true, false, false};
 
 void initStudio(){
@@ -67,8 +70,8 @@ void updateStudio(){
 	int idCounter = 0;
 	drawObjectList(client.gameWorld->headObj, 0, &idCounter);
 	
-	updateButton(&addObjButton);
-	drawButton(&addObjButton); drawButton(&fileButton);
+	updateButton(&addObjButton); updateButton(&removeObjButton);
+	drawButton(&addObjButton); drawButton(&removeObjButton); drawButton(&fileButton);
 	
 	drawObjectProperties(focusObject, 240);
 	

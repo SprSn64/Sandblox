@@ -14,6 +14,7 @@ bool updateButton(Button* item);
 void drawButton(Button* item);
 
 void buttonAddObject(Button* item);
+void buttonRemoveObject(Button* item);
 
 void StudioHandleKeys();
 
