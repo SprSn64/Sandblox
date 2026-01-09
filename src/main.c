@@ -127,6 +127,7 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[]){
 	}
 	SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
 	SDL_SetWindowMinimumSize(window, 320, 240);
+	SDL_SetRenderVSync(renderer, 1);
 	
 	fontTex = newTexture("assets/textures/font.png", SDL_SCALEMODE_NEAREST);
 	playerTex = newTexture("assets/textures/playertemp.png", SDL_SCALEMODE_NEAREST);
@@ -138,8 +139,6 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[]){
 	
 	cubePrim = loadMeshFromObj("assets/models/primitives/cube.obj");
 	spherePrim = loadMeshFromObj("assets/models/primitives/sphere.obj");
-	
-	SDL_SetRenderVSync(renderer, 1);
 	
 	currentCamera.transform = perspMatrix(90, 4/3, 0.01, 100);
 

@@ -16,6 +16,7 @@ extern SDL_Renderer *renderer;
 extern SDL_Texture *fontTex;
 
 extern GameWorld game;
+extern float timer;
 
 void mapDraw(DataObj* object){
 	drawMesh(object->objMesh, object->transform, (SDL_FColor){1, 1, 1, 1});
@@ -48,7 +49,7 @@ void updateObjects(DataObj* item, int nodeDepth, int *idCount, bool uord){ //uor
 	item->transform = newMatrix();
 	translateMatrix2(item->transform, (Vector3){item->pos.x, item->pos.y, item->pos.z});
 	scaleMatrix2(item->transform, (Vector3){item->scale.x, item->scale.y, item->scale.z});
-	//rotateMatrix2(item->transform, item->rot);
+	rotateMatrix2(item->transform, item->rot);
 	if (item->classData) {
 		if (item->classData->update && !uord) item->classData->update(item);
 		if (item->classData->draw && uord) item->classData->draw(item);
@@ -215,7 +216,6 @@ CollsionReturn* getCollision(CollisionHull* itemA, CollisionHull* itemB){
 
 //--------------------------------------------- temporarys until i put them into their own little file johnson
 
-extern float timer;
 extern double deltaTime;
 //extern Camera currentCamera;
 extern ButtonMap keyList[KEYBINDCOUNT];
@@ -289,9 +289,8 @@ void blockDraw(DataObj* object){
 		itemMesh = meshItem->asVoidptr[OBJVAL_MESH];
 	drawMesh(itemMesh, object->transform, ConvertSDLColour(object->colour));
 
-	if (!strcmp(object->name, "RedBlock")) {
-		Vector3 scaleNew = (Vector3){2 + SDL_cos(timer), SDL_sin(timer) + 1, 2 + SDL_cos(timer)};
-		memcpy(&object->scale, &scaleNew, sizeof(float)*3);
+	if (!strcmp(object->name, "Red Teapot")) {
+		object->rot = (Vector3){0, object->rot.y + 0.1, 0};
 	}
 }
 

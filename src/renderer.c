@@ -132,17 +132,22 @@ void drawMesh(Mesh* mesh, mat4 transform, SDL_FColor colour){
 			pointCalcs[1] = matrixMult((Vector4){mesh->faces[i].vertB->pos.x, mesh->faces[i].vertB->pos.y, mesh->faces[i].vertB->pos.z, 1}, transform);
 			pointCalcs[2] = matrixMult((Vector4){mesh->faces[i].vertC->pos.x, mesh->faces[i].vertC->pos.y, mesh->faces[i].vertC->pos.z, 1}, transform);
 			
+			mat4 newMatrix; memcpy(newMatrix, transform, sizeof(mat4));
+			newMatrix[3] = 0; newMatrix[7] = 0; newMatrix[11] = 0;  
+			
 			SDL_FColor faceColour = {
 				(mesh->faces[i].vertA->colour.r + mesh->faces[i].vertB->colour.r + mesh->faces[i].vertC->colour.r) / 3,
 				(mesh->faces[i].vertA->colour.g + mesh->faces[i].vertB->colour.g + mesh->faces[i].vertC->colour.g) / 3,
 				(mesh->faces[i].vertA->colour.b + mesh->faces[i].vertB->colour.b + mesh->faces[i].vertC->colour.b) / 3,
 				1
 			};
-			Vector3 faceNormal = {
+			Vector4 multFaceNormal = matrixMult((Vector4){
 				(mesh->faces[i].vertA->norm.x + mesh->faces[i].vertB->norm.x + mesh->faces[i].vertC->norm.x) / 3,
 				(mesh->faces[i].vertA->norm.y + mesh->faces[i].vertB->norm.y + mesh->faces[i].vertC->norm.y) / 3,
 				(mesh->faces[i].vertA->norm.z + mesh->faces[i].vertB->norm.z + mesh->faces[i].vertC->norm.z) / 3,
-			};
+				1
+			}, newMatrix);
+			Vector3 faceNormal = {multFaceNormal.x, multFaceNormal.y, multFaceNormal.z};
 			SDL_FPoint faceUV = {
 				(mesh->faces[i].vertA->uv.x + mesh->faces[i].vertA->uv.x) / 2,
 				(mesh->faces[i].vertA->uv.y + mesh->faces[i].vertA->uv.y) / 2,
