@@ -76,6 +76,8 @@ typedef struct DataObj{
 	struct DataObj* parent;
 	struct DataObj* child;
 	
+	bool studioOpen;
+	
 	/* connect functions and whatnot
 	void (*collide)(void);
 	void (*destroy)(void);

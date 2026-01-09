@@ -36,7 +36,8 @@ DataObj gameHeader = {
 		NULL,
 		mapDraw
 	},
-	NULL, NULL, NULL, NULL, NULL
+	NULL, NULL, NULL, NULL, NULL,
+	true,
 };
 
 #define OBJLIST_HUD_POS_X 0
@@ -110,6 +111,8 @@ DataObj* newObject(DataObj* parent, DataType* classData){
 	newObj->colour = (CharColour){255, 255, 255, 255, 0, COLOURMODE_RGB};
 	newObj->name = classData->name;
 	newObj->classData = classData;
+	
+	newObj->studioOpen = false;
 	//newObj->values = NULL;
 	if (classData->init)
 		classData->init(newObj);
@@ -122,8 +125,9 @@ DataObj* newObject(DataObj* parent, DataType* classData){
 void removeObject(DataObj* object){
 	//object->onRemove(object);
 	
-	if(object->parent == game.headObj){
+	if(object == game.headObj){
 		printf("are you out of your mind?\n");
+		return;
 	}
 	
 	DataObj *prevItem = object->prev; DataObj *nextItem = object->next; DataObj *parentItem = object->parent; DataObj *childItem = object->child;

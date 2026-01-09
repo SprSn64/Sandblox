@@ -81,6 +81,10 @@ void updateStudio(){
 void drawObjectList(DataObj* item, int nodeDepth, int *idCount){
 	int i = (*idCount)++;
 	if(mousePos.y >= 19 + i * 16 && mousePos.y <= 31 + i * 16 && stuMouseButtons[0].down){
+		if(item->parent != focusObject){
+			focusObject->studioOpen = false;
+			item->studioOpen = true;
+		}
 		focusObject = item;
 		goto focusSkip;
 	}
@@ -95,6 +99,12 @@ void drawObjectList(DataObj* item, int nodeDepth, int *idCount){
 	SDL_FRect iconRect = {(item->classData->id % 16) * 16, (int)floor((float)item->classData->id / 16) * 16 % 16, 16, 16};
 	SDL_FRect iconPos = {2 + (nodeDepth * 24), 18/**/ + i * 16, 16, 16};
 	SDL_RenderTexture(studioRenderer, classIconTex, &iconRect, &iconPos);
+	
+	if(!item->studioOpen){
+		if(item->child)
+			SDL_RenderDebugText(studioRenderer, 2/**/ + (nodeDepth * 24), 18/**/ + i * 16, "+");
+		return;
+	}
 	
 	DataObj* child = item->child;
 	while (child) {

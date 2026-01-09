@@ -154,6 +154,7 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[]){
 
 	client.gameWorld = &game;
 	client.gameWorld->headObj = &gameHeader;
+	gameHeader.studioOpen = true;
 
 	client.gameWorld->currPlayer = playerObj;
 	client.gameWorld->currCamera = &currentCamera;

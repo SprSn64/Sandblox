@@ -54,12 +54,14 @@ LINK_WITH_C void loadMapFromSBMap(const char *path) {
             playerObj->pos.z = z;
         } else if (strncmp(line, "object", 6) == 0) {
             float x,y,z, rx,ry,rz;
+		Uint8 r,g,b;
             char className[64];
-            sscanf(line, "object %f, %f, %f, %f, %f, %f, %s", &x,&y,&z, &rx,&ry,&rz, className);
+            sscanf(line, "object %f, %f, %f, %f, %f, %f, %d, %d, %d, %s", &x,&y,&z, &rx,&ry,&rz, &r,&g,&b, className);
             DataType *type = nameToClass[className];
             DataObj *newObj = newObject(NULL, type);
             newObj->pos = (Vector3){x, y, z};
 		newObj->scale = (Vector3){rx, ry, rz};
+		newObj->colour = (CharColour){r, g, b, 255, 0, COLOURMODE_RGB};
         }
     }
     fclose(f);
