@@ -189,7 +189,7 @@ DataObj* firstChildOfType(DataObj* item, DataType classData){
 	if(!item->child) return NULL;
 	DataObj *loopItem = item->child;
 	while(loopItem){
-		if(loopItem->classData == &classData){
+		if(loopItem->classData->id == classData.id){
 			return loopItem;
 		}
 		loopItem = loopItem->next;
@@ -234,6 +234,8 @@ void playerInit(DataObj* object){
 }
 
 void playerUpdate(DataObj* object){
+	if(object != game.currPlayer) return;
+	
 	Vector3 *playerVel = &object->objVel;
 	
 	SDL_FPoint playerMove = {0, 0};
@@ -283,10 +285,8 @@ void blockDraw(DataObj* object){
 	//drawCube(object->pos, object->scale, ConvertSDLColour(object->colour));
 	Mesh *itemMesh = cubePrim;
 	DataObj *meshItem = firstChildOfType(object, meshClass);
-	if(meshItem){
+	if(meshItem)
 		itemMesh = meshItem->asVoidptr[OBJVAL_MESH];
-		printf("mesh pointer: %d\n", meshItem->asVoidptr[OBJVAL_MESH]);
-	}
 	drawMesh(itemMesh, object->transform, ConvertSDLColour(object->colour));
 
 	if (!strcmp(object->name, "RedBlock")) {

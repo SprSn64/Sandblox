@@ -163,6 +163,7 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[]){
 
 	if (client.gameWorld->currPlayer == NULL) {
 		playerObj = newObject(NULL, &playerClass);
+		client.gameWorld->currPlayer = playerObj;
 	}
 	
 	focusObject = playerObj;
@@ -175,7 +176,7 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[]){
 	
 	DataObj *blockObjB = newObject(NULL, &blockClass);
 	blockObjB->pos = (Vector3){-4, 2, -4}; blockObjB->colour = (CharColour){255, 0, 0, 255, 0, COLOURMODE_RGB};
-	DataObj *meshObj = newObject(blockObjB, &meshClass); meshObj->asVoidptr[OBJVAL_MESH] = &teapotMesh;
+	DataObj *meshObj = newObject(blockObjB, &meshClass); meshObj->asVoidptr[OBJVAL_MESH] = teapotMesh;
 	
 	DataObj *homerObj = newObject(NULL, &fuckingBeerdrinkerClass);
 
