@@ -53,7 +53,7 @@ typedef struct{
 } DataType;
 
 typedef enum objValues{ //array items for the pointers (the void *values)
-	OBJVAL_SCRIPT,
+	OBJVAL_OTHER, OBJVAL_SCRIPT,
 	OBJVAL_COLLIDER, OBJVAL_VELOCITY,
 	OBJVAL_MESH, OBJVAL_TEXTURE,
 	OBJVAL_MAX, //always put in end

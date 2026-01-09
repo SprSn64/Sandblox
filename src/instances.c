@@ -36,7 +36,7 @@ DataObj gameHeader = {
 		NULL,
 		mapDraw
 	},
-	NULL, NULL, NULL, NULL, NULL,
+	NULL, NULL, NULL, NULL, NULL, NULL,
 	true,
 };
 
@@ -185,6 +185,18 @@ bool parentObject(DataObj* child, DataObj* parent){
 
 }
 
+DataObj* firstChildOfType(DataObj* item, DataType classData){
+	if(!item->child) return NULL;
+	DataObj *loopItem = item->child;
+	while(loopItem){
+		if(loopItem->classData == &classData){
+			return loopItem;
+		}
+		loopItem = loopItem->next;
+	}
+	return NULL;
+}
+
 CollsionReturn* getCollision(CollisionHull* itemA, CollisionHull* itemB){
 	CollsionReturn *output = NULL;
 	
@@ -265,9 +277,17 @@ void playerDraw(DataObj* object){
 	//drawBillboard(playerTex, (SDL_FRect){0, 0, 128, 128}, object->pos, (SDL_FPoint){8, 16}, (SDL_FPoint){4, 4});
 }
 
+DataType meshClass = (DataType){"Mesh\0", 4, 0, NULL, NULL, NULL};
+
 void blockDraw(DataObj* object){
 	//drawCube(object->pos, object->scale, ConvertSDLColour(object->colour));
-	drawMesh(cubePrim, object->transform, ConvertSDLColour(object->colour));
+	Mesh *itemMesh = cubePrim;
+	DataObj *meshItem = firstChildOfType(object, meshClass);
+	if(meshItem){
+		itemMesh = meshItem->asVoidptr[OBJVAL_MESH];
+		printf("mesh pointer: %d\n", meshItem->asVoidptr[OBJVAL_MESH]);
+	}
+	drawMesh(itemMesh, object->transform, ConvertSDLColour(object->colour));
 
 	if (!strcmp(object->name, "RedBlock")) {
 		Vector3 scaleNew = (Vector3){2 + SDL_cos(timer), SDL_sin(timer) + 1, 2 + SDL_cos(timer)};

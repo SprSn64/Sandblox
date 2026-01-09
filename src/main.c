@@ -72,11 +72,13 @@ void HandleKeyInput();
 
 extern float renderScale;
 
+//insert better mesh initiating system here or somewhere
 extern DataType playerClass;
 extern DataType fuckingBeerdrinkerClass;
 extern DataType blockClass;
-extern DataObj gameHeader;
+extern DataType meshClass;
 
+extern DataObj gameHeader;
 extern DataObj *focusObject;
 
 extern Vector3 lightNormal;
@@ -170,6 +172,10 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[]){
 	DataObj *blockObj = newObject(NULL, &blockClass);
 	blockObj->scale = (Vector3){8, 1, 8}; blockObj->pos = (Vector3){-4, 0, -4};
 	blockObj->colour = (CharColour){0.6 * 255, 0.8 * 255, 255, 255, 0, COLOURMODE_RGB};
+	
+	DataObj *blockObjB = newObject(NULL, &blockClass);
+	blockObjB->pos = (Vector3){-4, 2, -4}; blockObjB->colour = (CharColour){255, 0, 0, 255, 0, COLOURMODE_RGB};
+	DataObj *meshObj = newObject(blockObjB, &meshClass); meshObj->asVoidptr[OBJVAL_MESH] = &teapotMesh;
 	
 	DataObj *homerObj = newObject(NULL, &fuckingBeerdrinkerClass);
 

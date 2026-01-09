@@ -13,4 +13,6 @@ bool parentObject(DataObj* child, DataObj* parent);
 void updateObjects(DataObj* item, int nodeDepth, int *idCount, bool uord);
 void cleanupObjects(DataObj* item);
 
+DataObj* firstChildOfType(DataObj* item, DataType classData);
+
 #endif
