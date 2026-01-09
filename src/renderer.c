@@ -26,7 +26,7 @@ Uint32 triListLength = 0;
 float renderScale = 480;
 Vector3 lightNormal = (Vector3){0.25, 0.42, 0.33};
 SDL_FColor lightColour = {1, 1, 1, 1};
-SDL_FColor lightAmbient = {0.2, 0.2, 0.3, 1};//{0.1, 0.2, 0.3, 1};
+SDL_FColor lightAmbient = {0.1, 0.1, 0.15, 1};
 
 Vector3 worldToCamera(Vector3 pos){
 	Vector3 firstPos = {pos.x - client.gameWorld->currCamera->pos.x, pos.y - client.gameWorld->currCamera->pos.y, pos.z - client.gameWorld->currCamera->pos.z};
@@ -99,7 +99,7 @@ bool draw3DTriangle(Vector3 pointA, Vector3 pointB, Vector3 pointC, SDL_FColor c
 	return 1;
 }
 
-void drawCube(Vector3 pos, Vector3 scale, SDL_FColor colour){
+/*void drawCube(Vector3 pos, Vector3 scale, SDL_FColor colour){
 	//side
 	draw3DTriangle((Vector3){pos.x, pos.y, pos.z}, (Vector3){pos.x, pos.y, pos.z + scale.z}, (Vector3){pos.x, pos.y - scale.y, pos.z + scale.z}, (SDL_FColor){colour.r * 0.4, colour.g * 0.4, colour.b * 0.7, 1});
 	draw3DTriangle((Vector3){pos.x, pos.y - scale.y, pos.z}, (Vector3){pos.x, pos.y, pos.z}, (Vector3){pos.x, pos.y - scale.y, pos.z + scale.z}, (SDL_FColor){colour.r * 0.4, colour.g * 0.4, colour.b * 0.7, 1});
@@ -118,7 +118,7 @@ void drawCube(Vector3 pos, Vector3 scale, SDL_FColor colour){
 	
 	draw3DTriangle((Vector3){pos.x + scale.x, pos.y - scale.y, pos.z}, (Vector3){pos.x, pos.y - scale.y, pos.z}, (Vector3){pos.x + scale.x, pos.y - scale.y, pos.z + scale.z}, (SDL_FColor){colour.r * 0.28, colour.g * 0.28, colour.b * 0.6, 1});
 	draw3DTriangle((Vector3){pos.x, pos.y - scale.y, pos.z}, (Vector3){pos.x, pos.y - scale.y, pos.z + scale.z}, (Vector3){pos.x + scale.x, pos.y - scale.y, pos.z + scale.z}, (SDL_FColor){colour.r * 0.28, colour.g * 0.28, colour.b * 0.6, 1});
-}
+}*/
 
 void drawMesh(Mesh* mesh, mat4 transform, SDL_FColor colour){
 	if(!mesh) return;
@@ -153,9 +153,9 @@ void drawMesh(Mesh* mesh, mat4 transform, SDL_FColor colour){
 			float specular = pow(max(dotProd3(cameraNorm, reflectSource), 0), 32);
 			
 			draw3DTriangle((Vector3){pointCalcs[0].x, pointCalcs[0].y, pointCalcs[0].z}, (Vector3){pointCalcs[1].x, pointCalcs[1].y, pointCalcs[1].z}, (Vector3){pointCalcs[2].x, pointCalcs[2].y, pointCalcs[2].z}, (SDL_FColor){
-				0.5 * lightAmbient.r + (colour.r * lightColour.r * faceDot) + (specular * lightColour.r),
-				0.5 * lightAmbient.g + (colour.g * lightColour.g * faceDot) + (specular * lightColour.g),
-				0.5 * lightAmbient.b + (colour.b * lightColour.b * faceDot) + (specular * lightColour.b),
+				(colour.r * lightAmbient.r) + (colour.r * lightColour.r * faceDot) + (specular * lightColour.r),
+				(colour.g * lightAmbient.g) + (colour.g * lightColour.g * faceDot) + (specular * lightColour.g),
+				(colour.b * lightAmbient.b) + (colour.b * lightColour.b * faceDot) + (specular * lightColour.b),
 				colour.a
 			});
 			

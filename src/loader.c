@@ -90,10 +90,15 @@ Mesh *loadMeshFromObj(const char *path) {
     Uint32 vi = 0, vti = 0, vni = 0, fi = 0;
     while (fgets(line, sizeof(line), f)) {
         if (line[0] == 'v' && line[1] == ' ') {
-            sscanf(line, "v %f %f %f",
+		float r, g, b = 1;
+            sscanf(line, "v %f %f %f, %f, %f, %f",
                    &mesh->verts[vi].pos.x,
                    &mesh->verts[vi].pos.y,
-                   &mesh->verts[vi].pos.z);
+                   &mesh->verts[vi].pos.z,
+			 &r,
+			 &g,
+			 &b);
+		mesh->verts[vi].colour = (SDL_FColor){r, g, b};
             vi++;
         }
         else if (line[0] == 'v' && line[1] == 't') {

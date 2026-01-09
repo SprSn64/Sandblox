@@ -9,7 +9,7 @@
 typedef struct{
 	Vector3 pos, norm;
 	SDL_FPoint uv;
-	CharColour colour;
+	SDL_FColor colour;
 } MeshVert;
 
 typedef struct{
@@ -48,7 +48,7 @@ bool draw3DTriangle(Vector3 pointA, Vector3 pointB, Vector3 pointC, SDL_FColor c
 SDL_FColor ConvertSDLColour(CharColour colour);
 CharColour ConvertColour(CharColour colour, Uint32 mode);
 
-void drawCube(Vector3 pos, Vector3 scale, SDL_FColor colour);
+//void drawCube(Vector3 pos, Vector3 scale, SDL_FColor colour);
 void drawMesh(Mesh* mesh, mat4 transform, SDL_FColor colour);
 void drawBillboard(SDL_Texture *texture, SDL_FRect rect, Vector3 pos, SDL_FPoint offset, SDL_FPoint scale);
 

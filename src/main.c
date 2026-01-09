@@ -174,9 +174,13 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[]){
 	blockObj->scale = (Vector3){8, 1, 8}; blockObj->pos = (Vector3){-4, 0, -4};
 	blockObj->colour = (CharColour){0.6 * 255, 0.8 * 255, 255, 255, 0, COLOURMODE_RGB};
 	
-	DataObj *blockObjB = newObject(NULL, &blockClass);
-	blockObjB->pos = (Vector3){-4, 2, -4}; blockObjB->colour = (CharColour){255, 0, 0, 255, 0, COLOURMODE_RGB};
-	DataObj *meshObj = newObject(blockObjB, &meshClass); meshObj->asVoidptr[OBJVAL_MESH] = teapotMesh;
+	DataObj *blockObjA = newObject(NULL, &blockClass); blockObjA->name = "Red Teapot";
+	blockObjA->pos = (Vector3){-4, 2, -4}; blockObjA->scale = (Vector3){0.5, 0.5, 0.5}; blockObjA->colour = (CharColour){255, 0, 0, 255, 0, COLOURMODE_RGB};
+	DataObj *meshObjA = newObject(blockObjA, &meshClass); meshObjA->asVoidptr[OBJVAL_MESH] = teapotMesh;
+	
+	DataObj *blockObjB = newObject(NULL, &blockClass); blockObjB->name = "Yellow Sphere";
+	blockObjB->pos = (Vector3){4, 2, 4}; blockObjB->scale = (Vector3){2, 2, 2}; blockObjB->colour = (CharColour){255, 255, 0, 255, 0, COLOURMODE_RGB};
+	DataObj *meshObjB = newObject(blockObjB, &meshClass); meshObjB->asVoidptr[OBJVAL_MESH] = spherePrim;
 	
 	DataObj *homerObj = newObject(NULL, &fuckingBeerdrinkerClass);
 
