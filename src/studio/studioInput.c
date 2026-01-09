@@ -6,6 +6,7 @@
 
 #include "../instances.h"
 #include "../math.h"
+#include "../map.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -22,7 +23,7 @@ extern SDL_Window *studioWindow;
 extern SDL_Renderer *studioRenderer;
 
 bool updateButton(Button* item){
-	item->hover = (mousePos.x >= item->rect.x && mousePos.y >= item->rect.y && mousePos.x <= item->rect.x + item->rect.w && mousePos.y <= item->rect.y  + item->rect.h);
+	item->hover = SDL_GetWindowFlags(studioWindow) & SDL_WINDOW_INPUT_FOCUS && (mousePos.x >= item->rect.x && mousePos.y >= item->rect.y && mousePos.x <= item->rect.x + item->rect.w && mousePos.y <= item->rect.y  + item->rect.h);
 	if(item->pressed == NULL) return 1;
 	//stuMouseButtons[0].down
 	if(item->hover){
@@ -49,6 +50,7 @@ void drawButton(Button* item){
 
 extern DataType blockClass;
 extern DataObj *focusObject;
+extern DataType playerClass;
 
 void buttonAddObject(Button* item){
 	DataObj *newItem = newObject(focusObject, &blockClass);
@@ -64,6 +66,39 @@ void buttonRemoveObject(Button* item){
 	if(!focusObject) return;
 	removeObject(focusObject);
 	focusObject = NULL;
+}
+
+static const SDL_DialogFileFilter mapLoadFilter[] = {
+    {"Sandblox Map", "sbmap"}
+};
+
+static void SDLCALL openMapDialogue(void* userdata, const char* const* filelist, int filter){
+	if (!filelist) {
+		printf("An error occured: %s\n", SDL_GetError());
+		return;
+	} else if (!*filelist) {
+		printf("No file was selected.\n");
+		return;
+	}
+        
+	printf("Full path to selected file: '%s'\n", *filelist);
+	client.gameWorld->headObj->child = NULL;
+	loadMapFromSBMap(*filelist);
+	
+	DataObj *playerObj = newObject(NULL, &playerClass);
+	client.gameWorld->currPlayer = playerObj;
+	
+	if (filter < 0) {
+		printf("fuck!\n");
+		return;
+	} else if (filter < SDL_arraysize(mapLoadFilter)) {
+		printf("The filter selected by the user is '%s' (%s).\n", mapLoadFilter[filter].pattern, mapLoadFilter[filter].name);
+		return;
+	}
+}
+
+void buttonLoadMap(Button* item){
+	SDL_ShowOpenFileDialog(openMapDialogue, NULL, studioWindow, mapLoadFilter, SDL_arraysize(mapLoadFilter), SDL_GetCurrentDirectory(), false);
 }
 
 void StudioHandleKeys(){

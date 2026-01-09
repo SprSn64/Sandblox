@@ -35,7 +35,7 @@ void drawObjectProperties(DataObj* item, int posY);
 
 Button addObjButton = {"+", (SDL_FRect){224, 304, 16, 16}, buttonAddObject, true, true, false, false};
 Button removeObjButton = {"-", (SDL_FRect){206, 304, 16, 16}, buttonRemoveObject, true, true, false, false};
-Button fileButton = {"File", (SDL_FRect){0, 0, 48, 16}, NULL, false, true, false, false};
+Button fileButton = {"File", (SDL_FRect){0, 0, 48, 16}, buttonLoadMap, true, true, false, false};
 
 void initStudio(){
 	//printf("Studio Initiated\n");
@@ -70,7 +70,7 @@ void updateStudio(){
 	int idCounter = 0;
 	drawObjectList(client.gameWorld->headObj, 0, &idCounter);
 	
-	updateButton(&addObjButton); updateButton(&removeObjButton);
+	updateButton(&addObjButton); updateButton(&removeObjButton); updateButton(&fileButton);
 	drawButton(&addObjButton); drawButton(&removeObjButton); drawButton(&fileButton);
 	
 	drawObjectProperties(focusObject, 240);

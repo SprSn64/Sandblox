@@ -80,7 +80,7 @@ DataObj* newObject(DataObj* parent, DataType* classData){
 		return NULL;
 	}
 	newObj->parent = parent;
-	if (parent == NULL) parent = &gameHeader;
+	if (parent == NULL) parent = game.headObj;
 	
 	/* first added is first rendered/updated, last added is last rendered/updated
 	newObj->next = NULL;
