@@ -116,7 +116,7 @@ typedef struct{
 } ClientData;
 
 typedef struct{
-	bool down, pressed, released;
+	bool down, pressed, released, pressCheck;
 	Uint32 code;
 } ButtonMap;
 

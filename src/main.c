@@ -125,7 +125,7 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[]){
 		
 		//printf("OpenGl %s\n", glGetString(GL_VERSION));
 	}
-	
+	SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
 	SDL_SetWindowMinimumSize(window, 320, 240);
 	
 	fontTex = newTexture("assets/textures/font.png", SDL_SCALEMODE_NEAREST);
@@ -133,7 +133,7 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[]){
 	homerTex = newTexture("assets/textures/homer.png", SDL_SCALEMODE_NEAREST);
 
 	teapotMesh = loadMeshFromObj("assets/models/teapot.obj");
-	playerMesh = loadMeshFromObj("assets/models/oldplayer.obj");
+	playerMesh = loadMeshFromObj("assets/models/oldplayer.obj"); //will be replaced with a better model soon
 	cubeMesh = loadMeshFromObj("assets/models/testcube.obj");
 	
 	cubePrim = loadMeshFromObj("assets/models/primitives/cube.obj");
@@ -172,10 +172,10 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[]){
 	
 	DataObj *blockObj = newObject(NULL, &blockClass);
 	blockObj->scale = (Vector3){8, 1, 8}; blockObj->pos = (Vector3){-4, 0, -4};
-	blockObj->colour = (CharColour){0.6 * 255, 0.8 * 255, 255, 255, 0, COLOURMODE_RGB};
+	blockObj->colour = (CharColour){153, 204, 255, 255, 0, COLOURMODE_RGB};
 	
 	DataObj *blockObjA = newObject(NULL, &blockClass); blockObjA->name = "Red Teapot";
-	blockObjA->pos = (Vector3){-4, 2, -4}; blockObjA->scale = (Vector3){0.5, 0.5, 0.5}; blockObjA->colour = (CharColour){255, 0, 0, 255, 0, COLOURMODE_RGB};
+	blockObjA->pos = (Vector3){-4, 2, -4}; blockObjA->scale = (Vector3){0.5, 0.5, 0.5}; blockObjA->colour = (CharColour){255, 0, 0, 128, 0, COLOURMODE_RGB};
 	DataObj *meshObjA = newObject(blockObjA, &meshClass); meshObjA->asVoidptr[OBJVAL_MESH] = teapotMesh;
 	
 	DataObj *blockObjB = newObject(NULL, &blockClass); blockObjB->name = "Yellow Sphere";
@@ -200,6 +200,14 @@ SDL_AppResult SDL_AppIterate(void *appstate){
 	mouseState = SDL_GetMouseState(&mousePos.x, &mousePos.y);
 	for(int i=0; i<3; i++){
 		mouseButtons[i].down = (SDL_GetWindowFlags(window) & SDL_WINDOW_INPUT_FOCUS && (mouseState & mouseButtons[i].code));
+		if(mouseButtons[i].down){
+			if(!mouseButtons[i].pressCheck){
+				mouseButtons[i].pressCheck = true;
+				mouseButtons[i].pressed = true;
+			}else{
+				mouseButtons[i].pressed = false;
+			}
+		}else mouseButtons[i].pressCheck = false;
 	}
 	
 	last = now;
@@ -287,5 +295,13 @@ void HandleKeyInput(){
 	const bool* keyState = SDL_GetKeyboardState(NULL);
 	for(int i = 0; i < KEYBINDCOUNT; i++){
 		keyList[i].down = keyState[keyList[i].code] && SDL_GetWindowFlags(window) & SDL_WINDOW_INPUT_FOCUS;
+		if(keyList[i].down){
+			if(!keyList[i].pressCheck){
+				keyList[i].pressCheck = true;
+				keyList[i].pressed = true;
+			}else{
+				keyList[i].pressed = false;
+			}
+		}else keyList[i].pressCheck = false;
 	}
 }

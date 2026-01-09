@@ -256,7 +256,7 @@ void playerUpdate(DataObj* object){
 	
 	playerVel->x = (playerVel->x + playerMove.x) * 0.92;
 	playerVel->z = (playerVel->z + playerMove.y) * 0.92;
-	playerVel->y += -1;
+	playerVel->y += -1 + 0.4 * (keyList[KEYBIND_SPACE].down && playerVel->y > 0);
 	
 	//object->pos.x += playerMove.x * 4 * deltaTime;
 	//object->pos.y += (keyList[KEYBIND_SPACE].down - keyList[KEYBIND_SHIFT].down) * 4 * deltaTime;
@@ -265,7 +265,7 @@ void playerUpdate(DataObj* object){
 	
 	if(object->pos.y < 0){
 		object->pos.y = 0;
-		playerVel->y = 24 * keyList[KEYBIND_SPACE].down;
+		playerVel->y = 18 * keyList[KEYBIND_SPACE].pressed;
 	}
 
 	//object->pos.y = SDL_cos(timer) / 2 + 2;

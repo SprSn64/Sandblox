@@ -64,6 +64,14 @@ void updateStudio(){
 	
 	for(int i=0; i<3; i++){
 		stuMouseButtons[i].down = (SDL_GetWindowFlags(studioWindow) & SDL_WINDOW_INPUT_FOCUS && (mouseState & stuMouseButtons[i].code));
+		if(stuMouseButtons[i].down){
+			if(!stuMouseButtons[i].pressCheck){
+				stuMouseButtons[i].pressCheck = true;
+				stuMouseButtons[i].pressed = true;
+			}else{
+				stuMouseButtons[i].pressed = false;
+			}
+		}else stuMouseButtons[i].pressCheck = false;
 	}
 	SDL_SetCursor(SDL_CreateSystemCursor(SDL_SYSTEM_CURSOR_DEFAULT));
 	
@@ -80,10 +88,9 @@ void updateStudio(){
 
 void drawObjectList(DataObj* item, int nodeDepth, int *idCount){
 	int i = (*idCount)++;
-	if(mousePos.y >= 19 + i * 16 && mousePos.y <= 31 + i * 16 && stuMouseButtons[0].down){
-		if(item->parent != focusObject){
-			focusObject->studioOpen = false;
-			item->studioOpen = true;
+	if(mousePos.y >= 19 + i * 16 && mousePos.y <= 31 + i * 16 && stuMouseButtons[0].pressed){
+		if(item == focusObject){
+			item->studioOpen = !item->studioOpen;
 		}
 		focusObject = item;
 		goto focusSkip;
@@ -97,12 +104,12 @@ void drawObjectList(DataObj* item, int nodeDepth, int *idCount){
 	SDL_RenderDebugText(studioRenderer, 18/**/ + (nodeDepth * 24), 22/**/ + i * 16, item->name);
 	
 	SDL_FRect iconRect = {(item->classData->id % 16) * 16, (int)floor((float)item->classData->id / 16) * 16 % 16, 16, 16};
-	SDL_FRect iconPos = {2 + (nodeDepth * 24), 18/**/ + i * 16, 16, 16};
+	SDL_FRect iconPos = {2 + nodeDepth * 24, 18/**/ + i * 16, 16, 16};
 	SDL_RenderTexture(studioRenderer, classIconTex, &iconRect, &iconPos);
 	
 	if(!item->studioOpen){
 		if(item->child)
-			SDL_RenderDebugText(studioRenderer, 2/**/ + (nodeDepth * 24), 18/**/ + i * 16, "+");
+			SDL_RenderTexture(studioRenderer, classIconTex, &(SDL_FRect){245, 249, 11, 7}, &(SDL_FRect){2 + nodeDepth * 24, 18/**/ + i * 16, 11, 7});
 		return;
 	}
 	
