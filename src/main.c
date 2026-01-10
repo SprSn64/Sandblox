@@ -2,11 +2,6 @@
 #include <SDL3/SDL.h>
 #include <SDL3/SDL_main.h>
 #include <SDL3_image/SDL_image.h>
-
-#define GLFW_DLL
-#define GLFW_INCLUDE_NONE
-#include <glad/gl.h>
-#include <GLFW/glfw3.h>
 //#include <iostream>
 
 #include <stdio.h>
@@ -20,11 +15,11 @@
 #include "math.h"
 #include "loader.h"
 #include "map.h"
+#include "opengl.h"
 
 #include "studio/studio.h"
 
 SDL_Window *window = NULL;
-SDL_Window *glWindow = NULL;
 SDL_Renderer *renderer = NULL;
 
 bool glEnabled = false;
@@ -113,18 +108,8 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[]){
 		SDL_Log("Couldn't create window/renderer: %s", SDL_GetError());
 		return SDL_APP_FAILURE;
 	}
-	if(glEnabled){
-		glfwInit();
-		glWindow = SDL_CreateWindow("Sandblox (3D OpenGL)", windowScale.x, windowScale.y, SDL_WINDOW_RESIZABLE | SDL_WINDOW_OPENGL);
-		SDL_SetWindowParent(glWindow, window); //SDL_SetWindowModal(glWindow, true);
-		SDL_SetWindowMinimumSize(glWindow, 320, 240);
-		
-		glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
-		glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
-		glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-		
-		//printf("OpenGl %s\n", glGetString(GL_VERSION));
-	}
+	if(glEnabled)
+		glEnabled = initOpenGL();
 	SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
 	SDL_SetWindowMinimumSize(window, 320, 240);
 	SDL_SetRenderVSync(renderer, 1);
@@ -279,7 +264,9 @@ SDL_AppResult SDL_AppIterate(void *appstate){
 	if(client.studio)drawText(renderer, fontTex, "Studio Enabled", 32, 0, windowScale.y - 32, 16, 16, 12);
 	//drawText(renderer, fontTex, "Diagnostics: Skill issue", 32, 0, 64, 16, 16, 12);
 	//SDL_RenderDebugText(renderer, 0, 0, guiText);
-
+	if(glEnabled)
+		updateOpenGL();
+	
 	SDL_RenderPresent(renderer);
 
 	return SDL_APP_CONTINUE;
