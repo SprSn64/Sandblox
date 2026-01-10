@@ -34,6 +34,8 @@ Vector3 worldToCamera(Vector3 pos){
 		newPos.x = firstPos.x * SDL_cos(client.gameWorld->currCamera->rot.y) + firstPos.z * -SDL_sin(client.gameWorld->currCamera->rot.y); newPos.z = firstPos.x * SDL_sin(client.gameWorld->currCamera->rot.y) + firstPos.z * SDL_cos(client.gameWorld->currCamera->rot.y);
 		newPos.y = firstPos.y * SDL_cos(client.gameWorld->currCamera->rot.x) + newPos.z * SDL_sin(client.gameWorld->currCamera->rot.x); newPos.z = firstPos.y * -SDL_sin(client.gameWorld->currCamera->rot.x) + newPos.z * SDL_cos(client.gameWorld->currCamera->rot.x);
 		newPos.x = newPos.x * SDL_cos(client.gameWorld->currCamera->rot.z) + newPos.y * -SDL_sin(client.gameWorld->currCamera->rot.z); newPos.y = newPos.x * SDL_sin(client.gameWorld->currCamera->rot.z) + newPos.y * SDL_cos(client.gameWorld->currCamera->rot.z);
+	//Vector4 newPos = matrixMult((Vector4){pos.x, pos.y, pos.z, 1}, client.gameWorld->currCamera->transform);
+	//return (Vector3){newPos.x, newPos.y, newPos.z};
 	return newPos;
 }
 

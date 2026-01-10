@@ -139,8 +139,6 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[]){
 	
 	cubePrim = loadMeshFromObj("assets/models/primitives/cube.obj");
 	spherePrim = loadMeshFromObj("assets/models/primitives/sphere.obj");
-	
-	currentCamera.transform = perspMatrix(90, 4/3, 0.01, 100);
 
 	keyList[KEYBIND_W].code = SDL_SCANCODE_W; keyList[KEYBIND_S].code = SDL_SCANCODE_S; keyList[KEYBIND_A].code = SDL_SCANCODE_A; keyList[KEYBIND_D].code = SDL_SCANCODE_D;
 	keyList[KEYBIND_SPACE].code = SDL_SCANCODE_SPACE; keyList[KEYBIND_SHIFT].code = SDL_SCANCODE_LSHIFT;
@@ -249,9 +247,7 @@ SDL_AppResult SDL_AppIterate(void *appstate){
 	
 	currentCamera.rot.x += (keyList[KEYBIND_UP].down - keyList[KEYBIND_DOWN].down) * 1 * deltaTime;
 	currentCamera.rot.y += (keyList[KEYBIND_LEFT].down - keyList[KEYBIND_RIGHT].down) * 1 * deltaTime;
-	
-	currentCamera.rot = (Vector3){fmod(currentCamera.rot.x, 360 * DEG2RAD), fmod(currentCamera.rot.y, 360 * DEG2RAD), fmod(currentCamera.rot.z, 360 * DEG2RAD)};
-	
+	currentCamera.rot = (Vector3){fmod(currentCamera.rot.x, 6.28318), fmod(currentCamera.rot.y, 6.28318), fmod(currentCamera.rot.z, 6.28318)};
 	currentCamera.focusDist = min(max(currentCamera.focusDist + (keyList[KEYBIND_I].down - keyList[KEYBIND_O].down) * 4 * fmax(1, sqrt(currentCamera.focusDist)) * deltaTime, 0), 64);
 	
 	int idCounter = 0;
