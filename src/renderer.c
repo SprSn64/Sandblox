@@ -125,15 +125,18 @@ void drawMesh(Mesh* mesh, mat4 transform, SDL_FColor colour){
 	if(!transform) return;
 	
 	Vector4 pointCalcs[3];
+	mat4 rotMatrix; memcpy(rotMatrix, transform, sizeof(mat4));
+	rotMatrix[3] = 0; rotMatrix[7] = 0; rotMatrix[11] = 0;  
+	Vector3 matrixScale = extractScale(transform);
+	rotMatrix[0] = rotMatrix[0] / matrixScale.x; rotMatrix[4] = rotMatrix[4] / matrixScale.x; rotMatrix[8] = rotMatrix[8] / matrixScale.x; 
+	rotMatrix[1] = rotMatrix[1] / matrixScale.y; rotMatrix[5] = rotMatrix[5] / matrixScale.y; rotMatrix[9] = rotMatrix[9] / matrixScale.y; 
+	rotMatrix[2] = rotMatrix[2] / matrixScale.z; rotMatrix[6] = rotMatrix[6] / matrixScale.z; rotMatrix[10] = rotMatrix[10] / matrixScale.z; 
 	
 	for(int i=0; i < mesh->faceCount; i++){
 		if (mesh->faces[i].vertA && mesh->faces[i].vertB && mesh->faces[i].vertC) {
 			pointCalcs[0] = matrixMult((Vector4){mesh->faces[i].vertA->pos.x, mesh->faces[i].vertA->pos.y, mesh->faces[i].vertA->pos.z, 1}, transform);
 			pointCalcs[1] = matrixMult((Vector4){mesh->faces[i].vertB->pos.x, mesh->faces[i].vertB->pos.y, mesh->faces[i].vertB->pos.z, 1}, transform);
 			pointCalcs[2] = matrixMult((Vector4){mesh->faces[i].vertC->pos.x, mesh->faces[i].vertC->pos.y, mesh->faces[i].vertC->pos.z, 1}, transform);
-			
-			mat4 newMatrix; memcpy(newMatrix, transform, sizeof(mat4));
-			newMatrix[3] = 0; newMatrix[7] = 0; newMatrix[11] = 0;  
 			
 			SDL_FColor faceColour = {
 				(mesh->faces[i].vertA->colour.r + mesh->faces[i].vertB->colour.r + mesh->faces[i].vertC->colour.r) / 3,
@@ -146,7 +149,7 @@ void drawMesh(Mesh* mesh, mat4 transform, SDL_FColor colour){
 				(mesh->faces[i].vertA->norm.y + mesh->faces[i].vertB->norm.y + mesh->faces[i].vertC->norm.y) / 3,
 				(mesh->faces[i].vertA->norm.z + mesh->faces[i].vertB->norm.z + mesh->faces[i].vertC->norm.z) / 3,
 				1
-			}, newMatrix);
+			}, rotMatrix);
 			Vector3 faceNormal = {multFaceNormal.x, multFaceNormal.y, multFaceNormal.z};
 			SDL_FPoint faceUV = {
 				(mesh->faces[i].vertA->uv.x + mesh->faces[i].vertA->uv.x) / 2,

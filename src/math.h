@@ -30,4 +30,8 @@ void rotateMatrix2(mat4 matrix, Vector3 angle);
 
 float *perspMatrix(float fov, float aspect, float zNear, float zFar);
 
+Vector3 extractTranslation(mat4 matrix);
+Vector3 extractScale(mat4 matrix);
+void extractRotMatrix(mat4 matrix, mat4 outputLoc);
+
 #endif

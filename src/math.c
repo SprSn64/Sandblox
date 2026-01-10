@@ -171,9 +171,10 @@ void scaleMatrix2(mat4 matrix, Vector3 scale){
 	matrix[10] *= scale.z;
 }
 
-void rotateMatrix2(mat4 matrix, Vector3 angle){ //how 2.... fix??
-	matrix[0] *= SDL_cos(angle.y); matrix[2] += SDL_sin(angle.y);
-	matrix[8] += -SDL_sin(angle.y); matrix[10] *= SDL_cos(angle.y);
+void rotateMatrix2(mat4 matrix, Vector3 angle){
+	matrix[0] *= SDL_cos(angle.y) * SDL_cos(angle.z); matrix[1] += -SDL_sin(angle.z); matrix[2] += SDL_sin(angle.y);
+	matrix[5] *= SDL_cos(angle.x); matrix[6] *= -SDL_sin(angle.x);
+	matrix[8] += -SDL_sin(angle.y); matrix[9] *= SDL_sin(angle.x); matrix[10] *= SDL_cos(angle.x) * SDL_cos(angle.y);
 }
 
 float *perspMatrix(float fov, float aspect, float zNear, float zFar){
@@ -197,4 +198,26 @@ float *perspMatrix(float fov, float aspect, float zNear, float zFar){
 	//}
 
 	return output;
+}
+
+Vector3 extractTranslation(mat4 matrix){
+	return (Vector3){matrix[3], matrix[7], matrix[11]};
+}
+
+Vector3 extractScale(mat4 matrix){
+	float scaleX = sqrt(matrix[0] * matrix[0] + matrix[4] * matrix[4] + matrix[8] * matrix[8]);
+	float scaleY = sqrt(matrix[1] * matrix[1] + matrix[5] * matrix[5] + matrix[9] * matrix[9]);
+	float scaleZ = sqrt(matrix[2] * matrix[2] + matrix[6] * matrix[6] + matrix[10] * matrix[10]);
+	return (Vector3){scaleX, scaleY, scaleZ};
+}
+
+void extractRotMatrix(mat4 matrix, mat4 outputLoc){
+	Vector3 scale = extractScale(matrix);
+	float output[16] = {
+		matrix[0] / scale.x, matrix[1] / scale.y, matrix[2] / scale.z, 0,
+		matrix[4] / scale.x, matrix[5] / scale.y, matrix[6] / scale.z, 0,
+		matrix[8] / scale.x, matrix[9] / scale.y, matrix[10] / scale.z, 0,
+		0, 0, 0, 1
+	};
+	//memcpy(outputLoc, output, sizeof(mat4));
 }

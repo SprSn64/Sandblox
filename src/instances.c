@@ -47,9 +47,9 @@ DataObj gameHeader = {
 void updateObjects(DataObj* item, int nodeDepth, int *idCount, bool uord){ //uord = update or draw
 	//int i = (*idCount)++;
 	item->transform = newMatrix();
+	rotateMatrix2(item->transform, item->rot);
 	translateMatrix2(item->transform, (Vector3){item->pos.x, item->pos.y, item->pos.z});
 	scaleMatrix2(item->transform, (Vector3){item->scale.x, item->scale.y, item->scale.z});
-	rotateMatrix2(item->transform, item->rot);
 	if (item->classData) {
 		if (item->classData->update && !uord) item->classData->update(item);
 		if (item->classData->draw && uord) item->classData->draw(item);
@@ -290,7 +290,7 @@ void blockDraw(DataObj* object){
 	drawMesh(itemMesh, object->transform, ConvertSDLColour(object->colour));
 
 	if (!strcmp(object->name, "Red Teapot")) {
-		object->rot = (Vector3){0, object->rot.y + 0.1, 0};
+		object->rot = (Vector3){object->rot.x + 0.02, object->rot.y + 0.02, object->rot.z};
 	}
 }
 
