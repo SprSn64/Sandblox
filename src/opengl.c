@@ -3,6 +3,7 @@
 #include <SDL3/SDL.h>
 #include <SDL3_image/SDL_image.h>
 #include <GL/glew.h>
+#include <GL/glut.h>
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -23,10 +24,10 @@ bool initOpenGL(){
 		printf("OpenGL initiation failed!\n");
 		return 0;
 	}
-	if(glewInit() != GLEW_OK){
+	/*if(glewInit() != GLEW_OK){
 		printf("Glew initiation failed!\n");
 		return 0;
-	}
+	}*/
 	
 	SDL_SetWindowParent(glWindow, window); //SDL_SetWindowModal(glWindow, true);
 	SDL_SetWindowMinimumSize(glWindow, 320, 240);
