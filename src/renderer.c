@@ -152,7 +152,7 @@ void drawMesh(Mesh* mesh, mat4 transform, SDL_FColor colour){
 				(mesh->faces[i].vertA->norm.z + mesh->faces[i].vertB->norm.z + mesh->faces[i].vertC->norm.z) / 3,
 				1
 			}, rotMatrix);
-			Vector3 faceNormal = {multFaceNormal.x, multFaceNormal.y, multFaceNormal.z};
+			Vector3 faceNormal = normalize3((Vector3){multFaceNormal.x / matrixScale.x, multFaceNormal.y / matrixScale.y, multFaceNormal.z / matrixScale.z});
 			SDL_FPoint faceUV = {
 				(mesh->faces[i].vertA->uv.x + mesh->faces[i].vertA->uv.x) / 2,
 				(mesh->faces[i].vertA->uv.y + mesh->faces[i].vertA->uv.y) / 2,
