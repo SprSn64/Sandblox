@@ -46,16 +46,19 @@ DataObj gameHeader = {
 
 void updateObjects(DataObj* item, int nodeDepth, int *idCount, bool uord){ //uord = update or draw
 	//int i = (*idCount)++;
-	item->rot = (Vector3){fmod(item->rot.x, 6.28318), fmod(item->rot.y, 6.28318), fmod(item->rot.z, 6.28318)};
-	item->transform = newMatrix();
-	rotateMatrix2(item->transform, item->rot);
-	translateMatrix2(item->transform, (Vector3){item->pos.x, item->pos.y, item->pos.z});
-	scaleMatrix2(item->transform, (Vector3){item->scale.x, item->scale.y, item->scale.z});
-	if (item->classData) {
-		if (item->classData->update && !uord) item->classData->update(item);
-		if (item->classData->draw && uord) item->classData->draw(item);
+	if (!uord){
+		item->rot = (Vector3){fmod(item->rot.x, 6.28318), fmod(item->rot.y, 6.28318), fmod(item->rot.z, 6.28318)};
+		if(item->classData->update)item->classData->update(item);
+	}else{ 
+		item->transform = newMatrix();
+		rotateMatrix2(item->transform, item->rot);
+		translateMatrix2(item->transform, (Vector3){item->pos.x, item->pos.y, item->pos.z});
+		scaleMatrix2(item->transform, (Vector3){item->scale.x, item->scale.y, item->scale.z});
+		
+		if(item->classData->draw)item->classData->draw(item);
+		
+		free(item->transform);
 	}
-	free(item->transform);
 	//if(uord)drawText(renderer, fontTex, item->name, 32, OBJLIST_HUD_POS_X + (nodeDepth * 24), OBJLIST_HUD_POS_Y + i * 16, 16, 16, 12);
 	DataObj* child = item->child;
 	while (child) {
