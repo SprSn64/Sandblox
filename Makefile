@@ -2,7 +2,7 @@ DIRS := src src/studio
 
 CC  := gcc
 CXX := g++
-CFLAGS   := -Wall -Wextra -O3 -Iinclude -DGLEW_STATIC
+CFLAGS   := -Wall -Wextra -O3 -Iinclude
 CXXFLAGS := $(CFLAGS) -std=c++17
 
 ifeq ($(OS),Windows_NT)
