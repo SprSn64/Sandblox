@@ -40,4 +40,6 @@ CharColour ConvertColour(CharColour colour, Uint32 mode);
 void drawMesh(Mesh* mesh, mat4 transform, SDL_FColor colour);
 void drawBillboard(SDL_Texture *texture, SDL_FRect rect, Vector3 pos, SDL_FPoint offset, SDL_FPoint scale);
 
+Mesh* genTorusMesh(float outerRad, float innerRad, int ringRes, int ringCount);
+
 #endif

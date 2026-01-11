@@ -161,3 +161,37 @@ void drawText(SDL_Renderer *renderer, SDL_Texture *texture, char* text, char cha
 		SDL_RenderTexture(renderer, texture, &sprRect, &sprPos);
 	}
 }
+
+Mesh* genTorusMesh(float outerRad, float innerRad, int ringRes, int ringCount){
+	if(ringRes < 3 || ringCount < 3) return NULL;
+	Uint32 vertCount = ringRes * ringCount;
+	Uint32 faceCount = vertCount * 2;
+	
+	MeshVert* newVerts = calloc(1, sizeof(MeshVert) * vertCount);
+	MeshFace* newFaces = calloc(1, sizeof(MeshFace) * faceCount);
+	
+	float angleRes = 6.28318 / ringRes;
+	float angleRing = 6.28318 / ringCount;
+	for(int i=0; i<ringRes * ringCount; i++){
+		float newAngle = angleRing * floor(i / ringRes);
+		newVerts[i].pos = (Vector3){
+			(outerRad + SDL_cos(angleRes * (i % ringRes)) * innerRad) * SDL_cos(newAngle), 
+			outerRad + SDL_sin(angleRes * (i % ringRes)) * innerRad, 
+			(outerRad + SDL_cos(angleRes * (i % ringRes)) * innerRad) * SDL_sin(newAngle),
+		};
+		newVerts[i].norm = (Vector3){
+			SDL_cos(angleRes * (i % ringRes)) * SDL_cos(newAngle),
+			SDL_sin(angleRes * (i % ringRes)),
+			SDL_cos(angleRes * (i % ringRes)) * SDL_sin(newAngle),
+		};
+	}
+	
+	for(int i=0; i<faceCount/2; i++){
+		newFaces[i] = (MeshFace){&newVerts[i], &newVerts[(i+1) % vertCount], &newVerts[(i + ringRes) % vertCount]};
+		newFaces[i + 1] = (MeshFace){&newVerts[(i+1) % vertCount], &newVerts[(i + ringRes) % vertCount], &newVerts[(i + 1 + ringRes) % vertCount]};
+	}
+	
+	Mesh* newMesh = malloc(sizeof(Mesh));
+	newMesh->vertCount = vertCount; newMesh->verts = newVerts; newMesh->faceCount = faceCount; newMesh->faces = newFaces; 
+	return newMesh;
+}
