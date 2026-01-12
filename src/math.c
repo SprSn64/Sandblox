@@ -173,8 +173,8 @@ void scaleMatrix2(mat4 matrix, Vector3 scale){
 
 void rotateMatrix2(mat4 matrix, Vector3 angle){
 	matrix[0] *= SDL_cos(angle.y) * SDL_cos(angle.z); matrix[1] += -SDL_sin(angle.z); matrix[2] += SDL_sin(angle.y);
-	matrix[5] *= SDL_cos(angle.x); matrix[6] *= -SDL_sin(angle.x);
-	matrix[8] += -SDL_sin(angle.y); matrix[9] *= SDL_sin(angle.x); matrix[10] *= SDL_cos(angle.x) * SDL_cos(angle.y);
+	matrix[5] *= SDL_cos(angle.x); matrix[6] += -SDL_sin(angle.x);
+	matrix[8] += -SDL_sin(angle.y); matrix[9] += SDL_sin(angle.x); matrix[10] *= SDL_cos(angle.x) * SDL_cos(angle.y);
 }
 
 float *perspMatrix(float fov, float aspect, float zNear, float zFar){

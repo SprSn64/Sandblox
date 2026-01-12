@@ -5,8 +5,9 @@
 
 #include <SDL3/SDL.h>
 
-#define RAD2DEG 180 / 3.14159
-#define DEG2RAD 3.14159 / 180
+#define PI 3.14159
+#define RAD2DEG 180 / PI
+#define DEG2RAD PI / 180
 
 #define KEYBINDCOUNT 12
 typedef enum gameKeybinds{

@@ -170,13 +170,13 @@ Mesh* genTorusMesh(float outerRad, float innerRad, int ringRes, int ringCount){
 	MeshVert* newVerts = calloc(1, sizeof(MeshVert) * vertCount);
 	MeshFace* newFaces = calloc(1, sizeof(MeshFace) * faceCount);
 	
-	float angleRes = 6.28318 / ringRes;
-	float angleRing = 6.28318 / ringCount;
+	float angleRes = PI * 2 / ringRes;
+	float angleRing = PI * 2 / ringCount;
 	for(int i=0; i<ringRes * ringCount; i++){
 		float newAngle = angleRing * floor(i / ringRes);
 		newVerts[i].pos = (Vector3){
 			(outerRad + SDL_cos(angleRes * (i % ringRes)) * innerRad) * SDL_cos(newAngle), 
-			outerRad + SDL_sin(angleRes * (i % ringRes)) * innerRad, 
+			SDL_sin(angleRes * (i % ringRes)) * innerRad, 
 			(outerRad + SDL_cos(angleRes * (i % ringRes)) * innerRad) * SDL_sin(newAngle),
 		};
 		newVerts[i].norm = (Vector3){
@@ -187,8 +187,11 @@ Mesh* genTorusMesh(float outerRad, float innerRad, int ringRes, int ringCount){
 	}
 	
 	for(int i=0; i<faceCount/2; i++){
-		newFaces[i] = (MeshFace){&newVerts[i], &newVerts[(i+1) % vertCount], &newVerts[(i + ringRes) % vertCount]};
-		newFaces[i + 1] = (MeshFace){&newVerts[(i+1) % vertCount], &newVerts[(i + ringRes) % vertCount], &newVerts[(i + 1 + ringRes) % vertCount]};
+		int newI = i * 2;
+		MeshVert *quadVerts[4] = {&newVerts[i], &newVerts[(i+1) % vertCount], &newVerts[(i + ringRes) % vertCount], &newVerts[(i+1 + ringRes) % vertCount]};
+		
+		newFaces[newI % faceCount] = (MeshFace){quadVerts[0], quadVerts[1], quadVerts[2]};
+		newFaces[(newI + 1) % faceCount] = (MeshFace){quadVerts[2], quadVerts[1], quadVerts[3]};
 	}
 	
 	Mesh* newMesh = malloc(sizeof(Mesh));
