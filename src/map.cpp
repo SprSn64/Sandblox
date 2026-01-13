@@ -56,7 +56,7 @@ LINK_WITH_C void loadMapFromSBMap(const char *path) {
             float x,y,z, rx,ry,rz;
 		Uint8 r,g,b;
             char className[64];
-            sscanf(line, "object %f, %f, %f, %f, %f, %f, %d, %d, %d, %s", &x,&y,&z, &rx,&ry,&rz, &r,&g,&b, className);
+            sscanf(line, "object %f, %f, %f, %f, %f, %f, %hhu, %hhu, %hhu, %s", &x,&y,&z, &rx,&ry,&rz, &r,&g,&b, className);
             DataType *type = nameToClass[className];
             DataObj *newObj = newObject(NULL, type);
             newObj->pos = (Vector3){x, y, z};

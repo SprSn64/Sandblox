@@ -29,14 +29,18 @@ Vector3 worldToCamera(Vector3 pos){
 	Vector3 newPos;
 		newPos.x = firstPos.x * SDL_cos(client.gameWorld->currCamera->rot.y) + firstPos.z * -SDL_sin(client.gameWorld->currCamera->rot.y); newPos.z = firstPos.x * SDL_sin(client.gameWorld->currCamera->rot.y) + firstPos.z * SDL_cos(client.gameWorld->currCamera->rot.y);
 		newPos.y = firstPos.y * SDL_cos(client.gameWorld->currCamera->rot.x) + newPos.z * SDL_sin(client.gameWorld->currCamera->rot.x); newPos.z = firstPos.y * -SDL_sin(client.gameWorld->currCamera->rot.x) + newPos.z * SDL_cos(client.gameWorld->currCamera->rot.x);
-		newPos.x = newPos.x * SDL_cos(client.gameWorld->currCamera->rot.z) + newPos.y * -SDL_sin(client.gameWorld->currCamera->rot.z); newPos.y = newPos.x * SDL_sin(client.gameWorld->currCamera->rot.z) + newPos.y * SDL_cos(client.gameWorld->currCamera->rot.z);
+		float tempX = newPos.x * SDL_cos(client.gameWorld->currCamera->rot.z) + newPos.y * -SDL_sin(client.gameWorld->currCamera->rot.z); newPos.y = newPos.x * SDL_sin(client.gameWorld->currCamera->rot.z) + newPos.y * SDL_cos(client.gameWorld->currCamera->rot.z); newPos.x = tempX;
 	//Vector4 newPos = matrixMult((Vector4){pos.x, pos.y, pos.z, 1}, client.gameWorld->currCamera->transform);
 	//return (Vector3){newPos.x, newPos.y, newPos.z};
 	return newPos;
 }
 
 Vector3 viewProj(Vector3 pos){
-	return (Vector3){pos.x / pos.z * client.gameWorld->currCamera->zoom, pos.y / pos.z * client.gameWorld->currCamera->zoom, pos.z * client.gameWorld->currCamera->zoom};
+	float absZ = fabs(pos.z);
+	if(absZ < 0.001f) absZ = 0.001f;
+	float safeZ = (pos.z < 0) ? -absZ : absZ;
+	
+	return (Vector3){pos.x / safeZ * client.gameWorld->currCamera->zoom, pos.y / safeZ * client.gameWorld->currCamera->zoom, pos.z * client.gameWorld->currCamera->zoom};
 	//Vector4 matrixed = matrixMult((Vector4){pos.x, pos.y, pos.z, 1}, client.gameWorld->currCamera->transform);
 	//return (Vector3){matrixed.x, matrixed.y, matrixed.z};
 }
@@ -62,12 +66,51 @@ bool drawTriangle(Vector3 pointA, Vector3 pointB, Vector3 pointC, SDL_FColor col
 	return 1;
 }
 
+Vector3 clipToNearPlane(Vector3 front, Vector3 back, float nearZ){
+	// front.z < nearZ (in front), back.z >= nearZ (behind or at near plane)
+	float t = (nearZ - front.z) / (back.z - front.z);
+	return (Vector3){
+		front.x + t * (back.x - front.x),
+		front.y + t * (back.y - front.y),
+		nearZ
+	};
+}
+
 bool draw3DTriangle(Vector3 pointA, Vector3 pointB, Vector3 pointC, SDL_FColor colour){
-	Vector3 projLoc[3] = {projToScreen(viewProj(worldToCamera(pointA))), projToScreen(viewProj(worldToCamera(pointB))), projToScreen(viewProj(worldToCamera(pointC)))};
-	if(max(projLoc[0].z, max(projLoc[1].z, projLoc[2].z)) < 0){
-		drawTriangle(projLoc[0], projLoc[1], projLoc[2], colour); return 0;
+	Vector3 camA = worldToCamera(pointA);
+	Vector3 camB = worldToCamera(pointB);
+	Vector3 camC = worldToCamera(pointC);
+	
+	const float NEAR_PLANE = -0.1f;  // near plane in camera space (negative = in front)
+	
+	bool aFront = camA.z < NEAR_PLANE;
+	bool bFront = camB.z < NEAR_PLANE;
+	bool cFront = camC.z < NEAR_PLANE;
+	int inFront = aFront + bFront + cFront;
+	
+	if(inFront == 0){
+		return 1;  // all behind camera, don't draw
 	}
-	return 1;
+	
+	if(inFront == 3){
+		// all in front, draw normally
+		Vector3 projLoc[3] = {projToScreen(viewProj(camA)), projToScreen(viewProj(camB)), projToScreen(viewProj(camC))};
+		if(max(projLoc[0].z, max(projLoc[1].z, projLoc[2].z)) < 0){
+			drawTriangle(projLoc[0], projLoc[1], projLoc[2], colour);
+		}
+		return 0;
+	}
+	
+	// mixed case: clip vertices behind the near plane to the near plane
+	Vector3 clippedA = aFront ? camA : clipToNearPlane(bFront ? camB : camC, camA, NEAR_PLANE);
+	Vector3 clippedB = bFront ? camB : clipToNearPlane(aFront ? camA : camC, camB, NEAR_PLANE);
+	Vector3 clippedC = cFront ? camC : clipToNearPlane(aFront ? camA : camB, camC, NEAR_PLANE);
+	
+	Vector3 projLoc[3] = {projToScreen(viewProj(clippedA)), projToScreen(viewProj(clippedB)), projToScreen(viewProj(clippedC))};
+	if(max(projLoc[0].z, max(projLoc[1].z, projLoc[2].z)) < 0){
+		drawTriangle(projLoc[0], projLoc[1], projLoc[2], colour);
+	}
+	return 0;
 }
 
 void drawMesh(Mesh* mesh, mat4 transform, SDL_FColor colour){
@@ -81,19 +124,13 @@ void drawMesh(Mesh* mesh, mat4 transform, SDL_FColor colour){
 	rotMatrix[1] = rotMatrix[1] / matrixScale.y; rotMatrix[5] = rotMatrix[5] / matrixScale.y; rotMatrix[9] = rotMatrix[9] / matrixScale.y; 
 	rotMatrix[2] = rotMatrix[2] / matrixScale.z; rotMatrix[6] = rotMatrix[6] / matrixScale.z; rotMatrix[10] = rotMatrix[10] / matrixScale.z; 
 	
-	for(int i=0; i < mesh->faceCount; i++){
+	for(Uint32 i=0; i < mesh->faceCount; i++){
 		if (!(mesh->faces[i].vertA && mesh->faces[i].vertB && mesh->faces[i].vertC)) continue;
 		
 		pointCalcs[0] = matrixMult((Vector4){mesh->faces[i].vertA->pos.x, mesh->faces[i].vertA->pos.y, mesh->faces[i].vertA->pos.z, 1}, transform);
 		pointCalcs[1] = matrixMult((Vector4){mesh->faces[i].vertB->pos.x, mesh->faces[i].vertB->pos.y, mesh->faces[i].vertB->pos.z, 1}, transform);
 		pointCalcs[2] = matrixMult((Vector4){mesh->faces[i].vertC->pos.x, mesh->faces[i].vertC->pos.y, mesh->faces[i].vertC->pos.z, 1}, transform);
 		
-		SDL_FColor faceColour = {
-			(mesh->faces[i].vertA->colour.r + mesh->faces[i].vertB->colour.r + mesh->faces[i].vertC->colour.r) / 3,
-			(mesh->faces[i].vertA->colour.g + mesh->faces[i].vertB->colour.g + mesh->faces[i].vertC->colour.g) / 3,
-			(mesh->faces[i].vertA->colour.b + mesh->faces[i].vertB->colour.b + mesh->faces[i].vertC->colour.b) / 3,
-			1
-		};
 		Vector4 multFaceNormal = matrixMult((Vector4){
 			(mesh->faces[i].vertA->norm.x + mesh->faces[i].vertB->norm.x + mesh->faces[i].vertC->norm.x) / 3,
 			(mesh->faces[i].vertA->norm.y + mesh->faces[i].vertB->norm.y + mesh->faces[i].vertC->norm.y) / 3,
@@ -101,10 +138,6 @@ void drawMesh(Mesh* mesh, mat4 transform, SDL_FColor colour){
 			1
 		}, rotMatrix);
 		Vector3 faceNormal = normalize3((Vector3){multFaceNormal.x / matrixScale.x, multFaceNormal.y / matrixScale.y, multFaceNormal.z / matrixScale.z});
-		SDL_FPoint faceUV = {
-			(mesh->faces[i].vertA->uv.x + mesh->faces[i].vertA->uv.x) / 2,
-			(mesh->faces[i].vertA->uv.y + mesh->faces[i].vertA->uv.y) / 2,
-		};
 		float faceDot = max(dotProd3(faceNormal, lightNormal), 0);
 		Vector3 cameraNorm = rotToNorm3(client.gameWorld->currCamera->rot);
 		Vector3 reflectSource = normalize3(reflect((Vector3){-lightNormal.x, -lightNormal.y, -lightNormal.z}, faceNormal));
@@ -134,6 +167,7 @@ SDL_FColor ConvertSDLColour(CharColour colour){
 }
 
 CharColour ConvertColour(CharColour colour, Uint32 mode){
+	(void)mode;
 	return colour;
 }
 
@@ -152,7 +186,7 @@ void drawBillboard(SDL_Texture *texture, SDL_FRect rect, Vector3 pos, SDL_FPoint
 }
 
 void drawText(SDL_Renderer *renderer, SDL_Texture *texture, char* text, char charOff, short posX, short posY, short width, short height, short kern){
-	for(int i=0; i<=strlen(text); i++){
+	for(size_t i=0; i<=strlen(text); i++){
 		char charVal = (unsigned)text[i] - charOff;
 		int xOff = (charVal % 16) * width;
 		int yOff = floor((float)charVal / 16) * height;
@@ -186,8 +220,8 @@ Mesh* genTorusMesh(float outerRad, float innerRad, int ringRes, int ringCount){
 		};
 	}
 	
-	for(int i=0; i<faceCount/2; i++){
-		int newI = i * 2;
+	for(Uint32 i=0; i<faceCount/2; i++){
+		Uint32 newI = i * 2;
 		MeshVert *quadVerts[4] = {&newVerts[i], &newVerts[(i+1) % vertCount], &newVerts[(i + ringRes) % vertCount], &newVerts[(i+1 + ringRes) % vertCount]};
 		
 		newFaces[newI] = (MeshFace){quadVerts[0], quadVerts[1], quadVerts[2]};

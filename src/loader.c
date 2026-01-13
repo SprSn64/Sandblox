@@ -98,7 +98,7 @@ Mesh *loadMeshFromObj(const char *path) {
 			 &r,
 			 &g,
 			 &b);
-		mesh->verts[vi].colour = (SDL_FColor){r, g, b};
+		 mesh->verts[vi].colour = (SDL_FColor){r, g, b, 1.0f};
             vi++;
         }
         else if (line[0] == 'v' && line[1] == 't') {

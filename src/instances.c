@@ -23,13 +23,13 @@ void mapDraw(DataObj* object){
 }
 
 DataObj gameHeader = {
-	(Vector3){0, 0, 0},
-	(Vector3){1, 1, 1},
-	(Vector3){0, 0, 0},
-	NULL,
-	(CharColour){0, 0, 0, 255, 0, COLOURMODE_RGB},
-	"Workspace",
-	&(DataType){
+	.pos = (Vector3){0, 0, 0},
+	.scale = (Vector3){1, 1, 1},
+	.rot = (Vector3){0, 0, 0},
+	.transform = NULL,
+	.colour = (CharColour){0, 0, 0, 255, 0, COLOURMODE_RGB},
+	.name = "Workspace",
+	.classData = &(DataType){
 		"Workspace",
 		1,
 		0,
@@ -37,8 +37,12 @@ DataObj gameHeader = {
 		NULL,
 		mapDraw
 	},
-	NULL, NULL, NULL, NULL, NULL, NULL,
-	true,
+	.asVoidptr = {NULL},
+	.asVec3 = {{0}},
+	.asInt = {0},
+	.asFloat = {0},
+	.prev = NULL, .next = NULL, .parent = NULL, .child = NULL,
+	.studioOpen = true,
 };
 
 #define OBJLIST_HUD_POS_X 0
@@ -135,31 +139,40 @@ void removeObject(DataObj* object){
 		return;
 	}
 	
-	DataObj *prevItem = object->prev; DataObj *nextItem = object->next; DataObj *parentItem = object->parent; DataObj *childItem = object->child;
+	DataObj *prevItem = object->prev; 
+	DataObj *nextItem = object->next; 
+	DataObj *parentItem = object->parent ? object->parent : game.headObj;
+	DataObj *childItem = object->child;
 	
 	if(prevItem)
 		prevItem->next = nextItem;
 	
-	if(childItem){
-		childItem->parent = parentItem;
-		
-		DataObj *loopItem = object->child;
-		while(loopItem->next){
-			loopItem->parent = parentItem;
-			loopItem = loopItem->next;
-		}
-		
-		loopItem = parentItem->child;
-		while(loopItem->next){
-			loopItem = loopItem->next;
-		}
-		loopItem->next = childItem;
+	if(nextItem)
+		nextItem->prev = prevItem;
+	
+	if(parentItem && parentItem->child == object){
+		parentItem->child = nextItem;
 	}
 	
-	//segmentation fault... wtf? getting data from gameHeader headObj causes error????
-	
-	if(parentItem->child == object)
-		parentItem->child = nextItem;
+	if(childItem){
+		DataObj *loopItem = childItem;
+		while(loopItem){
+			loopItem->parent = parentItem;
+			if(!loopItem->next) break;
+			loopItem = loopItem->next;
+		}
+		
+		if(parentItem->child == NULL){
+			parentItem->child = childItem;
+		} else {
+			DataObj *lastChild = parentItem->child;
+			while(lastChild->next){
+				lastChild = lastChild->next;
+			}
+			lastChild->next = childItem;
+			childItem->prev = lastChild;
+		}
+	}
 	
 	printf("Object '%s' removed.\n", object->name);
 	free(object);
@@ -214,7 +227,7 @@ DataObj** listChildren(DataObj* item){
 	
 	DataObj **childList = malloc(sizeof(void) * childCount);
 	loopItem = item->child;
-	for(int i = 0; i < childCount && loopItem; i++){
+	for(Uint32 i = 0; i < childCount && loopItem; i++){
 		childList[i] = loopItem;
 		loopItem = loopItem->next;
 	}
@@ -255,12 +268,51 @@ extern Mesh *spherePrim;
 extern SDL_Texture *playerTex;
 extern SDL_Texture *homerTex;
 
+// check if a point is inside a block's bounding box (AABB collision)
+// returns the Y position of the top of the block if collision, or -INFINITY if no collision
+float checkBlockCollisionY(Vector3 pos, float footY, DataObj* block){
+	// skip non-block objects
+	if(block->classData->id != 3) return -INFINITY; // blockClass id is 3
+	
+	// block bounds (pos is corner, scale is size)
+	float bMinX = block->pos.x;
+	float bMaxX = block->pos.x + block->scale.x;
+	float bMinY = block->pos.y;
+	float bMaxY = block->pos.y + block->scale.y;
+	float bMinZ = block->pos.z;
+	float bMaxZ = block->pos.z + block->scale.z;
+	
+	if(pos.x >= bMinX && pos.x <= bMaxX &&
+	   pos.z >= bMinZ && pos.z <= bMaxZ){
+		if(footY <= bMaxY && footY >= bMinY - 0.5f){
+			return bMaxY;
+		}
+	}
+	return -INFINITY;
+}
+
+float findFloorY(Vector3 pos, float footY, DataObj* item){
+	float highestFloor = -INFINITY;
+	
+	float blockFloor = checkBlockCollisionY(pos, footY, item);
+	if(blockFloor > highestFloor) highestFloor = blockFloor;
+	
+	DataObj* child = item->child;
+	while(child){
+		float childFloor = findFloorY(pos, footY, child);
+		if(childFloor > highestFloor) highestFloor = childFloor;
+		child = child->next;
+	}
+	
+	return highestFloor;
+}
+
 void playerInit(DataObj* object){
 	object->pos.y = 0;
 }
 
 void playerUpdate(DataObj* object){
-	if(object != game.currPlayer) return;
+	if(!game.currPlayer || object != game.currPlayer) return;
 	
 	Vector3 *playerVel = &object->objVel;
 	
@@ -289,9 +341,16 @@ void playerUpdate(DataObj* object){
 	//object->pos.z += playerMove.y * 4 * deltaTime;
 	object->pos = (Vector3){object->pos.x + playerVel->x * deltaTime, object->pos.y + playerVel->y * deltaTime, object->pos.z + playerVel->z * deltaTime};
 	
-	if(object->pos.y < 0){
-		object->pos.y = 0;
+
+	float floorY = findFloorY(object->pos, object->pos.y, game.headObj);
+	
+	if(floorY > -INFINITY && object->pos.y <= floorY){
+		object->pos.y = floorY;
 		playerVel->y = 18 * keyList[KEYBIND_SPACE].pressed;
+	}
+	if(object->pos.y < -50){
+		object->pos = (Vector3){0, 5, 0};
+		*playerVel = (Vector3){0, 0, 0};
 	}
 
 	//object->pos.y = SDL_cos(timer) / 2 + 2;

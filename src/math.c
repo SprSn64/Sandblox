@@ -64,30 +64,20 @@ matrix[8], matrix[9], matrix[10], matrix[11],
 matrix[12], matrix[13], matrix[24], matrix[15],*/
 
 float *scaleMatrix(mat4 matrix, Vector3 scale){
-	float *output;
-	output = calloc(1, sizeof(mat4));
-	float tempMatrix[16] = {
-		matrix[0] * scale.x, matrix[1], matrix[2], matrix[3],
-		matrix[4], matrix[5] * scale.y, matrix[6], matrix[7],
-		matrix[8], matrix[9], matrix[10] * scale.z, matrix[11],
-		matrix[12], matrix[13], matrix[24], matrix[15],
-	};
-	
-	memcpy(output, &tempMatrix, sizeof(mat4));
+	float *output = malloc(sizeof(mat4));
+	output[0] = matrix[0] * scale.x; output[1] = matrix[1]; output[2] = matrix[2]; output[3] = matrix[3];
+	output[4] = matrix[4]; output[5] = matrix[5] * scale.y; output[6] = matrix[6]; output[7] = matrix[7];
+	output[8] = matrix[8]; output[9] = matrix[9]; output[10] = matrix[10] * scale.z; output[11] = matrix[11];
+	output[12] = matrix[12]; output[13] = matrix[13]; output[14] = matrix[14]; output[15] = matrix[15];
 	return output;
 }
 
 float *translateMatrix(mat4 matrix, Vector3 move){
-	float *output;
-	output = calloc(1, sizeof(mat4));
-	float tempMatrix[16] = {
-		matrix[0], matrix[1], matrix[2], matrix[3] + move.x,
-		matrix[4], matrix[5], matrix[6], matrix[7] + move.y,
-		matrix[8], matrix[9], matrix[10], matrix[11] + move.z,
-		matrix[12], matrix[13], matrix[24], matrix[15],
-	};
-	
-	memcpy(output, &tempMatrix, sizeof(mat4));
+	float *output = malloc(sizeof(mat4));
+	output[0] = matrix[0]; output[1] = matrix[1]; output[2] = matrix[2]; output[3] = matrix[3] + move.x;
+	output[4] = matrix[4]; output[5] = matrix[5]; output[6] = matrix[6]; output[7] = matrix[7] + move.y;
+	output[8] = matrix[8]; output[9] = matrix[9]; output[10] = matrix[10]; output[11] = matrix[11] + move.z;
+	output[12] = matrix[12]; output[13] = matrix[13]; output[14] = matrix[14]; output[15] = matrix[15];
 	return output;
 }
 
@@ -139,7 +129,7 @@ float *rotateMatrix(mat4 matrix, Vector3 angle){
 	float *yMatrix = multMatrix(xMatrix, axisRotMatrix(1, angle.y));
 	float *zMatrix = multMatrix(yMatrix, axisRotMatrix(2, angle.z));
 	
-	memcpy(output, &zMatrix, sizeof(mat4));
+	memcpy(output, zMatrix, sizeof(mat4));
 	free(xMatrix); free(yMatrix); free(zMatrix); 
 	return output;
 }
@@ -219,5 +209,5 @@ void extractRotMatrix(mat4 matrix, mat4 outputLoc){
 		matrix[8] / scale.x, matrix[9] / scale.y, matrix[10] / scale.z, 0,
 		0, 0, 0, 1
 	};
-	//memcpy(outputLoc, output, sizeof(mat4));
+	memcpy(outputLoc, output, sizeof(mat4));
 }
