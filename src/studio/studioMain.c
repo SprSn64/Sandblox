@@ -59,6 +59,8 @@ void updateStudio(){
 	if(!studioActive) return;
 	SDL_GetWindowSize(studioWindow, &studioWindowScale.x, &studioWindowScale.y);
 	
+	StudioHandleKeys();
+	
 	SDL_SetRenderDrawColor(studioRenderer, 148, 150, 152, 255);
 	SDL_RenderClear(studioRenderer);
 	

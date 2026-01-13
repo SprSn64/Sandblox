@@ -23,6 +23,8 @@
 
 #include "studio/studio.h"
 
+extern SDL_Window *studioWindow;
+
 SDL_Window *window = NULL;
 SDL_Window *glWindow = NULL;
 SDL_Renderer *renderer = NULL;
@@ -86,6 +88,7 @@ extern Vector3 lightNormal;
 DataObj* playerObj = NULL;
 
 SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[]){
+	(void)appstate;
 	SDL_SetAppMetadata("SandBlox", "0.0", NULL);
 	
 	for(int i=0; i < argc; i++){
@@ -171,7 +174,7 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[]){
 	Mesh *cylinderTest = genCylinderMesh(1, 1, 2, 24);
 	
 	DataObj *blockObj = newObject(NULL, &blockClass);
-	blockObj->scale = (Vector3){8, 1, 8}; blockObj->pos = (Vector3){-4, 0, -4};
+	blockObj->scale = (Vector3){16, 1, 16}; blockObj->pos = (Vector3){-8, 0, -8};
 	blockObj->colour = (CharColour){153, 204, 255, 255, 0, COLOURMODE_RGB};
 	
 	DataObj *blockObjA = newObject(NULL, &blockClass); blockObjA->name = "Red Teapot";
@@ -182,19 +185,42 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[]){
 	blockObjB->pos = (Vector3){4, 2, 4}; blockObjB->scale = (Vector3){2, 2, 2}; blockObjB->colour = (CharColour){255, 255, 0, 255, 0, COLOURMODE_RGB};
 	DataObj *meshObjB = newObject(blockObjB, &meshClass); meshObjB->asVoidptr[OBJVAL_MESH] = cylinderTest;
 	
-	DataObj *homerObj = newObject(NULL, &fuckingBeerdrinkerClass);
+	(void)newObject(NULL, &fuckingBeerdrinkerClass);
 
 	return SDL_APP_CONTINUE;
 }	
 
 SDL_AppResult SDL_AppEvent(void *appstate, SDL_Event *event){
+	(void)appstate;
 	if(event->type == SDL_EVENT_QUIT){
 		return SDL_APP_SUCCESS;
 	}
+
+	if(event->type == SDL_EVENT_MOUSE_WHEEL){
+		bool mainFocus = SDL_GetWindowFlags(window) & SDL_WINDOW_INPUT_FOCUS;
+		bool studioFocus = studioWindow && (SDL_GetWindowFlags(studioWindow) & SDL_WINDOW_INPUT_FOCUS);
+		
+		if(mainFocus || studioFocus){
+			float zoomSpeed = 0.1f;
+			float zoomMin = 0.1f;
+			float zoomMax = 5.0f;
+			
+			if(event->wheel.y > 0){
+				currentCamera.zoom += zoomSpeed;
+			} else if(event->wheel.y < 0){
+				currentCamera.zoom -= zoomSpeed;
+			}
+			
+			if(currentCamera.zoom < zoomMin) currentCamera.zoom = zoomMin;
+			if(currentCamera.zoom > zoomMax) currentCamera.zoom = zoomMax;
+		}
+	}
+	
 	return SDL_APP_CONTINUE;
 }
 
 SDL_AppResult SDL_AppIterate(void *appstate){
+	(void)appstate;
 	HandleKeyInput();
 	
 	mouseState = SDL_GetMouseState(&mousePos.x, &mousePos.y);
@@ -237,7 +263,8 @@ SDL_AppResult SDL_AppIterate(void *appstate){
 	//currentCamera.pos.z += ((-SDL_sin(currentCamera.rot.y) * (keyList[KEYBIND_D].down - keyList[KEYBIND_A].down)) + (SDL_cos(currentCamera.rot.y) * (keyList[KEYBIND_S].down - keyList[KEYBIND_W].down))) * 2 * deltaTime;
 	
 	SDL_ShowCursor();
-	if(mouseButtons[2].down){
+	bool mainWindowFocus = SDL_GetWindowFlags(window) & SDL_WINDOW_INPUT_FOCUS;
+	if(mouseButtons[2].down && mainWindowFocus){
 		if(camMoveMode){
 			currentCamera.rot.x += -(mousePos.y - storedMousePos.y) * mouseSense * deltaTime;
 			currentCamera.rot.y += -(mousePos.x - storedMousePos.x) * mouseSense * deltaTime;  
@@ -265,14 +292,19 @@ SDL_AppResult SDL_AppIterate(void *appstate){
 	
 	//renderTriList();
 	
-	char guiText[256];
+	static char fpsText[256] = "FPS: 0";
+	static char rotText[256] = "Camera Rot: 0, 0";
+	static double lastDebugUpdate = 0;
 	if ((Uint32)(timer*100)%64 == 0) {
 		lastFPS = (Uint32)floor(1/deltaTime);
 	}
-	sprintf(guiText, "FPS: %d", lastFPS);
-	drawText(renderer, fontTex, guiText, 32, 0, 0, 16, 16, 12);
-	sprintf(guiText, "Camera Rot: %d, %d", (int)(currentCamera.rot.y * RAD2DEG), (int)(currentCamera.rot.x * RAD2DEG));
-	drawText(renderer, fontTex, guiText, 32, 0, 16, 16, 16, 12);
+	if(timer - lastDebugUpdate >= 0.5){
+		lastDebugUpdate = timer;
+		sprintf(fpsText, "FPS: %d", lastFPS);
+		sprintf(rotText, "Camera Rot: %d, %d", (int)(currentCamera.rot.y * RAD2DEG), (int)(currentCamera.rot.x * RAD2DEG));
+	}
+	drawText(renderer, fontTex, fpsText, 32, 0, 0, 16, 16, 12);
+	drawText(renderer, fontTex, rotText, 32, 0, 16, 16, 16, 12);
 	
 	if(client.debug)drawText(renderer, fontTex, "Debug Enabled", 32, 0, windowScale.y - 16, 16, 16, 12);
 	if(client.studio)drawText(renderer, fontTex, "Studio Enabled", 32, 0, windowScale.y - 32, 16, 16, 12);
@@ -285,14 +317,17 @@ SDL_AppResult SDL_AppIterate(void *appstate){
 }
 
 void SDL_AppQuit(void *appstate, SDL_AppResult result){
+	(void)appstate; (void)result;
 	cleanupObjects(&gameHeader);
 	SDL_DestroyTexture(fontTex);
 }
     
 void HandleKeyInput(){
 	const bool* keyState = SDL_GetKeyboardState(NULL);
+	bool hasFocus = (SDL_GetWindowFlags(window) & SDL_WINDOW_INPUT_FOCUS) || 
+	                (studioWindow && (SDL_GetWindowFlags(studioWindow) & SDL_WINDOW_INPUT_FOCUS));
 	for(int i = 0; i < KEYBINDCOUNT; i++){
-		keyList[i].down = keyState[keyList[i].code] && SDL_GetWindowFlags(window) & SDL_WINDOW_INPUT_FOCUS;
+		keyList[i].down = keyState[keyList[i].code] && hasFocus;
 		if(keyList[i].down){
 			if(!keyList[i].pressCheck){
 				keyList[i].pressCheck = true;
