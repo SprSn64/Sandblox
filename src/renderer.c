@@ -190,8 +190,50 @@ Mesh* genTorusMesh(float outerRad, float innerRad, int ringRes, int ringCount){
 		int newI = i * 2;
 		MeshVert *quadVerts[4] = {&newVerts[i], &newVerts[(i+1) % vertCount], &newVerts[(i + ringRes) % vertCount], &newVerts[(i+1 + ringRes) % vertCount]};
 		
-		newFaces[newI % faceCount] = (MeshFace){quadVerts[0], quadVerts[1], quadVerts[2]};
-		newFaces[(newI + 1) % faceCount] = (MeshFace){quadVerts[2], quadVerts[1], quadVerts[3]};
+		newFaces[newI] = (MeshFace){quadVerts[0], quadVerts[1], quadVerts[2]};
+		newFaces[(newI + 1)] = (MeshFace){quadVerts[2], quadVerts[1], quadVerts[3]};
+	}
+	
+	Mesh* newMesh = malloc(sizeof(Mesh));
+	newMesh->vertCount = vertCount; newMesh->verts = newVerts; newMesh->faceCount = faceCount; newMesh->faces = newFaces; 
+	return newMesh;
+}
+
+Mesh* genCylinderMesh(float btmRad, float topRad, float length, int res){
+	if(fabs(btmRad) + fabs(topRad) == 0 || length == 0 || res < 3) return NULL;
+	Uint32 vertCount = res * 2;
+	Uint32 faceCount = 4 * res - 4;
+	
+	MeshVert* newVerts = calloc(1, sizeof(MeshVert) * vertCount);
+	MeshFace* newFaces = calloc(1, sizeof(MeshFace) * faceCount);
+	
+	float angleRes = PI * 2 / res;
+	for(int i=0; i<res * 2; i++){
+		float sideRad = lerp(btmRad, topRad, floor(i / res));
+		newVerts[i].pos = (Vector3){
+			SDL_cos(angleRes * (i % res)) * sideRad,
+			(1 - 2 * floor(i / res)) * length / 2,
+			SDL_sin(angleRes * (i % res)) * sideRad,
+		};
+		newVerts[i].norm = normalize3((Vector3){
+			SDL_cos(angleRes * (i % res)),
+			(1 - floor(i / res) * 2) / 2,
+			SDL_sin(angleRes * (i % res)),
+		});
+	}
+	
+	for(int i=0; i<res; i++){
+		int newI = i * 2;
+		MeshVert *quadVerts[4] = {&newVerts[i], &newVerts[(i+1) % res], &newVerts[(i + res)], &newVerts[(i+1)%res + res]};
+		
+		newFaces[newI] = (MeshFace){quadVerts[0], quadVerts[1], quadVerts[2]};
+		newFaces[(newI + 1)] = (MeshFace){quadVerts[2], quadVerts[1], quadVerts[3]};
+	}
+	
+	for(int i=0; i<res-2; i++){
+		int newI = 2 * res + i;
+		newFaces[newI] = (MeshFace){&newVerts[i], &newVerts[0], &newVerts[(i + 1) % res]};
+		newFaces[newI + res - 2] = (MeshFace){&newVerts[res], &newVerts[i + res], &newVerts[res + (i + 1) % res]};
 	}
 	
 	Mesh* newMesh = malloc(sizeof(Mesh));

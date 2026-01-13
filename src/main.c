@@ -168,6 +168,7 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[]){
 	if(mapLoaded) return SDL_APP_CONTINUE;
 	
 	Mesh *torusTest = genTorusMesh(2, 1, 12, 24);
+	Mesh *cylinderTest = genCylinderMesh(1, 1, 2, 24);
 	
 	DataObj *blockObj = newObject(NULL, &blockClass);
 	blockObj->scale = (Vector3){8, 1, 8}; blockObj->pos = (Vector3){-4, 0, -4};
@@ -179,7 +180,7 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[]){
 	
 	DataObj *blockObjB = newObject(NULL, &blockClass); blockObjB->name = "Yellow Sphere";
 	blockObjB->pos = (Vector3){4, 2, 4}; blockObjB->scale = (Vector3){2, 2, 2}; blockObjB->colour = (CharColour){255, 255, 0, 255, 0, COLOURMODE_RGB};
-	DataObj *meshObjB = newObject(blockObjB, &meshClass); meshObjB->asVoidptr[OBJVAL_MESH] = spherePrim;
+	DataObj *meshObjB = newObject(blockObjB, &meshClass); meshObjB->asVoidptr[OBJVAL_MESH] = cylinderTest;
 	
 	DataObj *homerObj = newObject(NULL, &fuckingBeerdrinkerClass);
 
