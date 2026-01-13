@@ -202,6 +202,28 @@ DataObj* firstChildOfType(DataObj* item, DataType classData){
 	return NULL;
 }
 
+DataObj** listChildren(DataObj* item){
+	if(!item->child) return NULL;
+	Uint32 childCount = 0;
+	
+	DataObj *loopItem = item->child;
+	while(loopItem){
+		childCount++;
+		loopItem = loopItem->next;
+	}
+	
+	DataObj **childList = malloc(sizeof(void) * childCount);
+	loopItem = item->child;
+	for(int i = 0; i < childCount && loopItem; i++){
+		childList[i] = loopItem;
+		loopItem = loopItem->next;
+	}
+	
+	return childList;
+}
+
+//not dealing with a descendant list function yet
+
 CollsionReturn* getCollision(CollisionHull* itemA, CollisionHull* itemB){
 	CollsionReturn *output = NULL;
 	

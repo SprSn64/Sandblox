@@ -14,5 +14,6 @@ void updateObjects(DataObj* item, int nodeDepth, int *idCount, bool uord);
 void cleanupObjects(DataObj* item);
 
 DataObj* firstChildOfType(DataObj* item, DataType classData);
+DataObj** listChildren(DataObj* item);
 
 #endif
