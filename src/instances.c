@@ -17,7 +17,9 @@
 extern SDL_Renderer *renderer;
 extern SDL_Texture *fontTex;
 
+extern ClientData client;
 extern GameWorld game;
+extern DataObj *focusObject;
 extern float timer;
 
 void mapDraw(DataObj* object){
@@ -50,6 +52,7 @@ DataObj gameHeader = {
 #define OBJLIST_HUD_POS_X 0
 #define OBJLIST_HUD_POS_Y 32
 
+extern Mesh *cubePrim;
 void updateObjects(DataObj* item, int nodeDepth, int *idCount, bool uord){ //uord = update or draw
 	//int i = (*idCount)++;
 	if (!uord){
@@ -61,8 +64,10 @@ void updateObjects(DataObj* item, int nodeDepth, int *idCount, bool uord){ //uor
 		translateMatrix2(item->transform, (Vector3){item->pos.x, item->pos.y, item->pos.z});
 		scaleMatrix2(item->transform, (Vector3){item->scale.x, item->scale.y, item->scale.z});
 		
-		if(item->classData->draw)item->classData->draw(item);
-		
+		if(item->classData->draw){
+			item->classData->draw(item);
+			if(item == focusObject && client.studio)drawMesh(cubePrim, item->transform, (SDL_FColor){1, 1, 1, 0.25});
+		}
 		free(item->transform);
 	}
 	//if(uord)drawText(renderer, fontTex, item->name, 32, OBJLIST_HUD_POS_X + (nodeDepth * 24), OBJLIST_HUD_POS_Y + i * 16, 16, 16, 12);
