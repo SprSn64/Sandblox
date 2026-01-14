@@ -292,7 +292,9 @@ SDL_AppResult SDL_AppIterate(void *appstate){
 	
 	//drawText(renderer, fontTex, "Diagnostics: Skill issue", 32, 0, 64, 16, 16, 12);
 	//SDL_RenderDebugText(renderer, 0, 0, guiText);
-
+	if(glEnabled)
+		updateOpenGL();
+	
 	SDL_RenderPresent(renderer);
 
 	return SDL_APP_CONTINUE;
