@@ -53,6 +53,7 @@ extern DataObj *focusObject;
 extern DataType playerClass;
 
 void buttonAddObject(Button* item){
+	(void)item;
 	DataObj *newItem = newObject(focusObject, &blockClass);
 	newItem->pos = (Vector3){floor(focusObject->pos.x) + 1, floor(focusObject->pos.y) + 1, floor(focusObject->pos.z) + 1};
 	Vector3 normalizedColour = normalize3((Vector3){SDL_randf(), SDL_randf(), SDL_randf()});
@@ -63,7 +64,12 @@ void buttonAddObject(Button* item){
 }
 
 void buttonRemoveObject(Button* item){
+	(void)item;
 	if(!focusObject) return;
+	if(focusObject == client.gameWorld->headObj) return;
+	// if deleting the player, clear the reference (ofc)
+	if(focusObject == client.gameWorld->currPlayer)
+		client.gameWorld->currPlayer = NULL;
 	removeObject(focusObject);
 	focusObject = NULL;
 }
@@ -73,6 +79,7 @@ static const SDL_DialogFileFilter mapLoadFilter[] = {
 };
 
 static void SDLCALL openMapDialogue(void* userdata, const char* const* filelist, int filter){
+	(void)userdata;
 	if (!filelist) {
 		printf("An error occured: %s\n", SDL_GetError());
 		return;
@@ -91,19 +98,37 @@ static void SDLCALL openMapDialogue(void* userdata, const char* const* filelist,
 	if (filter < 0) {
 		printf("fuck!\n");
 		return;
-	} else if (filter < SDL_arraysize(mapLoadFilter)) {
+	} else if ((size_t)filter < SDL_arraysize(mapLoadFilter)) {
 		printf("The filter selected by the user is '%s' (%s).\n", mapLoadFilter[filter].pattern, mapLoadFilter[filter].name);
 		return;
 	}
 }
 
 void buttonLoadMap(Button* item){
+	(void)item;
 	SDL_ShowOpenFileDialog(openMapDialogue, NULL, studioWindow, mapLoadFilter, SDL_arraysize(mapLoadFilter), SDL_GetCurrentDirectory(), false);
 }
 
 void StudioHandleKeys(){
 	const bool* keyState = SDL_GetKeyboardState(NULL);
+	bool hasFocus = SDL_GetWindowFlags(studioWindow) & SDL_WINDOW_INPUT_FOCUS;
+	
 	for(int i = 0; i < 5; i++){
-		stuKeyList[i].down = keyState[stuKeyList[i].code] && SDL_GetWindowFlags(studioWindow) & SDL_WINDOW_INPUT_FOCUS;
+		stuKeyList[i].down = keyState[stuKeyList[i].code] && hasFocus;
+	}
+	
+	static bool deletePressed = false;
+	if(hasFocus && keyState[SDL_SCANCODE_DELETE]){
+		if(!deletePressed){
+			deletePressed = true;
+			if(focusObject && focusObject != client.gameWorld->headObj){
+				if(focusObject == client.gameWorld->currPlayer)
+					client.gameWorld->currPlayer = NULL;
+				removeObject(focusObject);
+				focusObject = NULL;
+			}
+		}
+	} else {
+		deletePressed = false;
 	}
 }

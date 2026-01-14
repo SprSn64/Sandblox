@@ -1,0 +1,126 @@
+{
+  "classes": [
+    {
+      "id": 2,
+      "name": "Player",
+      "functions": {
+        "init": "playerInit",
+        "update": "playerUpdate", 
+        "draw": "playerDraw"
+      }
+    },
+    {
+      "id": 3,
+      "name": "Block",
+      "functions": {
+        "init": null,
+        "update": null,
+        "draw": "blockDraw"
+      }
+    },
+    {
+      "id": 4,
+      "name": "Mesh",
+      "functions": {
+        "init": null,
+        "update": null,
+        "draw": null
+      }
+    },
+    {
+      "id": 666,
+      "name": "beer drinker",
+      "functions": {
+        "init": null,
+        "update": null,
+        "draw": "homerDraw"
+      }
+    }
+  ],
+  "objects": [
+    {
+      "name": "uwu",
+      "class": "Player",
+      "pos": [0, 0, 0],
+      "scale": [1, 1, 1],
+      "rot": [0, 0, 0],
+      "colour": [255, 255, 255, 255],
+      "isPlayer": true,
+      "collision": {
+        "enabled": false,
+        "type": "none"
+      }
+    },
+    {
+      "name": "Baseplate", 
+      "class": "Block",
+      "pos": [-8, 0, -8],
+      "scale": [16, 1, 16],
+      "rot": [0, 0, 0],
+      "colour": [255, 192, 203, 255],
+      "collision": {
+        "enabled": true,
+        "type": "block"
+      }
+    },
+    {
+      "name": "Red Teapot",
+      "class": "Block", 
+      "pos": [-4, 2, -4],
+      "scale": [0.5, 0.5, 0.5],
+      "rot": [0, 0, 0],
+      "colour": [255, 0, 0, 128],
+      "collision": {
+        "enabled": true,
+        "type": "block"
+      },
+      "children": [
+        {
+          "name": "TorusMesh",
+          "class": "Mesh",
+          "pos": [0, 0, 0],
+          "scale": [1, 1, 1], 
+          "rot": [0, 0, 0],
+          "colour": [255, 255, 255, 255],
+          "meshType": "torus",
+          "meshParams": [2, 1, 12, 24]
+        }
+      ]
+    },
+    {
+      "name": "Yellow Sphere",
+      "class": "Block",
+      "pos": [4, 2, 4],
+      "scale": [2, 2, 2],
+      "rot": [0, 0, 0], 
+      "colour": [255, 255, 0, 255],
+      "collision": {
+        "enabled": true,
+        "type": "block"
+      },
+      "children": [
+        {
+          "name": "CylinderMesh",
+          "class": "Mesh",
+          "pos": [0, 0, 0],
+          "scale": [1, 1, 1],
+          "rot": [0, 0, 0],
+          "colour": [255, 255, 255, 255],
+          "mesh": "assets/models/teapot.obj"
+        }
+      ]
+    },
+    {
+      "name": "Beer Drinker",
+      "class": "beer drinker",
+      "pos": [0, 0, 0],
+      "scale": [1, 1, 1],
+      "rot": [0, 0, 0],
+      "colour": [255, 255, 255, 255],
+      "collision": {
+        "enabled": false,
+        "type": "none"
+      }
+    }
+  ]
+}
