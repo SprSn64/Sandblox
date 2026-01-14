@@ -23,7 +23,7 @@ extern DataObj *focusObject;
 extern float timer;
 
 void mapDraw(DataObj* object){
-	drawMesh(object->objMesh, object->transform, (SDL_FColor){1, 1, 1, 1});
+	drawMesh(object->objMesh, object->transform, (SDL_FColor){1, 1, 1, 1}, true);
 }
 
 DataObj gameHeader = {
@@ -66,7 +66,7 @@ void updateObjects(DataObj* item, int nodeDepth, int *idCount, bool uord){ //uor
 		
 		if(item->classData->draw){
 			item->classData->draw(item);
-			if(item == focusObject && client.studio)drawMesh(cubePrim, item->transform, (SDL_FColor){1, 1, 1, 0.25});
+			if(item == focusObject && client.studio)drawMesh(cubePrim, item->transform, (SDL_FColor){1, 1, 1, 0.25}, false);
 		}
 		free(item->transform);
 	}

@@ -60,7 +60,7 @@ void playerUpdate(DataObj* object){
 }
 
 void playerDraw(DataObj* object){
-	drawMesh(playerMesh, object->transform, (SDL_FColor){1, 1, 1, 1});
+	drawMesh(playerMesh, object->transform, (SDL_FColor){1, 1, 1, 1}, true);
 }
 
 DataType meshClass = (DataType){"Mesh\0", 4, 0, NULL, NULL, NULL};
@@ -70,7 +70,7 @@ void blockDraw(DataObj* object){
 	DataObj *meshItem = firstChildOfType(object, meshClass);
 	if(meshItem)
 		itemMesh = meshItem->asVoidptr[OBJVAL_MESH];
-	drawMesh(itemMesh, object->transform, ConvertSDLColour(object->colour));
+	drawMesh(itemMesh, object->transform, ConvertSDLColour(object->colour), true);
 
 	if (!strcmp(object->name, "Red Teapot"))
 		object->rot = (Vector3){object->rot.x + 0.02, object->rot.y + 0.02, object->rot.z};

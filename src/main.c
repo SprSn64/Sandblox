@@ -85,6 +85,9 @@ extern Vector3 lightNormal;
 
 DataObj* playerObj = NULL;
 
+float* defaultMatrix = NULL;
+float* skyboxMatrix = NULL;
+
 SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[]){
 	(void)appstate;
 	SDL_SetAppMetadata("SandBlox", "0.0", NULL);
@@ -148,6 +151,8 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[]){
 
 	client.gameWorld->currPlayer = NULL;
 	client.gameWorld->currCamera = &currentCamera;
+	
+	defaultMatrix = newMatrix();
 
 	if(mapLoaded) return SDL_APP_CONTINUE;
 	
@@ -253,6 +258,11 @@ SDL_AppResult SDL_AppIterate(void *appstate){
 	currentCamera.rot.y += (keyList[KEYBIND_LEFT].down - keyList[KEYBIND_RIGHT].down) * 1 * deltaTime;
 	currentCamera.rot = (Vector3){fmod(currentCamera.rot.x, 6.28318), fmod(currentCamera.rot.y, 6.28318), fmod(currentCamera.rot.z, 6.28318)};
 	currentCamera.focusDist = min(max(currentCamera.focusDist + (keyList[KEYBIND_I].down - keyList[KEYBIND_O].down) * 4 * fmax(1, sqrt(currentCamera.focusDist)) * deltaTime, 0), 64);
+	
+	skyboxMatrix = scaleMatrix(defaultMatrix, (Vector3){-16, -16, -16});
+	skyboxMatrix = translateMatrix(skyboxMatrix, (Vector3){8 + currentCamera.pos.x, -8 + currentCamera.pos.y, 8 + currentCamera.pos.z});
+	drawMesh(cubePrim, skyboxMatrix, (SDL_FColor){0.8, 0.82, 1, 1}, false);
+	free(skyboxMatrix);
 	
 	int idCounter = 0;
 	updateObjects(&gameHeader, 0, &idCounter, false);

@@ -113,7 +113,7 @@ bool draw3DTriangle(Vector3 pointA, Vector3 pointB, Vector3 pointC, SDL_FColor c
 	return 0;
 }
 
-void drawMesh(Mesh* mesh, mat4 transform, SDL_FColor colour){
+void drawMesh(Mesh* mesh, mat4 transform, SDL_FColor colour, bool shaded){
 	if(!mesh || !transform) return;
 	
 	Vector4 pointCalcs[3];
@@ -131,6 +131,9 @@ void drawMesh(Mesh* mesh, mat4 transform, SDL_FColor colour){
 		pointCalcs[1] = matrixMult((Vector4){mesh->faces[i].vertB->pos.x, mesh->faces[i].vertB->pos.y, mesh->faces[i].vertB->pos.z, 1}, transform);
 		pointCalcs[2] = matrixMult((Vector4){mesh->faces[i].vertC->pos.x, mesh->faces[i].vertC->pos.y, mesh->faces[i].vertC->pos.z, 1}, transform);
 		
+		SDL_FColor shadedColour = colour;
+		if(!shaded) goto unshadedSkip;
+		
 		Vector4 multFaceNormal = matrixMult((Vector4){
 			(mesh->faces[i].vertA->norm.x + mesh->faces[i].vertB->norm.x + mesh->faces[i].vertC->norm.x) / 3,
 			(mesh->faces[i].vertA->norm.y + mesh->faces[i].vertB->norm.y + mesh->faces[i].vertC->norm.y) / 3,
@@ -142,13 +145,16 @@ void drawMesh(Mesh* mesh, mat4 transform, SDL_FColor colour){
 		Vector3 cameraNorm = rotToNorm3(client.gameWorld->currCamera->rot);
 		Vector3 reflectSource = normalize3(reflect((Vector3){-lightNormal.x, -lightNormal.y, -lightNormal.z}, faceNormal));
 		float specular = pow(max(dotProd3(cameraNorm, reflectSource), 0), 32);
-		
-		draw3DTriangle((Vector3){pointCalcs[0].x, pointCalcs[0].y, pointCalcs[0].z}, (Vector3){pointCalcs[1].x, pointCalcs[1].y, pointCalcs[1].z}, (Vector3){pointCalcs[2].x, pointCalcs[2].y, pointCalcs[2].z}, (SDL_FColor){
+		shadedColour = (SDL_FColor){
 			(colour.r * lightAmbient.r) + (colour.r * lightColour.r * faceDot) + (specular * lightColour.r),
 			(colour.g * lightAmbient.g) + (colour.g * lightColour.g * faceDot) + (specular * lightColour.g),
 			(colour.b * lightAmbient.b) + (colour.b * lightColour.b * faceDot) + (specular * lightColour.b),
 			colour.a
-		});
+		};
+		
+		unshadedSkip:
+		
+		draw3DTriangle((Vector3){pointCalcs[0].x, pointCalcs[0].y, pointCalcs[0].z}, (Vector3){pointCalcs[1].x, pointCalcs[1].y, pointCalcs[1].z}, (Vector3){pointCalcs[2].x, pointCalcs[2].y, pointCalcs[2].z}, shadedColour);
 	}
 }
 
