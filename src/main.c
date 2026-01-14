@@ -20,6 +20,7 @@
 #include "math.h"
 #include "loader.h"
 #include "map.h"
+#include "gamefile.h"
 
 #include "studio/studio.h"
 
@@ -44,6 +45,7 @@ Uint8 camMoveMode = 0;
 float mouseSense = 0.2;
 
 bool mapLoaded = false;
+bool gameFileLoaded = false;
 
 Uint64 last = 0;
 Uint64 now = 0;
@@ -158,35 +160,21 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[]){
 	client.gameWorld->headObj = &gameHeader;
 	gameHeader.studioOpen = true;
 
-	client.gameWorld->currPlayer = playerObj;
+	client.gameWorld->currPlayer = NULL;
 	client.gameWorld->currCamera = &currentCamera;
 
-	if (client.gameWorld->currPlayer == NULL) {
-		playerObj = newObject(NULL, &playerClass);
-		client.gameWorld->currPlayer = playerObj;
-	}
-	
-	focusObject = playerObj;
-	
 	if(mapLoaded) return SDL_APP_CONTINUE;
 	
-	Mesh *torusTest = genTorusMesh(2, 1, 12, 24);
-	Mesh *cylinderTest = genCylinderMesh(1, 1, 2, 24);
+	if(loadGameFile("assets/gamefile.json") == 0){
+		printf("Successfully loaded gamefile\n");
+		gameFileLoaded = true;
+	} else {
+		printf("Failed to load gamefile\n");
+		gameFileLoaded = false;
+	}
 	
-	DataObj *blockObj = newObject(NULL, &blockClass);
-	blockObj->scale = (Vector3){16, 1, 16}; blockObj->pos = (Vector3){-8, 0, -8};
-	blockObj->colour = (CharColour){153, 204, 255, 255, 0, COLOURMODE_RGB};
+	focusObject = client.gameWorld->currPlayer;
 	
-	DataObj *blockObjA = newObject(NULL, &blockClass); blockObjA->name = "Red Teapot";
-	blockObjA->pos = (Vector3){-4, 2, -4}; blockObjA->scale = (Vector3){0.5, 0.5, 0.5}; blockObjA->colour = (CharColour){255, 0, 0, 128, 0, COLOURMODE_RGB};
-	DataObj *meshObjA = newObject(blockObjA, &meshClass); meshObjA->asVoidptr[OBJVAL_MESH] = torusTest;
-	
-	DataObj *blockObjB = newObject(NULL, &blockClass); blockObjB->name = "Yellow Sphere";
-	blockObjB->pos = (Vector3){4, 2, 4}; blockObjB->scale = (Vector3){2, 2, 2}; blockObjB->colour = (CharColour){255, 255, 0, 255, 0, COLOURMODE_RGB};
-	DataObj *meshObjB = newObject(blockObjB, &meshClass); meshObjB->asVoidptr[OBJVAL_MESH] = cylinderTest;
-	
-	(void)newObject(NULL, &fuckingBeerdrinkerClass);
-
 	return SDL_APP_CONTINUE;
 }	
 
@@ -308,6 +296,15 @@ SDL_AppResult SDL_AppIterate(void *appstate){
 	
 	if(client.debug)drawText(renderer, fontTex, "Debug Enabled", 32, 0, windowScale.y - 16, 16, 16, 12);
 	if(client.studio)drawText(renderer, fontTex, "Studio Enabled", 32, 0, windowScale.y - 32, 16, 16, 12);
+	
+	if(!gameFileLoaded) {
+		char* noGameText = "NO GAME HERE";
+		int textWidth = strlen(noGameText) * 12;
+		int centerX = (windowScale.x - textWidth) / 2;
+		int centerY = windowScale.y / 2;
+		drawText(renderer, fontTex, noGameText, 32, centerX, centerY, 16, 16, 12);
+	}
+	
 	//drawText(renderer, fontTex, "Diagnostics: Skill issue", 32, 0, 64, 16, 16, 12);
 	//SDL_RenderDebugText(renderer, 0, 0, guiText);
 
