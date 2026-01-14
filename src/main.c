@@ -17,6 +17,7 @@
 #include "map.h"
 #include "opengl.h"
 #include "gamefile.h"
+#include "server.h"
 
 #include "studio/studio.h"
 
@@ -241,7 +242,7 @@ SDL_AppResult SDL_AppIterate(void *appstate){
 		if(camMoveMode){
 			currentCamera.rot.x += -(mousePos.y - storedMousePos.y) * mouseSense * deltaTime;
 			currentCamera.rot.y += -(mousePos.x - storedMousePos.x) * mouseSense * deltaTime;  
-			SDL_WarpMouseInWindow(window, storedMousePos.x, storedMousePos.y); //SDL_HideCursor();
+			SDL_WarpMouseInWindow(window, storedMousePos.x, storedMousePos.y); SDL_HideCursor();
 		}else{
 			storedMousePos = mousePos;
 			camMoveMode = 1;
