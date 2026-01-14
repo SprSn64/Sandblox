@@ -1,4 +1,0 @@
-mapmesh testmap.obj
-
-startpos 0, 1, 5
-object 0, 2, 0, 1, 1, 1, 255, 255, 255, blockClass

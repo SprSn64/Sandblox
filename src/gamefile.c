@@ -105,9 +105,9 @@ DataObj* createObjectFromJSON(cJSON* obj, DataObj* parent) {
     
     if(rot && cJSON_IsArray(rot) && cJSON_GetArraySize(rot) >= 3) {
         newObj->rot = (Vector3){
-            cJSON_GetArrayItem(rot, 0)->valuedouble,
-            cJSON_GetArrayItem(rot, 1)->valuedouble,
-            cJSON_GetArrayItem(rot, 2)->valuedouble
+            cJSON_GetArrayItem(rot, 0)->valuedouble * DEG2RAD,
+            cJSON_GetArrayItem(rot, 1)->valuedouble * DEG2RAD,
+            cJSON_GetArrayItem(rot, 2)->valuedouble * DEG2RAD
         };
     }
     

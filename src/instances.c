@@ -59,17 +59,17 @@ void updateObjects(DataObj* item, int nodeDepth, int *idCount, bool uord){ //uor
 		item->rot = (Vector3){fmod(item->rot.x, 6.28318), fmod(item->rot.y, 6.28318), fmod(item->rot.z, 6.28318)};
 		if(item->classData->update)item->classData->update(item);
 	}else{ 
+		if(!item->classData->draw) goto noDraw;
 		item->transform = newMatrix();
 		rotateMatrix2(item->transform, item->rot);
 		translateMatrix2(item->transform, (Vector3){item->pos.x, item->pos.y, item->pos.z});
 		scaleMatrix2(item->transform, (Vector3){item->scale.x, item->scale.y, item->scale.z});
 		
-		if(item->classData->draw){
-			item->classData->draw(item);
-			if(item == focusObject && client.studio)drawMesh(cubePrim, item->transform, (SDL_FColor){1, 1, 1, 0.25}, false);
-		}
+		item->classData->draw(item);
+		if(item == focusObject && client.studio)drawMesh(cubePrim, item->transform, (SDL_FColor){1, 1, 1, 0.25}, false);
 		free(item->transform);
 	}
+	noDraw:
 	//if(uord)drawText(renderer, fontTex, item->name, 32, OBJLIST_HUD_POS_X + (nodeDepth * 24), OBJLIST_HUD_POS_Y + i * 16, 16, 16, 12);
 	DataObj* child = item->child;
 	while (child) {

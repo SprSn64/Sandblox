@@ -22,7 +22,7 @@ extern SDL_Point windowScale;
 float renderScale = 480;
 Vector3 lightNormal = (Vector3){0.25, 0.42, 0.33};
 SDL_FColor lightColour = {1, 1, 1, 1};
-SDL_FColor lightAmbient = {0.1, 0.1, 0.15, 1};
+SDL_FColor lightAmbient = {0.25, 0.25, 0.3, 1};
 
 Vector3 worldToCamera(Vector3 pos){
 	Vector3 firstPos = {pos.x - client.gameWorld->currCamera->pos.x, pos.y - client.gameWorld->currCamera->pos.y, pos.z - client.gameWorld->currCamera->pos.z};

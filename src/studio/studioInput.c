@@ -8,6 +8,8 @@
 #include "../math.h"
 #include "../map.h"
 
+#include <gamefile.h>
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -75,7 +77,7 @@ void buttonRemoveObject(Button* item){
 }
 
 static const SDL_DialogFileFilter mapLoadFilter[] = {
-    {"Sandblox Map", "sbmap"}
+    {"JSON Map", "json"}
 };
 
 static void SDLCALL openMapDialogue(void* userdata, const char* const* filelist, int filter){
@@ -90,10 +92,11 @@ static void SDLCALL openMapDialogue(void* userdata, const char* const* filelist,
         
 	printf("Full path to selected file: '%s'\n", *filelist);
 	client.gameWorld->headObj->child = NULL;
-	loadMapFromSBMap(*filelist);
+	//loadMapFromSBMap(*filelist);
+	loadGameFile(*filelist);
 	
-	DataObj *playerObj = newObject(NULL, &playerClass);
-	client.gameWorld->currPlayer = playerObj;
+	//DataObj *playerObj = newObject(NULL, &playerClass);
+	//client.gameWorld->currPlayer = playerObj;
 	
 	if (filter < 0) {
 		printf("fuck!\n");
