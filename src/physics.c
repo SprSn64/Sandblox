@@ -15,8 +15,8 @@ float checkBlockCollisionY(Vector3 pos, float footY, DataObj* block){
 	// block bounds (pos is corner, scale is size)
 	float bMinX = block->pos.x;
 	float bMaxX = block->pos.x + block->scale.x;
-	float bMinY = block->pos.y;
-	float bMaxY = block->pos.y + block->scale.y;
+	float bMinY = block->pos.y - block->scale.y;
+	float bMaxY = block->pos.y;
 	float bMinZ = block->pos.z;
 	float bMaxZ = block->pos.z + block->scale.z;
 	
