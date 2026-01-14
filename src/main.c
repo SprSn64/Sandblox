@@ -16,8 +16,11 @@
 #include "loader.h"
 #include "map.h"
 #include "opengl.h"
+#include "gamefile.h"
 
 #include "studio/studio.h"
+
+extern SDL_Window *studioWindow;
 
 SDL_Window *window = NULL;
 SDL_Renderer *renderer = NULL;
@@ -37,6 +40,7 @@ Uint8 camMoveMode = 0;
 float mouseSense = 0.2;
 
 bool mapLoaded = false;
+bool gameFileLoaded = false;
 
 Uint64 last = 0;
 Uint64 now = 0;
@@ -81,6 +85,7 @@ extern Vector3 lightNormal;
 DataObj* playerObj = NULL;
 
 SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[]){
+	(void)appstate;
 	SDL_SetAppMetadata("SandBlox", "0.0", NULL);
 	
 	for(int i=0; i < argc; i++){
@@ -124,8 +129,6 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[]){
 	
 	cubePrim = loadMeshFromObj("assets/models/primitives/cube.obj");
 	spherePrim = loadMeshFromObj("assets/models/primitives/sphere.obj");
-	
-	currentCamera.transform = perspMatrix(90, 4/3, 0.01, 100);
 
 	keyList[KEYBIND_W].code = SDL_SCANCODE_W; keyList[KEYBIND_S].code = SDL_SCANCODE_S; keyList[KEYBIND_A].code = SDL_SCANCODE_A; keyList[KEYBIND_D].code = SDL_SCANCODE_D;
 	keyList[KEYBIND_SPACE].code = SDL_SCANCODE_SPACE; keyList[KEYBIND_SHIFT].code = SDL_SCANCODE_LSHIFT;
@@ -142,43 +145,55 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[]){
 	client.gameWorld->headObj = &gameHeader;
 	gameHeader.studioOpen = true;
 
-	client.gameWorld->currPlayer = playerObj;
+	client.gameWorld->currPlayer = NULL;
 	client.gameWorld->currCamera = &currentCamera;
 
-	if (client.gameWorld->currPlayer == NULL) {
-		playerObj = newObject(NULL, &playerClass);
-		client.gameWorld->currPlayer = playerObj;
-	}
-	
-	focusObject = playerObj;
-	
 	if(mapLoaded) return SDL_APP_CONTINUE;
 	
-	DataObj *blockObj = newObject(NULL, &blockClass);
-	blockObj->scale = (Vector3){8, 1, 8}; blockObj->pos = (Vector3){-4, 0, -4};
-	blockObj->colour = (CharColour){153, 204, 255, 255, 0, COLOURMODE_RGB};
+	if(loadGameFile("assets/gamefile.json") == 0){
+		printf("Successfully loaded gamefile\n");
+		gameFileLoaded = true;
+	} else {
+		printf("Failed to load gamefile\n");
+		gameFileLoaded = false;
+	}
 	
-	DataObj *blockObjA = newObject(NULL, &blockClass); blockObjA->name = "Red Teapot";
-	blockObjA->pos = (Vector3){-4, 2, -4}; blockObjA->scale = (Vector3){0.5, 0.5, 0.5}; blockObjA->colour = (CharColour){255, 0, 0, 128, 0, COLOURMODE_RGB};
-	DataObj *meshObjA = newObject(blockObjA, &meshClass); meshObjA->asVoidptr[OBJVAL_MESH] = teapotMesh;
+	focusObject = client.gameWorld->currPlayer;
 	
-	DataObj *blockObjB = newObject(NULL, &blockClass); blockObjB->name = "Yellow Sphere";
-	blockObjB->pos = (Vector3){4, 2, 4}; blockObjB->scale = (Vector3){2, 2, 2}; blockObjB->colour = (CharColour){255, 255, 0, 255, 0, COLOURMODE_RGB};
-	DataObj *meshObjB = newObject(blockObjB, &meshClass); meshObjB->asVoidptr[OBJVAL_MESH] = spherePrim;
-	
-	DataObj *homerObj = newObject(NULL, &fuckingBeerdrinkerClass);
-
 	return SDL_APP_CONTINUE;
 }	
 
 SDL_AppResult SDL_AppEvent(void *appstate, SDL_Event *event){
+	(void)appstate;
 	if(event->type == SDL_EVENT_QUIT){
 		return SDL_APP_SUCCESS;
 	}
+
+	if(event->type == SDL_EVENT_MOUSE_WHEEL){
+		bool mainFocus = SDL_GetWindowFlags(window) & SDL_WINDOW_INPUT_FOCUS;
+		bool studioFocus = studioWindow && (SDL_GetWindowFlags(studioWindow) & SDL_WINDOW_INPUT_FOCUS);
+		
+		if(mainFocus || studioFocus){
+			float zoomSpeed = 0.1f;
+			float zoomMin = 0.1f;
+			float zoomMax = 5.0f;
+			
+			if(event->wheel.y > 0){
+				currentCamera.zoom += zoomSpeed;
+			} else if(event->wheel.y < 0){
+				currentCamera.zoom -= zoomSpeed;
+			}
+			
+			if(currentCamera.zoom < zoomMin) currentCamera.zoom = zoomMin;
+			if(currentCamera.zoom > zoomMax) currentCamera.zoom = zoomMax;
+		}
+	}
+	
 	return SDL_APP_CONTINUE;
 }
 
 SDL_AppResult SDL_AppIterate(void *appstate){
+	(void)appstate;
 	HandleKeyInput();
 	
 	mouseState = SDL_GetMouseState(&mousePos.x, &mousePos.y);
@@ -221,7 +236,8 @@ SDL_AppResult SDL_AppIterate(void *appstate){
 	//currentCamera.pos.z += ((-SDL_sin(currentCamera.rot.y) * (keyList[KEYBIND_D].down - keyList[KEYBIND_A].down)) + (SDL_cos(currentCamera.rot.y) * (keyList[KEYBIND_S].down - keyList[KEYBIND_W].down))) * 2 * deltaTime;
 	
 	SDL_ShowCursor();
-	if(mouseButtons[2].down){
+	bool mainWindowFocus = SDL_GetWindowFlags(window) & SDL_WINDOW_INPUT_FOCUS;
+	if(mouseButtons[2].down && mainWindowFocus){
 		if(camMoveMode){
 			currentCamera.rot.x += -(mousePos.y - storedMousePos.y) * mouseSense * deltaTime;
 			currentCamera.rot.y += -(mousePos.x - storedMousePos.x) * mouseSense * deltaTime;  
@@ -234,9 +250,7 @@ SDL_AppResult SDL_AppIterate(void *appstate){
 	
 	currentCamera.rot.x += (keyList[KEYBIND_UP].down - keyList[KEYBIND_DOWN].down) * 1 * deltaTime;
 	currentCamera.rot.y += (keyList[KEYBIND_LEFT].down - keyList[KEYBIND_RIGHT].down) * 1 * deltaTime;
-	
-	currentCamera.rot = (Vector3){fmod(currentCamera.rot.x, 360 * DEG2RAD), fmod(currentCamera.rot.y, 360 * DEG2RAD), fmod(currentCamera.rot.z, 360 * DEG2RAD)};
-	
+	currentCamera.rot = (Vector3){fmod(currentCamera.rot.x, 6.28318), fmod(currentCamera.rot.y, 6.28318), fmod(currentCamera.rot.z, 6.28318)};
 	currentCamera.focusDist = min(max(currentCamera.focusDist + (keyList[KEYBIND_I].down - keyList[KEYBIND_O].down) * 4 * fmax(1, sqrt(currentCamera.focusDist)) * deltaTime, 0), 64);
 	
 	int idCounter = 0;
@@ -251,17 +265,31 @@ SDL_AppResult SDL_AppIterate(void *appstate){
 	
 	//renderTriList();
 	
-	char guiText[256];
+	static char fpsText[256] = "FPS: 0";
+	static char rotText[256] = "Camera Rot: 0, 0";
+	static double lastDebugUpdate = 0;
 	if ((Uint32)(timer*100)%64 == 0) {
 		lastFPS = (Uint32)floor(1/deltaTime);
 	}
-	sprintf(guiText, "FPS: %d", lastFPS);
-	drawText(renderer, fontTex, guiText, 32, 0, 0, 16, 16, 12);
-	sprintf(guiText, "Camera Rot: %d, %d", (int)(currentCamera.rot.y * RAD2DEG), (int)(currentCamera.rot.x * RAD2DEG));
-	drawText(renderer, fontTex, guiText, 32, 0, 16, 16, 16, 12);
+	if(timer - lastDebugUpdate >= 0.5){
+		lastDebugUpdate = timer;
+		sprintf(fpsText, "FPS: %d", lastFPS);
+		sprintf(rotText, "Camera Rot: %d, %d", (int)(currentCamera.rot.y * RAD2DEG), (int)(currentCamera.rot.x * RAD2DEG));
+	}
+	drawText(renderer, fontTex, fpsText, 32, 0, 0, 16, 16, 12);
+	drawText(renderer, fontTex, rotText, 32, 0, 16, 16, 16, 12);
 	
 	if(client.debug)drawText(renderer, fontTex, "Debug Enabled", 32, 0, windowScale.y - 16, 16, 16, 12);
 	if(client.studio)drawText(renderer, fontTex, "Studio Enabled", 32, 0, windowScale.y - 32, 16, 16, 12);
+	
+	if(!gameFileLoaded) {
+		char* noGameText = "NO GAME HERE";
+		int textWidth = strlen(noGameText) * 12;
+		int centerX = (windowScale.x - textWidth) / 2;
+		int centerY = windowScale.y / 2;
+		drawText(renderer, fontTex, noGameText, 32, centerX, centerY, 16, 16, 12);
+	}
+	
 	//drawText(renderer, fontTex, "Diagnostics: Skill issue", 32, 0, 64, 16, 16, 12);
 	//SDL_RenderDebugText(renderer, 0, 0, guiText);
 	if(glEnabled)
@@ -273,14 +301,17 @@ SDL_AppResult SDL_AppIterate(void *appstate){
 }
 
 void SDL_AppQuit(void *appstate, SDL_AppResult result){
+	(void)appstate; (void)result;
 	cleanupObjects(&gameHeader);
 	SDL_DestroyTexture(fontTex);
 }
     
 void HandleKeyInput(){
 	const bool* keyState = SDL_GetKeyboardState(NULL);
+	bool hasFocus = (SDL_GetWindowFlags(window) & SDL_WINDOW_INPUT_FOCUS) || 
+	                (studioWindow && (SDL_GetWindowFlags(studioWindow) & SDL_WINDOW_INPUT_FOCUS));
 	for(int i = 0; i < KEYBINDCOUNT; i++){
-		keyList[i].down = keyState[keyList[i].code] && SDL_GetWindowFlags(window) & SDL_WINDOW_INPUT_FOCUS;
+		keyList[i].down = keyState[keyList[i].code] && hasFocus;
 		if(keyList[i].down){
 			if(!keyList[i].pressCheck){
 				keyList[i].pressCheck = true;

@@ -1,4 +1,4 @@
-DIRS := src src/studio
+DIRS := src src/studio src/cjosn
 
 CC  := gcc
 CXX := g++
@@ -10,7 +10,7 @@ ifeq ($(OS),Windows_NT)
 	LDFLAGS := -lSDL3 -lSDL3_image -lgdi32 -lopengl32 resource.res
 else
 	TARGET := sandblox.$(shell uname -m)
-	LDFLAGS := -lm -lSDL3 -lSDL3_image -lGL -lGLEW
+	LDFLAGS := -lm -lSDL3 -lSDL3_image -lGL
 endif
 
 C_SOURCES   := $(wildcard $(addsuffix /*.c,$(DIRS)))
