@@ -1,5 +1,9 @@
-#include "physics.h"
+#include <stdio.h>
+#include <stdlib.h>
 #include <math.h>
+
+#include "physics.h"
+#include "math.h"
 
 // check if a point is inside a block's bounding box (AABB collision)
 // returns the Y position of the top of the block if collision, or -INFINITY if no collision
