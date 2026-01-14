@@ -3,7 +3,7 @@
 #include <SDL3/SDL.h>
 #include <SDL3_image/SDL_image.h>
 #include <GL/glew.h>
-#include <GL/glut.h>
+//include <GL/glut.h>
 
 #include <stdio.h>
 #include <stdlib.h>
