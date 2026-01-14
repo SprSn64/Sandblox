@@ -238,19 +238,3 @@ DataObj** listChildren(DataObj* item){
 }
 
 //not dealing with a descendant list function yet
-
-CollsionReturn* getCollision(CollisionHull* itemA, CollisionHull* itemB){
-	CollsionReturn *output = NULL;
-	
-	if(itemA->shape == COLLHULL_CUBE && itemB->shape == COLLHULL_CUBE){
-		if(!(between(itemA->pos.x, itemB->pos.x, itemB->pos.x + itemB->scale.x) && between(itemA->pos.y, itemB->pos.y, itemB->pos.y + itemB->scale.y) && between(itemA->pos.z, itemB->pos.z, itemB->pos.z + itemB->scale.z))) return NULL;
-		output = malloc(sizeof(CollsionReturn));
-		output->outNorm = (Vector3){0, itemA->pos.y - itemB->pos.y, 0};
-	}
-	
-	/*if(collide is yes) then do'eth
-		tell me the collision outputs then please
-	  else*/
-	return output;
-	//end
-}

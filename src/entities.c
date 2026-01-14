@@ -45,7 +45,7 @@ void playerUpdate(DataObj* object){
 	
 	object->pos = (Vector3){object->pos.x + playerVel->x * deltaTime, object->pos.y + playerVel->y * deltaTime, object->pos.z + playerVel->z * deltaTime};
 	
-	float floorY = findFloorY(object->pos, object->pos.y, game.headObj);
+	float floorY = findFloorY(object->pos, object->pos.y, game.headObj) - 1;
 	
 	if(floorY > -INFINITY && object->pos.y <= floorY){
 		object->pos.y = floorY;
