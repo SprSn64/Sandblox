@@ -1,6 +1,6 @@
-sandblox.exe
 makecode.txt
 workspace
+*.exe
 *.bat
 *.o
 *.x86_64

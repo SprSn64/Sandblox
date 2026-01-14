@@ -8,7 +8,11 @@
 #include <string.h>
 #include <math.h>
 
+//do something with linux support or something here
+#include <windows.h>
+
 #include <structs.h>
+#include "input.h"
 
 SDL_Window *window = NULL;
 SDL_Renderer *renderer = NULL;
@@ -25,12 +29,21 @@ float timer = 0;
 #define KEYBINDCOUNT 2
 ButtonMap keyList[KEYBINDCOUNT];
 
+bool windowHover = false;
+
 SDL_MouseButtonFlags mouseState;
 SDL_FPoint mousePos;
-SDL_FPoint storedMousePos;
 ButtonMap mouseButtons[3];
-
 void HandleKeyInput();
+
+char *clientLoc = "..//sandblox.exe";
+
+Button launchButton = {"launch", (SDL_FRect){224, 304, 64, 16}, buttonLaunch, true, true, false, false};
+
+SDL_Texture *newTexture(char* path, SDL_ScaleMode scaleMode);
+void drawText(SDL_Renderer *renderer, SDL_Texture *texture, char* text, char charOff, short posX, short posY, short width, short height, short kern);
+
+SDL_Texture* fontTex = NULL;
 
 SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[]){
 	SDL_SetAppMetadata("SandBlox", "0.0", NULL);
@@ -44,13 +57,15 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[]){
 		return SDL_APP_FAILURE;
 	}
 
-	if(!SDL_CreateWindowAndRenderer("Sandblox Launcher 0.0", windowScale.x, windowScale.y, SDL_WINDOW_RESIZABLE, &window, &renderer)){
+	if(!SDL_CreateWindowAndRenderer("Sandblox Launcher 0.0", windowScale.x, windowScale.y, SDL_WINDOW_RESIZABLE * 0, &window, &renderer)){
 		SDL_Log("Couldn't create window/renderer: %s", SDL_GetError());
 		return SDL_APP_FAILURE;
 	}
 	//SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
 	SDL_SetWindowMinimumSize(window, 320, 240);
 	SDL_SetRenderVSync(renderer, 1);
+	
+	fontTex = newTexture("assets/font.png", 0);
 
 	return SDL_APP_CONTINUE;
 }	
@@ -65,9 +80,12 @@ SDL_AppResult SDL_AppEvent(void *appstate, SDL_Event *event){
 SDL_AppResult SDL_AppIterate(void *appstate){
 	HandleKeyInput();
 	
+	windowHover = SDL_GetWindowFlags(window) & SDL_WINDOW_INPUT_FOCUS;
+	SDL_SetCursor(SDL_CreateSystemCursor(SDL_SYSTEM_CURSOR_DEFAULT));
+	
 	mouseState = SDL_GetMouseState(&mousePos.x, &mousePos.y);
 	for(int i=0; i<3; i++){
-		mouseButtons[i].down = (SDL_GetWindowFlags(window) & SDL_WINDOW_INPUT_FOCUS && (mouseState & mouseButtons[i].code));
+		mouseButtons[i].down = (windowHover && (mouseState & mouseButtons[i].code));
 		if(mouseButtons[i].down){
 			if(!mouseButtons[i].pressCheck){
 				mouseButtons[i].pressCheck = true;
@@ -88,6 +106,10 @@ SDL_AppResult SDL_AppIterate(void *appstate){
 	
 	SDL_SetRenderDrawColor(renderer, 20, 22, 24, SDL_ALPHA_OPAQUE);
 	SDL_RenderClear(renderer);
+	
+	updateButton(&launchButton); drawButton(&launchButton);
+	
+	//drawText(renderer, fontTex, "johnsons", 32, 0, 0, 16, 16, 14);
 
 	SDL_RenderPresent(renderer);
 
@@ -95,7 +117,7 @@ SDL_AppResult SDL_AppIterate(void *appstate){
 }
 
 void SDL_AppQuit(void *appstate, SDL_AppResult result){
-	
+	SDL_DestroyTexture(fontTex);
 }
     
 void HandleKeyInput(){
@@ -110,5 +132,26 @@ void HandleKeyInput(){
 				keyList[i].pressed = false;
 			}
 		}else keyList[i].pressCheck = false;
+	}
+}
+
+SDL_Texture *newTexture(char* path, SDL_ScaleMode scaleMode){
+	SDL_Texture *texture = IMG_LoadTexture(renderer, path);
+	if(texture == NULL){
+		printf("Issue with loading texture %s!\n", path);
+		return NULL;
+	}
+	SDL_SetTextureScaleMode(texture, scaleMode);
+	return texture;
+}
+
+void drawText(SDL_Renderer *renderer, SDL_Texture *texture, char* text, char charOff, short posX, short posY, short width, short height, short kern){
+	for(size_t i=0; i<=strlen(text); i++){
+		char charVal = (unsigned)text[i] - charOff;
+		int xOff = (charVal % 16) * width;
+		int yOff = floor((float)charVal / 16) * height;
+		SDL_FRect sprRect = {xOff, yOff, width, height};
+		SDL_FRect sprPos = {posX + kern * i, posY, width, height};
+		SDL_RenderTexture(renderer, texture, &sprRect, &sprPos);
 	}
 }
