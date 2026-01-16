@@ -197,7 +197,7 @@ SDL_AppResult SDL_AppEvent(void *appstate, SDL_Event *event){
 			if(currentCamera.zoom < zoomMin) currentCamera.zoom = zoomMin;
 			if(currentCamera.zoom > zoomMax) currentCamera.zoom = zoomMax;
 		}
-		if(studioFocus){
+		if(studioFocus && between(mousePos.x, objListRect.x, objListRect.x + objListRect.w) && between(mousePos.y, objListRect.y, objListRect.y + objListRect.h)){
 			float scrollSpeed = 0.25f;
 			objListScroll += scrollSpeed * (1 - 2 * (event->wheel.y > 0)) * (event->wheel.y != 0);
 			objListScroll = min(max(objListScroll, 0), objListLength);

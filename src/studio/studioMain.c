@@ -123,13 +123,12 @@ void drawObjectList(DataObj* item, int nodeDepth, int *idCount){
 	SDL_FRect iconPos = {objListRect.x + nodeDepth * 24, objListRect.y/**/ + itemYOffset, 16, 16};
 	SDL_RenderTexture(studioRenderer, classIconTex, &iconRect, &iconPos);
 	
+	if(!item->studioOpen && item->child)
+		SDL_RenderTexture(studioRenderer, classIconTex, &(SDL_FRect){245, 249, 11, 7}, &(SDL_FRect){objListRect.x + nodeDepth * 24, objListRect.y + itemYOffset, 11, 7});
+	
 	listRenderSkip:
 	
-	if(!item->studioOpen){
-		if(item->child)
-			SDL_RenderTexture(studioRenderer, classIconTex, &(SDL_FRect){245, 249, 11, 7}, &(SDL_FRect){objListRect.x + nodeDepth * 24, objListRect.y + itemYOffset, 11, 7});
-		return;
-	}
+	if(!item->studioOpen) return;
 	
 	DataObj* child = item->child;
 	while (child) {
