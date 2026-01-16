@@ -10,6 +10,8 @@
 #include <string.h>
 #include <math.h>
 
+#include "../math.h"
+
 extern SDL_Window *window;
 extern ClientData client;
 
@@ -20,6 +22,10 @@ bool studioActive = false;
 SDL_Texture *classIconTex = NULL;
 
 SDL_Point studioWindowScale = {240, 320};
+
+float objListScroll = 0;
+Uint32 objListLength = 0;
+SDL_Rect objListRect = {0, 16, 240, 240};
 
 DataObj *focusObject = NULL;
 extern SDL_MouseButtonFlags mouseState;
@@ -77,6 +83,7 @@ void updateStudio(){
 	}
 	SDL_SetCursor(SDL_CreateSystemCursor(SDL_SYSTEM_CURSOR_DEFAULT));
 	
+	objListLength = 0;
 	int idCounter = 0;
 	drawObjectList(client.gameWorld->headObj, 0, &idCounter);
 	
@@ -88,9 +95,16 @@ void updateStudio(){
 	SDL_RenderPresent(studioRenderer);
 }
 
-void drawObjectList(DataObj* item, int nodeDepth, int *idCount){
+void drawObjectList(DataObj* item, int nodeDepth, int *idCount){	
 	int i = (*idCount)++;
-	if(mousePos.y >= 19 + i * 16 && mousePos.y <= 31 + i * 16 && stuMouseButtons[0].pressed){
+	float itemYOffset = (i - objListScroll) * 16;
+	if(closest(itemYOffset - 8, 16) >= objListRect.h - 32) 
+		return;
+	
+	if(itemYOffset < 0)
+		goto listRenderSkip;
+	
+	if(between(mousePos.x, objListRect.x, objListRect.x + objListRect.w) && between(mousePos.y, objListRect.y + 3 + itemYOffset, objListRect.y + 15 + itemYOffset) && stuMouseButtons[0].pressed){
 		if(item == focusObject){
 			item->studioOpen = !item->studioOpen;
 		}
@@ -100,18 +114,20 @@ void drawObjectList(DataObj* item, int nodeDepth, int *idCount){
 	if(focusObject == item){
 		focusSkip:
 		SDL_SetRenderDrawColor(studioRenderer, 64, 192, 24, SDL_ALPHA_OPAQUE);
-		SDL_RenderFillRect(studioRenderer, &(SDL_FRect){0, 17 + i * 16, 256, 16});
+		SDL_RenderFillRect(studioRenderer, &(SDL_FRect){objListRect.x, objListRect.y + itemYOffset, objListRect.w, 16});
 	}
 	SDL_SetRenderDrawColor(studioRenderer, 255, 255, 255, 255);
-	SDL_RenderDebugText(studioRenderer, 18/**/ + (nodeDepth * 24), 22/**/ + i * 16, item->name);
+	SDL_RenderDebugText(studioRenderer, objListRect.x + 18/**/ + (nodeDepth * 24), 20/**/ + itemYOffset, item->name);
 	
 	SDL_FRect iconRect = {(item->classData->id % 16) * 16, (int)floor((float)item->classData->id / 16) * 16 % 16, 16, 16};
-	SDL_FRect iconPos = {2 + nodeDepth * 24, 18/**/ + i * 16, 16, 16};
+	SDL_FRect iconPos = {objListRect.x + nodeDepth * 24, objListRect.y/**/ + itemYOffset, 16, 16};
 	SDL_RenderTexture(studioRenderer, classIconTex, &iconRect, &iconPos);
+	
+	listRenderSkip:
 	
 	if(!item->studioOpen){
 		if(item->child)
-			SDL_RenderTexture(studioRenderer, classIconTex, &(SDL_FRect){245, 249, 11, 7}, &(SDL_FRect){2 + nodeDepth * 24, 18/**/ + i * 16, 11, 7});
+			SDL_RenderTexture(studioRenderer, classIconTex, &(SDL_FRect){245, 249, 11, 7}, &(SDL_FRect){objListRect.x + nodeDepth * 24, objListRect.y + itemYOffset, 11, 7});
 		return;
 	}
 	

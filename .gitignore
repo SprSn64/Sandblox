@@ -1,9 +1,10 @@
 makecode.txt
+sandblox.exe
 workspace
-*.exe
 *.bat
 *.o
 *.x86_64
 *.x86
 *.aarch64
 ignore
+launcher/sblauncher.exe

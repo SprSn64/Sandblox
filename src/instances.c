@@ -22,6 +22,8 @@ extern GameWorld game;
 extern DataObj *focusObject;
 extern float timer;
 
+extern Uint32 objListLength;
+
 void mapDraw(DataObj* object){
 	drawMesh(object->objMesh, object->transform, (SDL_FColor){1, 1, 1, 1}, true);
 }
@@ -58,6 +60,7 @@ void updateObjects(DataObj* item, int nodeDepth, int *idCount, bool uord){ //uor
 	if (!uord){
 		item->rot = (Vector3){fmod(item->rot.x, 6.28318), fmod(item->rot.y, 6.28318), fmod(item->rot.z, 6.28318)};
 		if(item->classData->update)item->classData->update(item);
+		objListLength++;
 	}else{ 
 		if(!item->classData->draw) goto noDraw;
 		item->transform = newMatrix();
@@ -66,7 +69,7 @@ void updateObjects(DataObj* item, int nodeDepth, int *idCount, bool uord){ //uor
 		scaleMatrix2(item->transform, (Vector3){item->scale.x, item->scale.y, item->scale.z});
 		
 		item->classData->draw(item);
-		if(item == focusObject && client.studio)drawMesh(cubePrim, item->transform, (SDL_FColor){1, 1, 1, 0.25}, false);
+		if(item == focusObject && client.studio)drawMesh(cubePrim, item->transform, (SDL_FColor){1, 1, 1, fabs(SDL_sin(timer * 2)) * 0.25}, false);
 		free(item->transform);
 	}
 	noDraw:

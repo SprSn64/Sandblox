@@ -36,6 +36,10 @@ GameWorld game;
 //double windowScaleFactor;
 SDL_Point windowScale = {640, 480};
 
+extern SDL_Rect objListRect;
+extern float objListScroll;
+extern Uint32 objListLength;
+
 Camera currentCamera = {(Vector3){0, 2, 10}, (Vector3){0, 0, 0}, 90, 1, 16, NULL, NULL};
 Uint8 camMoveMode = 0;
 float mouseSense = 0.2;
@@ -179,7 +183,7 @@ SDL_AppResult SDL_AppEvent(void *appstate, SDL_Event *event){
 		bool mainFocus = SDL_GetWindowFlags(window) & SDL_WINDOW_INPUT_FOCUS;
 		bool studioFocus = studioWindow && (SDL_GetWindowFlags(studioWindow) & SDL_WINDOW_INPUT_FOCUS);
 		
-		if(mainFocus || studioFocus){
+		if(mainFocus){
 			float zoomSpeed = 0.1f;
 			float zoomMin = 0.1f;
 			float zoomMax = 5.0f;
@@ -192,6 +196,11 @@ SDL_AppResult SDL_AppEvent(void *appstate, SDL_Event *event){
 			
 			if(currentCamera.zoom < zoomMin) currentCamera.zoom = zoomMin;
 			if(currentCamera.zoom > zoomMax) currentCamera.zoom = zoomMax;
+		}
+		if(studioFocus){
+			float scrollSpeed = 0.25f;
+			objListScroll += scrollSpeed * (1 - 2 * (event->wheel.y > 0)) * (event->wheel.y != 0);
+			objListScroll = min(max(objListScroll, 0), objListLength);
 		}
 	}
 	
@@ -245,8 +254,9 @@ SDL_AppResult SDL_AppIterate(void *appstate){
 	bool mainWindowFocus = SDL_GetWindowFlags(window) & SDL_WINDOW_INPUT_FOCUS;
 	if(mouseButtons[2].down && mainWindowFocus){
 		if(camMoveMode){
-			currentCamera.rot.x += -(mousePos.y - storedMousePos.y) * mouseSense * deltaTime;
-			currentCamera.rot.y += -(mousePos.x - storedMousePos.x) * mouseSense * deltaTime;  
+			float moveScale = sqrt(renderScale / 640) * mouseSense;
+			currentCamera.rot.x += -(mousePos.y - storedMousePos.y) * moveScale * deltaTime;
+			currentCamera.rot.y += -(mousePos.x - storedMousePos.x) * moveScale * deltaTime;  
 			SDL_WarpMouseInWindow(window, storedMousePos.x, storedMousePos.y); SDL_HideCursor();
 		}else{
 			storedMousePos = mousePos;
@@ -265,6 +275,7 @@ SDL_AppResult SDL_AppIterate(void *appstate){
 	free(skyboxMatrix);
 	
 	int idCounter = 0;
+	objListLength = 0;
 	updateObjects(&gameHeader, 0, &idCounter, false);
 	
 	//drawCube((Vector3){(2 + SDL_cos(timer)) / -2, SDL_sin(timer) + 1, (2 + SDL_cos(timer)) / -2}, (Vector3){2 + SDL_cos(timer), SDL_sin(timer) + 1, 2 + SDL_cos(timer)}, (SDL_FColor){0.6, 0.8, 1, 1});
@@ -319,8 +330,7 @@ void SDL_AppQuit(void *appstate, SDL_AppResult result){
     
 void HandleKeyInput(){
 	const bool* keyState = SDL_GetKeyboardState(NULL);
-	bool hasFocus = (SDL_GetWindowFlags(window) & SDL_WINDOW_INPUT_FOCUS) || 
-	                (studioWindow && (SDL_GetWindowFlags(studioWindow) & SDL_WINDOW_INPUT_FOCUS));
+	bool hasFocus = (SDL_GetWindowFlags(window) & SDL_WINDOW_INPUT_FOCUS);
 	for(int i = 0; i < KEYBINDCOUNT; i++){
 		keyList[i].down = keyState[keyList[i].code] && hasFocus;
 		if(keyList[i].down){
