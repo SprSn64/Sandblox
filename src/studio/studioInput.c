@@ -113,7 +113,7 @@ void buttonLoadMap(Button* item){
 }
 
 void buttonPauseGame(Button* item){
-	item->labelText = "||";
+	item->labelText = "ll";
 	client.pause = !client.pause;
 	if(client.pause)
 		item->labelText = ">";

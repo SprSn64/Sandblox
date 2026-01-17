@@ -71,6 +71,7 @@ SDL_MouseButtonFlags mouseState;
 SDL_FPoint mousePos;
 SDL_FPoint storedMousePos;
 ButtonMap mouseButtons[3];
+Uint8 camResetTimer = 0;
 
 void HandleKeyInput();
 
@@ -257,7 +258,12 @@ SDL_AppResult SDL_AppIterate(void *appstate){
 			float moveScale = mouseSense / (renderScale / windowScale.x);
 			currentCamera.rot.x += -(mousePos.y - storedMousePos.y) * moveScale * deltaTime;
 			currentCamera.rot.y += -(mousePos.x - storedMousePos.x) * moveScale * deltaTime;  
-			SDL_WarpMouseInWindow(window, storedMousePos.x, storedMousePos.y); SDL_HideCursor();
+			camResetTimer++;
+			if(camResetTimer >= 4){
+				SDL_WarpMouseInWindow(window, storedMousePos.x, storedMousePos.y); 
+				camResetTimer = 0;
+			}
+			SDL_HideCursor();
 		}else{
 			storedMousePos = mousePos;
 			camMoveMode = 1;

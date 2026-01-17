@@ -41,7 +41,7 @@ void playerUpdate(DataObj* object){
 	
 	float floorY = findFloorY(object->pos, object->pos.y, game.headObj);
 	
-	float friction = (0.92 - 0.04 * (floorY > -INFINITY && object->pos.y <= floorY));
+	float friction = (0.92 - 0.005 * (floorY > -INFINITY && object->pos.y <= floorY));
 	float acc = 1.2;
 	
 	playerVel->x = (playerVel->x + playerMove.x * acc) * friction;
