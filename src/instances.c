@@ -60,7 +60,6 @@ void updateObjects(DataObj* item, int nodeDepth, int *idCount, bool uord){ //uor
 	if (!uord){
 		item->rot = (Vector3){fmod(item->rot.x, 6.28318), fmod(item->rot.y, 6.28318), fmod(item->rot.z, 6.28318)};
 		if(item->classData->update)item->classData->update(item);
-		objListLength++;
 	}else{ 
 		if(!item->classData->draw) goto noDraw;
 		item->transform = newMatrix();
@@ -71,6 +70,7 @@ void updateObjects(DataObj* item, int nodeDepth, int *idCount, bool uord){ //uor
 		item->classData->draw(item);
 		if(item == focusObject && client.studio)drawMesh(cubePrim, item->transform, (SDL_FColor){1, 1, 1, fabs(SDL_sin(timer * 2)) * 0.25}, false);
 		free(item->transform);
+		objListLength++;
 	}
 	noDraw:
 	//if(uord)drawText(renderer, fontTex, item->name, 32, OBJLIST_HUD_POS_X + (nodeDepth * 24), OBJLIST_HUD_POS_Y + i * 16, 16, 16, 12);

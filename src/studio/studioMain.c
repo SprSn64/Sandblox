@@ -61,6 +61,8 @@ void initStudio(){
 	classIconTex = IMG_LoadTexture(studioRenderer, "assets/textures/classicons.png");
 }
 
+void studioCameraUpdate(Camera* cam);
+
 void updateStudio(){
 	if(!studioActive) return;
 	SDL_GetWindowSize(studioWindow, &studioWindowScale.x, &studioWindowScale.y);
@@ -82,6 +84,9 @@ void updateStudio(){
 		}else stuMouseButtons[i].pressCheck = false;
 	}
 	SDL_SetCursor(SDL_CreateSystemCursor(SDL_SYSTEM_CURSOR_DEFAULT));
+	
+	if(client.pause)
+		studioCameraUpdate(client.gameWorld->currCamera);
 	
 	objListLength = 0;
 	int idCounter = 0;
@@ -164,4 +169,8 @@ void drawObjectProperties(DataObj* item, int posY){
 	SDL_RenderFillRect(studioRenderer, &(SDL_FRect){64, posY + 40, 24, 8});
 	SDL_SetRenderDrawColor(studioRenderer, item->colour.r * item->colour.a / 255, item->colour.g * item->colour.a / 255, item->colour.b * item->colour.a / 255, 255); 
 	SDL_RenderFillRect(studioRenderer, &(SDL_FRect){88, posY + 40, 24, 8});
+}
+
+void studioCameraUpdate(Camera* cam){
+	//make camera move forwards in all axis, not just x and z
 }

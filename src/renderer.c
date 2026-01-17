@@ -68,9 +68,9 @@ bool drawTriangle(Vector3 pointA, Vector3 pointB, Vector3 pointC, SDL_FColor col
 
 Vector3 clipToNearPlane(Vector3 front, Vector3 back, float nearZ){
 	// front.z < nearZ (in front), back.z >= nearZ (behind or at near plane)
-	float t = (nearZ - front.z) / (back.z - front.z);
+	float t = (nearZ - front.z) / (back.z - front.z); //collect my invLerp(a, b, v) function
 	return (Vector3){
-		front.x + t * (back.x - front.x),
+		front.x + t * (back.x - front.x), //collect my lerp(a, b, t) function
 		front.y + t * (back.y - front.y),
 		nearZ
 	};
@@ -105,6 +105,15 @@ bool draw3DTriangle(Vector3 pointA, Vector3 pointB, Vector3 pointC, SDL_FColor c
 	Vector3 clippedA = aFront ? camA : clipToNearPlane(bFront ? camB : camC, camA, NEAR_PLANE);
 	Vector3 clippedB = bFront ? camB : clipToNearPlane(aFront ? camA : camC, camB, NEAR_PLANE);
 	Vector3 clippedC = cFront ? camC : clipToNearPlane(aFront ? camA : camB, camC, NEAR_PLANE);
+	
+	/*if(inFront == 2){
+		// 2 verts in front, draw as a quad
+		
+		// i have no idea how to make it into a quad with this current setup
+		// we should probably just get opengl working at this point
+		
+		return 0;
+	}*/
 	
 	Vector3 projLoc[3] = {projToScreen(viewProj(clippedA)), projToScreen(viewProj(clippedB)), projToScreen(viewProj(clippedC))};
 	if(max(projLoc[0].z, max(projLoc[1].z, projLoc[2].z)) < 0){

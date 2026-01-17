@@ -198,7 +198,7 @@ SDL_AppResult SDL_AppEvent(void *appstate, SDL_Event *event){
 			if(currentCamera.zoom > zoomMax) currentCamera.zoom = zoomMax;
 		}
 		if(studioFocus && between(mousePos.x, objListRect.x, objListRect.x + objListRect.w) && between(mousePos.y, objListRect.y, objListRect.y + objListRect.h)){
-			float scrollSpeed = 0.25f;
+			float scrollSpeed = 1.0f;
 			objListScroll += scrollSpeed * (1 - 2 * (event->wheel.y > 0)) * (event->wheel.y != 0);
 			objListScroll = min(max(objListScroll, 0), objListLength);
 		}
@@ -276,7 +276,8 @@ SDL_AppResult SDL_AppIterate(void *appstate){
 	
 	int idCounter = 0;
 	objListLength = 0;
-	updateObjects(&gameHeader, 0, &idCounter, false);
+	if(!client.pause)
+		updateObjects(&gameHeader, 0, &idCounter, false);
 	
 	//drawCube((Vector3){(2 + SDL_cos(timer)) / -2, SDL_sin(timer) + 1, (2 + SDL_cos(timer)) / -2}, (Vector3){2 + SDL_cos(timer), SDL_sin(timer) + 1, 2 + SDL_cos(timer)}, (SDL_FColor){0.6, 0.8, 1, 1});
 	//drawCube((Vector3){SDL_sin(timer) * 2 - 0.5, 1, SDL_cos(timer) * 2 - 0.5}, (Vector3){1, 1, 1}, (SDL_FColor){1, 0.2, 0.3, 1});
