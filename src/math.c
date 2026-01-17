@@ -119,7 +119,7 @@ float *axisRotMatrix(Uint8 axis, float angle){ //axis 0 = x (yz planes), axis 1 
 	};
 	memcpy(output, &tempMatrix, sizeof(mat4));
 	return output;
-}
+} // probably needs fixing
 
 float *rotateMatrix(mat4 matrix, Vector3 angle){
 	float *output;

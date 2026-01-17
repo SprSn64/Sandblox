@@ -16,6 +16,7 @@ void drawButton(Button* item);
 void buttonAddObject(Button* item);
 void buttonRemoveObject(Button* item);
 void buttonLoadMap(Button* item);
+void buttonPauseGame(Button* item);
 
 void StudioHandleKeys();
 

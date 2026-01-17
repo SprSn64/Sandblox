@@ -42,7 +42,7 @@ extern Uint32 objListLength;
 
 Camera currentCamera = {(Vector3){0, 2, 10}, (Vector3){0, 0, 0}, 90, 1, 16, NULL, NULL};
 Uint8 camMoveMode = 0;
-float mouseSense = 0.2;
+float mouseSense = 0.1;
 
 bool mapLoaded = false;
 bool gameFileLoaded = false;
@@ -254,7 +254,7 @@ SDL_AppResult SDL_AppIterate(void *appstate){
 	bool mainWindowFocus = SDL_GetWindowFlags(window) & SDL_WINDOW_INPUT_FOCUS;
 	if(mouseButtons[2].down && mainWindowFocus){
 		if(camMoveMode){
-			float moveScale = sqrt(renderScale / 640) * mouseSense;
+			float moveScale = mouseSense / (renderScale / windowScale.x);
 			currentCamera.rot.x += -(mousePos.y - storedMousePos.y) * moveScale * deltaTime;
 			currentCamera.rot.y += -(mousePos.x - storedMousePos.x) * moveScale * deltaTime;  
 			SDL_WarpMouseInWindow(window, storedMousePos.x, storedMousePos.y); SDL_HideCursor();

@@ -39,13 +39,16 @@ void playerUpdate(DataObj* object){
 		object->rot.y = game.currCamera->rot.y;
 	}
 	
-	playerVel->x = (playerVel->x + playerMove.x) * 0.92;
-	playerVel->z = (playerVel->z + playerMove.y) * 0.92;
+	float floorY = findFloorY(object->pos, object->pos.y, game.headObj);
+	
+	float friction = (0.92 - 0.04 * (floorY > -INFINITY && object->pos.y <= floorY));
+	float acc = 1.2;
+	
+	playerVel->x = (playerVel->x + playerMove.x * acc) * friction;
+	playerVel->z = (playerVel->z + playerMove.y * acc) * friction;
 	playerVel->y += -1 + 0.4 * (keyList[KEYBIND_SPACE].down && playerVel->y > 0);
 	
 	object->pos = (Vector3){object->pos.x + playerVel->x * deltaTime, object->pos.y + playerVel->y * deltaTime, object->pos.z + playerVel->z * deltaTime};
-	
-	float floorY = findFloorY(object->pos, object->pos.y, game.headObj);
 	
 	if(floorY > -INFINITY && object->pos.y <= floorY){
 		object->pos.y = floorY;

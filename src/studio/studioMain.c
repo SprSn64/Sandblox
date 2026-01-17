@@ -19,13 +19,18 @@ SDL_Window *studioWindow = NULL;
 SDL_Renderer *studioRenderer = NULL;
 bool studioActive = false;
 
+extern double deltaTime;
+extern float timer;
+
+extern float* defaultMatrix;
+
 SDL_Texture *classIconTex = NULL;
 
 SDL_Point studioWindowScale = {240, 320};
 
 float objListScroll = 0;
 Uint32 objListLength = 0;
-SDL_Rect objListRect = {0, 16, 240, 240};
+SDL_Rect objListRect = {32, 16, 208, 240};
 
 DataObj *focusObject = NULL;
 extern SDL_MouseButtonFlags mouseState;
@@ -33,6 +38,7 @@ extern SDL_FPoint mousePos;
 extern ButtonMap stuMouseButtons[3];
 
 extern ButtonMap stuKeyList[5];
+extern ButtonMap keyList[KEYBINDCOUNT];
 
 void drawObjectList(DataObj* item, int nodeDepth, int *idCount);
 void drawObjectProperties(DataObj* item, int posY);
@@ -42,6 +48,7 @@ void drawObjectProperties(DataObj* item, int posY);
 Button addObjButton = {"+", (SDL_FRect){224, 304, 16, 16}, buttonAddObject, true, true, false, false};
 Button removeObjButton = {"-", (SDL_FRect){206, 304, 16, 16}, buttonRemoveObject, true, true, false, false};
 Button fileButton = {"File", (SDL_FRect){0, 0, 48, 16}, buttonLoadMap, true, true, false, false};
+Button pauseButton = {"ll", (SDL_FRect){0, 304, 16, 16}, buttonPauseGame, true, true, false, false};
 
 void initStudio(){
 	//printf("Studio Initiated\n");
@@ -92,8 +99,9 @@ void updateStudio(){
 	int idCounter = 0;
 	drawObjectList(client.gameWorld->headObj, 0, &idCounter);
 	
-	updateButton(&addObjButton); updateButton(&removeObjButton); updateButton(&fileButton);
-	drawButton(&addObjButton); drawButton(&removeObjButton); drawButton(&fileButton);
+	//make this less shitty soon
+	updateButton(&addObjButton); updateButton(&removeObjButton); updateButton(&fileButton); updateButton(&pauseButton);
+	drawButton(&addObjButton); drawButton(&removeObjButton); drawButton(&fileButton); drawButton(&pauseButton);
 	
 	drawObjectProperties(focusObject, 240);
 	
@@ -173,4 +181,18 @@ void drawObjectProperties(DataObj* item, int posY){
 
 void studioCameraUpdate(Camera* cam){
 	//make camera move forwards in all axis, not just x and z
+	float camSpeed = 2;
+	
+	Vector4 moveVec = {
+		(keyList[KEYBIND_D].down - keyList[KEYBIND_A].down), 
+		(keyList[KEYBIND_SPACE].down - keyList[KEYBIND_SHIFT].down), 
+		(keyList[KEYBIND_S].down - keyList[KEYBIND_W].down), 
+		0
+	};
+	
+	float* camRotMatrix = rotateMatrix(defaultMatrix, cam->rot);
+	moveVec = matrixMult(moveVec, camRotMatrix);
+	
+	cam->pos = (Vector3){cam->pos.x + moveVec.x * camSpeed * deltaTime, cam->pos.y + moveVec.y * camSpeed * deltaTime, cam->pos.z + moveVec.z * camSpeed * deltaTime};
+	free(camRotMatrix);
 }

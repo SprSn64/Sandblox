@@ -112,6 +112,13 @@ void buttonLoadMap(Button* item){
 	SDL_ShowOpenFileDialog(openMapDialogue, NULL, studioWindow, mapLoadFilter, SDL_arraysize(mapLoadFilter), SDL_GetCurrentDirectory(), false);
 }
 
+void buttonPauseGame(Button* item){
+	item->labelText = "||";
+	client.pause = !client.pause;
+	if(client.pause)
+		item->labelText = ">";
+}
+
 void StudioHandleKeys(){
 	const bool* keyState = SDL_GetKeyboardState(NULL);
 	bool hasFocus = SDL_GetWindowFlags(studioWindow) & SDL_WINDOW_INPUT_FOCUS;
