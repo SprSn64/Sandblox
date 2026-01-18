@@ -216,8 +216,8 @@ Mesh* genTorusMesh(float outerRad, float innerRad, int ringRes, int ringCount){
 	Uint32 vertCount = ringRes * ringCount;
 	Uint32 faceCount = vertCount * 2;
 	
-	MeshVert* newVerts = calloc(1, sizeof(MeshVert) * vertCount);
-	MeshFace* newFaces = calloc(1, sizeof(MeshFace) * faceCount);
+	MeshVert* newVerts = malloc(sizeof(MeshVert) * vertCount);
+	MeshFace* newFaces = malloc(sizeof(MeshFace) * faceCount);
 	
 	float angleRes = PI * 2 / ringRes;
 	float angleRing = PI * 2 / ringCount;
@@ -253,8 +253,8 @@ Mesh* genCylinderMesh(float btmRad, float topRad, float length, int res){
 	Uint32 vertCount = res * 2;
 	Uint32 faceCount = 4 * res - 4;
 	
-	MeshVert* newVerts = calloc(1, sizeof(MeshVert) * vertCount);
-	MeshFace* newFaces = calloc(1, sizeof(MeshFace) * faceCount);
+	MeshVert* newVerts = malloc(sizeof(MeshVert) * vertCount);
+	MeshFace* newFaces = malloc(sizeof(MeshFace) * faceCount);
 	
 	float angleRes = PI * 2 / res;
 	for(int i=0; i<res * 2; i++){

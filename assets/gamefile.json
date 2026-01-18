@@ -52,18 +52,6 @@
       }
     },
     {
-      "name": "Baseplate", 
-      "class": "Block",
-      "pos": [-8, 0, -8],
-      "scale": [16, 1, 16],
-      "rot": [0, 0, 0],
-      "colour": [255, 192, 203, 255],
-      "collision": {
-        "enabled": true,
-        "type": "block"
-      }
-    },
-    {
       "name": "Red Teapot",
       "class": "Block", 
       "pos": [-4, 2, -4],
@@ -109,6 +97,18 @@
           "mesh": "assets/models/teapot.obj"
         }
       ]
+    },
+    {
+      "name": "Baseplate", 
+      "class": "Block",
+      "pos": [-8, 0, -8],
+      "scale": [16, 1, 16],
+      "rot": [0, 0, 0],
+      "colour": [255, 192, 203, 255],
+      "collision": {
+        "enabled": true,
+        "type": "block"
+      }
     },
     {
       "name": "Beer Drinker",

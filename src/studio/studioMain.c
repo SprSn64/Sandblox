@@ -11,8 +11,10 @@
 #include <math.h>
 
 #include "../math.h"
+#include "../renderer.h"
 
 extern SDL_Window *window;
+extern SDL_Renderer *renderer;
 extern ClientData client;
 
 SDL_Window *studioWindow = NULL;
@@ -25,6 +27,7 @@ extern float timer;
 extern float* defaultMatrix;
 
 SDL_Texture *classIconTex = NULL;
+extern Mesh *spherePrim;
 
 SDL_Point studioWindowScale = {240, 320};
 

@@ -288,6 +288,9 @@ SDL_AppResult SDL_AppIterate(void *appstate){
 	
 	//renderTriList();
 	
+	if(client.studio)
+		drawStudioOverlay();
+		
 	static char fpsText[256] = "FPS: 0";
 	static char rotText[256] = "Camera Rot: 0, 0";
 	static double lastDebugUpdate = 0;
@@ -315,6 +318,7 @@ SDL_AppResult SDL_AppIterate(void *appstate){
 	
 	//drawText(renderer, fontTex, "Diagnostics: Skill issue", 32, 0, 64, 16, 16, 12);
 	//SDL_RenderDebugText(renderer, 0, 0, guiText);
+
 	if(glEnabled)
 		updateOpenGL();
 	
