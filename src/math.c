@@ -112,9 +112,9 @@ float *axisRotMatrix(Uint8 axis, float angle){ //axis 0 = x (yz planes), axis 1 
 	float angSin = SDL_sin(angle);
 	float angCos = SDL_cos(angle);
 	float tempMatrix[16] = {
-		1, 0, 0, 1, 
-		0, 1, 0, 1, 
-		0, 0, 1, 1, 
+		1, 0, 0, 0, 
+		0, 1, 0, 0, 
+		0, 0, 1, 0, 
 		0, 0, 0, 1
 	};
 	
@@ -160,11 +160,12 @@ float *genMatrix(Vector3 pos, Vector3 scale, Vector3 rot){
 	float *output;
 	output = malloc(sizeof(mat4));
 	
-	float *rotated = rotateMatrix(defaultMatrix, rot);
-	float *translated = translateMatrix(scaleMatrix(rotated, scale), pos);
+	float *scaled = scaleMatrix(defaultMatrix, scale);
+	float *rotated = rotateMatrix(scaled, rot);
+	float *translated = translateMatrix(rotated, pos);
 	
 	memcpy(output, translated, sizeof(mat4));
-	free(translated); free(rotated); 
+	free(translated); free(scaled); free(rotated); 
 	return output;
 }
 

@@ -68,15 +68,17 @@ void playerDraw(DataObj* object){
 
 DataType meshClass = (DataType){"Mesh\0", 4, 0, NULL, NULL, NULL};
 
+void blockUpdate(DataObj* object){
+	if (!strcmp(object->name, "Red Teapot"))
+		object->rot = (Vector3){object->rot.x + 0.02, object->rot.y + 0.01, object->rot.z + 0.005};
+}
+
 void blockDraw(DataObj* object){
 	Mesh *itemMesh = cubePrim;
 	DataObj *meshItem = firstChildOfType(object, meshClass);
 	if(meshItem)
 		itemMesh = meshItem->asVoidptr[OBJVAL_MESH];
 	drawMesh(itemMesh, object->transform, ConvertSDLColour(object->colour), true);
-
-	if (!strcmp(object->name, "Red Teapot"))
-		object->rot = (Vector3){object->rot.x + 0.02, object->rot.y + 0.02, object->rot.z};
 }
 
 void homerDraw(DataObj* object){
@@ -85,4 +87,4 @@ void homerDraw(DataObj* object){
 
 DataType playerClass = {"Player\0", 2, 0, playerInit, playerUpdate, playerDraw};
 DataType fuckingBeerdrinkerClass = {"beer drinker\0", 666, 0, NULL, NULL, homerDraw};
-DataType blockClass = {"Block\0", 3, 0, NULL, NULL, blockDraw};
+DataType blockClass = {"Block\0", 3, 0, NULL, blockUpdate, blockDraw};
