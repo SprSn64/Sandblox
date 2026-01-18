@@ -112,18 +112,38 @@ float *axisRotMatrix(Uint8 axis, float angle){ //axis 0 = x (yz planes), axis 1 
 	float angSin = SDL_sin(angle);
 	float angCos = SDL_cos(angle);
 	float tempMatrix[16] = {
+		1, 0, 0, 1, 
+		0, 1, 0, 1, 
+		0, 0, 1, 1, 
+		0, 0, 0, 1
+	};
+	
+	/* = {
 		angCos * axis + !axis, -angSin * (axis == 2) + (axis != 2), angSin * (axis == 1) + (axis != 1), 1,
 		angSin * (axis == 2) + (axis != 2), angCos * (axis != 1) + (axis == 1), -angSin * !axis + axis, 1,
 		-angSin * (axis == 1) + (axis != 1), angSin * !axis + (axis), angCos * (axis != 2) + (axis == 2), 1,
 		0, 0, 0, 1,
-	};
+	};*/
+	
+	switch(axis){
+		case 0: //x
+			tempMatrix[5] = angCos; tempMatrix[6] = -angSin; tempMatrix[9] = angSin; tempMatrix[10] = angCos;
+			break;
+		case 1: //y
+			tempMatrix[0] = angCos; tempMatrix[2] = angSin; tempMatrix[8] = -angSin; tempMatrix[10] = angCos;
+			break;
+		case 2: //z
+			tempMatrix[0] = angCos; tempMatrix[1] = -angSin; tempMatrix[4] = angSin; tempMatrix[5] = angCos;
+			break;
+	}
+	
 	memcpy(output, &tempMatrix, sizeof(mat4));
 	return output;
 } // probably needs fixing
 
 float *rotateMatrix(mat4 matrix, Vector3 angle){
 	float *output;
-	output = calloc(1, sizeof(mat4));
+	output = malloc(sizeof(mat4));
 	
 	float *xMatrix = multMatrix(matrix, axisRotMatrix(0, angle.x));
 	float *yMatrix = multMatrix(xMatrix, axisRotMatrix(1, angle.y));
@@ -134,16 +154,17 @@ float *rotateMatrix(mat4 matrix, Vector3 angle){
 	return output;
 }
 
+extern float* defaultMatrix;
+
 float *genMatrix(Vector3 pos, Vector3 scale, Vector3 rot){
 	float *output;
-	output = calloc(1, sizeof(mat4));
+	output = malloc(sizeof(mat4));
 	
-	float *blankMatrix = newMatrix();
-	float *translated = scaleMatrix(translateMatrix(blankMatrix, pos), scale);
-	float *rotated = rotateMatrix(translated, rot);
+	float *rotated = rotateMatrix(defaultMatrix, rot);
+	float *translated = translateMatrix(scaleMatrix(rotated, scale), pos);
 	
-	memcpy(output, rotated, sizeof(mat4));
-	free(blankMatrix); free(translated); free(rotated); 
+	memcpy(output, translated, sizeof(mat4));
+	free(translated); free(rotated); 
 	return output;
 }
 

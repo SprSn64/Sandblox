@@ -63,9 +63,11 @@ void updateObjects(DataObj* item, int nodeDepth, int *idCount, bool uord){ //uor
 	}else{ 
 		if(!item->classData->draw) goto noDraw;
 		item->transform = newMatrix();
+		scaleMatrix2(item->transform, item->scale);
 		rotateMatrix2(item->transform, item->rot);
-		translateMatrix2(item->transform, (Vector3){item->pos.x, item->pos.y, item->pos.z});
-		scaleMatrix2(item->transform, (Vector3){item->scale.x, item->scale.y, item->scale.z});
+		translateMatrix2(item->transform, item->pos);
+		
+		//item->transform = genMatrix(item->pos, item->scale, item->rot);
 		
 		item->classData->draw(item);
 		if(item == focusObject && client.studio)drawMesh(cubePrim, item->transform, (SDL_FColor){1, 1, 1, fabs(SDL_sin(timer * 2)) * 0.25}, false);

@@ -180,8 +180,7 @@ void drawObjectProperties(DataObj* item, int posY){
 }
 
 void studioCameraUpdate(Camera* cam){
-	//make camera move forwards in all axis, not just x and z
-	float camSpeed = 2;
+	float camSpeed = 18;
 	
 	Vector4 moveVec = {
 		(keyList[KEYBIND_D].down - keyList[KEYBIND_A].down), 
