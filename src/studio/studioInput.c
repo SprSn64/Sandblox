@@ -56,12 +56,14 @@ extern DataType playerClass;
 
 void buttonAddObject(Button* item){
 	(void)item;
-	DataObj *newItem = newObject(focusObject, &blockClass);
-	newItem->pos = (Vector3){floor(focusObject->pos.x) + 1, floor(focusObject->pos.y) + 1, floor(focusObject->pos.z) + 1};
+	DataObj *parentItem = focusObject;
+	if(!focusObject) parentItem = client.gameWorld->headObj;
+	DataObj *newItem = newObject(parentItem, &blockClass);
+	newItem->pos = (Vector3){floor(parentItem->pos.x) + 1, floor(parentItem->pos.y) + 1, floor(parentItem->pos.z) + 1};
 	Vector3 normalizedColour = normalize3((Vector3){SDL_randf(), SDL_randf(), SDL_randf()});
 	newItem->colour = (CharColour){normalizedColour.x * 255, normalizedColour.y * 255, normalizedColour.z * 255, 255, 0, COLOURMODE_RGB};
 	
-	focusObject->studioOpen = true;
+	parentItem->studioOpen = true;
 	//focusObject = newItem;
 }
 
@@ -94,6 +96,7 @@ static void SDLCALL openMapDialogue(void* userdata, const char* const* filelist,
 	client.gameWorld->headObj->child = NULL;
 	//loadMapFromSBMap(*filelist);
 	loadGameFile(*filelist);
+	focusObject = NULL;
 	
 	//DataObj *playerObj = newObject(NULL, &playerClass);
 	//client.gameWorld->currPlayer = playerObj;

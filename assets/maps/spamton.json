@@ -110,6 +110,126 @@
 	    }
 	  },
 	  {
+	    "name": "Cheek",
+	    "class": "Block",
+	    "pos": [-5, 23, -94],
+	    "scale": [1, 1, 1],
+	    "rot": [0, 0, 0], 
+	    "colour": [237, 28, 36, 255],
+	    "collision": {
+	  	"enabled": true,
+		"type": "block"
+	    }
+	  },
+	  {
+	    "name": "Cheek",
+	    "class": "Block",
+	    "pos": [3, 23, -94],
+	    "scale": [2, 1, 1],
+	    "rot": [0, 0, 0], 
+	    "colour": [237, 28, 36, 255],
+	    "collision": {
+	  	"enabled": true,
+		"type": "block"
+	    }
+	  },
+	  {
+	    "name": "Cheek",
+	    "class": "Block",
+	    "pos": [4, 22, -94],
+	    "scale": [1, 1, 1],
+	    "rot": [0, 0, 0], 
+	    "colour": [237, 28, 36, 255],
+	    "collision": {
+	  	"enabled": true,
+		"type": "block"
+	    }
+	  },
+	  {
+	    "name": "Smile",
+	    "class": "Block",
+	    "pos": [3, 22, -94],
+	    "scale": [1, 2, 1],
+	    "rot": [0, 0, 0], 
+	    "colour": [0, 0, 0, 255],
+	    "collision": {
+	  	"enabled": true,
+		"type": "block"
+	    }
+	  },
+	  {
+	    "name": "Smile",
+	    "class": "Block",
+	    "pos": [2, 21, -94],
+	    "scale": [1, 3, 1],
+	    "rot": [0, 0, 0], 
+	    "colour": [0, 0, 0, 255],
+	    "collision": {
+	  	"enabled": true,
+		"type": "block"
+	    }
+	  },
+	  {
+	    "name": "Smile",
+	    "class": "Block",
+	    "pos": [-6, 20, -94],
+	    "scale": [8, 1, 1],
+	    "rot": [0, 0, 0], 
+	    "colour": [0, 0, 0, 255],
+	    "collision": {
+	  	"enabled": true,
+		"type": "block"
+	    }
+	  },
+	  {
+	    "name": "Smile",
+	    "class": "Block",
+	    "pos": [-3, 19, -94],
+	    "scale": [1, 1, 1],
+	    "rot": [0, 0, 0], 
+	    "colour": [0, 0, 0, 255],
+	    "collision": {
+	  	"enabled": true,
+		"type": "block"
+	    }
+	  },
+	  {
+	    "name": "Nose",
+	    "class": "Block",
+	    "pos": [-12, 20, -94],
+	    "scale": [6, 1, 1],
+	    "rot": [0, 0, 0], 
+	    "colour": [156, 156, 156, 255],
+	    "collision": {
+	  	"enabled": true,
+		"type": "block"
+	    }
+	  },
+	  {
+	    "name": "Collar",
+	    "class": "Block",
+	    "pos": [-1, 12, -94],
+	    "scale": [3, 1, 1],
+	    "rot": [0, 0, 0], 
+	    "colour": [255, 255, 255, 255],
+	    "collision": {
+	  	"enabled": true,
+		"type": "block"
+	    }
+	  },
+	  {
+	    "name": "Collar",
+	    "class": "Block",
+	    "pos": [0, 11, -94],
+	    "scale": [1, 1, 1],
+	    "rot": [0, 0, 0], 
+	    "colour": [255, 255, 255, 255],
+	    "collision": {
+	  	"enabled": true,
+		"type": "block"
+	    }
+	  },
+	  {
 	    "name": "Block",
 	    "class": "Block",
 	    "pos": [-1, 1, -94],

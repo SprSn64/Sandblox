@@ -47,7 +47,7 @@ void drawObjectProperties(DataObj* item, int posY);
 
 Button addObjButton = {"+", (SDL_FRect){224, 304, 16, 16}, buttonAddObject, true, true, false, false};
 Button removeObjButton = {"-", (SDL_FRect){206, 304, 16, 16}, buttonRemoveObject, true, true, false, false};
-Button fileButton = {"File", (SDL_FRect){0, 0, 48, 16}, buttonLoadMap, true, true, false, false};
+Button fileButton = {"Load", (SDL_FRect){0, 0, 48, 16}, buttonLoadMap, true, true, false, false};
 Button pauseButton = {"ll", (SDL_FRect){0, 304, 16, 16}, buttonPauseGame, true, true, false, false};
 
 void initStudio(){

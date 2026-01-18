@@ -185,18 +185,12 @@ SDL_AppResult SDL_AppEvent(void *appstate, SDL_Event *event){
 		bool studioFocus = studioWindow && (SDL_GetWindowFlags(studioWindow) & SDL_WINDOW_INPUT_FOCUS);
 		
 		if(mainFocus){
-			float zoomSpeed = 0.1f;
-			float zoomMin = 0.1f;
-			float zoomMax = 5.0f;
+			float zoomSpeed = max(1, sqrt(currentCamera.focusDist));
+			float zoomMin = 0.0f;
+			float zoomMax = 64.0f;
 			
-			if(event->wheel.y > 0){
-				currentCamera.zoom += zoomSpeed;
-			} else if(event->wheel.y < 0){
-				currentCamera.zoom -= zoomSpeed;
-			}
-			
-			if(currentCamera.zoom < zoomMin) currentCamera.zoom = zoomMin;
-			if(currentCamera.zoom > zoomMax) currentCamera.zoom = zoomMax;
+			currentCamera.focusDist += zoomSpeed * (1 - 2 * (event->wheel.y > 0)) * (event->wheel.y != 0);
+			currentCamera.focusDist = min(max(currentCamera.focusDist, zoomMin), zoomMax);
 		}
 		if(studioFocus && between(mousePos.x, objListRect.x, objListRect.x + objListRect.w) && between(mousePos.y, objListRect.y, objListRect.y + objListRect.h)){
 			float scrollSpeed = 1.0f;
@@ -273,7 +267,7 @@ SDL_AppResult SDL_AppIterate(void *appstate){
 	currentCamera.rot.x += (keyList[KEYBIND_UP].down - keyList[KEYBIND_DOWN].down) * 1 * deltaTime;
 	currentCamera.rot.y += (keyList[KEYBIND_LEFT].down - keyList[KEYBIND_RIGHT].down) * 1 * deltaTime;
 	currentCamera.rot = (Vector3){fmod(currentCamera.rot.x, 6.28318), fmod(currentCamera.rot.y, 6.28318), fmod(currentCamera.rot.z, 6.28318)};
-	currentCamera.focusDist = min(max(currentCamera.focusDist + (keyList[KEYBIND_I].down - keyList[KEYBIND_O].down) * 4 * fmax(1, sqrt(currentCamera.focusDist)) * deltaTime, 0), 64);
+	currentCamera.focusDist = min(max(currentCamera.focusDist + (keyList[KEYBIND_I].down - keyList[KEYBIND_O].down) * 4 * max(1, sqrt(currentCamera.focusDist)) * deltaTime, 0), 64);
 	
 	skyboxMatrix = scaleMatrix(defaultMatrix, (Vector3){-16, -16, -16});
 	skyboxMatrix = translateMatrix(skyboxMatrix, (Vector3){8 + currentCamera.pos.x, -8 + currentCamera.pos.y, 8 + currentCamera.pos.z});

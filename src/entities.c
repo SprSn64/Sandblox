@@ -46,15 +46,15 @@ void playerUpdate(DataObj* object){
 	
 	playerVel->x = (playerVel->x + playerMove.x * acc) * friction;
 	playerVel->z = (playerVel->z + playerMove.y * acc) * friction;
-	playerVel->y += -1 + 0.4 * (keyList[KEYBIND_SPACE].down && playerVel->y > 0);
+	playerVel->y += -1 + 0.5 * (keyList[KEYBIND_SPACE].down && playerVel->y > 0);
 	
 	object->pos = (Vector3){object->pos.x + playerVel->x * deltaTime, object->pos.y + playerVel->y * deltaTime, object->pos.z + playerVel->z * deltaTime};
 	
 	if(floorY > -INFINITY && object->pos.y <= floorY){
 		object->pos.y = floorY;
-		playerVel->y = 18 * keyList[KEYBIND_SPACE].pressed;
+		playerVel->y = 20 * keyList[KEYBIND_SPACE].pressed;
 	}
-	if(object->pos.y < -50){
+	if(object->pos.y < -128){
 		object->pos = (Vector3){0, 5, 0};
 		*playerVel = (Vector3){0, 0, 0};
 	}
