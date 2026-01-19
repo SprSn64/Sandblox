@@ -6,7 +6,6 @@
 
 #include "../instances.h"
 #include "../math.h"
-#include "../map.h"
 
 #include <gamefile.h>
 

@@ -107,6 +107,7 @@ typedef struct{
 typedef struct{
 	IPAddress serverIP, clientIP;
 	Uint16 port;
+	char* version;
 	float avgPing;
 	
 	//i dont really know how to do server stuff so
@@ -114,8 +115,10 @@ typedef struct{
 
 typedef struct{
 	bool debug, pause, studio, online;
+	char* version;
 	Uint32 playerID;
 	GameWorld *gameWorld;
+	Server *server;
 } ClientData;
 
 typedef struct{

@@ -14,7 +14,6 @@
 #include "renderer.h"
 #include "math.h"
 #include "loader.h"
-#include "map.h"
 #include "opengl.h"
 #include "gamefile.h"
 #include "server.h"
@@ -97,7 +96,10 @@ float* skyboxMatrix = NULL;
 
 SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[]){
 	(void)appstate;
-	SDL_SetAppMetadata("SandBlox", "0.0", NULL);
+	client.version = "0.0";
+	SDL_SetAppMetadata("SandBlox", client.version, NULL);
+	
+	char *mapToLoad = "assets/gamefile.json";
 	
 	for(int i=0; i < argc; i++){
 		//printf("%s\n", argv[i]); 
@@ -105,12 +107,8 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[]){
 		if(!strcmp("-debug", argv[i]))client.debug = true;
 		if(!strcmp("-studio", argv[i]))client.studio = true;
 		
-		if(!strcmp("-mapfile", argv[i])) {
-			const char *mapName = argv[++i];
-			printf("Opening map %s\n", mapName);
-			loadMapFromSBMap(mapName);
-			mapLoaded = true;
-		}
+		if(!strcmp("-mapfile", argv[i]))
+			mapToLoad = argv[++i];
 		if(!strcmp("-server", argv[i])) printf("cant join server '%s'... not implemented yet sorry\n", argv[i+1]);
 			//connectServer(argv[i++]);
 	}
@@ -120,7 +118,9 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[]){
 		return SDL_APP_FAILURE;
 	}
 
-	if(!SDL_CreateWindowAndRenderer("Sandblox (3D Software)", windowScale.x, windowScale.y, SDL_WINDOW_RESIZABLE, &window, &renderer)){
+	char windowName[64] = "Sandblox vXX.XX (3D Software)";
+	sprintf(windowName, "Sandblox v%s (3D Software)", client.version);
+	if(!SDL_CreateWindowAndRenderer(windowName, windowScale.x, windowScale.y, SDL_WINDOW_RESIZABLE, &window, &renderer)){
 		SDL_Log("Couldn't create window/renderer: %s", SDL_GetError());
 		return SDL_APP_FAILURE;
 	}
@@ -164,7 +164,7 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[]){
 
 	if(mapLoaded) return SDL_APP_CONTINUE;
 	
-	if(loadGameFile("assets/gamefile.json") == 0){
+	if(loadGameFile(mapToLoad) == 0){
 		printf("Successfully loaded gamefile\n");
 		gameFileLoaded = true;
 	} else {
