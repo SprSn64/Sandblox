@@ -125,8 +125,13 @@ void buttonLoadMap(Button* item){
 }
 
 void buttonPauseGame(Button* item){
+	item->imageSrc->x = 16 * client.pause;
 	client.pause = !client.pause;
-	item->imageSrc->x = 16 * !client.pause;
+}
+
+extern Uint32 toolMode;
+void buttonSetTool(Button* item){
+	toolMode = (int)floor(item->imageSrc->x / 16);
 }
 
 void StudioHandleKeys(){

@@ -58,6 +58,11 @@ Button removeObjButton = {"-", (SDL_FRect){206, 304, 16, 16}, buttonRemoveObject
 Button fileButton = {"Load", (SDL_FRect){0, 0, 48, 16}, buttonLoadMap, true, true, false, false, NULL, NULL};
 Button pauseButton = {"ll", (SDL_FRect){0, 304, 16, 16}, buttonPauseGame, true, true, false, false, NULL, &(SDL_FRect){16, 32, 16, 16}};
 
+Button selectWidgetButton = {"\0", (SDL_FRect){0, 16, 16, 16}, buttonSetTool, true, true, false, false, NULL, &(SDL_FRect){0, 16, 16, 16}};
+Button moveWidgetButton = {"\0", (SDL_FRect){0, 32, 16, 16}, buttonSetTool, true, true, false, false, NULL, &(SDL_FRect){16, 16, 16, 16}};
+Button scaleWidgetButton = {"\0", (SDL_FRect){0, 48, 16, 16}, buttonSetTool, true, true, false, false, NULL, &(SDL_FRect){32, 16, 16, 16}};
+Button rotateWidgetButton = {"\0", (SDL_FRect){0, 64, 16, 16}, buttonSetTool, true, true, false, false, NULL, &(SDL_FRect){48, 16, 16, 16}};
+
 void initStudio(){
 	//printf("Studio Initiated\n");
 	if(!client.studio){printf("Studio not enabled!\n"); return;}
@@ -80,6 +85,11 @@ void initStudio(){
 	addObjButton.image = stuButtonTex;
 	removeObjButton.image = stuButtonTex;
 	pauseButton.image = stuButtonTex;
+	
+	selectWidgetButton.image = stuButtonTex;
+	moveWidgetButton.image = stuButtonTex;
+	scaleWidgetButton.image = stuButtonTex;
+	rotateWidgetButton.image = stuButtonTex;
 }
 
 void studioCameraUpdate(Camera* cam);
@@ -116,6 +126,9 @@ void updateStudio(){
 	//make this less shitty soon
 	updateButton(&addObjButton); updateButton(&removeObjButton); updateButton(&fileButton); updateButton(&pauseButton);
 	drawButton(&addObjButton); drawButton(&removeObjButton); drawButton(&fileButton); drawButton(&pauseButton);
+	
+	updateButton(&selectWidgetButton); updateButton(&moveWidgetButton); updateButton(&scaleWidgetButton); updateButton(&rotateWidgetButton);
+	drawButton(&selectWidgetButton); drawButton(&moveWidgetButton); drawButton(&scaleWidgetButton); drawButton(&rotateWidgetButton);
 	
 	drawObjectProperties(focusObject, 240);
 	
