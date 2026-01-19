@@ -41,6 +41,13 @@ bool updateButton(Button* item){
 }
 
 void drawButton(Button* item){
+	if(item->image){
+		SDL_FRect* rect = &(SDL_FRect){0, 0, item->image->w, item->image->h};
+		if(item->imageSrc) rect = item->imageSrc;
+		SDL_RenderTexture(studioRenderer, item->image, rect, &item->rect);
+		return;
+	}
+	
 	SDL_SetRenderDrawColor(studioRenderer, 187, 187, 187, SDL_ALPHA_OPAQUE); 
 	if(item->enabled)SDL_SetRenderDrawColor(studioRenderer, 224 + 31 * item->hover, 224 + 31 * item->hover, 255, SDL_ALPHA_OPAQUE); 
 	SDL_RenderFillRect(studioRenderer, &(SDL_FRect){item->rect.x, item->rect.y, item->rect.w, item->rect.h});
@@ -118,10 +125,8 @@ void buttonLoadMap(Button* item){
 }
 
 void buttonPauseGame(Button* item){
-	item->labelText = "ll";
 	client.pause = !client.pause;
-	if(client.pause)
-		item->labelText = ">";
+	item->imageSrc->x = 16 * !client.pause;
 }
 
 void StudioHandleKeys(){

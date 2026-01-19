@@ -27,6 +27,7 @@ extern float timer;
 extern float* defaultMatrix;
 
 SDL_Texture *classIconTex = NULL;
+SDL_Texture *stuButtonTex = NULL;
 Mesh *rotateGimbleMesh = NULL;
 
 extern Mesh *spherePrim;
@@ -52,10 +53,10 @@ void drawObjectProperties(DataObj* item, int posY);
 
 //TODO: Make button list thing for less ugly looking button implementations
 
-Button addObjButton = {"+", (SDL_FRect){224, 304, 16, 16}, buttonAddObject, true, true, false, false};
-Button removeObjButton = {"-", (SDL_FRect){206, 304, 16, 16}, buttonRemoveObject, true, true, false, false};
-Button fileButton = {"Load", (SDL_FRect){0, 0, 48, 16}, buttonLoadMap, true, true, false, false};
-Button pauseButton = {"ll", (SDL_FRect){0, 304, 16, 16}, buttonPauseGame, true, true, false, false};
+Button addObjButton = {"+", (SDL_FRect){224, 304, 16, 16}, buttonAddObject, true, true, false, false, NULL, &(SDL_FRect){16, 0, 16, 16}};
+Button removeObjButton = {"-", (SDL_FRect){206, 304, 16, 16}, buttonRemoveObject, true, true, false, false, NULL, &(SDL_FRect){32, 0, 16, 16}};
+Button fileButton = {"Load", (SDL_FRect){0, 0, 48, 16}, buttonLoadMap, true, true, false, false, NULL, NULL};
+Button pauseButton = {"ll", (SDL_FRect){0, 304, 16, 16}, buttonPauseGame, true, true, false, false, NULL, &(SDL_FRect){16, 32, 16, 16}};
 
 void initStudio(){
 	//printf("Studio Initiated\n");
@@ -73,7 +74,12 @@ void initStudio(){
 	stuMouseButtons[0].code = SDL_BUTTON_LMASK; stuMouseButtons[1].code = SDL_BUTTON_MMASK; stuMouseButtons[2].code = SDL_BUTTON_RMASK;
 	
 	classIconTex = IMG_LoadTexture(studioRenderer, "assets/textures/classicons.png");
+	stuButtonTex = IMG_LoadTexture(studioRenderer, "assets/textures/studiobuttons.png");
 	rotateGimbleMesh = genTorusMesh(2, 0.1, 5, 24);
+	
+	addObjButton.image = stuButtonTex;
+	removeObjButton.image = stuButtonTex;
+	pauseButton.image = stuButtonTex;
 }
 
 void studioCameraUpdate(Camera* cam);

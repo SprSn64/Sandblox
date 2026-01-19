@@ -9,7 +9,7 @@
 typedef struct NotiPopup{
 	char* text;
 	SDL_Texture* image;
-	SDL_Rect* imageSrc;
+	SDL_FRect* imageSrc;
 	float age, life; //in seconds
 	struct NotiPopup* next;
 	struct NotiPopup* last;

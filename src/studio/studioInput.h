@@ -8,6 +8,8 @@ typedef struct Button{
 	SDL_FRect rect;
 	void (*pressed)(struct Button*);
 	bool enabled, visible, hover, down;
+	SDL_Texture* image;
+	SDL_FRect* imageSrc;
 } Button;
 
 bool updateButton(Button* item);
