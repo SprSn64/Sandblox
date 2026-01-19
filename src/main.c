@@ -62,6 +62,7 @@ Mesh *teapotMesh = NULL;
 Mesh *playerMesh = NULL;
 Mesh *cubeMesh = NULL;
 
+Mesh *planePrim = NULL;
 Mesh *cubePrim = NULL;
 Mesh *spherePrim = NULL;
 
@@ -87,6 +88,7 @@ extern DataObj gameHeader;
 extern DataObj *focusObject;
 
 extern Vector3 lightNormal;
+extern SDL_FColor lightColour;
 
 DataObj* playerObj = NULL;
 
@@ -136,6 +138,7 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[]){
 	playerMesh = loadMeshFromObj("assets/models/oldplayer.obj"); //will be replaced with a better model soon
 	cubeMesh = loadMeshFromObj("assets/models/testcube.obj");
 	
+	//planePrim = genPlaneMesh(1, 1, 1, 1);
 	cubePrim = loadMeshFromObj("assets/models/primitives/cube.obj");
 	spherePrim = loadMeshFromObj("assets/models/primitives/sphere.obj");
 
@@ -305,8 +308,7 @@ SDL_AppResult SDL_AppIterate(void *appstate){
 	drawText(renderer, fontTex, fpsText, 32, 0, 0, 16, 16, 12);
 	drawText(renderer, fontTex, rotText, 32, 0, 16, 16, 16, 12);
 	
-	if(client.debug)drawText(renderer, fontTex, "Debug Enabled", 32, 0, windowScale.y - 16, 16, 16, 12);
-	if(client.studio)drawText(renderer, fontTex, "Studio Enabled", 32, 0, windowScale.y - 32, 16, 16, 12);
+	if(client.pause)drawText(renderer, fontTex, "Game Paused", 32, 0, windowScale.y - 16, 16, 16, 12);
 	
 	if(!gameFileLoaded) {
 		char* noGameText = "NO GAME HERE";

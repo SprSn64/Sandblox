@@ -186,7 +186,8 @@ CharColour ConvertColour(CharColour colour, Uint32 mode){
 	return colour;
 }
 
-
+Mesh* genPlaneMesh(float xScale, float yScale, int xRes, int yRes);
+extern Mesh* planePrim;
 //fix soon
 void drawBillboard(SDL_Texture *texture, SDL_FRect rect, Vector3 pos, SDL_FPoint offset, SDL_FPoint scale){
 	Vector3 projLoc[3] = {projToScreen(viewProj(worldToCamera(pos))), projToScreen(viewProj(worldToCamera((Vector3){pos.x--, pos.y, pos.z}))), projToScreen(viewProj(worldToCamera((Vector3){pos.x++, pos.y, pos.z})))};
@@ -198,6 +199,9 @@ void drawBillboard(SDL_Texture *texture, SDL_FRect rect, Vector3 pos, SDL_FPoint
 		//printf("%f, %f, %f, %f, %f\n", sizeMult, sprPos.x, sprPos.y, sprPos.w, sprPos.h);
 		SDL_RenderTexture(renderer, texture, &rect, &sprPos);
 	}
+	float* transform = genMatrix(pos, (Vector3){scale.x, 1, scale.y}, (Vector3){0, 0, 0});//client.gameWorld->currCamera->rot);
+	drawMesh(planePrim, transform, (SDL_FColor){1, 0, 1, 0}, true);
+	free(transform);
 }
 
 void drawText(SDL_Renderer *renderer, SDL_Texture *texture, char* text, char charOff, short posX, short posY, short width, short height, short kern){
@@ -221,7 +225,7 @@ Mesh* genTorusMesh(float outerRad, float innerRad, int ringRes, int ringCount){
 	
 	float angleRes = PI * 2 / ringRes;
 	float angleRing = PI * 2 / ringCount;
-	for(int i=0; i<ringRes * ringCount; i++){
+	for(int i=0; i<vertCount; i++){
 		float newAngle = angleRing * floor(i / ringRes);
 		newVerts[i].pos = (Vector3){
 			(outerRad + SDL_cos(angleRes * (i % ringRes)) * innerRad) * SDL_cos(newAngle), 
@@ -257,7 +261,7 @@ Mesh* genCylinderMesh(float btmRad, float topRad, float length, int res){
 	MeshFace* newFaces = malloc(sizeof(MeshFace) * faceCount);
 	
 	float angleRes = PI * 2 / res;
-	for(int i=0; i<res * 2; i++){
+	for(int i=0; i<vertCount; i++){
 		float sideRad = lerp(btmRad, topRad, floor(i / res));
 		newVerts[i].pos = (Vector3){
 			SDL_cos(angleRes * (i % res)) * sideRad,
@@ -283,6 +287,36 @@ Mesh* genCylinderMesh(float btmRad, float topRad, float length, int res){
 		int newI = 2 * res + i;
 		newFaces[newI] = (MeshFace){&newVerts[i], &newVerts[0], &newVerts[(i + 1) % res]};
 		newFaces[newI + res - 2] = (MeshFace){&newVerts[res], &newVerts[i + res], &newVerts[res + (i + 1) % res]};
+	}
+	
+	Mesh* newMesh = malloc(sizeof(Mesh));
+	newMesh->vertCount = vertCount; newMesh->verts = newVerts; newMesh->faceCount = faceCount; newMesh->faces = newFaces; 
+	return newMesh;
+}
+
+Mesh* genPlaneMesh(float xScale, float yScale, int xRes, int yRes){
+	if(fabs(xScale) + fabs(yScale) == 0 || abs(xRes) + abs(yRes) == 0) return NULL;
+	
+	Uint32 vertCount = xRes + 1 * yRes + 1;
+	Uint32 faceCount = xRes * yRes * 2;
+	
+	MeshVert* newVerts = malloc(sizeof(MeshVert) * vertCount);
+	MeshFace* newFaces = malloc(sizeof(MeshFace) * faceCount);
+	
+	for(int i=0; i<vertCount; i++){
+		newVerts[i].pos = (Vector3){
+			i % (xRes + 1) * xScale, 
+			0, 
+			i - floor(i / (xRes + 1)) * yScale,
+		};
+		newVerts[i].norm = (Vector3){0, 1, 0};
+	}
+	for(Uint32 i=0; i<xRes * yRes; i++){
+		Uint32 newI = i * 2;
+		MeshVert *quadVerts[4] = {&newVerts[i], &newVerts[i+1], &newVerts[i + xRes], &newVerts[i+1 + xRes]};
+		
+		newFaces[newI] = (MeshFace){quadVerts[0], quadVerts[1], quadVerts[2]};
+		newFaces[(newI + 1)] = (MeshFace){quadVerts[2], quadVerts[1], quadVerts[3]};
 	}
 	
 	Mesh* newMesh = malloc(sizeof(Mesh));

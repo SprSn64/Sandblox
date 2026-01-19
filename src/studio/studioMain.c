@@ -27,6 +27,8 @@ extern float timer;
 extern float* defaultMatrix;
 
 SDL_Texture *classIconTex = NULL;
+Mesh *rotateGimbleMesh = NULL;
+
 extern Mesh *spherePrim;
 
 SDL_Point studioWindowScale = {240, 320};
@@ -34,6 +36,8 @@ SDL_Point studioWindowScale = {240, 320};
 float objListScroll = 0;
 Uint32 objListLength = 0;
 SDL_Rect objListRect = {32, 16, 208, 240};
+
+Uint32 toolMode = STUDIOTOOL_ROTATE;
 
 DataObj *focusObject = NULL;
 extern SDL_MouseButtonFlags mouseState;
@@ -69,6 +73,7 @@ void initStudio(){
 	stuMouseButtons[0].code = SDL_BUTTON_LMASK; stuMouseButtons[1].code = SDL_BUTTON_MMASK; stuMouseButtons[2].code = SDL_BUTTON_RMASK;
 	
 	classIconTex = IMG_LoadTexture(studioRenderer, "assets/textures/classicons.png");
+	rotateGimbleMesh = genTorusMesh(2, 0.1, 3, 32);
 }
 
 void studioCameraUpdate(Camera* cam);

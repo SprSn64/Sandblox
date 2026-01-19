@@ -23,15 +23,12 @@ extern float timer;
 extern float* defaultMatrix;
 extern Mesh *spherePrim;
 
+extern Mesh *rotateGimbleMesh;
+
+extern Uint32 toolMode;
 extern DataObj *focusObject;
 
-void drawGimble(DataObj* item);
-
-void drawStudioOverlay(){
-	drawGimble(focusObject);
-}
-
-void drawGimble(DataObj* item){
+void drawScaleGimble(DataObj* item){
 	if(!item) return;
 	if(!item->classData->draw) return;
 	float* objLoc = translateMatrix(defaultMatrix, (Vector3){item->pos.x, item->pos.y, item->pos.z});
@@ -48,4 +45,28 @@ void drawGimble(DataObj* item){
 	free(xMatrixA); free(xMatrixB); 
 	free(yMatrixA); free(yMatrixB);
 	free(zMatrixA); free(zMatrixB);
+}
+
+void drawRotateGimble(DataObj* item){
+	if(!item) return;
+	if(!item->classData->draw) return;
+	Vector3 centerPos = {item->pos.x + item->scale.x / 2, item->pos.y + item->scale.y / 2, item->pos.z + item->scale.z / 2};
+	
+	float* xMatrix = translateMatrix(rotateMatrix(defaultMatrix, (Vector3){item->rot.x, item->rot.y, PI / 2}), centerPos);
+	float* yMatrix = translateMatrix(rotateMatrix(defaultMatrix, (Vector3){item->rot.x, PI / 2, item->rot.z}), centerPos);
+	float* zMatrix = translateMatrix(rotateMatrix(defaultMatrix, (Vector3){PI / 2, item->rot.y, item->rot.z}), centerPos);
+	
+	drawMesh(rotateGimbleMesh, xMatrix, (SDL_FColor){1, 0, 0, 0.5}, true);
+	drawMesh(rotateGimbleMesh, yMatrix, (SDL_FColor){0, 1, 0, 0.5}, true);
+	drawMesh(rotateGimbleMesh, zMatrix, (SDL_FColor){0, 0, 1, 0.5}, true);
+	
+	free(xMatrix); free(yMatrix); free(zMatrix);
+}
+
+void drawStudioOverlay(){
+	switch(toolMode){
+		case STUDIOTOOL_MOVE:
+		case STUDIOTOOL_SCALE: drawScaleGimble(focusObject); break;
+		case STUDIOTOOL_ROTATE: drawRotateGimble(focusObject); break;
+	}
 }

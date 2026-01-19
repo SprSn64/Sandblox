@@ -24,10 +24,6 @@ extern float timer;
 
 extern Uint32 objListLength;
 
-void mapDraw(DataObj* object){
-	drawMesh(object->objMesh, object->transform, (SDL_FColor){1, 1, 1, 1}, true);
-}
-
 DataObj gameHeader = {
 	.pos = (Vector3){0, 0, 0},
 	.scale = (Vector3){1, 1, 1},
@@ -41,7 +37,7 @@ DataObj gameHeader = {
 		0,
 		NULL,
 		NULL,
-		mapDraw
+		NULL
 	},
 	.asVoidptr = {NULL},
 	.asVec3 = {{0}},

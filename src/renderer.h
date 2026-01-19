@@ -42,5 +42,6 @@ void drawBillboard(SDL_Texture *texture, SDL_FRect rect, Vector3 pos, SDL_FPoint
 
 Mesh* genTorusMesh(float outerRad, float innerRad, int ringRes, int ringCount);
 Mesh* genCylinderMesh(float btmRad, float topRad, float length, int res);
+Mesh* genPlaneMesh(float xScale, float yScale, int xRes, int yRes);
 
 #endif
