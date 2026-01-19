@@ -73,7 +73,7 @@ void initStudio(){
 	stuMouseButtons[0].code = SDL_BUTTON_LMASK; stuMouseButtons[1].code = SDL_BUTTON_MMASK; stuMouseButtons[2].code = SDL_BUTTON_RMASK;
 	
 	classIconTex = IMG_LoadTexture(studioRenderer, "assets/textures/classicons.png");
-	rotateGimbleMesh = genTorusMesh(2, 0.1, 3, 32);
+	rotateGimbleMesh = genTorusMesh(2, 0.1, 5, 24);
 }
 
 void studioCameraUpdate(Camera* cam);

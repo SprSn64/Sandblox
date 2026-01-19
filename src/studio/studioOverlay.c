@@ -50,17 +50,22 @@ void drawScaleGimble(DataObj* item){
 void drawRotateGimble(DataObj* item){
 	if(!item) return;
 	if(!item->classData->draw) return;
-	Vector3 centerPos = {item->pos.x + item->scale.x / 2, item->pos.y + item->scale.y / 2, item->pos.z + item->scale.z / 2};
 	
-	float* xMatrix = translateMatrix(rotateMatrix(defaultMatrix, (Vector3){item->rot.x, item->rot.y, PI / 2}), centerPos);
-	float* yMatrix = translateMatrix(rotateMatrix(defaultMatrix, (Vector3){item->rot.x, PI / 2, item->rot.z}), centerPos);
-	float* zMatrix = translateMatrix(rotateMatrix(defaultMatrix, (Vector3){PI / 2, item->rot.y, item->rot.z}), centerPos);
+	float* xMatrix = rotateMatrix(defaultMatrix, (Vector3){0, 0, HALFPI});
+	float* yMatrix = rotateMatrix(defaultMatrix, (Vector3){0, HALFPI, 0});
+	float* zMatrix = rotateMatrix(defaultMatrix, (Vector3){HALFPI, 0, 0});
 	
-	drawMesh(rotateGimbleMesh, xMatrix, (SDL_FColor){1, 0, 0, 0.5}, true);
-	drawMesh(rotateGimbleMesh, yMatrix, (SDL_FColor){0, 1, 0, 0.5}, true);
-	drawMesh(rotateGimbleMesh, zMatrix, (SDL_FColor){0, 0, 1, 0.5}, true);
+	float* xPosMatrix = translateMatrix(xMatrix, item->pos);
+	float* yPosMatrix = translateMatrix(yMatrix, item->pos);
+	float* zPosMatrix = translateMatrix(zMatrix, item->pos);
 	
 	free(xMatrix); free(yMatrix); free(zMatrix);
+	
+	drawMesh(rotateGimbleMesh, xPosMatrix, (SDL_FColor){1, 0, 0, 0.5}, true);
+	drawMesh(rotateGimbleMesh, yPosMatrix, (SDL_FColor){0, 1, 0, 0.5}, true);
+	drawMesh(rotateGimbleMesh, zPosMatrix, (SDL_FColor){0, 0, 1, 0.5}, true);
+	
+	free(xPosMatrix); free(yPosMatrix); free(zPosMatrix);
 }
 
 void drawStudioOverlay(){
