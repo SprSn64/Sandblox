@@ -9,7 +9,7 @@
 #include <structs.h>
 #include "instances.h"
 #include "renderer.h"
-#include "math.h" //causes "error: storage class specified for parameter..." for some reason
+#include "math.h"
 #include "loader.h"
 #include "entities.h"
 #include "physics.h"
@@ -244,3 +244,60 @@ DataObj** listChildren(DataObj* item){
 }
 
 //not dealing with a descendant list function yet
+
+NotiPopup* popupHead = NULL;
+
+void sendPopup(char* string, SDL_Texture* image, SDL_Rect* rect, float life){
+	NotiPopup* newPopup = malloc(sizeof(NotiPopup));
+	if(!newPopup) return;
+	
+	//printf("%s\n", string);
+	
+	newPopup->text = string;
+	newPopup->image = image; newPopup->imageSrc = rect;
+	newPopup->age = 0; newPopup->life = life;
+	
+	newPopup->last = NULL;
+	if(popupHead)
+		popupHead->last = newPopup;
+	newPopup->next = popupHead;
+	popupHead = newPopup;
+}
+
+extern double deltaTime;
+
+void updatePopup(NotiPopup* item){
+	item->age += deltaTime;
+	if(item->age >= item->life){
+		if(popupHead == item)
+			popupHead = NULL;
+		if(item->last)
+			item->last->next = NULL;
+		free(item);
+	}
+}
+
+extern SDL_Point windowScale;
+
+void renderPopup(NotiPopup* item, Uint32 posX, Uint32 posY){
+	if(item->age >= item->life) return;
+	
+	SDL_SetRenderDrawColor(renderer, 0, 0, 0, 128);
+	SDL_RenderFillRect(renderer, &(SDL_FRect){posX, posY, 160, 64});
+	
+	//drawText(renderer, fontTex, item->text, 32, posX + 2, posY + 2, 16, 16, 12);
+	SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
+	SDL_RenderDebugText(renderer, posX + 2, posY + 2, item->text);
+}
+
+void updatePopups(){
+	Uint32 popupCount = 0;
+	NotiPopup* loopItem = popupHead;
+	while(loopItem){
+		popupCount++;
+		renderPopup(loopItem, windowScale.x - 160, windowScale.y - (popupCount + 1) * 66);
+		updatePopup(loopItem);
+		
+		loopItem = loopItem->next;
+	}
+}

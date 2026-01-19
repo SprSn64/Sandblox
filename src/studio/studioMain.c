@@ -37,7 +37,7 @@ float objListScroll = 0;
 Uint32 objListLength = 0;
 SDL_Rect objListRect = {32, 16, 208, 240};
 
-Uint32 toolMode = STUDIOTOOL_ROTATE;
+Uint32 toolMode = STUDIOTOOL_NONE;
 
 DataObj *focusObject = NULL;
 extern SDL_MouseButtonFlags mouseState;

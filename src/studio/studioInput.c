@@ -78,7 +78,7 @@ void buttonRemoveObject(Button* item){
 }
 
 static const SDL_DialogFileFilter mapLoadFilter[] = {
-    {"JSON Map", "json"}
+    {"JSON Map", "json"}, {"All File Types", "*"}
 };
 
 static void SDLCALL openMapDialogue(void* userdata, const char* const* filelist, int filter){
@@ -92,10 +92,13 @@ static void SDLCALL openMapDialogue(void* userdata, const char* const* filelist,
 	}
         
 	printf("Full path to selected file: '%s'\n", *filelist);
-	client.gameWorld->headObj->child = NULL;
+	
 	//loadMapFromSBMap(*filelist);
-	loadGameFile(*filelist);
+	client.gameWorld->headObj->child = NULL;
 	focusObject = NULL;
+	
+	if(loadGameFile(*filelist))
+		sendPopup("Failed to load gamefile", NULL, NULL, 3);
 	
 	//DataObj *playerObj = newObject(NULL, &playerClass);
 	//client.gameWorld->currPlayer = playerObj;

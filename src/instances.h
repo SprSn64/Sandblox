@@ -6,6 +6,15 @@
 #include <structs.h>
 #include <obj_fields.h>
 
+typedef struct NotiPopup{
+	char* text;
+	SDL_Texture* image;
+	SDL_Rect* imageSrc;
+	float age, life; //in seconds
+	struct NotiPopup* next;
+	struct NotiPopup* last;
+} NotiPopup;
+
 DataObj* newObject(DataObj* parent, DataType* classData);
 void removeObject(DataObj* object);
 bool parentObject(DataObj* child, DataObj* parent);
@@ -15,5 +24,8 @@ void cleanupObjects(DataObj* item);
 
 DataObj* firstChildOfType(DataObj* item, DataType classData);
 DataObj** listChildren(DataObj* item);
+
+void sendPopup(char* string, SDL_Texture* image, SDL_Rect* rect, float life);
+void updatePopups();
 
 #endif

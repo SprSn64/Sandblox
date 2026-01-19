@@ -169,6 +169,7 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[]){
 		gameFileLoaded = true;
 	} else {
 		printf("Failed to load gamefile\n");
+		sendPopup("Failed to load gamefile", NULL, NULL, 3);
 		gameFileLoaded = false;
 	}
 	
@@ -284,15 +285,14 @@ SDL_AppResult SDL_AppIterate(void *appstate){
 	
 	//drawCube((Vector3){(2 + SDL_cos(timer)) / -2, SDL_sin(timer) + 1, (2 + SDL_cos(timer)) / -2}, (Vector3){2 + SDL_cos(timer), SDL_sin(timer) + 1, 2 + SDL_cos(timer)}, (SDL_FColor){0.6, 0.8, 1, 1});
 	//drawCube((Vector3){SDL_sin(timer) * 2 - 0.5, 1, SDL_cos(timer) * 2 - 0.5}, (Vector3){1, 1, 1}, (SDL_FColor){1, 0.2, 0.3, 1});
-	SDL_SetRenderDrawColor(renderer, 255, 255, 255, SDL_ALPHA_OPAQUE);
+	//SDL_SetRenderDrawColor(renderer, 255, 255, 255, SDL_ALPHA_OPAQUE);
 	
 	idCounter = 0;
 	updateObjects(&gameHeader, 0, &idCounter, true);
-	
-	//renderTriList();
-	
 	if(client.studio)
 		drawStudioOverlay();
+	
+	updatePopups();
 		
 	static char fpsText[256] = "FPS: 0";
 	static char rotText[256] = "Camera Rot: 0, 0";
@@ -310,13 +310,13 @@ SDL_AppResult SDL_AppIterate(void *appstate){
 	
 	if(client.pause)drawText(renderer, fontTex, "Game Paused", 32, 0, windowScale.y - 16, 16, 16, 12);
 	
-	if(!gameFileLoaded) {
+	/*if(!gameFileLoaded) {
 		char* noGameText = "NO GAME HERE";
 		int textWidth = strlen(noGameText) * 12;
 		int centerX = (windowScale.x - textWidth) / 2;
 		int centerY = windowScale.y / 2;
 		drawText(renderer, fontTex, noGameText, 32, centerX, centerY, 16, 16, 12);
-	}
+	}*/
 	
 	//drawText(renderer, fontTex, "Diagnostics: Skill issue", 32, 0, 64, 16, 16, 12);
 	//SDL_RenderDebugText(renderer, 0, 0, guiText);
