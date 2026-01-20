@@ -5,17 +5,17 @@
 
 #include <SDL3/SDL.h>
 
-#define PI 3.14159
+#define PI 3.14159265359
 #define HALFPI PI / 2
 #define RAD2DEG 180 / PI
 #define DEG2RAD PI / 180
 
-#define KEYBINDCOUNT 12
 typedef enum gameKeybinds{
 	KEYBIND_W, KEYBIND_S, KEYBIND_A, KEYBIND_D,
 	KEYBIND_SPACE, KEYBIND_SHIFT,
 	KEYBIND_UP, KEYBIND_DOWN, KEYBIND_LEFT, KEYBIND_RIGHT,
 	KEYBIND_I, KEYBIND_O,
+	KEYBIND_MAX
 } gameKeybinds;
 
 #define max(a,b) ((a) > (b) ? (a) : (b))

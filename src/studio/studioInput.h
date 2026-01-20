@@ -3,6 +3,12 @@
 
 #include <SDL3/SDL.h>
 
+typedef enum studioKeybinds{
+	STUDIOKEYBIND_DELETE, 
+	STUDIOKEYBIND_Z, STUDIOKEYBIND_X, STUDIOKEYBIND_C, STUDIOKEYBIND_V, STUDIOKEYBIND_B, STUDIOKEYBIND_N,
+	STUDIOKEYBIND_MAX
+} studioKeybinds;
+
 typedef struct Button{
 	char *labelText;
 	SDL_FRect rect;

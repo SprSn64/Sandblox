@@ -18,7 +18,7 @@ extern ClientData client;
 extern SDL_MouseButtonFlags mouseState;
 extern SDL_FPoint mousePos;
 ButtonMap stuMouseButtons[3];
-ButtonMap stuKeyList[5];
+ButtonMap stuKeyList[STUDIOKEYBIND_MAX];
 
 extern SDL_Window *studioWindow;
 extern SDL_Renderer *studioRenderer;
@@ -135,25 +135,17 @@ void buttonSetTool(Button* item){
 }
 
 void StudioHandleKeys(){
-	const bool* keyState = SDL_GetKeyboardState(NULL);
+	const bool* stuKeyState = SDL_GetKeyboardState(NULL);
 	bool hasFocus = SDL_GetWindowFlags(studioWindow) & SDL_WINDOW_INPUT_FOCUS;
-	
-	for(int i = 0; i < 5; i++){
-		stuKeyList[i].down = keyState[stuKeyList[i].code] && hasFocus;
-	}
-	
-	static bool deletePressed = false;
-	if(hasFocus && keyState[SDL_SCANCODE_DELETE]){
-		if(!deletePressed){
-			deletePressed = true;
-			if(focusObject && focusObject != client.gameWorld->headObj){
-				if(focusObject == client.gameWorld->currPlayer)
-					client.gameWorld->currPlayer = NULL;
-				removeObject(focusObject);
-				focusObject = NULL;
+	for(int i = 0; i < STUDIOKEYBIND_MAX; i++){
+		stuKeyList[i].down = stuKeyState[stuKeyList[i].code] && hasFocus;
+		if(stuKeyList[i].down){
+			if(!stuKeyList[i].pressCheck){
+				stuKeyList[i].pressCheck = true;
+				stuKeyList[i].pressed = true;
+			}else{
+				stuKeyList[i].pressed = false;
 			}
-		}
-	} else {
-		deletePressed = false;
+		}else stuKeyList[i].pressCheck = false;
 	}
 }

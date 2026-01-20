@@ -51,9 +51,13 @@ void drawRotateGimble(DataObj* item){
 	if(!item) return;
 	if(!item->classData->draw) return;
 	
-	float* xMatrix = rotateMatrix(defaultMatrix, (Vector3){0, 0, HALFPI});
-	float* yMatrix = rotateMatrix(defaultMatrix, (Vector3){0, HALFPI, 0});
-	float* zMatrix = rotateMatrix(defaultMatrix, (Vector3){HALFPI, 0, 0});
+	float* rotMatrix = rotateMatrix(defaultMatrix, item->rot);
+	
+	float* xMatrix = rotateMatrix(rotMatrix, (Vector3){0, 0, HALFPI});
+	float* yMatrix = rotateMatrix(rotMatrix, (Vector3){0, HALFPI, 0});
+	float* zMatrix = rotateMatrix(rotMatrix, (Vector3){HALFPI, 0, 0});
+	
+	free(rotMatrix);
 	
 	float* xPosMatrix = translateMatrix(xMatrix, item->pos);
 	float* yPosMatrix = translateMatrix(yMatrix, item->pos);

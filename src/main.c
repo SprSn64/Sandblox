@@ -65,7 +65,7 @@ Mesh *planePrim = NULL;
 Mesh *cubePrim = NULL;
 Mesh *spherePrim = NULL;
 
-ButtonMap keyList[KEYBINDCOUNT];
+ButtonMap keyList[KEYBIND_MAX];
 
 SDL_MouseButtonFlags mouseState;
 SDL_FPoint mousePos;
@@ -337,8 +337,8 @@ void SDL_AppQuit(void *appstate, SDL_AppResult result){
     
 void HandleKeyInput(){
 	const bool* keyState = SDL_GetKeyboardState(NULL);
-	bool hasFocus = (SDL_GetWindowFlags(window) & SDL_WINDOW_INPUT_FOCUS);
-	for(int i = 0; i < KEYBINDCOUNT; i++){
+	bool hasFocus = SDL_GetWindowFlags(window) & SDL_WINDOW_INPUT_FOCUS;
+	for(int i = 0; i < KEYBIND_MAX; i++){
 		keyList[i].down = keyState[keyList[i].code] && hasFocus;
 		if(keyList[i].down){
 			if(!keyList[i].pressCheck){

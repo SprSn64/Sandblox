@@ -11,6 +11,7 @@
 #include <math.h>
 
 #include "../math.h"
+#include "../instances.h"
 #include "../renderer.h"
 
 extern SDL_Window *window;
@@ -45,8 +46,8 @@ extern SDL_MouseButtonFlags mouseState;
 extern SDL_FPoint mousePos;
 extern ButtonMap stuMouseButtons[3];
 
-extern ButtonMap stuKeyList[5];
-extern ButtonMap keyList[KEYBINDCOUNT];
+extern ButtonMap stuKeyList[STUDIOKEYBIND_MAX];
+extern ButtonMap keyList[KEYBIND_MAX];
 
 void drawObjectList(DataObj* item, int nodeDepth, int *idCount);
 void drawObjectProperties(DataObj* item, int posY);
@@ -75,6 +76,12 @@ void initStudio(){
 	SDL_SetWindowParent(studioWindow, window);
 	//SDL_SetWindowMinimumSize(studioWindow, 320, 240);
 	SDL_SetRenderVSync(studioRenderer, 1);
+	
+	stuKeyList[STUDIOKEYBIND_DELETE].code = SDL_SCANCODE_DELETE;
+	//shitty widget keys
+	stuKeyList[STUDIOKEYBIND_Z].code = SDL_SCANCODE_Z; stuKeyList[STUDIOKEYBIND_X].code = SDL_SCANCODE_X;
+	stuKeyList[STUDIOKEYBIND_C].code = SDL_SCANCODE_C; stuKeyList[STUDIOKEYBIND_V].code = SDL_SCANCODE_V;
+	stuKeyList[STUDIOKEYBIND_B].code = SDL_SCANCODE_B; stuKeyList[STUDIOKEYBIND_N].code = SDL_SCANCODE_N;
 	
 	stuMouseButtons[0].code = SDL_BUTTON_LMASK; stuMouseButtons[1].code = SDL_BUTTON_MMASK; stuMouseButtons[2].code = SDL_BUTTON_RMASK;
 	
@@ -118,6 +125,24 @@ void updateStudio(){
 	
 	if(client.pause)
 		studioCameraUpdate(client.gameWorld->currCamera);
+	
+	if(stuKeyList[0].pressed && focusObject && focusObject != client.gameWorld->headObj){
+		if(focusObject == client.gameWorld->currPlayer)
+			client.gameWorld->currPlayer = NULL;
+		removeObject(focusObject);
+		focusObject = NULL;
+	}
+	
+	Vector3 gimbleAddVec = {
+		(float)(stuKeyList[STUDIOKEYBIND_X].pressed - stuKeyList[STUDIOKEYBIND_Z].pressed) / 2, 
+		(float)(stuKeyList[STUDIOKEYBIND_V].pressed - stuKeyList[STUDIOKEYBIND_C].pressed) / 2, 
+		(float)(stuKeyList[STUDIOKEYBIND_N].pressed - stuKeyList[STUDIOKEYBIND_B].pressed) / 2
+	};
+	switch(toolMode){
+		case STUDIOTOOL_MOVE: focusObject->pos = vec3Add(focusObject->pos, gimbleAddVec); break;
+		case STUDIOTOOL_SCALE: focusObject->scale = vec3Add(focusObject->scale, gimbleAddVec); break;
+		case STUDIOTOOL_ROTATE: focusObject->rot = vec3Add(focusObject->rot, (Vector3){gimbleAddVec.x * HALFPI / 3, gimbleAddVec.z * HALFPI / 3, gimbleAddVec.z * HALFPI / 3}); break;
+	}
 	
 	objListLength = 0;
 	int idCounter = 0;

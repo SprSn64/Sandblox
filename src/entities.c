@@ -9,7 +9,7 @@
 
 extern GameWorld game;
 extern double deltaTime;
-extern ButtonMap keyList[KEYBINDCOUNT];
+extern ButtonMap keyList[KEYBIND_MAX];
 extern Mesh *playerMesh;
 extern Mesh *cubePrim;
 extern SDL_Texture *homerTex;
