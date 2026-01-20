@@ -101,19 +101,19 @@ bool draw3DTriangle(Vector3 pointA, Vector3 pointB, Vector3 pointC, SDL_FColor c
 		return 0;
 	}
 	
-	// mixed case: clip vertices behind the near plane to the near plane
-	Vector3 clippedA = aFront ? camA : clipToNearPlane(bFront ? camB : camC, camA, NEAR_PLANE);
-	Vector3 clippedB = bFront ? camB : clipToNearPlane(aFront ? camA : camC, camB, NEAR_PLANE);
-	Vector3 clippedC = cFront ? camC : clipToNearPlane(aFront ? camA : camB, camC, NEAR_PLANE);
-	
 	/*if(inFront == 2){
 		// 2 verts in front, draw as a quad
 		
 		// i have no idea how to make it into a quad with this current setup
-		// we should probably just get opengl working at this point
+		// we should probably just get opengl working at this point	
 		
 		return 0;
 	}*/
+	
+	// mixed case: clip vertices behind the near plane to the near plane
+	Vector3 clippedA = aFront ? camA : clipToNearPlane(bFront ? camB : camC, camA, NEAR_PLANE);
+	Vector3 clippedB = bFront ? camB : clipToNearPlane(aFront ? camA : camC, camB, NEAR_PLANE);
+	Vector3 clippedC = cFront ? camC : clipToNearPlane(aFront ? camA : camB, camC, NEAR_PLANE);
 	
 	Vector3 projLoc[3] = {projToScreen(viewProj(clippedA)), projToScreen(viewProj(clippedB)), projToScreen(viewProj(clippedC))};
 	if(max(projLoc[0].z, max(projLoc[1].z, projLoc[2].z)) < 0){

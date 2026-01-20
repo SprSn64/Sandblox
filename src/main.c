@@ -93,6 +93,7 @@ DataObj* playerObj = NULL;
 
 float* defaultMatrix = NULL;
 float* skyboxMatrix = NULL;
+SDL_FColor skyboxColour = {0.8, 0.82, 1, 1};
 
 SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[]){
 	(void)appstate;
@@ -232,7 +233,7 @@ SDL_AppResult SDL_AppIterate(void *appstate){
 	//windowScaleFactor = min((float)windowScale.x / windowScaleIntent.x, (float)windowScale.y / windowScaleIntent.y);
 	renderScale = min(windowScale.x, windowScale.y);
 	
-	SDL_SetRenderDrawColor(renderer, 20, 22, 24, SDL_ALPHA_OPAQUE);
+	SDL_SetRenderDrawColor(renderer, skyboxColour.r * 255, skyboxColour.g * 255, skyboxColour.b * 255, SDL_ALPHA_OPAQUE);
 	SDL_RenderClear(renderer);
 	
 	updateStudio();
@@ -275,7 +276,7 @@ SDL_AppResult SDL_AppIterate(void *appstate){
 	
 	skyboxMatrix = scaleMatrix(defaultMatrix, (Vector3){-16, -16, -16});
 	skyboxMatrix = translateMatrix(skyboxMatrix, (Vector3){8 + currentCamera.pos.x, -8 + currentCamera.pos.y, 8 + currentCamera.pos.z});
-	drawMesh(cubePrim, skyboxMatrix, (SDL_FColor){0.8, 0.82, 1, 1}, false);
+	drawMesh(cubePrim, skyboxMatrix, skyboxColour, false);
 	free(skyboxMatrix);
 	
 	Vector3 invVec3 = {-1, -1, -1};
