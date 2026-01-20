@@ -247,7 +247,7 @@ DataObj** listChildren(DataObj* item){
 
 NotiPopup* popupHead = NULL;
 
-void sendPopup(char* string, SDL_Texture* image, SDL_Rect* rect, float life){
+void sendPopup(char* string, SDL_Texture* image, SDL_FRect* rect, float life){
 	NotiPopup* newPopup = malloc(sizeof(NotiPopup));
 	if(!newPopup) return;
 	
@@ -283,7 +283,7 @@ void renderPopup(NotiPopup* item, Uint32 posX, Uint32 posY){
 	if(item->age >= item->life) return;
 	
 	SDL_SetRenderDrawColor(renderer, 0, 0, 0, 128);
-	SDL_RenderFillRect(renderer, &(SDL_FRect){posX, posY, 160, 64});
+	SDL_RenderFillRect(renderer, &(SDL_FRect){posX, posY, 224, 64});
 	
 	//drawText(renderer, fontTex, item->text, 32, posX + 2, posY + 2, 16, 16, 12);
 	SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
@@ -295,7 +295,7 @@ void updatePopups(){
 	NotiPopup* loopItem = popupHead;
 	while(loopItem){
 		popupCount++;
-		renderPopup(loopItem, windowScale.x - 160, windowScale.y - (popupCount + 1) * 66);
+		renderPopup(loopItem, windowScale.x - 224, windowScale.y - (popupCount + 1) * 66);
 		updatePopup(loopItem);
 		
 		loopItem = loopItem->next;

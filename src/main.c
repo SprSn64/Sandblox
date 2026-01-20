@@ -332,7 +332,12 @@ SDL_AppResult SDL_AppIterate(void *appstate){
 void SDL_AppQuit(void *appstate, SDL_AppResult result){
 	(void)appstate; (void)result;
 	cleanupObjects(&gameHeader);
-	SDL_DestroyTexture(fontTex);
+	studioCleanup();
+	SDL_DestroyTexture(fontTex); SDL_DestroyTexture(playerTex); SDL_DestroyTexture(homerTex);
+	
+	free(defaultMatrix);
+	free(teapotMesh); free(playerMesh); free(cubeMesh);
+	free(planePrim); free(cubePrim); free(spherePrim);
 }
     
 void HandleKeyInput(){

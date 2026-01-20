@@ -160,6 +160,12 @@ void updateStudio(){
 	SDL_RenderPresent(studioRenderer);
 }
 
+void studioCleanup(){
+	if(!studioActive) return;
+	SDL_DestroyTexture(classIconTex); SDL_DestroyTexture(stuButtonTex); 
+	free(rotateGimbleMesh);
+}
+
 void drawObjectList(DataObj* item, int nodeDepth, int *idCount){	
 	int i = (*idCount)++;
 	float itemYOffset = (i - objListScroll) * 16;

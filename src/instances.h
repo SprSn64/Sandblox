@@ -25,7 +25,7 @@ void cleanupObjects(DataObj* item);
 DataObj* firstChildOfType(DataObj* item, DataType classData);
 DataObj** listChildren(DataObj* item);
 
-void sendPopup(char* string, SDL_Texture* image, SDL_Rect* rect, float life);
+void sendPopup(char* string, SDL_Texture* image, SDL_FRect* rect, float life);
 void updatePopups();
 
 #endif

@@ -3,6 +3,7 @@
 
 void initStudio();
 void updateStudio();
+void studioCleanup();
 
 typedef enum studioToolMode{
 	STUDIOTOOL_NONE,
