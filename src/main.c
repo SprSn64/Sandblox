@@ -278,6 +278,9 @@ SDL_AppResult SDL_AppIterate(void *appstate){
 	drawMesh(cubePrim, skyboxMatrix, (SDL_FColor){0.8, 0.82, 1, 1}, false);
 	free(skyboxMatrix);
 	
+	Vector3 invVec3 = {-1, -1, -1};
+	currentCamera.transform = genMatrix(vec3Mult(currentCamera.pos, invVec3), (Vector3){currentCamera.zoom, currentCamera.zoom, currentCamera.zoom}, vec3Mult(currentCamera.rot, invVec3));
+	
 	int idCounter = 0;
 	objListLength = 0;
 	if(!client.pause)
@@ -293,6 +296,7 @@ SDL_AppResult SDL_AppIterate(void *appstate){
 		drawStudioOverlay();
 	
 	updatePopups();
+	free(currentCamera.transform);
 		
 	static char fpsText[256] = "FPS: 0";
 	static char rotText[256] = "Camera Rot: 0, 0";

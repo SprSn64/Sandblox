@@ -43,6 +43,10 @@ Vector3 vec3Add(Vector3 vecA, Vector3 vecB){
 	return (Vector3){vecA.x + vecB.x, vecA.y + vecB.y, vecA.z + vecB.z};
 }
 
+Vector3 vec3Mult(Vector3 vecA, Vector3 vecB){
+	return (Vector3){vecA.x * vecB.x, vecA.y * vecB.y, vecA.z * vecB.z};
+}
+
 float closest(float input, float snap){return floor(input / snap) * snap;}
 bool between(float input, float min, float max){return(input >= min && input <= max);}
 

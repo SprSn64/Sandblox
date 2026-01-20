@@ -11,6 +11,7 @@
 #include <math.h>
 
 #include "../math.h"
+#include "../instances.h"
 #include "../renderer.h"
 
 extern SDL_Window *window;
@@ -27,6 +28,9 @@ extern Mesh *rotateGimbleMesh;
 
 extern Uint32 toolMode;
 extern DataObj *focusObject;
+
+extern SDL_FPoint mousePos;
+extern ButtonMap stuMouseButtons[];
 
 void drawScaleGimble(DataObj* item){
 	if(!item) return;
@@ -45,6 +49,20 @@ void drawScaleGimble(DataObj* item){
 	free(xMatrixA); free(xMatrixB); 
 	free(yMatrixA); free(yMatrixB);
 	free(zMatrixA); free(zMatrixB);
+}
+
+void translateGimbleUpdate(DataObj* item){
+	//projToScreen(viewProj(worldToCamera(pos)))
+	
+	Vector3 xGimblePos[2] = {vec3Add(item->pos, (Vector3){-1.5, -item->scale.y / 2, item->scale.z / 2}), vec3Add(item->pos, (Vector3){item->scale.x + 1.5, -item->scale.y / 2, item->scale.z / 2})};
+	Vector3 xGimbleProj[2] = {projToScreen(viewProj(worldToCamera(xGimblePos[0]))), projToScreen(viewProj(worldToCamera(xGimblePos[1])))};
+	bool gimbleHover = (between(mousePos.x, xGimbleProj[0].x - 32, xGimbleProj[0].x + 32) && between(mousePos.y, xGimbleProj[0].y - 32, xGimbleProj[0].y + 32)) ||
+			(between(mousePos.x, xGimbleProj[1].x - 32, xGimbleProj[1].x + 32) && between(mousePos.y, xGimbleProj[1].y - 32, xGimbleProj[1].y + 32));
+	
+	if(gimbleHover){
+		item->pos = vec3Add(item->pos, (Vector3){(1 - 2 * ((mousePos.x - (xGimbleProj[0].x + xGimbleProj[1].x) / 2) < 0)) * 0.2, 0, 0});
+		//sendPopup("Gimble Hovered!", NULL, NULL, 1);
+	}
 }
 
 void drawRotateGimble(DataObj* item){
@@ -74,7 +92,7 @@ void drawRotateGimble(DataObj* item){
 
 void drawStudioOverlay(){
 	switch(toolMode){
-		case STUDIOTOOL_MOVE:
+		case STUDIOTOOL_MOVE: translateGimbleUpdate(focusObject); drawScaleGimble(focusObject); break;
 		case STUDIOTOOL_SCALE: drawScaleGimble(focusObject); break;
 		case STUDIOTOOL_ROTATE: drawRotateGimble(focusObject); break;
 	}

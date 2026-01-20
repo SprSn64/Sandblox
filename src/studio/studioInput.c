@@ -138,7 +138,9 @@ void StudioHandleKeys(){
 	const bool* stuKeyState = SDL_GetKeyboardState(NULL);
 	bool hasFocus = SDL_GetWindowFlags(studioWindow) & SDL_WINDOW_INPUT_FOCUS;
 	for(int i = 0; i < STUDIOKEYBIND_MAX; i++){
+		bool oldHeld = stuKeyList[i].down;
 		stuKeyList[i].down = stuKeyState[stuKeyList[i].code] && hasFocus;
+		stuKeyList[i].released = oldHeld && !stuKeyList[i].down;
 		if(stuKeyList[i].down){
 			if(!stuKeyList[i].pressCheck){
 				stuKeyList[i].pressCheck = true;
