@@ -141,7 +141,7 @@ void updateStudio(){
 	switch(toolMode){
 		case STUDIOTOOL_MOVE: focusObject->pos = vec3Add(focusObject->pos, gimbleAddVec); break;
 		case STUDIOTOOL_SCALE: focusObject->scale = vec3Add(focusObject->scale, gimbleAddVec); break;
-		case STUDIOTOOL_ROTATE: focusObject->rot = vec3Add(focusObject->rot, (Vector3){gimbleAddVec.x * HALFPI / 3, gimbleAddVec.z * HALFPI / 3, gimbleAddVec.z * HALFPI / 3}); break;
+		case STUDIOTOOL_ROTATE: focusObject->rot = vec3Add(focusObject->rot, (Vector3){gimbleAddVec.x * HALFPI / 3, gimbleAddVec.y * HALFPI / 3, gimbleAddVec.z * HALFPI / 3}); break;
 	}
 	
 	objListLength = 0;

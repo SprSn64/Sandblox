@@ -8,6 +8,7 @@
 #include "renderer.h"
 #include "loader.h"
 
+extern ClientData client;
 extern GameWorld game;
 extern DataObj gameHeader;
 
@@ -227,6 +228,7 @@ int loadGameFile(const char* filename) {
     
     printf("Found %d objects in JSON\n", cJSON_GetArraySize(objects));
     
+    client.pause = true;
     int objectCount = cJSON_GetArraySize(objects);
     for(int i = 0; i < objectCount; i++) {
         cJSON* obj = cJSON_GetArrayItem(objects, i);
@@ -243,7 +245,7 @@ int loadGameFile(const char* filename) {
     
     cJSON_Delete(json);
     free(content);
-    
+    client.pause = false;
     printf("Successfully loaded game file\n");
     return 0;
 }
