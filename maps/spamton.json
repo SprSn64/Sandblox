@@ -55,6 +55,29 @@
       }
     },
     {
+      "name": "Pipis",
+      "class": "Block", 
+      "pos": [0, 5, -80],
+      "scale": [1, 1.5, 1],
+      "rot": [0, 0, 90],
+      "colour": [0, 191, 255, 255],
+      "collision": {
+        "enabled": true,
+        "type": "block"
+      },
+      "children": [
+        {
+          "name": "Mesh",
+          "class": "Mesh",
+          "pos": [0, 0, 0],
+          "scale": [1, 1, 1], 
+          "rot": [0, 0, 0],
+          "colour": [255, 255, 255, 255],
+          "mesh": "assets/models/primitives/sphere.obj"
+        }
+      ]
+    },
+    {
       "name": "Spamton",
       "class": "Block", 
       "pos": [0, 0, -80],

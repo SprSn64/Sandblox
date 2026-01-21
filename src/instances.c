@@ -215,9 +215,8 @@ DataObj* firstChildOfType(DataObj* item, DataType classData){
 	if(!item->child) return NULL;
 	DataObj *loopItem = item->child;
 	while(loopItem){
-		if(loopItem->classData->id == classData.id){
+		if(loopItem->classData->id == classData.id)
 			return loopItem;
-		}
 		loopItem = loopItem->next;
 	}
 	return NULL;
@@ -269,10 +268,8 @@ extern double deltaTime;
 void updatePopup(NotiPopup* item){
 	item->age += deltaTime;
 	if(item->age >= item->life){
-		if(popupHead == item)
-			popupHead = NULL;
-		if(item->last)
-			item->last->next = NULL;
+		if(popupHead == item) popupHead = NULL;
+		if(item->last) item->last->next = NULL;
 		free(item);
 	}
 }
