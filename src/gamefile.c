@@ -34,7 +34,7 @@ DataType* getClassByName(const char* name) {
     if(!strcmp(name, "Mesh")) return &meshClass;
     if(!strcmp(name, "beer drinker")) return &fuckingBeerdrinkerClass;
     if(!strcmp(name, "Group")) return &groupClass;
-    if(!strcmp(name, "Accessory")) return &fuckingBeerdrinkerClass;
+    if(!strcmp(name, "Accessory")) return &accessoryClass;
     return NULL;
 }
 
@@ -254,4 +254,61 @@ int loadGameFile(const char* filename) {
 
 DataObj* createPlayerFromJSON() {
     return game.currPlayer;
+}
+
+int saveGameFile(const char* filename) {
+    printf("Saving game file: %s\n", filename);
+    
+    /*FILE* file = fopen(filename, "r");
+    if(!file) {
+        printf("Failed to open game file: %s\n", filename);
+        return -1;
+    }
+    
+    fseek(file, 0, SEEK_END);
+    long fileSize = ftell(file);
+    fseek(file, 0, SEEK_SET);
+    
+    char* content = malloc(fileSize + 1);
+    fread(content, 1, fileSize, file);
+    content[fileSize] = '\0';
+    fclose(file);
+    
+    cJSON* json = cJSON_Parse(content);
+    if(!json) {
+        printf("Failed to parse JSON: %s\n", cJSON_GetErrorPtr());
+        free(content);
+        return -1;
+    }
+    
+    cJSON* objects = cJSON_GetObjectItem(json, "objects");
+    if(!objects || !cJSON_IsArray(objects)) {
+        printf("No objects array found in JSON\n");
+        cJSON_Delete(json);
+        free(content);
+        return -1;
+    }
+    
+    printf("Found %d objects in JSON\n", cJSON_GetArraySize(objects));
+    
+    client.pause = true;
+    int objectCount = cJSON_GetArraySize(objects);
+    for(int i = 0; i < objectCount; i++) {
+        cJSON* obj = cJSON_GetArrayItem(objects, i);
+        if(obj) {
+            DataObj* newObj = createObjectFromJSON(obj, NULL);
+            if(newObj) {
+                if(newObj->classData == &playerClass) {
+                    game.currPlayer = newObj;
+                    printf("Set current player to: %s\n", newObj->name ? newObj->name : "unnamed");
+                }
+            }
+        }
+    }
+    
+    cJSON_Delete(json);
+    free(content);
+    client.pause = false;
+    printf("Successfully loaded game file\n");*/
+    return 0;
 }

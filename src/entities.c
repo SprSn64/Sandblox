@@ -1,11 +1,14 @@
+#include <SDL3/SDL.h>
+
+#include <string.h>
+#include <math.h>
+#include <stdlib.h>
+
 #include "entities.h"
 #include "instances.h"
 #include "renderer.h"
 #include "math.h"
 #include "physics.h"
-#include <SDL3/SDL.h>
-#include <string.h>
-#include <math.h>
 
 extern GameWorld game;
 extern double deltaTime;
@@ -13,6 +16,8 @@ extern ButtonMap keyList[KEYBIND_MAX];
 extern Mesh *playerMesh;
 extern Mesh *cubePrim;
 extern SDL_Texture *homerTex;
+
+DataType accessoryClass = {"Accessory\0", 10, 0, NULL, NULL, NULL};
 
 void playerInit(DataObj* object){
 	object->pos.y = 0;
@@ -64,6 +69,14 @@ void playerUpdate(DataObj* object){
 
 void playerDraw(DataObj* object){
 	drawMesh(playerMesh, object->transform, (SDL_FColor){1, 1, 1, 1}, true);
+	
+	DataObj *hatItem = object->child;
+	while(hatItem){
+		if(hatItem->classData->id == accessoryClass.id){
+			drawMesh(hatItem->asVoidptr[OBJVAL_MESH], object->transform, ConvertSDLColour(hatItem->colour), true);
+		}
+		hatItem = hatItem->next;
+	}
 }
 
 DataType meshClass = (DataType){"Mesh\0", 4, 0, NULL, NULL, NULL};

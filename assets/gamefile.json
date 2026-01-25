@@ -49,7 +49,15 @@
       "collision": {
         "enabled": false,
         "type": "none"
-      }
+      },
+	"children": [
+	  {
+	    "name": "Dope ass hat",
+	    "class": "Accessory",
+	    "colour": [255, 51, 76, 255],
+	    "mesh": "assets/models/avatarItems/antennahat.obj"
+	  }
+	]
     },
     {
       "name": "Red Teapot",

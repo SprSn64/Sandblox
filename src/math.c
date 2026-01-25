@@ -92,7 +92,7 @@ float *translateMatrix(mat4 matrix, Vector3 move){
 float *multMatrix(mat4 matrixA, mat4 matrixB){
 	// horrible code warning
 	float *output;
-	output = calloc(1, sizeof(mat4));
+	output = malloc(sizeof(mat4));
 
 	output[0] = matrixA[0] * matrixB[0] + matrixA[4] * matrixB[1] + matrixA[8] * matrixB[2] + matrixA[12] * matrixB[3];
 	output[1] = matrixA[1] * matrixB[0] + matrixA[5] * matrixB[1] + matrixA[9] * matrixB[2] + matrixA[13] * matrixB[3];
@@ -116,7 +116,7 @@ float *multMatrix(mat4 matrixA, mat4 matrixB){
 
 float *axisRotMatrix(Uint8 axis, float angle){ //axis 0 = x (yz planes), axis 1 = y (xz planes), axis 2 = z (xy planes)
 	float *output;
-	output = calloc(1, sizeof(mat4));;
+	output = malloc(sizeof(mat4));;
 	float angSin = SDL_sin(angle);
 	float angCos = SDL_cos(angle);
 	float tempMatrix[16] = {

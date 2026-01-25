@@ -147,4 +147,9 @@ typedef struct{
 	Vector3 outNorm;
 } CollsionReturn;
 
+typedef struct{
+	void *head;
+	Uint32 length;
+} ListData;
+
 #endif
