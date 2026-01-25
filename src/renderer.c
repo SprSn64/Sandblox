@@ -60,7 +60,10 @@ bool drawTriangle(Vector3 pointA, Vector3 pointB, Vector3 pointC, SDL_FColor col
 
 	if(clockwiseAB + clockwiseBC + clockwiseCA >= 0){// && max(pointA.z, max(pointB.z, pointC.z)) >= 0){
 		SDL_RenderGeometry(renderer, NULL, verts, 3, NULL, 0);
-		//SDL_SetRenderDrawColor(renderer, 255, 0, 0, SDL_ALPHA_OPAQUE); SDL_RenderFillRect(renderer, &(SDL_FRect){verts[1].position.x, verts[1].position.y, 2, 2});
+		/*SDL_SetRenderDrawColor(renderer, 0, 0, 0, SDL_ALPHA_OPAQUE); 
+		SDL_RenderFillRect(renderer, &(SDL_FRect){floor(verts[1].position.x), floor(verts[1].position.y), 2, 2});
+		SDL_RenderFillRect(renderer, &(SDL_FRect){floor(verts[2].position.x), floor(verts[2].position.y), 2, 2});
+		SDL_RenderFillRect(renderer, &(SDL_FRect){floor(verts[0].position.x), floor(verts[0].position.y), 2, 2});*/
 		return 0;
 	}
 	return 1;
@@ -186,10 +189,18 @@ CharColour ConvertColour(CharColour colour, Uint32 mode){
 	return colour;
 }
 
-Mesh* genPlaneMesh(float xScale, float yScale, int xRes, int yRes);
 extern Mesh* planePrim;
 //fix soon
 void drawBillboard(SDL_Texture *texture, SDL_FRect rect, Vector3 pos, SDL_FPoint offset, SDL_FPoint scale){
+	Vector3 planeRot = (Vector3){
+		client.gameWorld->currCamera->rot.x + HALFPI,
+		client.gameWorld->currCamera->rot.y,
+		0,
+	};
+	float* transform = genMatrix(pos, (Vector3){scale.x, 1, scale.y}, planeRot);
+	drawMesh(planePrim, transform, (SDL_FColor){1, 0, 1, 1}, true);
+	free(transform);
+	
 	Vector3 projLoc[3] = {projToScreen(viewProj(worldToCamera(pos))), projToScreen(viewProj(worldToCamera((Vector3){pos.x--, pos.y, pos.z}))), projToScreen(viewProj(worldToCamera((Vector3){pos.x++, pos.y, pos.z})))};
 	if(projLoc[0].z < 0){
 		double sizeMult = fabs(-(projLoc[2].x - projLoc[1].x) / scale.x);
@@ -199,9 +210,6 @@ void drawBillboard(SDL_Texture *texture, SDL_FRect rect, Vector3 pos, SDL_FPoint
 		//printf("%f, %f, %f, %f, %f\n", sizeMult, sprPos.x, sprPos.y, sprPos.w, sprPos.h);
 		SDL_RenderTexture(renderer, texture, &rect, &sprPos);
 	}
-	float* transform = genMatrix(pos, (Vector3){scale.x, 1, scale.y}, (Vector3){0, 0, 0});//client.gameWorld->currCamera->rot);
-	drawMesh(planePrim, transform, (SDL_FColor){1, 0, 1, 0}, true);
-	free(transform);
 }
 
 void drawText(SDL_Renderer *renderer, SDL_Texture *texture, char* text, char charOff, short posX, short posY, short width, short height, short kern){
@@ -297,7 +305,7 @@ Mesh* genCylinderMesh(float btmRad, float topRad, float length, int res){
 Mesh* genPlaneMesh(float xScale, float yScale, int xRes, int yRes){
 	if(fabs(xScale) + fabs(yScale) == 0 || abs(xRes) + abs(yRes) == 0) return NULL;
 	
-	Uint32 vertCount = xRes + 1 * yRes + 1;
+	Uint32 vertCount = (xRes + 1) * (yRes + 1);
 	Uint32 faceCount = xRes * yRes * 2;
 	
 	MeshVert* newVerts = malloc(sizeof(MeshVert) * vertCount);
@@ -305,15 +313,15 @@ Mesh* genPlaneMesh(float xScale, float yScale, int xRes, int yRes){
 	
 	for(int i=0; i<vertCount; i++){
 		newVerts[i].pos = (Vector3){
-			i % (xRes + 1) * xScale, 
+			floor(i / (xRes + 1)) * (xScale / xRes), 
 			0, 
-			i - floor(i / (xRes + 1)) * yScale,
+			(i % (xRes + 1)) * (yScale / yRes),
 		};
 		newVerts[i].norm = (Vector3){0, 1, 0};
 	}
-	for(Uint32 i=0; i<xRes * yRes; i++){
+	for(Uint32 i=0; i<faceCount/2; i++){
 		Uint32 newI = i * 2;
-		MeshVert *quadVerts[4] = {&newVerts[i], &newVerts[i+1], &newVerts[i + xRes], &newVerts[i+1 + xRes]};
+		MeshVert *quadVerts[4] = {&newVerts[i], &newVerts[i+1], &newVerts[i + (xRes + 1)], &newVerts[i + 2 + xRes]};
 		
 		newFaces[newI] = (MeshFace){quadVerts[0], quadVerts[1], quadVerts[2]};
 		newFaces[(newI + 1)] = (MeshFace){quadVerts[2], quadVerts[1], quadVerts[3]};

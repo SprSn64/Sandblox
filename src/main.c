@@ -140,7 +140,7 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[]){
 	playerMesh = loadMeshFromObj("assets/models/player.obj"); //will be replaced with a better model soon
 	cubeMesh = loadMeshFromObj("assets/models/testcube.obj");
 	
-	//planePrim = genPlaneMesh(1, 1, 1, 1);
+	planePrim = genPlaneMesh(1, 1, 1, 1);
 	cubePrim = loadMeshFromObj("assets/models/primitives/cube.obj");
 	spherePrim = loadMeshFromObj("assets/models/primitives/sphere.obj");
 
@@ -304,7 +304,7 @@ SDL_AppResult SDL_AppIterate(void *appstate){
 	free(currentCamera.transform);
 		
 	static char fpsText[256] = "FPS: 0";
-	//static char rotText[256] = "Camera Rot: 0, 0";
+	static char rotText[256] = "Camera Rot: 0, 0";
 	static double lastDebugUpdate = 0;
 	if ((Uint32)(timer*100)%64 == 0) {
 		lastFPS = (Uint32)floor(1/deltaTime);
@@ -312,10 +312,10 @@ SDL_AppResult SDL_AppIterate(void *appstate){
 	if(timer - lastDebugUpdate >= 0.5){
 		lastDebugUpdate = timer;
 		sprintf(fpsText, "FPS: %d", lastFPS);
-		//sprintf(rotText, "Camera Rot: %d, %d", (int)(currentCamera.rot.y * RAD2DEG), (int)(currentCamera.rot.x * RAD2DEG));
+		sprintf(rotText, "Camera Rot: %d, %d", (int)(currentCamera.rot.y * RAD2DEG), (int)(currentCamera.rot.x * RAD2DEG));
 	}
 	drawText(renderer, fontTex, fpsText, 32, 0, 0, 16, 16, 12);
-	//drawText(renderer, fontTex, rotText, 32, 0, 16, 16, 16, 12);
+	drawText(renderer, fontTex, rotText, 32, 0, 16, 16, 16, 12);
 	
 	if(client.pause)drawText(renderer, fontTex, "Game Paused", 32, 0, windowScale.y - 16, 16, 16, 12);
 	

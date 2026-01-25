@@ -43,28 +43,35 @@ DataType* getClassByName(const char* name) {
 }
 
 Mesh* createMeshByType(const char* type, cJSON* params) {
-    if(!type || !params) return NULL;
+	if(!type || !params) return NULL;
+	if(cJSON_GetArraySize(params) < 4) return NULL;
+	Mesh* newMesh = NULL;
     
-    if(strcmp(type, "torus") == 0) {
-        if(cJSON_GetArraySize(params) >= 4) {
-            return genTorusMesh(
-                cJSON_GetArrayItem(params, 0)->valuedouble,
-                cJSON_GetArrayItem(params, 1)->valuedouble,
-                cJSON_GetArrayItem(params, 2)->valueint,
-                cJSON_GetArrayItem(params, 3)->valueint
+	if(!strcmp(type, "torus")){
+		newMesh = genTorusMesh(
+			cJSON_GetArrayItem(params, 0)->valuedouble,
+			cJSON_GetArrayItem(params, 1)->valuedouble,
+			cJSON_GetArrayItem(params, 2)->valueint,
+			cJSON_GetArrayItem(params, 3)->valueint
+           );
+	}
+	if(!strcmp(type, "cylinder")) {
+            newMesh = genCylinderMesh(
+			cJSON_GetArrayItem(params, 0)->valuedouble,
+			cJSON_GetArrayItem(params, 1)->valuedouble,
+			cJSON_GetArrayItem(params, 2)->valuedouble,
+			cJSON_GetArrayItem(params, 3)->valueint
             );
-        }
-    } else if(strcmp(type, "cylinder") == 0) {
-        if(cJSON_GetArraySize(params) >= 4) {
-            return genCylinderMesh(
-                cJSON_GetArrayItem(params, 0)->valuedouble,
-                cJSON_GetArrayItem(params, 1)->valuedouble,
-                cJSON_GetArrayItem(params, 2)->valuedouble,
-                cJSON_GetArrayItem(params, 3)->valueint
+	}
+	if(!strcmp(type, "plane")) {
+            newMesh = genPlaneMesh(
+			cJSON_GetArrayItem(params, 0)->valuedouble,
+			cJSON_GetArrayItem(params, 1)->valuedouble,
+			cJSON_GetArrayItem(params, 2)->valueint,
+			cJSON_GetArrayItem(params, 3)->valueint
             );
-        }
-    }
-    return NULL;
+	}
+	return newMesh;
 }
 
 DataObj* createObjectFromJSON(cJSON* obj, DataObj* parent) {

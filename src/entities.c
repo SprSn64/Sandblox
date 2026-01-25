@@ -82,7 +82,7 @@ void playerDraw(DataObj* object){
 DataType meshClass = (DataType){"Mesh\0", 4, 0, NULL, NULL, NULL};
 
 void blockUpdate(DataObj* object){
-	
+	(void)object;
 }
 
 void blockDraw(DataObj* object){
