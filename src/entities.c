@@ -88,3 +88,5 @@ void homerDraw(DataObj* object){
 DataType playerClass = {"Player\0", 2, 0, playerInit, playerUpdate, playerDraw};
 DataType fuckingBeerdrinkerClass = {"beer drinker\0", 666, 0, NULL, NULL, homerDraw};
 DataType blockClass = {"Block\0", 3, 0, NULL, blockUpdate, blockDraw};
+
+DataType groupClass = {"Group\0", 5, 0, NULL, NULL, NULL};

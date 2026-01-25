@@ -190,7 +190,7 @@ void drawObjectList(DataObj* item, int nodeDepth, int *idCount){
 	SDL_SetRenderDrawColor(studioRenderer, 255, 255, 255, 255);
 	SDL_RenderDebugText(studioRenderer, objListRect.x + 18/**/ + (nodeDepth * 24), 20/**/ + itemYOffset, item->name);
 	
-	SDL_FRect iconRect = {(item->classData->id % 16) * 16, (int)floor((float)item->classData->id / 16) * 16 % 16, 16, 16};
+	SDL_FRect iconRect = {(item->classData->id % 16) * 16, (int)floor((float)item->classData->id / 16) * 16 % 256, 16, 16};
 	SDL_FRect iconPos = {objListRect.x + nodeDepth * 24, objListRect.y/**/ + itemYOffset, 16, 16};
 	SDL_RenderTexture(studioRenderer, classIconTex, &iconRect, &iconPos);
 	

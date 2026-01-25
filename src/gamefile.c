@@ -29,10 +29,12 @@ void (*getFunctionByName(const char* name))(DataObj*) {
 }
 
 DataType* getClassByName(const char* name) {
-    if(strcmp(name, "Player") == 0) return &playerClass;
-    if(strcmp(name, "Block") == 0) return &blockClass;
-    if(strcmp(name, "Mesh") == 0) return &meshClass;
-    if(strcmp(name, "beer drinker") == 0) return &fuckingBeerdrinkerClass;
+    if(!strcmp(name, "Player")) return &playerClass;
+    if(!strcmp(name, "Block")) return &blockClass;
+    if(!strcmp(name, "Mesh")) return &meshClass;
+    if(!strcmp(name, "beer drinker")) return &fuckingBeerdrinkerClass;
+    if(!strcmp(name, "Group")) return &groupClass;
+    if(!strcmp(name, "Accessory")) return &fuckingBeerdrinkerClass;
     return NULL;
 }
 

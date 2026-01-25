@@ -82,6 +82,7 @@ extern DataType playerClass;
 extern DataType fuckingBeerdrinkerClass;
 extern DataType blockClass;
 extern DataType meshClass;
+extern DataType groupClass;
 
 extern DataObj gameHeader;
 extern DataObj *focusObject;
@@ -136,7 +137,7 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[]){
 	homerTex = newTexture("assets/textures/homer.png", SDL_SCALEMODE_NEAREST);
 
 	teapotMesh = loadMeshFromObj("assets/models/teapot.obj");
-	playerMesh = loadMeshFromObj("assets/models/oldplayer.obj"); //will be replaced with a better model soon
+	playerMesh = loadMeshFromObj("assets/models/player.obj"); //will be replaced with a better model soon
 	cubeMesh = loadMeshFromObj("assets/models/testcube.obj");
 	
 	//planePrim = genPlaneMesh(1, 1, 1, 1);
@@ -236,8 +237,6 @@ SDL_AppResult SDL_AppIterate(void *appstate){
 	SDL_SetRenderDrawColor(renderer, skyboxColour.r * 255, skyboxColour.g * 255, skyboxColour.b * 255, SDL_ALPHA_OPAQUE);
 	SDL_RenderClear(renderer);
 	
-	updateStudio();
-	
 	/*for(int i = 0; i < playerMesh->vertCount; i++){
 		playerMesh->verts[i].pos.x += (1 - SDL_randf() * 2) * 0.002;
 		playerMesh->verts[i].pos.y += (1 - SDL_randf() * 2) * 0.002;
@@ -282,8 +281,7 @@ SDL_AppResult SDL_AppIterate(void *appstate){
 	Vector3 invVec3 = {-1, -1, -1};
 	currentCamera.transform = genMatrix(vec3Mult(currentCamera.pos, invVec3), (Vector3){currentCamera.zoom, currentCamera.zoom, currentCamera.zoom}, vec3Mult(currentCamera.rot, invVec3));
 	
-	if(client.studio)
-		updateStudioGimbles();
+	updateStudioGimbles();
 	
 	int idCounter = 0;
 	objListLength = 0;
@@ -296,6 +294,8 @@ SDL_AppResult SDL_AppIterate(void *appstate){
 	
 	idCounter = 0;
 	updateObjects(&gameHeader, 0, &idCounter, true);
+	
+	updateStudio();
 	
 	if(client.studio)
 		drawStudioOverlay();

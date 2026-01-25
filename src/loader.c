@@ -14,7 +14,6 @@ typedef struct {
     int vn;
 } FaceIndex;
 
-
 static void objCount(const char *path, Uint32 *out_v, Uint32 *out_vt, Uint32 *out_vn, Uint32 *out_faces) {
     FILE *f = fopen(path, "r");
     if (!f) return;

@@ -13,5 +13,6 @@ extern DataType playerClass;
 extern DataType blockClass;
 extern DataType meshClass;
 extern DataType fuckingBeerdrinkerClass;
+extern DataType groupClass;
 
 #endif

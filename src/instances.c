@@ -47,9 +47,6 @@ DataObj gameHeader = {
 	.studioOpen = true,
 };
 
-#define OBJLIST_HUD_POS_X 0
-#define OBJLIST_HUD_POS_Y 32
-
 extern Mesh *cubePrim;
 void updateObjects(DataObj* item, int nodeDepth, int *idCount, bool uord){ //uord = update or draw
 	//int i = (*idCount)++;
