@@ -53,6 +53,10 @@ void updateObjects(DataObj* item, int nodeDepth, int *idCount, bool uord){ //uor
 	if (!uord){
 		item->rot = (Vector3){fmod(item->rot.x, 6.28318), fmod(item->rot.y, 6.28318), fmod(item->rot.z, 6.28318)};
 		if(item->classData->update)item->classData->update(item);
+		if(item->asVoidptr[OBJVAL_SCRIPT]){
+			//sendPopup("fuck", NULL, NULL, 0.2);
+			//(&item->asVoidptr[OBJVAL_SCRIPT])(item); //doesnt work
+		}
 	}else{ 
 		if(!item->classData->draw) goto noDraw;
 		/*item->transform = newMatrix();

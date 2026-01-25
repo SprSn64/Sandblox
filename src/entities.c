@@ -82,8 +82,7 @@ void playerDraw(DataObj* object){
 DataType meshClass = (DataType){"Mesh\0", 4, 0, NULL, NULL, NULL};
 
 void blockUpdate(DataObj* object){
-	if (!strcmp(object->name, "Red Teapot"))
-		object->rot = (Vector3){object->rot.x + 0.02, object->rot.y + 0.01, object->rot.z + 0.005};
+	
 }
 
 void blockDraw(DataObj* object){
@@ -103,3 +102,7 @@ DataType fuckingBeerdrinkerClass = {"beer drinker\0", 666, 0, NULL, NULL, homerD
 DataType blockClass = {"Block\0", 3, 0, NULL, blockUpdate, blockDraw};
 
 DataType groupClass = {"Group\0", 5, 0, NULL, NULL, NULL};
+
+void objSpinFunc(DataObj* object){
+	object->rot = (Vector3){object->rot.x + 0.02, object->rot.y + 0.01, object->rot.z + 0.005};
+}

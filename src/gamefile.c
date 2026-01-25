@@ -18,13 +18,17 @@ extern void playerDraw(DataObj* object);
 extern void blockDraw(DataObj* object);
 extern void homerDraw(DataObj* object);
 
+extern void objSpinFunc(DataObj* object);
+
 void (*getFunctionByName(const char* name))(DataObj*) {
     if(!name) return NULL;
-    if(strcmp(name, "playerInit") == 0) return playerInit;
-    if(strcmp(name, "playerUpdate") == 0) return playerUpdate;
-    if(strcmp(name, "playerDraw") == 0) return playerDraw;
-    if(strcmp(name, "blockDraw") == 0) return blockDraw;
-    if(strcmp(name, "homerDraw") == 0) return homerDraw;
+    if(!strcmp(name, "playerInit")) return playerInit;
+    if(!strcmp(name, "playerUpdate")) return playerUpdate;
+    if(!strcmp(name, "playerDraw")) return playerDraw;
+    if(!strcmp(name, "blockDraw")) return blockDraw;
+    if(!strcmp(name, "homerDraw")) return homerDraw;
+    
+    if(!strcmp(name, "objSpinFunc")) return objSpinFunc;
     return NULL;
 }
 
@@ -77,6 +81,7 @@ DataObj* createObjectFromJSON(cJSON* obj, DataObj* parent) {
     cJSON* meshType = cJSON_GetObjectItem(obj, "meshType");
     cJSON* meshParams = cJSON_GetObjectItem(obj, "meshParams");
     cJSON* collision = cJSON_GetObjectItem(obj, "collision");
+    cJSON* scriptFile = cJSON_GetObjectItem(obj, "script");
     
     if(!className || !cJSON_IsString(className)) return NULL;
     
@@ -176,6 +181,10 @@ DataObj* createObjectFromJSON(cJSON* obj, DataObj* parent) {
             newObj->asInt[0] = 0; // disabled
             newObj->asInt[1] = 0; // no collision
         }
+    }
+    
+    if(scriptFile && cJSON_IsString(scriptFile)) {
+	  newObj->asVoidptr[OBJVAL_SCRIPT] = getFunctionByName(scriptFile->valuestring);
     }
     
     if(children && cJSON_IsArray(children)) {
