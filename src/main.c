@@ -58,6 +58,7 @@ SDL_Texture *playerTex = NULL;
 SDL_Texture *homerTex = NULL;
 
 SDL_Texture *cowTex = NULL;
+SDL_Texture *skyTex = NULL;
 
 Mesh *playerMesh = NULL;
 Mesh *skyboxMesh = NULL;
@@ -137,9 +138,10 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[]){
 	playerTex = newTexture("assets/textures/playertemp.png", SDL_SCALEMODE_NEAREST);
 	homerTex = newTexture("assets/textures/homer.png", SDL_SCALEMODE_NEAREST);
 	cowTex = newTexture("assets/textures/cows.png", SDL_SCALEMODE_LINEAR);
+	skyTex = newTexture("assets/textures/skybox.png", SDL_SCALEMODE_LINEAR);
 
 	playerMesh = loadMeshFromObj("assets/models/player.obj"); //will be replaced with a better model soon
-	skyboxMesh = loadMeshFromObj("assets/models/skybox.obj");
+	skyboxMesh = loadMeshFromObj("assets/models/advskybox.obj");
 	
 	planePrim = genPlaneMesh(1, 1, 1, 1);
 	cubePrim = loadMeshFromObj("assets/models/primitives/cube.obj");
@@ -275,7 +277,7 @@ SDL_AppResult SDL_AppIterate(void *appstate){
 	currentCamera.focusDist = min(max(currentCamera.focusDist + (keyList[KEYBIND_I].down - keyList[KEYBIND_O].down) * 4 * max(1, sqrt(currentCamera.focusDist)) * deltaTime, 0), 64);
 	
 	skyboxMatrix = translateMatrix(defaultMatrix, currentCamera.pos);
-	drawMesh(skyboxMesh, skyboxMatrix, (SDL_FColor){1,1,1,1}, cowTex, false);
+	drawMesh(skyboxMesh, skyboxMatrix, (SDL_FColor){1,1,1,1}, skyTex, false);
 	free(skyboxMatrix);
 	
 	Vector3 invVec3 = {-1, -1, -1};
@@ -342,7 +344,7 @@ void SDL_AppQuit(void *appstate, SDL_AppResult result){
 	(void)appstate; (void)result;
 	cleanupObjects(&gameHeader);
 	studioCleanup();
-	SDL_DestroyTexture(fontTex); SDL_DestroyTexture(playerTex); SDL_DestroyTexture(homerTex); SDL_DestroyTexture(cowTex);
+	SDL_DestroyTexture(fontTex); SDL_DestroyTexture(playerTex); SDL_DestroyTexture(homerTex); SDL_DestroyTexture(cowTex); SDL_DestroyTexture(skyTex);
 	
 	free(defaultMatrix);
 	free(playerMesh); free(skyboxMesh);
