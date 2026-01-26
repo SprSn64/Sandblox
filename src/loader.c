@@ -104,6 +104,7 @@ Mesh *loadMeshFromObj(const char *path) {
             sscanf(line, "vt %f %f",
                    &uvs[vti].x,
                    &uvs[vti].y);
+		uvs[vti].y = 1 - uvs[vti].y;
             vti++;
         }
         else if (line[0] == 'v' && line[1] == 'n') {

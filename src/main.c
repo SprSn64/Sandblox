@@ -59,9 +59,8 @@ SDL_Texture *homerTex = NULL;
 
 SDL_Texture *cowTex = NULL;
 
-Mesh *teapotMesh = NULL;
 Mesh *playerMesh = NULL;
-Mesh *cubeMesh = NULL;
+Mesh *skyboxMesh = NULL;
 
 Mesh *planePrim = NULL;
 Mesh *cubePrim = NULL;
@@ -139,9 +138,8 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[]){
 	homerTex = newTexture("assets/textures/homer.png", SDL_SCALEMODE_NEAREST);
 	cowTex = newTexture("assets/textures/cows.png", SDL_SCALEMODE_LINEAR);
 
-	teapotMesh = loadMeshFromObj("assets/models/teapot.obj");
 	playerMesh = loadMeshFromObj("assets/models/player.obj"); //will be replaced with a better model soon
-	cubeMesh = loadMeshFromObj("assets/models/testcube.obj");
+	skyboxMesh = loadMeshFromObj("assets/models/skybox.obj");
 	
 	planePrim = genPlaneMesh(1, 1, 1, 1);
 	cubePrim = loadMeshFromObj("assets/models/primitives/cube.obj");
@@ -276,9 +274,8 @@ SDL_AppResult SDL_AppIterate(void *appstate){
 	currentCamera.rot = (Vector3){fmod(currentCamera.rot.x, 6.28318), fmod(currentCamera.rot.y, 6.28318), fmod(currentCamera.rot.z, 6.28318)};
 	currentCamera.focusDist = min(max(currentCamera.focusDist + (keyList[KEYBIND_I].down - keyList[KEYBIND_O].down) * 4 * max(1, sqrt(currentCamera.focusDist)) * deltaTime, 0), 64);
 	
-	skyboxMatrix = scaleMatrix(defaultMatrix, (Vector3){-16, -16, -16});
-	skyboxMatrix = translateMatrix(skyboxMatrix, (Vector3){8 + currentCamera.pos.x, -8 + currentCamera.pos.y, 8 + currentCamera.pos.z});
-	drawMesh(cubePrim, skyboxMatrix, skyboxColour, cowTex, false);
+	skyboxMatrix = translateMatrix(defaultMatrix, currentCamera.pos);
+	drawMesh(skyboxMesh, skyboxMatrix, (SDL_FColor){1,1,1,1}, cowTex, false);
 	free(skyboxMatrix);
 	
 	Vector3 invVec3 = {-1, -1, -1};
@@ -348,7 +345,7 @@ void SDL_AppQuit(void *appstate, SDL_AppResult result){
 	SDL_DestroyTexture(fontTex); SDL_DestroyTexture(playerTex); SDL_DestroyTexture(homerTex); SDL_DestroyTexture(cowTex);
 	
 	free(defaultMatrix);
-	free(teapotMesh); free(playerMesh); free(cubeMesh);
+	free(playerMesh); free(skyboxMesh);
 	free(planePrim); free(cubePrim); free(spherePrim);
 }
     
