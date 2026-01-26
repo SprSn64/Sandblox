@@ -27,6 +27,7 @@ void playerUpdate(DataObj* object){
 	if(!game.currPlayer || object != game.currPlayer) return;
 	
 	Vector3 *playerVel = &object->objVel;
+	//Vector3 gravity = {-object->pos.x, object->pos.y, -object->pos.z};
 	
 	SDL_FPoint playerMove = {0, 0};
 	
@@ -68,12 +69,12 @@ void playerUpdate(DataObj* object){
 }
 
 void playerDraw(DataObj* object){
-	drawMesh(playerMesh, object->transform, (SDL_FColor){1, 1, 1, 1}, true);
+	drawMesh(playerMesh, object->transform, (SDL_FColor){1, 1, 1, 1}, NULL, true);
 	
 	DataObj *hatItem = object->child;
 	while(hatItem){
 		if(hatItem->classData->id == accessoryClass.id){
-			drawMesh(hatItem->asVoidptr[OBJVAL_MESH], object->transform, ConvertSDLColour(hatItem->colour), true);
+			drawMesh(hatItem->asVoidptr[OBJVAL_MESH], object->transform, ConvertSDLColour(hatItem->colour), NULL, true);
 		}
 		hatItem = hatItem->next;
 	}
@@ -90,7 +91,7 @@ void blockDraw(DataObj* object){
 	DataObj *meshItem = firstChildOfType(object, meshClass);
 	if(meshItem)
 		itemMesh = meshItem->asVoidptr[OBJVAL_MESH];
-	drawMesh(itemMesh, object->transform, ConvertSDLColour(object->colour), true);
+	drawMesh(itemMesh, object->transform, ConvertSDLColour(object->colour), NULL, true);
 }
 
 void homerDraw(DataObj* object){

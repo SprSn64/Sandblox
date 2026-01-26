@@ -49,17 +49,24 @@ Vector3 projToScreen(Vector3 pos){
 	return (Vector3){-pos.x * client.gameWorld->currCamera->zoom * renderScale + windowScale.x / 2, pos.y * client.gameWorld->currCamera->zoom * renderScale + windowScale.y / 2, pos.z};
 }
 
-bool drawTriangle(Vector3 pointA, Vector3 pointB, Vector3 pointC, SDL_FColor colour){
+extern SDL_Texture* cowTex;
+
+bool drawTriangle(Vector3 pointA, Vector3 pointB, Vector3 pointC, SDL_FColor colour, SDL_Texture* image){
 	SDL_Vertex verts[3];
 	verts[0].position = (SDL_FPoint){pointA.x, pointA.y}; verts[0].color = colour;
 	verts[1].position = (SDL_FPoint){pointB.x, pointB.y}; verts[1].color = colour;
 	verts[2].position = (SDL_FPoint){pointC.x, pointC.y}; verts[2].color = colour;
+	
+	verts[0].tex_coord = (SDL_FPoint){0, 0};
+	verts[1].tex_coord = (SDL_FPoint){0, 1};
+	verts[2].tex_coord = (SDL_FPoint){1, 0};
+	
 	float clockwiseAB = (verts[1].position.x - verts[0].position.x) * (verts[1].position.y + verts[0].position.y);
 	float clockwiseBC = (verts[2].position.x - verts[1].position.x) * (verts[2].position.y + verts[1].position.y);
 	float clockwiseCA = (verts[0].position.x - verts[2].position.x) * (verts[0].position.y + verts[2].position.y);
 
 	if(clockwiseAB + clockwiseBC + clockwiseCA >= 0){// && max(pointA.z, max(pointB.z, pointC.z)) >= 0){
-		SDL_RenderGeometry(renderer, NULL, verts, 3, NULL, 0);
+		SDL_RenderGeometry(renderer, cowTex, verts, 3, NULL, 0);
 		/*SDL_SetRenderDrawColor(renderer, 0, 0, 0, SDL_ALPHA_OPAQUE); 
 		SDL_RenderFillRect(renderer, &(SDL_FRect){floor(verts[1].position.x), floor(verts[1].position.y), 2, 2});
 		SDL_RenderFillRect(renderer, &(SDL_FRect){floor(verts[2].position.x), floor(verts[2].position.y), 2, 2});
@@ -79,7 +86,7 @@ Vector3 clipToNearPlane(Vector3 front, Vector3 back, float nearZ){
 	};
 }
 
-bool draw3DTriangle(Vector3 pointA, Vector3 pointB, Vector3 pointC, SDL_FColor colour){
+bool draw3DTriangle(Vector3 pointA, Vector3 pointB, Vector3 pointC, SDL_FColor colour, SDL_Texture* image){
 	Vector3 camA = worldToCamera(pointA);
 	Vector3 camB = worldToCamera(pointB);
 	Vector3 camC = worldToCamera(pointC);
@@ -99,7 +106,7 @@ bool draw3DTriangle(Vector3 pointA, Vector3 pointB, Vector3 pointC, SDL_FColor c
 		// all in front, draw normally
 		Vector3 projLoc[3] = {projToScreen(viewProj(camA)), projToScreen(viewProj(camB)), projToScreen(viewProj(camC))};
 		if(max(projLoc[0].z, max(projLoc[1].z, projLoc[2].z)) < 0){
-			drawTriangle(projLoc[0], projLoc[1], projLoc[2], colour);
+			drawTriangle(projLoc[0], projLoc[1], projLoc[2], colour, image);
 		}
 		return 0;
 	}
@@ -120,12 +127,12 @@ bool draw3DTriangle(Vector3 pointA, Vector3 pointB, Vector3 pointC, SDL_FColor c
 	
 	Vector3 projLoc[3] = {projToScreen(viewProj(clippedA)), projToScreen(viewProj(clippedB)), projToScreen(viewProj(clippedC))};
 	if(max(projLoc[0].z, max(projLoc[1].z, projLoc[2].z)) < 0){
-		drawTriangle(projLoc[0], projLoc[1], projLoc[2], colour);
+		drawTriangle(projLoc[0], projLoc[1], projLoc[2], colour, image);
 	}
 	return 0;
 }
 
-void drawMesh(Mesh* mesh, mat4 transform, SDL_FColor colour, bool shaded){
+void drawMesh(Mesh* mesh, mat4 transform, SDL_FColor colour, SDL_Texture* texture, bool shaded){
 	if(!mesh || !transform) return;
 	
 	Vector4 pointCalcs[3];
@@ -166,7 +173,7 @@ void drawMesh(Mesh* mesh, mat4 transform, SDL_FColor colour, bool shaded){
 		
 		unshadedSkip:
 		
-		draw3DTriangle((Vector3){pointCalcs[0].x, pointCalcs[0].y, pointCalcs[0].z}, (Vector3){pointCalcs[1].x, pointCalcs[1].y, pointCalcs[1].z}, (Vector3){pointCalcs[2].x, pointCalcs[2].y, pointCalcs[2].z}, shadedColour);
+		draw3DTriangle((Vector3){pointCalcs[0].x, pointCalcs[0].y, pointCalcs[0].z}, (Vector3){pointCalcs[1].x, pointCalcs[1].y, pointCalcs[1].z}, (Vector3){pointCalcs[2].x, pointCalcs[2].y, pointCalcs[2].z}, shadedColour, texture);
 	}
 }
 
@@ -198,7 +205,7 @@ void drawBillboard(SDL_Texture *texture, SDL_FRect rect, Vector3 pos, SDL_FPoint
 		0,
 	};
 	float* transform = genMatrix(pos, (Vector3){scale.x, 1, scale.y}, planeRot);
-	drawMesh(planePrim, transform, (SDL_FColor){1, 0, 1, 1}, true);
+	drawMesh(planePrim, transform, (SDL_FColor){1, 0, 1, 1}, NULL, true);
 	free(transform);
 	
 	Vector3 projLoc[3] = {projToScreen(viewProj(worldToCamera(pos))), projToScreen(viewProj(worldToCamera((Vector3){pos.x--, pos.y, pos.z}))), projToScreen(viewProj(worldToCamera((Vector3){pos.x++, pos.y, pos.z})))};

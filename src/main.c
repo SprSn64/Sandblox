@@ -57,6 +57,8 @@ SDL_Texture *fontTex = NULL;
 SDL_Texture *playerTex = NULL;
 SDL_Texture *homerTex = NULL;
 
+SDL_Texture *cowTex = NULL;
+
 Mesh *teapotMesh = NULL;
 Mesh *playerMesh = NULL;
 Mesh *cubeMesh = NULL;
@@ -135,6 +137,7 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[]){
 	fontTex = newTexture("assets/textures/font.png", SDL_SCALEMODE_NEAREST);
 	playerTex = newTexture("assets/textures/playertemp.png", SDL_SCALEMODE_NEAREST);
 	homerTex = newTexture("assets/textures/homer.png", SDL_SCALEMODE_NEAREST);
+	cowTex = newTexture("assets/textures/cows.png", SDL_SCALEMODE_LINEAR);
 
 	teapotMesh = loadMeshFromObj("assets/models/teapot.obj");
 	playerMesh = loadMeshFromObj("assets/models/player.obj"); //will be replaced with a better model soon
@@ -275,7 +278,7 @@ SDL_AppResult SDL_AppIterate(void *appstate){
 	
 	skyboxMatrix = scaleMatrix(defaultMatrix, (Vector3){-16, -16, -16});
 	skyboxMatrix = translateMatrix(skyboxMatrix, (Vector3){8 + currentCamera.pos.x, -8 + currentCamera.pos.y, 8 + currentCamera.pos.z});
-	drawMesh(cubePrim, skyboxMatrix, skyboxColour, false);
+	drawMesh(cubePrim, skyboxMatrix, skyboxColour, NULL, false);
 	free(skyboxMatrix);
 	
 	Vector3 invVec3 = {-1, -1, -1};
@@ -342,7 +345,7 @@ void SDL_AppQuit(void *appstate, SDL_AppResult result){
 	(void)appstate; (void)result;
 	cleanupObjects(&gameHeader);
 	studioCleanup();
-	SDL_DestroyTexture(fontTex); SDL_DestroyTexture(playerTex); SDL_DestroyTexture(homerTex);
+	SDL_DestroyTexture(fontTex); SDL_DestroyTexture(playerTex); SDL_DestroyTexture(homerTex); SDL_DestroyTexture(cowTex);
 	
 	free(defaultMatrix);
 	free(teapotMesh); free(playerMesh); free(cubeMesh);
