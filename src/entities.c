@@ -88,10 +88,13 @@ void blockUpdate(DataObj* object){
 
 void blockDraw(DataObj* object){
 	Mesh *itemMesh = cubePrim;
+	SDL_Texture *itemTex = NULL;
 	DataObj *meshItem = firstChildOfType(object, meshClass);
-	if(meshItem)
+	if(meshItem){
 		itemMesh = meshItem->asVoidptr[OBJVAL_MESH];
-	drawMesh(itemMesh, object->transform, ConvertSDLColour(object->colour), NULL, true);
+		itemTex = meshItem->asVoidptr[OBJVAL_TEXTURE];
+	}
+	drawMesh(itemMesh, object->transform, ConvertSDLColour(object->colour), itemTex, true);
 }
 
 void homerDraw(DataObj* object){

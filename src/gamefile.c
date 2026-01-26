@@ -85,6 +85,7 @@ DataObj* createObjectFromJSON(cJSON* obj, DataObj* parent) {
     cJSON* colour = cJSON_GetObjectItem(obj, "colour");
     cJSON* children = cJSON_GetObjectItem(obj, "children");
     cJSON* meshFile = cJSON_GetObjectItem(obj, "mesh");
+    cJSON* meshTexture = cJSON_GetObjectItem(obj, "meshTexture");
     cJSON* meshType = cJSON_GetObjectItem(obj, "meshType");
     cJSON* meshParams = cJSON_GetObjectItem(obj, "meshParams");
     cJSON* collision = cJSON_GetObjectItem(obj, "collision");
@@ -151,6 +152,16 @@ DataObj* createObjectFromJSON(cJSON* obj, DataObj* parent) {
     
     if(mesh) {
         newObj->asVoidptr[OBJVAL_MESH] = mesh;
+    }
+    
+    SDL_Texture* texture = NULL;
+    if(meshTexture && cJSON_IsString(meshTexture)) {
+        texture = newTexture(meshTexture->valuestring, SDL_SCALEMODE_LINEAR);
+        if(!texture)
+            printf("Failed to load texture from file: %s\n", meshTexture->valuestring);
+    }
+    if(texture) {
+        newObj->asVoidptr[OBJVAL_TEXTURE] = texture;
     }
     
     if(collision && cJSON_IsObject(collision)) {
