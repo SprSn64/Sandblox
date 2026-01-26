@@ -31,8 +31,8 @@ Vector3 worldToCamera(Vector3 pos);
 Vector3 viewProj(Vector3 pos);
 Vector3 projToScreen(Vector3 pos);
 
-bool drawTriangle(Vector3 pointA, Vector3 pointB, Vector3 pointC, SDL_FColor colour, SDL_Texture* image);
-bool draw3DTriangle(Vector3 pointA, Vector3 pointB, Vector3 pointC, SDL_FColor colour, SDL_Texture* image);
+bool drawTriangle(MeshVert pointA, MeshVert pointB, MeshVert pointC, SDL_Texture* image);
+bool draw3DTriangle(MeshVert pointA, MeshVert pointB, MeshVert pointC, SDL_Texture* image);
 
 SDL_FColor ConvertSDLColour(CharColour colour);
 CharColour ConvertColour(CharColour colour, Uint32 mode);

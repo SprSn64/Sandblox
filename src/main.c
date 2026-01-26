@@ -278,7 +278,7 @@ SDL_AppResult SDL_AppIterate(void *appstate){
 	
 	skyboxMatrix = scaleMatrix(defaultMatrix, (Vector3){-16, -16, -16});
 	skyboxMatrix = translateMatrix(skyboxMatrix, (Vector3){8 + currentCamera.pos.x, -8 + currentCamera.pos.y, 8 + currentCamera.pos.z});
-	drawMesh(cubePrim, skyboxMatrix, skyboxColour, NULL, false);
+	drawMesh(cubePrim, skyboxMatrix, skyboxColour, cowTex, false);
 	free(skyboxMatrix);
 	
 	Vector3 invVec3 = {-1, -1, -1};

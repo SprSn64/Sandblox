@@ -14,6 +14,8 @@ Vector3 reflect(Vector3 incident, Vector3 normal);
 Vector3 rotToNorm3(Vector3 rot);
 Vector3 vec3Add(Vector3 vecA, Vector3 vecB);
 Vector3 vec3Mult(Vector3 vecA, Vector3 vecB);
+Vector4 vec3ToVec4(Vector3 vec);
+Vector3 vec4ToVec3(Vector4 vec);
 
 float *newMatrix();
 Vector4 matrixMult(Vector4 vector, mat4 matrix);

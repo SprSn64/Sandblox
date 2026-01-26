@@ -55,7 +55,7 @@ void updateObjects(DataObj* item, int nodeDepth, int *idCount, bool uord){ //uor
 		if(item->classData->update)item->classData->update(item);
 		if(item->asVoidptr[OBJVAL_SCRIPT]){
 			//sendPopup("fuck", NULL, NULL, 0.2);
-			//(&item->asVoidptr[OBJVAL_SCRIPT])(item); //doesnt work
+			//item->asVoidptr[OBJVAL_SCRIPT](item); //doesnt work
 		}
 	}else{ 
 		if(!item->classData->draw) goto noDraw;
@@ -155,13 +155,11 @@ void removeObject(DataObj* object){
 	
 	if(prevItem)
 		prevItem->next = nextItem;
-	
 	if(nextItem)
 		nextItem->prev = prevItem;
 	
-	if(parentItem && parentItem->child == object){
+	if(parentItem && parentItem->child == object)
 		parentItem->child = nextItem;
-	}
 	
 	if(childItem){
 		DataObj *loopItem = childItem;
@@ -175,9 +173,8 @@ void removeObject(DataObj* object){
 			parentItem->child = childItem;
 		} else {
 			DataObj *lastChild = parentItem->child;
-			while(lastChild->next){
+			while(lastChild->next)
 				lastChild = lastChild->next;
-			}
 			lastChild->next = childItem;
 			childItem->prev = lastChild;
 		}
