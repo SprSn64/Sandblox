@@ -83,7 +83,7 @@
       "pos": [0, 0, -80],
       "scale": [1, 1, 1],
       "rot": [0, 0, 0],
-      "colour": [192, 192, 192, 255],
+      "colour": [255, 255, 255, 255],
       "collision": {
         "enabled": true,
         "type": "block"
@@ -97,7 +97,7 @@
           "rot": [0, 0, 0],
           "colour": [255, 255, 255, 255],
           "mesh": "maps/spamton.obj",
-	    "meshTexture": "maps/spamton.png"
+	    "texture": "maps/spamton.png"
         }
       ]
     },

@@ -264,8 +264,16 @@ SDL_AppResult SDL_AppIterate(void *appstate){
 	
 	SDL_ShowCursor();
 	bool mainWindowFocus = SDL_GetWindowFlags(window) & SDL_WINDOW_INPUT_FOCUS;
+	if(currentCamera.focusDist == 0){
+		if(camMoveMode != 2){
+			storedMousePos = mousePos;
+			camMoveMode = 2;
+		}
+		goto firstPerson;
+	}
 	if(mouseButtons[2].down && mainWindowFocus){
-		if(camMoveMode){
+		if(camMoveMode == 1){
+			firstPerson:
 			float moveScale = mouseSense / (renderScale / windowScale.x);
 			currentCamera.rot.x += -(mousePos.y - storedMousePos.y) * moveScale * deltaTime;
 			currentCamera.rot.y += -(mousePos.x - storedMousePos.x) * moveScale * deltaTime;  

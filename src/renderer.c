@@ -178,9 +178,9 @@ void drawMesh(Mesh* mesh, mat4 transform, SDL_FColor colour, SDL_Texture* textur
 			Vector3 reflectSource = normalize3(reflect((Vector3){-lightNormal.x, -lightNormal.y, -lightNormal.z}, faceNormal));
 			float specular = pow(max(dotProd3(cameraNorm, reflectSource), 0), 32);
 			shadedColour[index] = (SDL_FColor){
-				(colour.r * lightAmbient.r) + (colour.r * lightColour.r * faceDot) + (specular * lightColour.r),
-				(colour.g * lightAmbient.g) + (colour.g * lightColour.g * faceDot) + (specular * lightColour.g),
-				(colour.b * lightAmbient.b) + (colour.b * lightColour.b * faceDot) + (specular * lightColour.b),
+				(colour.r * lightAmbient.r * lightColour.r) + (colour.r * lightColour.r * faceDot) + (specular * lightColour.r),
+				(colour.g * lightAmbient.g * lightColour.g) + (colour.g * lightColour.g * faceDot) + (specular * lightColour.g),
+				(colour.b * lightAmbient.b * lightColour.b) + (colour.b * lightColour.b * faceDot) + (specular * lightColour.b),
 				colour.a
 			};
 		}

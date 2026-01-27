@@ -65,16 +65,19 @@ void playerUpdate(DataObj* object){
 		*playerVel = (Vector3){0, 0, 0};
 	}
 
-	game.currCamera->pos = (Vector3){object->pos.x + (SDL_cos(game.currCamera->rot.x) * SDL_sin(game.currCamera->rot.y)) * game.currCamera->focusDist, object->pos.y + 2 - SDL_sin(game.currCamera->rot.x) * game.currCamera->focusDist, object->pos.z + (SDL_cos(game.currCamera->rot.x) * SDL_cos(game.currCamera->rot.y)) * game.currCamera->focusDist};
+	object->colour.a = min(game.currCamera->focusDist / 2, 1) * 255;
+	game.currCamera->pos = (Vector3){object->pos.x + (SDL_cos(game.currCamera->rot.x) * SDL_sin(game.currCamera->rot.y)) * game.currCamera->focusDist, object->pos.y + 2.5 * object->scale.y - SDL_sin(game.currCamera->rot.x) * game.currCamera->focusDist, object->pos.z + (SDL_cos(game.currCamera->rot.x) * SDL_cos(game.currCamera->rot.y)) * game.currCamera->focusDist};
 }
 
 void playerDraw(DataObj* object){
-	drawMesh(playerMesh, object->transform, (SDL_FColor){1, 1, 1, 1}, NULL, true);
+	SDL_FColor plrColour = ConvertSDLColour(object->colour);
+	drawMesh(playerMesh, object->transform, plrColour, NULL, true);
 	
 	DataObj *hatItem = object->child;
 	while(hatItem){
 		if(hatItem->classData->id == accessoryClass.id){
-			drawMesh(hatItem->asVoidptr[OBJVAL_MESH], object->transform, ConvertSDLColour(hatItem->colour), NULL, true);
+			SDL_FColor hatCol = ConvertSDLColour(hatItem->colour); hatCol.a = plrColour.a;
+			drawMesh(hatItem->asVoidptr[OBJVAL_MESH], object->transform, hatCol, hatItem->asVoidptr[OBJVAL_TEXTURE], true);
 		}
 		hatItem = hatItem->next;
 	}
