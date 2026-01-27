@@ -167,6 +167,12 @@ void drawMesh(Mesh* mesh, mat4 transform, SDL_FColor colour, SDL_Texture* textur
 		
 		for(Uint8 index=0; index < 3; index++){
 			Vector3 faceNormal = normalize3((Vector3){multFaceNormal[index].x / matrixScale.x, multFaceNormal[index].y / matrixScale.y, multFaceNormal[index].z / matrixScale.z});
+			
+			/*shadedColour[index] = (SDL_FColor){
+				faceNormal.x, faceNormal.y, faceNormal.z, colour.a
+			};
+			continue;*/
+			
 			float faceDot = max(dotProd3(faceNormal, lightNormal), 0);
 			Vector3 cameraNorm = rotToNorm3(client.gameWorld->currCamera->rot);
 			Vector3 reflectSource = normalize3(reflect((Vector3){-lightNormal.x, -lightNormal.y, -lightNormal.z}, faceNormal));
