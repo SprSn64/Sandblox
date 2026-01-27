@@ -20,6 +20,14 @@
 
 #include "studio/studio.h"
 
+/* TODO:
+	Get OpenGL GLEW working
+	Implemennt saving workspace objects to JSON file
+	Make studio widgets work properly
+	Add multiplayer server shit
+	Implement simple physics
+*/
+
 extern SDL_Window *studioWindow;
 
 SDL_Window *window = NULL;
@@ -102,6 +110,7 @@ float* defaultMatrix = NULL;
 float* skyboxMatrix = NULL;
 float* sunMatrix = NULL;
 SDL_FColor skyboxColour = {0.8, 0.82, 1, 1};
+Vector3 sunAngle = {0, 0, 0};
 
 SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[]){
 	(void)appstate;
@@ -294,14 +303,6 @@ SDL_AppResult SDL_AppIterate(void *appstate){
 	currentCamera.rot = (Vector3){fmod(currentCamera.rot.x, 6.28318), fmod(currentCamera.rot.y, 6.28318), fmod(currentCamera.rot.z, 6.28318)};
 	currentCamera.focusDist = min(max(currentCamera.focusDist + (keyList[KEYBIND_I].down - keyList[KEYBIND_O].down) * 4 * max(1, sqrt(currentCamera.focusDist)) * deltaTime, 0), 64);
 	
-	skyboxMatrix = translateMatrix(defaultMatrix, currentCamera.pos);
-	drawMesh(skyboxMesh, skyboxMatrix, (SDL_FColor){1,1,1,1}, skyTex, false);
-	free(skyboxMatrix);
-	
-	sunMatrix = genMatrix(currentCamera.pos, (Vector3){1, 1, 1}, normToRot3(lightNormal));
-	drawMesh(sunMesh, sunMatrix, lightColour, sunTex, false);
-	free(sunMatrix);
-	
 	Vector3 invVec3 = {-1, -1, -1};
 	currentCamera.transform = genMatrix(vec3Mult(currentCamera.pos, invVec3), (Vector3){currentCamera.zoom, currentCamera.zoom, currentCamera.zoom}, vec3Mult(currentCamera.rot, invVec3));
 	
@@ -310,9 +311,18 @@ SDL_AppResult SDL_AppIterate(void *appstate){
 	int idCounter = 0;
 	objListLength = 0;
 	if(!client.pause){
-		//lightNormal = (Vector3){SDL_cos(timer / 2), SDL_sin(timer / 2), 0};
+		//sunAngle = (Vector3){timer, timer, 0};
+		//lightNormal = rotToNorm3(sunAngle);
 		updateObjects(&gameHeader, 0, &idCounter, false);
 	}
+	
+	skyboxMatrix = translateMatrix(defaultMatrix, currentCamera.pos);
+	drawMesh(skyboxMesh, skyboxMatrix, (SDL_FColor){1,1,1,1}, skyTex, false);
+	free(skyboxMatrix);
+	
+	sunMatrix = genMatrix(currentCamera.pos, (Vector3){1, 1, 1}, sunAngle);
+	drawMesh(sunMesh, sunMatrix, lightColour, sunTex, false);
+	free(sunMatrix);
 	
 	//drawCube((Vector3){(2 + SDL_cos(timer)) / -2, SDL_sin(timer) + 1, (2 + SDL_cos(timer)) / -2}, (Vector3){2 + SDL_cos(timer), SDL_sin(timer) + 1, 2 + SDL_cos(timer)}, (SDL_FColor){0.6, 0.8, 1, 1});
 	//drawCube((Vector3){SDL_sin(timer) * 2 - 0.5, 1, SDL_cos(timer) * 2 - 0.5}, (Vector3){1, 1, 1}, (SDL_FColor){1, 0.2, 0.3, 1});
