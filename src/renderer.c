@@ -156,33 +156,37 @@ void drawMesh(Mesh* mesh, mat4 transform, SDL_FColor colour, SDL_Texture* textur
 		pointCalcs[1] = matrixMult(vec3ToVec4(mesh->faces[i].vertB->pos), transform);
 		pointCalcs[2] = matrixMult(vec3ToVec4(mesh->faces[i].vertC->pos), transform);
 		
-		SDL_FColor shadedColour = colour;
+		SDL_FColor shadedColour[3] = {colour, colour, colour};
 		if(!shaded) goto unshadedSkip;
 		
-		Vector4 multFaceNormal = matrixMult((Vector4){
-			(mesh->faces[i].vertA->norm.x + mesh->faces[i].vertB->norm.x + mesh->faces[i].vertC->norm.x) / 3,
-			(mesh->faces[i].vertA->norm.y + mesh->faces[i].vertB->norm.y + mesh->faces[i].vertC->norm.y) / 3,
-			(mesh->faces[i].vertA->norm.z + mesh->faces[i].vertB->norm.z + mesh->faces[i].vertC->norm.z) / 3,
-			1
-		}, rotMatrix);
-		Vector3 faceNormal = normalize3((Vector3){multFaceNormal.x / matrixScale.x, multFaceNormal.y / matrixScale.y, multFaceNormal.z / matrixScale.z});
-		float faceDot = max(dotProd3(faceNormal, lightNormal), 0);
-		Vector3 cameraNorm = rotToNorm3(client.gameWorld->currCamera->rot);
-		Vector3 reflectSource = normalize3(reflect((Vector3){-lightNormal.x, -lightNormal.y, -lightNormal.z}, faceNormal));
-		float specular = pow(max(dotProd3(cameraNorm, reflectSource), 0), 32);
-		shadedColour = (SDL_FColor){
-			(colour.r * lightAmbient.r) + (colour.r * lightColour.r * faceDot) + (specular * lightColour.r),
-			(colour.g * lightAmbient.g) + (colour.g * lightColour.g * faceDot) + (specular * lightColour.g),
-			(colour.b * lightAmbient.b) + (colour.b * lightColour.b * faceDot) + (specular * lightColour.b),
-			colour.a
+		Vector4 multFaceNormal[3] = {
+			matrixMult(vec3ToVec4(mesh->faces[i].vertA->norm), rotMatrix),
+			matrixMult(vec3ToVec4(mesh->faces[i].vertB->norm), rotMatrix),
+			matrixMult(vec3ToVec4(mesh->faces[i].vertC->norm), rotMatrix)
 		};
+		
+		for(Uint8 index=0; index < 3; index++){
+			Vector3 faceNormal = normalize3((Vector3){multFaceNormal[index].x / matrixScale.x, multFaceNormal[index].y / matrixScale.y, multFaceNormal[index].z / matrixScale.z});
+			float faceDot = max(dotProd3(faceNormal, lightNormal), 0);
+			Vector3 cameraNorm = rotToNorm3(client.gameWorld->currCamera->rot);
+			Vector3 reflectSource = normalize3(reflect((Vector3){-lightNormal.x, -lightNormal.y, -lightNormal.z}, faceNormal));
+			float specular = pow(max(dotProd3(cameraNorm, reflectSource), 0), 32);
+			shadedColour[index] = (SDL_FColor){
+				(colour.r * lightAmbient.r) + (colour.r * lightColour.r * faceDot) + (specular * lightColour.r),
+				(colour.g * lightAmbient.g) + (colour.g * lightColour.g * faceDot) + (specular * lightColour.g),
+				(colour.b * lightAmbient.b) + (colour.b * lightColour.b * faceDot) + (specular * lightColour.b),
+				colour.a
+			};
+		}
+		
+		
 		
 		unshadedSkip:
 		
 		draw3DTriangle(
-			(MeshVert){vec4ToVec3(pointCalcs[0]), (Vector3){0,0,0}, mesh->faces[i].vertA->uv, shadedColour}, 
-			(MeshVert){vec4ToVec3(pointCalcs[1]), (Vector3){0,0,0}, mesh->faces[i].vertB->uv, shadedColour}, 
-			(MeshVert){vec4ToVec3(pointCalcs[2]), (Vector3){0,0,0}, mesh->faces[i].vertC->uv, shadedColour}, 
+			(MeshVert){vec4ToVec3(pointCalcs[0]), (Vector3){0,0,0}, mesh->faces[i].vertA->uv, shadedColour[0]}, 
+			(MeshVert){vec4ToVec3(pointCalcs[1]), (Vector3){0,0,0}, mesh->faces[i].vertB->uv, shadedColour[1]}, 
+			(MeshVert){vec4ToVec3(pointCalcs[2]), (Vector3){0,0,0}, mesh->faces[i].vertC->uv, shadedColour[2]}, 
 		texture);
 	}
 }
@@ -251,7 +255,7 @@ Mesh* genTorusMesh(float outerRad, float innerRad, int ringRes, int ringCount){
 	
 	float angleRes = PI * 2 / ringRes;
 	float angleRing = PI * 2 / ringCount;
-	for(int i=0; i<vertCount; i++){
+	for(Uint32 i=0; i<vertCount; i++){
 		float newAngle = angleRing * floor(i / ringRes);
 		newVerts[i].pos = (Vector3){
 			(outerRad + SDL_cos(angleRes * (i % ringRes)) * innerRad) * SDL_cos(newAngle), 
@@ -287,7 +291,7 @@ Mesh* genCylinderMesh(float btmRad, float topRad, float length, int res){
 	MeshFace* newFaces = malloc(sizeof(MeshFace) * faceCount);
 	
 	float angleRes = PI * 2 / res;
-	for(int i=0; i<vertCount; i++){
+	for(Uint32 i=0; i<vertCount; i++){
 		float sideRad = lerp(btmRad, topRad, floor(i / res));
 		newVerts[i].pos = (Vector3){
 			SDL_cos(angleRes * (i % res)) * sideRad,
@@ -329,7 +333,7 @@ Mesh* genPlaneMesh(float xScale, float yScale, int xRes, int yRes){
 	MeshVert* newVerts = malloc(sizeof(MeshVert) * vertCount);
 	MeshFace* newFaces = malloc(sizeof(MeshFace) * faceCount);
 	
-	for(int i=0; i<vertCount; i++){
+	for(Uint32 i=0; i<vertCount; i++){
 		newVerts[i].pos = (Vector3){
 			floor(i / (xRes + 1)) * (xScale / xRes), 
 			0, 
