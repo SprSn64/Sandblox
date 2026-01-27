@@ -57,6 +57,8 @@ SDL_Texture *fontTex = NULL;
 SDL_Texture *playerTex = NULL;
 SDL_Texture *homerTex = NULL;
 
+Font defaultFont;
+
 SDL_Texture *cowTex = NULL;
 SDL_Texture *skyTex = NULL;
 
@@ -139,6 +141,8 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[]){
 	homerTex = newTexture("assets/textures/homer.png", SDL_SCALEMODE_NEAREST);
 	cowTex = newTexture("assets/textures/cows.png", SDL_SCALEMODE_LINEAR);
 	skyTex = newTexture("assets/textures/skybox.png", SDL_SCALEMODE_LINEAR);
+	
+	defaultFont = (Font){fontTex, 32, (SDL_Point){8, 8}, (SDL_FPoint){6, 0}, 16};
 
 	playerMesh = loadMeshFromObj("assets/models/player.obj"); //will be replaced with a better model soon
 	skyboxMesh = loadMeshFromObj("assets/models/advskybox.obj");
@@ -205,6 +209,9 @@ SDL_AppResult SDL_AppEvent(void *appstate, SDL_Event *event){
 			float scrollSpeed = 1.0f;
 			objListScroll += scrollSpeed * (1 - 2 * (event->wheel.y > 0)) * (event->wheel.y != 0);
 			objListScroll = min(max(objListScroll, 0), objListLength);
+			char popupString[32];
+			sprintf(popupString, "%x.", objListLength);
+			sendPopup(popupString, NULL, NULL, 0.12);
 		}
 	}
 	
@@ -316,10 +323,10 @@ SDL_AppResult SDL_AppIterate(void *appstate){
 		sprintf(fpsText, "FPS: %d", lastFPS);
 		sprintf(rotText, "Camera Rot: %d, %d", (int)(currentCamera.rot.y * RAD2DEG), (int)(currentCamera.rot.x * RAD2DEG));
 	}
-	drawText(renderer, fontTex, fpsText, 32, 0, 0, 16, 16, 12);
-	drawText(renderer, fontTex, rotText, 32, 0, 16, 16, 16, 12);
+	drawText(renderer, &defaultFont, fpsText, 0, 0, 2, (SDL_FColor){1, 1, 1, 1});
+	drawText(renderer, &defaultFont, rotText, 0, 16, 2, (SDL_FColor){1, 1, 1, 1});
 	
-	if(client.pause)drawText(renderer, fontTex, "Game Paused", 32, 0, windowScale.y - 16, 16, 16, 12);
+	if(client.pause)drawText(renderer, &defaultFont, "Game Paused", 0, windowScale.y - 16, 2, (SDL_FColor){1, 1, 1, 1});
 	
 	/*if(!gameFileLoaded) {
 		char* noGameText = "NO GAME HERE";

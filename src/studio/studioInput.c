@@ -5,6 +5,7 @@
 #include <SDL3_image/SDL_image.h>
 
 #include "../instances.h"
+#include "../renderer.h"
 #include "../math.h"
 
 #include <gamefile.h>
@@ -76,7 +77,7 @@ void buttonAddObject(Button* item){
 void buttonRemoveObject(Button* item){
 	(void)item;
 	if(!focusObject) return;
-	if(focusObject == client.gameWorld->headObj) return;
+	//if(focusObject == client.gameWorld->headObj) return;
 	// if deleting the player, clear the reference (ofc)
 	if(focusObject == client.gameWorld->currPlayer)
 		client.gameWorld->currPlayer = NULL;

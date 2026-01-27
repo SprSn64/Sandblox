@@ -144,7 +144,7 @@ void removeObject(DataObj* object){
 	//object->onRemove(object);
 	
 	if(object == game.headObj){
-		printf("are you out of your mind?\n");
+		sendPopup("are you out of your mind?", NULL, NULL, 5);
 		return;
 	}
 	
@@ -273,6 +273,7 @@ void updatePopup(NotiPopup* item){
 }
 
 extern SDL_Point windowScale;
+extern Font defaultFont;
 
 void renderPopup(NotiPopup* item, Uint32 posX, Uint32 posY){
 	if(item->age >= item->life) return;
@@ -280,9 +281,7 @@ void renderPopup(NotiPopup* item, Uint32 posX, Uint32 posY){
 	SDL_SetRenderDrawColor(renderer, 0, 0, 0, 128);
 	SDL_RenderFillRect(renderer, &(SDL_FRect){posX, posY, 224, 64});
 	
-	//drawText(renderer, fontTex, item->text, 32, posX + 2, posY + 2, 16, 16, 12);
-	SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
-	SDL_RenderDebugText(renderer, posX + 2, posY + 2, item->text);
+	drawText(renderer, &defaultFont, item->text, posX + 2, posY + 2, 1, (SDL_FColor){1, 1, 1, 1});
 }
 
 void updatePopups(){

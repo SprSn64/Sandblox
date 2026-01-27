@@ -26,6 +26,7 @@ extern double deltaTime;
 extern float timer;
 
 extern float* defaultMatrix;
+extern Font defaultFont;
 
 SDL_Texture *classIconTex = NULL;
 SDL_Texture *stuButtonTex = NULL;
@@ -126,7 +127,7 @@ void updateStudio(){
 	if(client.pause)
 		studioCameraUpdate(client.gameWorld->currCamera);
 	
-	if(stuKeyList[0].pressed && focusObject && focusObject != client.gameWorld->headObj){
+	if(stuKeyList[0].pressed && focusObject){
 		if(focusObject == client.gameWorld->currPlayer)
 			client.gameWorld->currPlayer = NULL;
 		removeObject(focusObject);
@@ -189,6 +190,7 @@ void drawObjectList(DataObj* item, int nodeDepth, int *idCount){
 	}
 	SDL_SetRenderDrawColor(studioRenderer, 255, 255, 255, 255);
 	SDL_RenderDebugText(studioRenderer, objListRect.x + 18/**/ + (nodeDepth * 24), 20/**/ + itemYOffset, item->name);
+	drawText(studioRenderer, &defaultFont, item->name, objListRect.x + 18/**/ + (nodeDepth * 24), 20/**/ + itemYOffset, 1, (SDL_FColor){1, 1, 1, 1}); //why no render????
 	
 	SDL_FRect iconRect = {(item->classData->id % 16) * 16, (int)floor((float)item->classData->id / 16) * 16 % 256, 16, 16};
 	SDL_FRect iconPos = {objListRect.x + nodeDepth * 24, objListRect.y/**/ + itemYOffset, 16, 16};

@@ -24,8 +24,16 @@ typedef struct{
 	MeshFace *faces;
 } Mesh;
 
+typedef struct{
+	SDL_Texture *image;
+	Uint16 startChar; //32 starts at the space glyth
+	SDL_Point glyphSize;
+	SDL_FPoint kerning;
+	Uint16 columns;
+} Font;
+
 SDL_Texture *newTexture(char* path, SDL_ScaleMode scaleMode);
-void drawText(SDL_Renderer *renderer, SDL_Texture *texture, char* text, char charOff, short posX, short posY, short width, short height, short kern);
+void drawText(SDL_Renderer *renderLoc, Font *textFont, char* text, short posX, short posY, float size, SDL_FColor colour);
 
 Vector3 worldToCamera(Vector3 pos);
 Vector3 viewProj(Vector3 pos);

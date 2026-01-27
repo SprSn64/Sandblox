@@ -229,14 +229,15 @@ void drawBillboard(SDL_Texture *texture, SDL_FRect rect, Vector3 pos, SDL_FPoint
 	}*/
 }
 
-void drawText(SDL_Renderer *renderer, SDL_Texture *texture, char* text, char charOff, short posX, short posY, short width, short height, short kern){
+void drawText(SDL_Renderer *renderLoc, Font *textFont, char* text, short posX, short posY, float scale, SDL_FColor colour){
 	for(size_t i=0; i<=strlen(text); i++){
-		char charVal = (unsigned)text[i] - charOff;
-		int xOff = (charVal % 16) * width;
-		int yOff = floor((float)charVal / 16) * height;
-		SDL_FRect sprRect = {xOff, yOff, width, height};
-		SDL_FRect sprPos = {posX + kern * i, posY, width, height};
-		SDL_RenderTexture(renderer, texture, &sprRect, &sprPos);
+		char charVal = text[i] - textFont->startChar;
+		int xOff = (charVal % textFont->columns) * textFont->glyphSize.x;
+		int yOff = floor((float)charVal / textFont->columns) * textFont->glyphSize.y;
+		SDL_FRect sprRect = {xOff, yOff, textFont->glyphSize.x, textFont->glyphSize.y};
+		SDL_FRect sprPos = {posX + textFont->kerning.x * i * scale, posY + textFont->kerning.y * i * scale, textFont->glyphSize.x * scale, textFont->glyphSize.y * scale};
+		SDL_SetTextureColorMod(textFont->image, (Uint8)(colour.r * 255), (Uint8)(colour.g * 255), (Uint8)(colour.b * 255));
+		SDL_RenderTexture(renderLoc, textFont->image, &sprRect, &sprPos);
 	}
 }
 
