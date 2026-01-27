@@ -26,6 +26,8 @@
 	Make studio widgets work properly
 	Add multiplayer server shit
 	Implement simple physics
+	Fix studio object list scrolling
+	Add secondary studio menu for changing object properties (colour, scale, etc)
 */
 
 extern SDL_Window *studioWindow;
