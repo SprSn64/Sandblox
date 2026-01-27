@@ -61,9 +61,11 @@ Font defaultFont;
 
 SDL_Texture *cowTex = NULL;
 SDL_Texture *skyTex = NULL;
+SDL_Texture *sunTex = NULL;
 
 Mesh *playerMesh = NULL;
 Mesh *skyboxMesh = NULL;
+Mesh *sunMesh = NULL;
 
 Mesh *planePrim = NULL;
 Mesh *cubePrim = NULL;
@@ -98,6 +100,7 @@ DataObj* playerObj = NULL;
 
 float* defaultMatrix = NULL;
 float* skyboxMatrix = NULL;
+float* sunMatrix = NULL;
 SDL_FColor skyboxColour = {0.8, 0.82, 1, 1};
 
 SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[]){
@@ -141,11 +144,13 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[]){
 	homerTex = newTexture("assets/textures/homer.png", SDL_SCALEMODE_NEAREST);
 	cowTex = newTexture("assets/textures/cows.png", SDL_SCALEMODE_LINEAR);
 	skyTex = newTexture("assets/textures/skybox.png", SDL_SCALEMODE_LINEAR);
+	sunTex = newTexture("assets/textures/sunflare.png", SDL_SCALEMODE_LINEAR);
 	
 	defaultFont = (Font){fontTex, 32, (SDL_Point){8, 8}, (SDL_FPoint){6, 0}, 16};
 
 	playerMesh = loadMeshFromObj("assets/models/player.obj"); //will be replaced with a better model soon
 	skyboxMesh = loadMeshFromObj("assets/models/advskybox.obj");
+	sunMesh = loadMeshFromObj("assets/models/skyboxsun.obj");
 	
 	planePrim = genPlaneMesh(1, 1, 1, 1);
 	cubePrim = loadMeshFromObj("assets/models/primitives/cube.obj");
@@ -253,8 +258,6 @@ SDL_AppResult SDL_AppIterate(void *appstate){
 		playerMesh->verts[i].pos.z += (1 - SDL_randf() * 2) * 0.002;
 	}*/
 	
-	//lightNormal = (Vector3){SDL_cos(timer / 2), SDL_sin(timer / 2), 0};
-	
 	//currentCamera.pos.x += ((SDL_cos(currentCamera.rot.y) * (keyList[KEYBIND_D].down - keyList[KEYBIND_A].down)) + (SDL_sin(currentCamera.rot.y) * (keyList[KEYBIND_S].down - keyList[KEYBIND_W].down))) * 2 * deltaTime;
 	//currentCamera.pos.y += (keyList[KEYBIND_SPACE].down - keyList[KEYBIND_SHIFT].down) * 2 * deltaTime;
 	//currentCamera.pos.z += ((-SDL_sin(currentCamera.rot.y) * (keyList[KEYBIND_D].down - keyList[KEYBIND_A].down)) + (SDL_cos(currentCamera.rot.y) * (keyList[KEYBIND_S].down - keyList[KEYBIND_W].down))) * 2 * deltaTime;
@@ -287,6 +290,10 @@ SDL_AppResult SDL_AppIterate(void *appstate){
 	drawMesh(skyboxMesh, skyboxMatrix, (SDL_FColor){1,1,1,1}, skyTex, false);
 	free(skyboxMatrix);
 	
+	sunMatrix = genMatrix(currentCamera.pos, (Vector3){1, 1, 1}, normToRot3(lightNormal));
+	drawMesh(sunMesh, sunMatrix, lightColour, sunTex, false);
+	free(sunMatrix);
+	
 	Vector3 invVec3 = {-1, -1, -1};
 	currentCamera.transform = genMatrix(vec3Mult(currentCamera.pos, invVec3), (Vector3){currentCamera.zoom, currentCamera.zoom, currentCamera.zoom}, vec3Mult(currentCamera.rot, invVec3));
 	
@@ -294,8 +301,10 @@ SDL_AppResult SDL_AppIterate(void *appstate){
 	
 	int idCounter = 0;
 	objListLength = 0;
-	if(!client.pause)
+	if(!client.pause){
+		//lightNormal = (Vector3){SDL_cos(timer / 2), SDL_sin(timer / 2), 0};
 		updateObjects(&gameHeader, 0, &idCounter, false);
+	}
 	
 	//drawCube((Vector3){(2 + SDL_cos(timer)) / -2, SDL_sin(timer) + 1, (2 + SDL_cos(timer)) / -2}, (Vector3){2 + SDL_cos(timer), SDL_sin(timer) + 1, 2 + SDL_cos(timer)}, (SDL_FColor){0.6, 0.8, 1, 1});
 	//drawCube((Vector3){SDL_sin(timer) * 2 - 0.5, 1, SDL_cos(timer) * 2 - 0.5}, (Vector3){1, 1, 1}, (SDL_FColor){1, 0.2, 0.3, 1});

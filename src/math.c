@@ -25,8 +25,6 @@ Vector3 reflect(Vector3 incident, Vector3 normal){
 	float dot = dotProd3(normal, incident);
 	return (Vector3){incident.x - 2 * dot * normal.x, incident.y - 2 * dot * normal.y, incident.z - 2 * dot * normal.z};
 }
-Vector3 rotToNorm3(Vector3 rot){
-	return (Vector3){SDL_cos(rot.x) * SDL_sin(rot.y), -SDL_sin(rot.x), SDL_cos(rot.x) * SDL_cos(rot.y)};}
 Vector3 vec3Add(Vector3 vecA, Vector3 vecB){
 	return (Vector3){vecA.x + vecB.x, vecA.y + vecB.y, vecA.z + vecB.z};}
 Vector3 vec3Mult(Vector3 vecA, Vector3 vecB){
@@ -34,6 +32,15 @@ Vector3 vec3Mult(Vector3 vecA, Vector3 vecB){
 	
 Vector4 vec3ToVec4(Vector3 vec){return (Vector4){vec.x, vec.y, vec.z, 1};}
 Vector3 vec4ToVec3(Vector4 vec){return (Vector3){vec.x * vec.w, vec.y * vec.w, vec.z * vec.w};}
+
+Vector3 rotToNorm3(Vector3 rot){
+	return (Vector3){SDL_cos(rot.x) * SDL_sin(rot.y), -SDL_sin(rot.x), SDL_cos(rot.x) * SDL_cos(rot.y)};}
+	
+Vector3 normToRot3(Vector3 norm){
+	Vector3 normed = normalize3(norm);
+	
+	return (Vector3){atan2(normed.y, normed.x), atan2(sqrt(normed.x * normed.x + normed.y * normed.y), normed.z), 0};
+}
 
 float closest(float input, float snap){return floor(input / snap) * snap;}
 bool between(float input, float min, float max){return(input >= min && input <= max);}
