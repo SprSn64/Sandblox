@@ -58,6 +58,7 @@ void updateObjects(DataObj* item, int nodeDepth, int *idCount, bool uord){ //uor
 			//item->asVoidptr[OBJVAL_SCRIPT](item); //doesnt work
 		}
 	}else{ 
+		objListLength++;
 		if(!item->classData->draw) goto noDraw;
 		/*item->transform = newMatrix();
 		scaleMatrix2(item->transform, item->scale);
@@ -69,7 +70,6 @@ void updateObjects(DataObj* item, int nodeDepth, int *idCount, bool uord){ //uor
 		item->classData->draw(item);
 		if(item == focusObject && client.studio)drawMesh(cubePrim, item->transform, (SDL_FColor){1, 1, 1, fabs(SDL_sin(timer * 2)) * 0.25}, NULL, false);
 		free(item->transform);
-		objListLength++;
 	}
 	noDraw:
 	//if(uord)drawText(renderer, fontTex, item->name, 32, OBJLIST_HUD_POS_X + (nodeDepth * 24), OBJLIST_HUD_POS_Y + i * 16, 16, 16, 12);
