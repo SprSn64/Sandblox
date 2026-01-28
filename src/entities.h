@@ -14,8 +14,13 @@ void objSpinFunc(DataObj* object);
 extern DataType playerClass;
 extern DataType blockClass;
 extern DataType meshClass;
-extern DataType fuckingBeerdrinkerClass;
 extern DataType groupClass;
+//extern DataType cameraClass;
+//extern DataType lightClass;
+extern DataType imageClass;
+//extern DataType scriptClass;
 extern DataType accessoryClass;
+
+extern DataType fuckingBeerdrinkerClass;
 
 #endif

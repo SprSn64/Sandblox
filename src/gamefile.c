@@ -17,6 +17,7 @@ extern void playerUpdate(DataObj* object);
 extern void playerDraw(DataObj* object);
 extern void blockDraw(DataObj* object);
 extern void homerDraw(DataObj* object);
+extern void imageDraw(DataObj* object);
 
 extern void objSpinFunc(DataObj* object);
 
@@ -27,6 +28,7 @@ void (*getFunctionByName(const char* name))(DataObj*) {
     if(!strcmp(name, "playerDraw")) return playerDraw;
     if(!strcmp(name, "blockDraw")) return blockDraw;
     if(!strcmp(name, "homerDraw")) return homerDraw;
+    if(!strcmp(name, "imageDraw")) return imageDraw;
     
     if(!strcmp(name, "objSpinFunc")) return objSpinFunc;
     return NULL;
@@ -38,6 +40,7 @@ DataType* getClassByName(const char* name) {
     if(!strcmp(name, "Mesh")) return &meshClass;
     if(!strcmp(name, "beer drinker")) return &fuckingBeerdrinkerClass;
     if(!strcmp(name, "Group")) return &groupClass;
+    if(!strcmp(name, "Image")) return &imageClass;
     if(!strcmp(name, "Accessory")) return &accessoryClass;
     return NULL;
 }

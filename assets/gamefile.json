@@ -142,6 +142,15 @@
         "enabled": false,
         "type": "none"
       }
+    },
+    {
+      "name": "Cows",
+      "class": "Image",
+      "pos": [18, 12, 512],
+      "scale": [36, 1, 24],
+      "rot": [90, 180, 0],
+      "colour": [255, 255, 255, 255],
+      "texture": "assets/textures/cows.png"
     }
   ]
 }

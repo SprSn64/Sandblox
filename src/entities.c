@@ -116,3 +116,11 @@ DataType groupClass = {"Group\0", 5, 0, NULL, NULL, NULL};
 void objSpinFunc(DataObj* object){
 	object->rot = (Vector3){object->rot.x + 0.02, object->rot.y + 0.01, object->rot.z + 0.005};
 }
+
+extern Mesh* planePrim;
+void imageDraw(DataObj* object){
+	float* transform = genMatrix(object->pos, object->scale, object->rot);
+	drawMesh(planePrim, transform, ConvertSDLColour(object->colour), object->asVoidptr[OBJVAL_TEXTURE], true);
+}
+
+DataType imageClass = {"Image\0", 8, 0, NULL, NULL, imageDraw};

@@ -59,7 +59,7 @@ Button addObjButton = {"+", (SDL_FRect){224, 304, 16, 16}, INPUTTYPE_BUTTON, but
 Button removeObjButton = {"-", (SDL_FRect){206, 304, 16, 16}, INPUTTYPE_BUTTON, buttonRemoveObject, true, true, false, false, NULL, &(SDL_FRect){32, 0, 16, 16}};
 Button pauseButton = {"ll", (SDL_FRect){0, 304, 16, 16}, INPUTTYPE_BUTTON, buttonPauseGame, true, true, false, false, NULL, &(SDL_FRect){16, 32, 16, 16}};
 
-Button saveFileButton = {"Save", (SDL_FRect){0, 0, 40, 16}, INPUTTYPE_BUTTON, NULL, true, true, false, false, NULL, NULL};
+Button saveFileButton = {"Save", (SDL_FRect){0, 0, 40, 16}, INPUTTYPE_BUTTON, NULL, false, true, false, false, NULL, NULL};
 Button loadFileButton = {"Load", (SDL_FRect){40, 0, 40, 16}, INPUTTYPE_BUTTON, buttonLoadMap, true, true, false, false, NULL, NULL};
 
 Button selectWidgetButton = {"\0", (SDL_FRect){0, 16, 16, 16}, INPUTTYPE_BUTTON, buttonSetTool, true, true, false, false, NULL, &(SDL_FRect){0, 16, 16, 16}};
