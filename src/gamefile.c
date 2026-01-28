@@ -275,10 +275,12 @@ int loadGameFile(const char* filename) {
             /*DataObj* newObj = */createObjectFromJSON(obj, NULL);
         }
     }
-    
-    game.currPlayer = newPlayer;
-    printf("Set current player to: %s\n", newPlayer->name ? newPlayer->name : "unnamed");
-    newPlayer = NULL;
+	
+    if(newPlayer){
+        game.currPlayer = newPlayer;
+        printf("Set current player to: %s\n", newPlayer->name ? newPlayer->name : "unnamed");
+        newPlayer = NULL;
+    }
     
     cJSON_Delete(json);
     free(content);
