@@ -12,6 +12,8 @@ extern ClientData client;
 extern GameWorld game;
 extern DataObj gameHeader;
 
+DataObj* newPlayer = NULL;
+
 extern void playerInit(DataObj* object);
 extern void playerUpdate(DataObj* object);
 extern void playerDraw(DataObj* object);
@@ -93,6 +95,7 @@ DataObj* createObjectFromJSON(cJSON* obj, DataObj* parent) {
     cJSON* meshParams = cJSON_GetObjectItem(obj, "meshParams");
     cJSON* collision = cJSON_GetObjectItem(obj, "collision");
     cJSON* scriptFile = cJSON_GetObjectItem(obj, "script");
+    cJSON* isPlayer = cJSON_GetObjectItem(obj, "isPlayer");
     
     if(!className || !cJSON_IsString(className)) return NULL;
     
@@ -104,9 +107,11 @@ DataObj* createObjectFromJSON(cJSON* obj, DataObj* parent) {
     DataObj* newObj = newObject(newParent, objClass);
     if(!newObj) return NULL;
     
-    if(name && cJSON_IsString(name)) {
+    if(isPlayer && cJSON_IsBool(isPlayer) && !newPlayer)
+	    newPlayer = newObj;
+    
+    if(name && cJSON_IsString(name))
         newObj->name = strdup(name->valuestring);
-    }
     
     if(pos && cJSON_IsArray(pos) && cJSON_GetArraySize(pos) >= 3) {
         newObj->pos = (Vector3){
@@ -267,15 +272,13 @@ int loadGameFile(const char* filename) {
     for(int i = 0; i < objectCount; i++) {
         cJSON* obj = cJSON_GetArrayItem(objects, i);
         if(obj) {
-            DataObj* newObj = createObjectFromJSON(obj, NULL);
-            if(newObj) {
-                if(newObj->classData == &playerClass) {
-                    game.currPlayer = newObj;
-                    printf("Set current player to: %s\n", newObj->name ? newObj->name : "unnamed");
-                }
-            }
+            /*DataObj* newObj = */createObjectFromJSON(obj, NULL);
         }
     }
+    
+    game.currPlayer = newPlayer;
+    printf("Set current player to: %s\n", newPlayer->name ? newPlayer->name : "unnamed");
+    newPlayer = NULL;
     
     cJSON_Delete(json);
     free(content);

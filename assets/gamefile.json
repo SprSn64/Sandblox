@@ -60,6 +60,19 @@
 	]
     },
     {
+      "name": "NPC",
+      "class": "Player",
+      "pos": [0, 0, 0],
+      "scale": [1, 1, 1],
+      "rot": [0, 0, 0],
+      "colour": [255, 255, 255, 128],
+      "isPlayer": false,
+      "collision": {
+        "enabled": false,
+        "type": "none"
+      }
+    },
+    {
       "name": "Red Teapot",
       "class": "Block", 
       "pos": [-4, 2, -4],
