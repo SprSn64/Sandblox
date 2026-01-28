@@ -24,9 +24,20 @@ ButtonMap stuKeyList[STUDIOKEYBIND_MAX];
 extern SDL_Window *studioWindow;
 extern SDL_Renderer *studioRenderer;
 
+extern Font defaultFont;
+
+/*CharColour buttonColours[BUTTONCOLOUR_MAX] = {
+	(CharColour){205, 208, 226, 255, 0, COLOURMODE_RGB},
+	(CharColour){231, 234, 249, 255, 0, COLOURMODE_RGB},
+	(CharColour){124, 128, 154, 255, 0, COLOURMODE_RGB},
+	(CharColour){177, 179, 191, 255, 0, COLOURMODE_RGB},
+	(CharColour){255, 255, 255, 255, 0, COLOURMODE_RGB}
+};*/
+
 bool updateButton(Button* item){
+	if(!item->enabled || !item->pressed) return 1;
+	
 	item->hover = SDL_GetWindowFlags(studioWindow) & SDL_WINDOW_INPUT_FOCUS && (mousePos.x >= item->rect.x && mousePos.y >= item->rect.y && mousePos.x <= item->rect.x + item->rect.w && mousePos.y <= item->rect.y  + item->rect.h);
-	if(item->pressed == NULL) return 1;
 	//stuMouseButtons[0].down
 	if(item->hover){
 		SDL_SetCursor(SDL_CreateSystemCursor(SDL_SYSTEM_CURSOR_POINTER));
@@ -41,20 +52,40 @@ bool updateButton(Button* item){
 	return 0;
 }
 
-void drawButton(Button* item){
+void drawButton(SDL_Renderer* render, Button* item){
 	if(item->image){
 		SDL_FRect* rect = &(SDL_FRect){0, 0, item->image->w, item->image->h};
 		if(item->imageSrc) rect = item->imageSrc;
-		SDL_RenderTexture(studioRenderer, item->image, rect, &item->rect);
+		SDL_RenderTexture(render, item->image, rect, &item->rect);
 		return;
 	}
 	
-	SDL_SetRenderDrawColor(studioRenderer, 187, 187, 187, SDL_ALPHA_OPAQUE); 
-	if(item->enabled)SDL_SetRenderDrawColor(studioRenderer, 224 + 31 * item->hover, 224 + 31 * item->hover, 255, SDL_ALPHA_OPAQUE); 
-	SDL_RenderFillRect(studioRenderer, &(SDL_FRect){item->rect.x, item->rect.y, item->rect.w, item->rect.h});
+	if(item->buttonType == INPUTTYPE_TEXT || item->buttonType == INPUTTYPE_NUMBER){
+		setDrawColour(render, (CharColour){255, 255, 255, 255, 0, COLOURMODE_RGB});//buttonColours[BUTTONCOLOUR_INPUT]);
+		goto buttonDrawStart;
+	}
 	
-	SDL_SetRenderDrawColor(studioRenderer, 0, 0, 0, SDL_ALPHA_OPAQUE);
-	SDL_RenderDebugText(studioRenderer, item->rect.x + 2, item->rect.y + 2, item->labelText);
+	if(!item->enabled){
+		setDrawColour(render, (CharColour){177, 179, 191, 255, 0, COLOURMODE_RGB});//buttonColours[BUTTONCOLOUR_DISABLED]);
+		goto buttonDrawStart;
+	}
+	setDrawColour(render, (CharColour){205, 208, 226, 255, 0, COLOURMODE_RGB});//buttonColours[BUTTONCOLOUR_DEFAULT]);
+	if(item->hover)
+		setDrawColour(render, (CharColour){231, 234, 249, 255, 0, COLOURMODE_RGB});//buttonColours[BUTTONCOLOUR_HOVER]);
+	if(item->down)
+		setDrawColour(render, (CharColour){124, 128, 154, 255, 0, COLOURMODE_RGB});//buttonColours[BUTTONCOLOUR_PRESSED]);
+	
+	buttonDrawStart:
+	SDL_RenderFillRect(render, &(SDL_FRect){item->rect.x, item->rect.y, item->rect.w, item->rect.h});
+	
+	SDL_SetRenderDrawColor(render, 0, 0, 0, SDL_ALPHA_OPAQUE);
+	SDL_RenderDebugText(render, item->rect.x + 2, item->rect.y + 2, item->labelText);
+	drawText(render, &defaultFont, item->labelText, item->rect.x + 2, item->rect.y + 2, 1, (SDL_FColor){0, 0, 0, 1}); //not work on studio window? wtf???
+}
+
+void updateAndDrawButton(SDL_Renderer* render, Button* item){
+	updateButton(item);
+	drawButton(render, item);
 }
 
 extern DataType blockClass;

@@ -55,15 +55,17 @@ void drawObjectProperties(DataObj* item, int posY);
 
 //TODO: Make button list thing for less ugly looking button implementations
 
-Button addObjButton = {"+", (SDL_FRect){224, 304, 16, 16}, buttonAddObject, true, true, false, false, NULL, &(SDL_FRect){16, 0, 16, 16}};
-Button removeObjButton = {"-", (SDL_FRect){206, 304, 16, 16}, buttonRemoveObject, true, true, false, false, NULL, &(SDL_FRect){32, 0, 16, 16}};
-Button fileButton = {"Load", (SDL_FRect){0, 0, 48, 16}, buttonLoadMap, true, true, false, false, NULL, NULL};
-Button pauseButton = {"ll", (SDL_FRect){0, 304, 16, 16}, buttonPauseGame, true, true, false, false, NULL, &(SDL_FRect){16, 32, 16, 16}};
+Button addObjButton = {"+", (SDL_FRect){224, 304, 16, 16}, INPUTTYPE_BUTTON, buttonAddObject, true, true, false, false, NULL, &(SDL_FRect){16, 0, 16, 16}};
+Button removeObjButton = {"-", (SDL_FRect){206, 304, 16, 16}, INPUTTYPE_BUTTON, buttonRemoveObject, true, true, false, false, NULL, &(SDL_FRect){32, 0, 16, 16}};
+Button pauseButton = {"ll", (SDL_FRect){0, 304, 16, 16}, INPUTTYPE_BUTTON, buttonPauseGame, true, true, false, false, NULL, &(SDL_FRect){16, 32, 16, 16}};
 
-Button selectWidgetButton = {"\0", (SDL_FRect){0, 16, 16, 16}, buttonSetTool, true, true, false, false, NULL, &(SDL_FRect){0, 16, 16, 16}};
-Button moveWidgetButton = {"\0", (SDL_FRect){0, 32, 16, 16}, buttonSetTool, true, true, false, false, NULL, &(SDL_FRect){16, 16, 16, 16}};
-Button scaleWidgetButton = {"\0", (SDL_FRect){0, 48, 16, 16}, buttonSetTool, true, true, false, false, NULL, &(SDL_FRect){32, 16, 16, 16}};
-Button rotateWidgetButton = {"\0", (SDL_FRect){0, 64, 16, 16}, buttonSetTool, true, true, false, false, NULL, &(SDL_FRect){48, 16, 16, 16}};
+Button saveFileButton = {"Save", (SDL_FRect){0, 0, 40, 16}, INPUTTYPE_BUTTON, NULL, true, true, false, false, NULL, NULL};
+Button loadFileButton = {"Load", (SDL_FRect){40, 0, 40, 16}, INPUTTYPE_BUTTON, buttonLoadMap, true, true, false, false, NULL, NULL};
+
+Button selectWidgetButton = {"\0", (SDL_FRect){0, 16, 16, 16}, INPUTTYPE_BUTTON, buttonSetTool, true, true, false, false, NULL, &(SDL_FRect){0, 16, 16, 16}};
+Button moveWidgetButton = {"\0", (SDL_FRect){0, 32, 16, 16}, INPUTTYPE_BUTTON, buttonSetTool, true, true, false, false, NULL, &(SDL_FRect){16, 16, 16, 16}};
+Button scaleWidgetButton = {"\0", (SDL_FRect){0, 48, 16, 16}, INPUTTYPE_BUTTON, buttonSetTool, true, true, false, false, NULL, &(SDL_FRect){32, 16, 16, 16}};
+Button rotateWidgetButton = {"\0", (SDL_FRect){0, 64, 16, 16}, INPUTTYPE_BUTTON, buttonSetTool, true, true, false, false, NULL, &(SDL_FRect){48, 16, 16, 16}};
 
 void initStudio(){
 	//printf("Studio Initiated\n");
@@ -150,11 +152,9 @@ void updateStudio(){
 	drawObjectList(client.gameWorld->headObj, 0, &idCounter);
 	
 	//make this less shitty soon
-	updateButton(&addObjButton); updateButton(&removeObjButton); updateButton(&fileButton); updateButton(&pauseButton);
-	drawButton(&addObjButton); drawButton(&removeObjButton); drawButton(&fileButton); drawButton(&pauseButton);
-	
-	updateButton(&selectWidgetButton); updateButton(&moveWidgetButton); updateButton(&scaleWidgetButton); updateButton(&rotateWidgetButton);
-	drawButton(&selectWidgetButton); drawButton(&moveWidgetButton); drawButton(&scaleWidgetButton); drawButton(&rotateWidgetButton);
+	updateAndDrawButton(studioRenderer, &addObjButton); updateAndDrawButton(studioRenderer, &removeObjButton); updateAndDrawButton(studioRenderer, &pauseButton);
+	updateAndDrawButton(studioRenderer, &loadFileButton); updateAndDrawButton(studioRenderer, &saveFileButton);
+	updateAndDrawButton(studioRenderer, &selectWidgetButton); updateAndDrawButton(studioRenderer, &moveWidgetButton); updateAndDrawButton(studioRenderer, &scaleWidgetButton); updateAndDrawButton(studioRenderer, &rotateWidgetButton);
 	
 	drawObjectProperties(focusObject, 240);
 	

@@ -41,6 +41,8 @@ void translateGimbleUpdate(DataObj* item){
 	float xGimbleDist = xGimbleProj[1].x - xGimbleProj[0].x;
 	SDL_FPoint xGimbleProjDist = {xGimbleProj[1].x - xGimbleProj[0].x, xGimbleProj[1].y - xGimbleProj[0].y};
 	
+	(void)xGimbleDist; (void)xGimbleProjDist;
+	
 	bool gimbleHover = (between(mousePos.x, xGimbleProj[0].x - 32, xGimbleProj[0].x + 32) && between(mousePos.y, xGimbleProj[0].y - 32, xGimbleProj[0].y + 32)) ||
 			(between(mousePos.x, xGimbleProj[1].x - 32, xGimbleProj[1].x + 32) && between(mousePos.y, xGimbleProj[1].y - 32, xGimbleProj[1].y + 32));
 	

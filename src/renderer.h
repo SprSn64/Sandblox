@@ -34,6 +34,7 @@ typedef struct{
 
 SDL_Texture *newTexture(char* path, SDL_ScaleMode scaleMode);
 void drawText(SDL_Renderer *renderLoc, Font *textFont, char* text, short posX, short posY, float size, SDL_FColor colour);
+void setDrawColour(SDL_Renderer *render, CharColour colour);
 
 Vector3 worldToCamera(Vector3 pos);
 Vector3 viewProj(Vector3 pos);

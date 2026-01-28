@@ -176,7 +176,7 @@ void drawMesh(Mesh* mesh, mat4 transform, SDL_FColor colour, SDL_Texture* textur
 			float faceDot = max(dotProd3(faceNormal, lightNormal), 0);
 			Vector3 cameraNorm = rotToNorm3(client.gameWorld->currCamera->rot);
 			Vector3 reflectSource = normalize3(reflect((Vector3){-lightNormal.x, -lightNormal.y, -lightNormal.z}, faceNormal));
-			float specular = pow(max(dotProd3(cameraNorm, reflectSource), 0), 32);
+			float specular = pow(max(dotProd3(cameraNorm, reflectSource), 0), 16);
 			shadedColour[index] = (SDL_FColor){
 				(colour.r * lightAmbient.r * lightColour.r) + (colour.r * lightColour.r * faceDot) + (specular * lightColour.r),
 				(colour.g * lightAmbient.g * lightColour.g) + (colour.g * lightColour.g * faceDot) + (specular * lightColour.g),
@@ -219,6 +219,8 @@ CharColour ConvertColour(CharColour colour, Uint32 mode){
 extern Mesh* planePrim;
 //fix soon
 void drawBillboard(SDL_Texture *texture, SDL_FRect rect, Vector3 pos, SDL_FPoint offset, SDL_FPoint scale){
+	(void)rect; (void)offset;
+	
 	Vector3 planeRot = (Vector3){
 		client.gameWorld->currCamera->rot.x + HALFPI,
 		client.gameWorld->currCamera->rot.y,
@@ -240,13 +242,17 @@ void drawBillboard(SDL_Texture *texture, SDL_FRect rect, Vector3 pos, SDL_FPoint
 }
 
 void drawText(SDL_Renderer *renderLoc, Font *textFont, char* text, short posX, short posY, float scale, SDL_FColor colour){
+	SDL_SetTextureColorMod(textFont->image, (Uint8)(colour.r * 255), (Uint8)(colour.g * 255), (Uint8)(colour.b * 255));
+	if(!renderLoc || strlen(text) == 0){
+		printf("cant draw text '%s'\n", text);
+		return;
+	}
 	for(size_t i=0; i<=strlen(text); i++){
 		char charVal = text[i] - textFont->startChar;
 		int xOff = (charVal % textFont->columns) * textFont->glyphSize.x;
 		int yOff = floor((float)charVal / textFont->columns) * textFont->glyphSize.y;
 		SDL_FRect sprRect = {xOff, yOff, textFont->glyphSize.x, textFont->glyphSize.y};
 		SDL_FRect sprPos = {posX + textFont->kerning.x * i * scale, posY + textFont->kerning.y * i * scale, textFont->glyphSize.x * scale, textFont->glyphSize.y * scale};
-		SDL_SetTextureColorMod(textFont->image, (Uint8)(colour.r * 255), (Uint8)(colour.g * 255), (Uint8)(colour.b * 255));
 		SDL_RenderTexture(renderLoc, textFont->image, &sprRect, &sprPos);
 	}
 }
@@ -359,4 +365,8 @@ Mesh* genPlaneMesh(float xScale, float yScale, int xRes, int yRes){
 	Mesh* newMesh = malloc(sizeof(Mesh));
 	newMesh->vertCount = vertCount; newMesh->verts = newVerts; newMesh->faceCount = faceCount; newMesh->faces = newFaces; 
 	return newMesh;
+}
+
+void setDrawColour(SDL_Renderer *render, CharColour colour){
+	SDL_SetRenderDrawColor(render, colour.r, colour.g, colour.b, colour.a); 
 }
