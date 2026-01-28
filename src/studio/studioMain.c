@@ -150,6 +150,13 @@ void updateStudio(){
 	int idCounter = 0;
 	drawObjectList(client.gameWorld->headObj, 0, &idCounter);
 	
+	if(objListLength > floor(objListRect.h / 16) + 2){
+		SDL_SetRenderDrawColor(studioRenderer, 192, 193, 196, SDL_ALPHA_OPAQUE);
+		float scrollHeight = objListRect.h / max(1, (objListLength - floor(objListRect.h / 16)));
+		float scrollT = min(1, max(0, objListScroll / (objListLength - objListRect.h / 16)));
+		SDL_RenderFillRect(studioRenderer, &(SDL_FRect){objListRect.x + objListRect.w - 8, objListRect.y + (objListRect.h - scrollHeight) * scrollT, 8, scrollHeight});
+	}
+	
 	//make this less shitty soon
 	updateAndDrawButton(studioRenderer, &addObjButton); updateAndDrawButton(studioRenderer, &removeObjButton); updateAndDrawButton(studioRenderer, &pauseButton);
 	updateAndDrawButton(studioRenderer, &loadFileButton); updateAndDrawButton(studioRenderer, &saveFileButton);
@@ -185,6 +192,7 @@ void drawObjectList(DataObj* item, int nodeDepth, int *idCount){
 	if(focusObject == item){
 		focusSkip:
 		SDL_SetRenderDrawColor(studioRenderer, 64, 192, 24, SDL_ALPHA_OPAQUE);
+		
 		SDL_RenderFillRect(studioRenderer, &(SDL_FRect){objListRect.x, objListRect.y + itemYOffset, objListRect.w, 16});
 	}
 	

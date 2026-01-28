@@ -256,6 +256,7 @@ SDL_AppResult SDL_AppIterate(void *appstate){
 	//windowScaleFactor = min((float)windowScale.x / windowScaleIntent.x, (float)windowScale.y / windowScaleIntent.y);
 	renderScale = min(windowScale.x, windowScale.y);
 	
+	//setDrawColour(renderer, skyboxColour);
 	SDL_SetRenderDrawColor(renderer, skyboxColour.r * 255, skyboxColour.g * 255, skyboxColour.b * 255, SDL_ALPHA_OPAQUE);
 	SDL_RenderClear(renderer);
 	
