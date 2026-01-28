@@ -147,7 +147,6 @@ void updateStudio(){
 		case STUDIOTOOL_ROTATE: focusObject->rot = vec3Add(focusObject->rot, (Vector3){gimbleAddVec.x * HALFPI / 3, gimbleAddVec.y * HALFPI / 3, gimbleAddVec.z * HALFPI / 3}); break;
 	}
 	
-	objListLength = 0;
 	int idCounter = 0;
 	drawObjectList(client.gameWorld->headObj, 0, &idCounter);
 	
@@ -188,6 +187,7 @@ void drawObjectList(DataObj* item, int nodeDepth, int *idCount){
 		SDL_SetRenderDrawColor(studioRenderer, 64, 192, 24, SDL_ALPHA_OPAQUE);
 		SDL_RenderFillRect(studioRenderer, &(SDL_FRect){objListRect.x, objListRect.y + itemYOffset, objListRect.w, 16});
 	}
+	
 	SDL_SetRenderDrawColor(studioRenderer, 255, 255, 255, 255);
 	SDL_RenderDebugText(studioRenderer, objListRect.x + 18/**/ + (nodeDepth * 24), 20/**/ + itemYOffset, item->name);
 	drawText(studioRenderer, &defaultFont, item->name, objListRect.x + 18/**/ + (nodeDepth * 24), 20/**/ + itemYOffset, 1, (SDL_FColor){1, 1, 1, 1}); //why no render????

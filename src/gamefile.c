@@ -96,7 +96,9 @@ DataObj* createObjectFromJSON(cJSON* obj, DataObj* parent) {
     DataType* objClass = getClassByName(className->valuestring);
     if(!objClass) return NULL;
     
-    DataObj* newObj = newObject(parent, objClass);
+    DataObj* newParent = parent;
+    if(!parent) newParent = &gameHeader;
+    DataObj* newObj = newObject(newParent, objClass);
     if(!newObj) return NULL;
     
     if(name && cJSON_IsString(name)) {

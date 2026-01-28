@@ -58,7 +58,8 @@ void updateObjects(DataObj* item, int nodeDepth, int *idCount, bool uord){ //uor
 			//item->asVoidptr[OBJVAL_SCRIPT](item); //doesnt work
 		}
 	}else{ 
-		objListLength++;
+		if(item->parent && item->parent->studioOpen == true)
+			objListLength += item->parent->studioOpen;
 		if(!item->classData->draw) goto noDraw;
 		/*item->transform = newMatrix();
 		scaleMatrix2(item->transform, item->scale);

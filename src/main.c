@@ -26,7 +26,6 @@
 	Make studio widgets work properly
 	Add multiplayer server shit
 	Implement simple physics
-	Fix studio object list scrolling
 	Add secondary studio menu for changing object properties (colour, scale, etc)
 */
 
@@ -224,10 +223,7 @@ SDL_AppResult SDL_AppEvent(void *appstate, SDL_Event *event){
 		if(studioFocus && between(mousePos.x, objListRect.x, objListRect.x + objListRect.w) && between(mousePos.y, objListRect.y, objListRect.y + objListRect.h)){
 			float scrollSpeed = 1.0f;
 			objListScroll += scrollSpeed * (1 - 2 * (event->wheel.y > 0)) * (event->wheel.y != 0);
-			objListScroll = min(max(objListScroll, 0), objListLength);
-			char popupString[32];
-			sprintf(popupString, "%x.", objListLength);
-			sendPopup(popupString, NULL, NULL, 0.12);
+			objListScroll = min(max(objListScroll, 0), max(objListLength - floor(objListRect.h / 16) + 2, 0));
 		}
 	}
 	

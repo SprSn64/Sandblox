@@ -26,7 +26,7 @@ extern SDL_Renderer *studioRenderer;
 
 extern Font defaultFont;
 
-/*CharColour buttonColours[BUTTONCOLOUR_MAX] = {
+/*CharColour buttonColours[BUTTONCOLOUR_MAX] = { //what do you MEAN defined in main.c
 	(CharColour){205, 208, 226, 255, 0, COLOURMODE_RGB},
 	(CharColour){231, 234, 249, 255, 0, COLOURMODE_RGB},
 	(CharColour){124, 128, 154, 255, 0, COLOURMODE_RGB},
