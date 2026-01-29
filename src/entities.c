@@ -96,11 +96,19 @@ void blockDraw(DataObj* object){
 	Mesh *itemMesh = cubePrim;
 	SDL_Texture *itemTex = NULL;
 	DataObj *meshItem = firstChildOfType(object, meshClass);
+	float *meshTransform = object->transform;
+	float *meshMatrix;
 	if(meshItem){
 		itemMesh = meshItem->asVoidptr[OBJVAL_MESH];
 		itemTex = meshItem->asVoidptr[OBJVAL_TEXTURE];
+		meshMatrix = genMatrix(meshItem->pos, meshItem->scale, meshItem->rot);
+		meshTransform = multMatrix(meshMatrix, object->transform);
 	}
-	drawMesh(itemMesh, object->transform, ConvertSDLColour(object->colour), itemTex, true);
+	drawMesh(itemMesh, meshTransform, ConvertSDLColour(object->colour), itemTex, true);
+	if(meshItem){ 
+		free(meshTransform); 
+		free(meshMatrix);
+	}
 }
 
 void homerDraw(DataObj* object){
