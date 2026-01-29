@@ -38,6 +38,8 @@ Vector3 ogPos;
 float ogGimbles[2];
 Vector3 ogProjs[2];
 char gimbleGrabbed = 0;
+float ogLerp = 0;
+bool lerpSet = false;
 void translateGimbleUpdate(DataObj* item){
 	//projToScreen(viewProj(worldToCamera(pos)))
 	if(!(SDL_GetWindowFlags(window) & SDL_WINDOW_INPUT_FOCUS)) return;
@@ -64,8 +66,10 @@ void translateGimbleUpdate(DataObj* item){
 	
 	if(xProj[0].z >= 0 && xProj[1].z >= 0 && yProj[0].z >= 0 && yProj[1].z >= 0 && zProj[0].z >= 0 && zProj[1].z >= 0) return;
 	
-	if(!mouseButtons[0].down)
+	if(!mouseButtons[0].down){
 		gimbleGrabbed = 0;
+		lerpSet = false;
+	}
 	
 	SDL_FPoint distVec; float dist; float angle; SDL_FPoint mouseDist; float dragDist;
 	
@@ -76,12 +80,16 @@ void translateGimbleUpdate(DataObj* item){
 		angle = atan2(distVec.y, distVec.x);
 		mouseDist = (SDL_FPoint){mousePos.x - ogProjs[0].x, mousePos.y - ogProjs[0].y};
 		dragDist = (SDL_cos(angle) * mouseDist.x + SDL_sin(angle) * mouseDist.y) / sqrt(distVec.x * distVec.x + distVec.y * distVec.y);
+		if(!lerpSet){
+			ogLerp = dragDist;
+			lerpSet = true;
+		}
 	}
 	
 	switch(gimbleGrabbed){
-		case 1: item->pos.x = closest(ogPos.x + dist * dragDist, 1); break;
-		case 2: item->pos.y = closest(ogPos.y + dist * dragDist, 1); break;
-		case 3: item->pos.z = closest(ogPos.z + dist * dragDist, 1); break;
+		case 1: item->pos.x = closest(ogPos.x + dist * (dragDist - ogLerp), 1); break;
+		case 2: item->pos.y = closest(ogPos.y + dist * (dragDist - ogLerp), 1); break;
+		case 3: item->pos.z = closest(ogPos.z + dist * (dragDist - ogLerp), 1); break;
 	}
 	
 	if(mouseButtons[0].pressed && gimbleGrabbed == 0){
