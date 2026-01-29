@@ -304,7 +304,8 @@ SDL_AppResult SDL_AppIterate(void *appstate){
 	Vector3 invVec3 = {-1, -1, -1};
 	currentCamera.transform = genMatrix(vec3Mult(currentCamera.pos, invVec3), (Vector3){currentCamera.zoom, currentCamera.zoom, currentCamera.zoom}, vec3Mult(currentCamera.rot, invVec3));
 	
-	updateStudioGimbles();
+	if(client.studio)
+		updateStudioGimbles();
 	
 	int idCounter = 0;
 	objListLength = 0;
