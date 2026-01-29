@@ -25,6 +25,7 @@ extern float* defaultMatrix;
 extern Mesh *spherePrim;
 
 extern Mesh *rotateGimbleMesh;
+extern Mesh *translateGimbleMesh;
 
 extern Uint32 toolMode;
 extern DataObj *focusObject;
@@ -50,6 +51,27 @@ void translateGimbleUpdate(DataObj* item){
 		item->pos = vec3Add(item->pos, (Vector3){(1 - 2 * ((mousePos.x - (xGimbleProj[0].x + xGimbleProj[1].x) / 2) < 0)) * 0.2, 0, 0});
 		//sendPopup("Gimble Hovered!", NULL, NULL, 1);
 	}
+}
+
+void drawTranslateGimble(DataObj* item){
+	if(!item) return;
+	if(!item->classData->draw) return;
+	Vector3 itemCenter = vec3Add(item->pos, vec3Mult(item->scale, (Vector3){0.5, -0.5, 0.5}));
+	
+	float* xMatrixA = genMatrix(vec3Add(itemCenter, (Vector3){-item->scale.x / 2, 0, 0}), (Vector3){1, 1, 1}, (Vector3){0, 0, HALFPI});
+	float* xMatrixB = genMatrix(vec3Add(itemCenter, (Vector3){item->scale.x / 2, 0, 0}), (Vector3){1, 1, 1}, (Vector3){0, 0, -HALFPI});
+	drawMesh(translateGimbleMesh, xMatrixA, (SDL_FColor){1, 0, 0, 0.5}, NULL, true); drawMesh(translateGimbleMesh, xMatrixB, (SDL_FColor){1, 0, 0, 0.5}, NULL, true);
+	free(xMatrixA); free(xMatrixB);
+	
+	float* yMatrixA = genMatrix(vec3Add(itemCenter, (Vector3){0, -item->scale.y / 2, 0}), (Vector3){1, -1, 1}, (Vector3){0, 0, 0});
+	float* yMatrixB = genMatrix(vec3Add(itemCenter, (Vector3){0, item->scale.y / 2, 0}), (Vector3){1, 1, 1}, (Vector3){0, 0, 0});
+	drawMesh(translateGimbleMesh, yMatrixA, (SDL_FColor){0, 1, 0, 0.5}, NULL, true); drawMesh(translateGimbleMesh, yMatrixB, (SDL_FColor){0, 1, 0, 0.5}, NULL, true);
+	free(yMatrixA); free(yMatrixB);
+	
+	float* zMatrixA = genMatrix(vec3Add(itemCenter, (Vector3){0, 0, -item->scale.z / 2}), (Vector3){1, 1, 1}, (Vector3){-HALFPI, 0, 0});
+	float* zMatrixB = genMatrix(vec3Add(itemCenter, (Vector3){0, 0, item->scale.z / 2}), (Vector3){1, 1, 1}, (Vector3){HALFPI, 0, 0});
+	drawMesh(translateGimbleMesh, zMatrixA, (SDL_FColor){0, 0, 1, 0.5}, NULL, true); drawMesh(translateGimbleMesh, zMatrixB, (SDL_FColor){0, 0, 1, 0.5}, NULL, true);
+	free(zMatrixA); free(zMatrixB);
 }
 
 void drawScaleGimble(DataObj* item){
@@ -98,7 +120,7 @@ void drawRotateGimble(DataObj* item){
 
 void drawStudioOverlay(){
 	switch(toolMode){
-		case STUDIOTOOL_MOVE: drawScaleGimble(focusObject); break;
+		case STUDIOTOOL_MOVE: drawTranslateGimble(focusObject); break;
 		case STUDIOTOOL_SCALE: drawScaleGimble(focusObject); break;
 		case STUDIOTOOL_ROTATE: drawRotateGimble(focusObject); break;
 	}

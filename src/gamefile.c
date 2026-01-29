@@ -285,7 +285,7 @@ int loadGameFile(const char* filename) {
     cJSON_Delete(json);
     free(content);
     client.pause = false;
-    printf("Successfully loaded game file\n");
+    printf("Successfully loaded gamefile %s\n", filename);
     return 0;
 }
 
@@ -294,7 +294,7 @@ DataObj* createPlayerFromJSON() {
 }
 
 int saveGameFile(const char* filename) {
-    printf("Saving game file: %s\n", filename);
+    printf("Saving game file: %s\n wait no fuck you cant sorry\n", filename);
     
     /*FILE* file = fopen(filename, "r");
     if(!file) {

@@ -13,6 +13,7 @@
 #include "../math.h"
 #include "../instances.h"
 #include "../renderer.h"
+#include "../loader.h"
 
 extern SDL_Window *window;
 extern SDL_Renderer *renderer;
@@ -31,6 +32,7 @@ extern Font defaultFont;
 SDL_Texture *classIconTex = NULL;
 SDL_Texture *stuButtonTex = NULL;
 Mesh *rotateGimbleMesh = NULL;
+Mesh *translateGimbleMesh = NULL;
 
 extern Mesh *spherePrim;
 
@@ -91,6 +93,7 @@ void initStudio(){
 	classIconTex = IMG_LoadTexture(studioRenderer, "assets/textures/classicons.png");
 	stuButtonTex = IMG_LoadTexture(studioRenderer, "assets/textures/studiobuttons.png");
 	rotateGimbleMesh = genTorusMesh(2, 0.1, 5, 24);
+	translateGimbleMesh = loadMeshFromObj("assets/models/arrowwidget.obj");
 	
 	addObjButton.image = stuButtonTex;
 	removeObjButton.image = stuButtonTex;
@@ -170,7 +173,7 @@ void updateStudio(){
 void studioCleanup(){
 	if(!studioActive) return;
 	SDL_DestroyTexture(classIconTex); SDL_DestroyTexture(stuButtonTex); 
-	free(rotateGimbleMesh);
+	free(rotateGimbleMesh); free(translateGimbleMesh);
 }
 
 void drawObjectList(DataObj* item, int nodeDepth, int *idCount){	

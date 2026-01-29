@@ -68,7 +68,7 @@ void playerUpdate(DataObj* object){
 	object->colour.a = min(game.currCamera->focusDist / 2, 1) * 255;
 	game.currCamera->pos = (Vector3){
 		object->pos.x + (SDL_cos(game.currCamera->rot.x) * SDL_sin(game.currCamera->rot.y)) * game.currCamera->focusDist, 
-		object->pos.y + (1 - min(game.currCamera->focusDist / 2, 1)) + 2.5 * object->scale.y - SDL_sin(game.currCamera->rot.x) * game.currCamera->focusDist, 
+		object->pos.y + pow(1 - min(game.currCamera->focusDist / 8, 1), 2) + 2.5 * object->scale.y - SDL_sin(game.currCamera->rot.x) * game.currCamera->focusDist, 
 		object->pos.z + (SDL_cos(game.currCamera->rot.x) * SDL_cos(game.currCamera->rot.y)) * game.currCamera->focusDist};
 }
 

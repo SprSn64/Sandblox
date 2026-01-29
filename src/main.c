@@ -189,7 +189,6 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[]){
 	if(mapLoaded) return SDL_APP_CONTINUE;
 	
 	if(loadGameFile(mapToLoad) == 0){
-		printf("Successfully loaded gamefile\n");
 		gameFileLoaded = true;
 	} else {
 		printf("Failed to load gamefile\n");
