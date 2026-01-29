@@ -9,6 +9,42 @@
 #include <string.h>
 #include <math.h>
 
+#ifdef _WIN32
+#include <windows.h>
+
+/*
+
+_STARTUPINFOA {
+  DWORD  cb;
+  LPSTR  lpReserved;
+  LPSTR  lpDesktop;
+  LPSTR  lpTitle;
+  DWORD  dwX;
+  DWORD  dwY;
+  DWORD  dwXSize;
+  DWORD  dwYSize;
+  DWORD  dwXCountChars;
+  DWORD  dwYCountChars;
+  DWORD  dwFillAttribute;
+  DWORD  dwFlags;
+  WORD   wShowWindow;
+  WORD   cbReserved2;
+  LPBYTE lpReserved2;
+  HANDLE hStdInput;
+  HANDLE hStdOutput;
+  HANDLE hStdError;
+} STARTUPINFOA, *LPSTARTUPINFOA;
+
+typedef struct _PROCESS_INFORMATION {
+  HANDLE hProcess;
+  HANDLE hThread;
+  DWORD  dwProcessId;
+  DWORD  dwThreadId;
+} PROCESS_INFORMATION, *PPROCESS_INFORMATION, *LPPROCESS_INFORMATION;
+*/
+
+#endif
+
 extern SDL_Window *window;
 extern SDL_Renderer *renderer;
 
@@ -65,6 +101,7 @@ void buttonLaunch(Button* item){
 	//run client
 	
 	#ifdef _WIN32
+	
 	FILE *file = fopen("config.txt", "r");
 	if(!file){
 		printf("Couldnt find config file\n");
@@ -76,17 +113,19 @@ void buttonLaunch(Button* item){
 	printf("Game directory is at %s.\n", gameDir);
 	fclose(file);
 	
+	system(gameDir);
+	
 	/*CreateProcessA(
 		gameDir,
-		[in, out, optional] LPSTR                 lpCommandLine,
-		[in, optional]      LPSECURITY_ATTRIBUTES lpProcessAttributes,
-		[in, optional]      LPSECURITY_ATTRIBUTES lpThreadAttributes,
-		[in]                BOOL                  bInheritHandles,
-		[in]                DWORD                 dwCreationFlags,
-		[in, optional]      LPVOID                lpEnvironment,
-		[in, optional]      LPCSTR                lpCurrentDirectory,
-		[in]                LPSTARTUPINFOA        lpStartupInfo,
-		[out]               LPPROCESS_INFORMATION lpProcessInformation
+		NULL,
+		NULL,
+		NULL,
+		false,
+		NORMAL_PRIORITY_CLASS,
+		NULL,
+		NULL,
+		&gameStartup,
+		&gameStartInfo
 	);*/
 	#endif
 
