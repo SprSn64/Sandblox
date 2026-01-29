@@ -56,6 +56,13 @@
 	    "class": "Accessory",
 	    "colour": [255, 51, 76, 255],
 	    "mesh": "assets/models/avatarItems/antennahat.obj"
+	  },
+	  {
+	    "name": "Face",
+	    "class": "Accessory",
+	    "colour": [255, 255, 255, 255],
+	    "mesh": "assets/models/avatarItems/face.obj",
+	    "texture": "assets/textures/face.png"
 	  }
 	]
     },
