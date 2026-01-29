@@ -35,57 +35,78 @@ extern ButtonMap mouseButtons[];
 extern float renderScale;
 
 Vector3 ogPos;
-float ogXGimbles[2];
-Vector3 ogXProjs[2];
-bool gimbleGrabbed = false;
+float ogGimbles[2];
+Vector3 ogProjs[2];
+char gimbleGrabbed = 0;
 void translateGimbleUpdate(DataObj* item){
 	//projToScreen(viewProj(worldToCamera(pos)))
 	if(!(SDL_GetWindowFlags(window) & SDL_WINDOW_INPUT_FOCUS)) return;
 	
+	//code spaghetti.... yum!
+	
 	Vector3 xPos[2] = {vec3Add(item->pos, (Vector3){-1.5, -item->scale.y / 2, item->scale.z / 2}), vec3Add(item->pos, (Vector3){item->scale.x + 1.5, -item->scale.y / 2, item->scale.z / 2})};
 	Vector3 xProj[2] = {projToScreen(viewProj(worldToCamera(xPos[0]))), projToScreen(viewProj(worldToCamera(xPos[1])))};
-	if(xProj[0].z >= 0 && xProj[1].z >= 0) return;
-	
 	float xScale[2] = {1 / xProj[0].z * renderScale, 1 / xProj[1].z * renderScale};
-	//printf("%f, %f\n", xScale[0], xScale[1]);
-	//printf("%f, %f\n", xProj[0].x, xProj[1].x);
-	
 	bool xHoverA = between(mousePos.x, xProj[0].x + xScale[0] / 2, xProj[0].x - xScale[0] / 2) && between(mousePos.y, xProj[0].y + xScale[0] / 2, xProj[0].y - xScale[0] / 2);
 	bool xHoverB = between(mousePos.x, xProj[1].x + xScale[1] / 2, xProj[1].x - xScale[1] / 2) && between(mousePos.y, xProj[1].y + xScale[1] / 2, xProj[1].y - xScale[1] / 2);
 	
-	//SDL_SetRenderDrawColor(renderer, 0, 255, 255, SDL_ALPHA_OPAQUE); 
+	Vector3 yPos[2] = {vec3Add(item->pos, (Vector3){item->scale.x / 2, 1.5, item->scale.z / 2}), vec3Add(item->pos, (Vector3){item->scale.x / 2, -item->scale.y - 1.5, item->scale.z / 2})};
+	Vector3 yProj[2] = {projToScreen(viewProj(worldToCamera(yPos[0]))), projToScreen(viewProj(worldToCamera(yPos[1])))};
+	float yScale[2] = {1 / yProj[0].z * renderScale, 1 / yProj[1].z * renderScale};
+	bool yHoverA = between(mousePos.x, yProj[0].x + yScale[0] / 2, yProj[0].x - yScale[0] / 2) && between(mousePos.y, yProj[0].y + yScale[0] / 2, yProj[0].y - yScale[0] / 2);
+	bool yHoverB = between(mousePos.x, yProj[1].x + yScale[1] / 2, yProj[1].x - yScale[1] / 2) && between(mousePos.y, yProj[1].y + yScale[1] / 2, yProj[1].y - yScale[1] / 2);
 	
-	if(!mouseButtons[0].down){
-		gimbleGrabbed = false;
-	}
+	Vector3 zPos[2] = {vec3Add(item->pos, (Vector3){item->scale.z / 2, -item->scale.y / 2, -1.5}), vec3Add(item->pos, (Vector3){item->scale.x /2, -item->scale.y / 2, item->scale.z + 1.5})};
+	Vector3 zProj[2] = {projToScreen(viewProj(worldToCamera(zPos[0]))), projToScreen(viewProj(worldToCamera(zPos[1])))};
+	float zScale[2] = {1 / zProj[0].z * renderScale, 1 / zProj[1].z * renderScale};
+	bool zHoverA = between(mousePos.x, zProj[0].x + zScale[0] / 2, zProj[0].x - zScale[0] / 2) && between(mousePos.y, zProj[0].y + zScale[0] / 2, zProj[0].y - zScale[0] / 2);
+	bool zHoverB = between(mousePos.x, zProj[1].x + zScale[1] / 2, zProj[1].x - zScale[1] / 2) && between(mousePos.y, zProj[1].y + zScale[1] / 2, zProj[1].y - zScale[1] / 2);
 	
-	if(mouseButtons[0].pressed && !gimbleGrabbed && (xHoverA || xHoverB)){
-		sendPopup("X gimble pressed!", NULL, NULL, 3);
-		ogPos = item->pos;
-		ogXGimbles[0] = xPos[0].x; ogXGimbles[1] = xPos[1].x;
-		ogXProjs[0] = xProj[0]; ogXProjs[1] = xProj[1];
-		gimbleGrabbed = true;
-		//return;
-	}
+	if(xProj[0].z >= 0 && xProj[1].z >= 0 && yProj[0].z >= 0 && yProj[1].z >= 0 && zProj[0].z >= 0 && zProj[1].z >= 0) return;
+	
+	if(!mouseButtons[0].down)
+		gimbleGrabbed = 0;
+	
+	SDL_FPoint distVec; float dist; float angle; SDL_FPoint mouseDist; float dragDist;
 	
 	if(gimbleGrabbed){
-		SDL_FPoint xDistVec = {ogXProjs[1].x - ogXProjs[0].x, ogXProjs[1].y - ogXProjs[0].y};
-		float xDist = ogXGimbles[1] - ogXGimbles[0];
+		distVec = (SDL_FPoint){ogProjs[1].x - ogProjs[0].x, ogProjs[1].y - ogProjs[0].y};
+		dist = ogGimbles[1] - ogGimbles[0];
 		
-		float xAngle = atan2(xDistVec.y, xDistVec.x);
-		SDL_FPoint mouseDist = {mousePos.x - ogXProjs[0].x, mousePos.y - ogXProjs[0].y};
-		float dragDist = (SDL_cos(xAngle) * mouseDist.x + SDL_sin(xAngle) * mouseDist.y) / sqrt(xDistVec.x * xDistVec.x + xDistVec.y * xDistVec.y);
-		item->pos.x = ogPos.x + xDist * dragDist;
-		
-		return;
+		angle = atan2(distVec.y, distVec.x);
+		mouseDist = (SDL_FPoint){mousePos.x - ogProjs[0].x, mousePos.y - ogProjs[0].y};
+		dragDist = (SDL_cos(angle) * mouseDist.x + SDL_sin(angle) * mouseDist.y) / sqrt(distVec.x * distVec.x + distVec.y * distVec.y);
 	}
 	
-	/*if(xHoverA + xHoverB > 0){
-		SDL_SetRenderDrawColor(renderer, 255, 255, 255, SDL_ALPHA_OPAQUE); 
+	switch(gimbleGrabbed){
+		case 1: item->pos.x = closest(ogPos.x + dist * dragDist, 1); break;
+		case 2: item->pos.y = closest(ogPos.y + dist * dragDist, 1); break;
+		case 3: item->pos.z = closest(ogPos.z + dist * dragDist, 1); break;
 	}
 	
-	SDL_RenderFillRect(renderer, &(SDL_FRect){xProj[0].x - xScale[0]/2, xProj[0].y - xScale[0]/2, xScale[0], xScale[0]});
-	SDL_RenderFillRect(renderer, &(SDL_FRect){xProj[1].x - xScale[1]/2, xProj[1].y - xScale[1]/2, xScale[1], xScale[1]});*/
+	if(mouseButtons[0].pressed && gimbleGrabbed == 0){
+		//sendPopup("X gimble pressed!", NULL, NULL, 3);
+		if(xHoverA || xHoverB){
+			ogGimbles[0] = xPos[0].x; ogGimbles[1] = xPos[1].x;
+			ogProjs[0] = xProj[0]; ogProjs[1] = xProj[1];
+			gimbleGrabbed = 1;
+			return;
+		}
+		if(yHoverA || yHoverB){
+			ogGimbles[0] = yPos[0].y; ogGimbles[1] = yPos[1].y;
+			ogProjs[0] = yProj[0]; ogProjs[1] = yProj[1];
+			gimbleGrabbed = 2;
+			return;
+		}
+		if(zHoverA || zHoverB){
+			ogGimbles[0] = zPos[0].z; ogGimbles[1] = zPos[1].z;
+			ogProjs[0] = zProj[0]; ogProjs[1] = zProj[1];
+			gimbleGrabbed = 3;
+			return;
+		}
+		
+		ogPos = item->pos;
+	}
 }
 
 void drawTranslateGimble(DataObj* item){
