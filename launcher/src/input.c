@@ -29,19 +29,36 @@ bool updateButton(Button* item){
 		
 		if(item->down) return 1;
 		item->down = true;
+		printf("button pressed\n");
 		item->pressed(item);
 	}
 	
 	return 0;
 }
 
-void drawButton(Button* item){
-	SDL_SetRenderDrawColor(renderer, 187, 187, 187, SDL_ALPHA_OPAQUE); 
-	if(item->enabled)SDL_SetRenderDrawColor(renderer, 224 + 31 * item->hover, 224 + 31 * item->hover, 255, SDL_ALPHA_OPAQUE); 
-	SDL_RenderFillRect(renderer, &(SDL_FRect){item->rect.x, item->rect.y, item->rect.w, item->rect.h});
+void drawButton(SDL_Renderer* render, Button* item){
+	/*if(item->image){
+		SDL_FRect* rect = &(SDL_FRect){0, 0, item->image->w, item->image->h};
+		if(item->imageSrc) rect = item->imageSrc;
+		SDL_RenderTexture(render, item->image, rect, &item->rect);
+		return;
+	}*/
+
+	if(!item->enabled){
+		SDL_SetRenderDrawColor(render, 177, 179, 191, 255);//buttonColours[BUTTONCOLOUR_DISABLED]);
+		goto buttonDrawStart;
+	}
+	SDL_SetRenderDrawColor(render, 205, 208, 226, 255);//buttonColours[BUTTONCOLOUR_DEFAULT]);
+	if(item->hover)
+		SDL_SetRenderDrawColor(render, 231, 234, 249, 255);//buttonColours[BUTTONCOLOUR_HOVER]);
+	if(item->down)
+		SDL_SetRenderDrawColor(render, 124, 128, 154, 255);//buttonColours[BUTTONCOLOUR_PRESSED]);
 	
-	SDL_SetRenderDrawColor(renderer, 0, 0, 0, SDL_ALPHA_OPAQUE);
-	SDL_RenderDebugText(renderer, item->rect.x + 2, item->rect.y + 2, item->labelText);
+	buttonDrawStart:
+	SDL_RenderFillRect(render, &(SDL_FRect){item->rect.x, item->rect.y, item->rect.w, item->rect.h});
+	
+	SDL_SetRenderDrawColor(render, 0, 0, 0, SDL_ALPHA_OPAQUE);
+	SDL_RenderDebugText(render, item->rect.x + 2, item->rect.y + 2, item->labelText);
 }
 
 void buttonLaunch(Button* item){

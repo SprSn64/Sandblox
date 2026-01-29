@@ -131,7 +131,7 @@ SDL_AppResult SDL_AppIterate(void *appstate){
 	SDL_SetRenderDrawColor(renderer, 20, 22, 24, SDL_ALPHA_OPAQUE);
 	SDL_RenderClear(renderer);
 	
-	updateButton(&launchButton); drawButton(&launchButton);
+	updateButton(&launchButton); drawButton(renderer, &launchButton);
 	
 	drawText(renderer, fontTex, osText, 32, 0, 0, 16, 16, 12);
 	

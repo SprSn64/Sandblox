@@ -11,7 +11,7 @@ typedef struct Button{
 } Button;
 
 bool updateButton(Button* item);
-void drawButton(Button* item);
+void drawButton(SDL_Renderer* render, Button* item);
 
 void buttonLaunch(Button* item);
 
