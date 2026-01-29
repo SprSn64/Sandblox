@@ -8,3 +8,4 @@ workspace
 *.aarch64
 ignore
 launcher/sblauncher.exe
+launcher/config.txt

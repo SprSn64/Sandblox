@@ -8,8 +8,21 @@
 #include <string.h>
 #include <math.h>
 
+typedef enum operatingSystem{
+	OS_OTHER,
+	OS_WINDOWS,
+	OS_LINUX,
+	OS_MAC,
+} operatingSystem;
+
 //do something with linux support or something here
-#include <windows.h>
+#ifdef _WIN32
+	Uint32 osType = OS_WINDOWS;
+#endif
+
+#ifdef linux
+	Uint32 osType = OS_LINUX;
+#endif
 
 #include <structs.h>
 #include "input.h"
@@ -45,6 +58,8 @@ void drawText(SDL_Renderer *renderer, SDL_Texture *texture, char* text, char cha
 
 SDL_Texture* fontTex = NULL;
 
+char osText[64];
+
 SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[]){
 	SDL_SetAppMetadata("SandBlox", "0.0", NULL);
 	
@@ -66,6 +81,15 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[]){
 	SDL_SetRenderVSync(renderer, 1);
 	
 	fontTex = newTexture("assets/font.png", 0);
+	
+	switch(osType){
+		case OS_WINDOWS: sprintf(osText, "Windows"); break;
+		case OS_LINUX: sprintf(osText, "Linux"); break;
+		case OS_MAC: sprintf(osText, "Mac"); break;
+		default: sprintf(osText, "Undefined"); break;
+	}
+	
+	printf("Operating system is %s\n", osText);
 
 	return SDL_APP_CONTINUE;
 }	
@@ -108,6 +132,8 @@ SDL_AppResult SDL_AppIterate(void *appstate){
 	SDL_RenderClear(renderer);
 	
 	updateButton(&launchButton); drawButton(&launchButton);
+	
+	drawText(renderer, fontTex, osText, 32, 0, 0, 16, 16, 12);
 	
 	//drawText(renderer, fontTex, "johnsons", 32, 0, 0, 16, 16, 14);
 

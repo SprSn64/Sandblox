@@ -92,7 +92,7 @@ void initStudio(){
 	
 	classIconTex = IMG_LoadTexture(studioRenderer, "assets/textures/classicons.png");
 	stuButtonTex = IMG_LoadTexture(studioRenderer, "assets/textures/studiobuttons.png");
-	rotateGimbleMesh = genTorusMesh(2, 0.1, 5, 24);
+	rotateGimbleMesh = genTorusMesh(2, 0.1, 3, 24);
 	translateGimbleMesh = loadMeshFromObj("assets/models/arrowwidget.obj");
 	
 	addObjButton.image = stuButtonTex;
