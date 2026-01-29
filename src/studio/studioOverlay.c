@@ -56,7 +56,7 @@ void translateGimbleUpdate(DataObj* item){
 	bool yHoverA = between(mousePos.x, yProj[0].x + yScale[0] / 2, yProj[0].x - yScale[0] / 2) && between(mousePos.y, yProj[0].y + yScale[0] / 2, yProj[0].y - yScale[0] / 2);
 	bool yHoverB = between(mousePos.x, yProj[1].x + yScale[1] / 2, yProj[1].x - yScale[1] / 2) && between(mousePos.y, yProj[1].y + yScale[1] / 2, yProj[1].y - yScale[1] / 2);
 	
-	Vector3 zPos[2] = {vec3Add(item->pos, (Vector3){item->scale.z / 2, -item->scale.y / 2, -1.5}), vec3Add(item->pos, (Vector3){item->scale.x /2, -item->scale.y / 2, item->scale.z + 1.5})};
+	Vector3 zPos[2] = {vec3Add(item->pos, (Vector3){item->scale.x / 2, -item->scale.y / 2, -1.5}), vec3Add(item->pos, (Vector3){item->scale.x / 2, -item->scale.y / 2, item->scale.z + 1.5})};
 	Vector3 zProj[2] = {projToScreen(viewProj(worldToCamera(zPos[0]))), projToScreen(viewProj(worldToCamera(zPos[1])))};
 	float zScale[2] = {1 / zProj[0].z * renderScale, 1 / zProj[1].z * renderScale};
 	bool zHoverA = between(mousePos.x, zProj[0].x + zScale[0] / 2, zProj[0].x - zScale[0] / 2) && between(mousePos.y, zProj[0].y + zScale[0] / 2, zProj[0].y - zScale[0] / 2);
@@ -90,21 +90,23 @@ void translateGimbleUpdate(DataObj* item){
 			ogGimbles[0] = xPos[0].x; ogGimbles[1] = xPos[1].x;
 			ogProjs[0] = xProj[0]; ogProjs[1] = xProj[1];
 			gimbleGrabbed = 1;
-			return;
+			goto translateEnd;
 		}
 		if(yHoverA || yHoverB){
 			ogGimbles[0] = yPos[0].y; ogGimbles[1] = yPos[1].y;
 			ogProjs[0] = yProj[0]; ogProjs[1] = yProj[1];
 			gimbleGrabbed = 2;
-			return;
+			goto translateEnd;
+			
 		}
 		if(zHoverA || zHoverB){
 			ogGimbles[0] = zPos[0].z; ogGimbles[1] = zPos[1].z;
 			ogProjs[0] = zProj[0]; ogProjs[1] = zProj[1];
 			gimbleGrabbed = 3;
-			return;
+			goto translateEnd;
 		}
 		
+translateEnd:
 		ogPos = item->pos;
 	}
 }
