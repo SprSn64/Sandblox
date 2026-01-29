@@ -26,10 +26,8 @@ bool updateButton(Button* item){
 		SDL_SetCursor(SDL_CreateSystemCursor(SDL_SYSTEM_CURSOR_POINTER));
 		//item->pressed();
 		if(!mouseButtons[0].down){item->down = false; return 1;}
-		
 		if(item->down) return 1;
 		item->down = true;
-		printf("button pressed\n");
 		item->pressed(item);
 	}
 	
@@ -62,7 +60,6 @@ void drawButton(SDL_Renderer* render, Button* item){
 }
 
 void buttonLaunch(Button* item){
-	printf("fuck");
 	item->enabled = false;
 	
 	//run client

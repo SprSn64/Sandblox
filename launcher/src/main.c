@@ -82,6 +82,8 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[]){
 	
 	fontTex = newTexture("assets/font.png", 0);
 	
+	mouseButtons[0].code = SDL_BUTTON_LMASK; mouseButtons[1].code = SDL_BUTTON_MMASK; mouseButtons[2].code = SDL_BUTTON_RMASK;
+	
 	switch(osType){
 		case OS_WINDOWS: sprintf(osText, "Windows"); break;
 		case OS_LINUX: sprintf(osText, "Linux"); break;
@@ -109,7 +111,7 @@ SDL_AppResult SDL_AppIterate(void *appstate){
 	
 	mouseState = SDL_GetMouseState(&mousePos.x, &mousePos.y);
 	for(int i=0; i<3; i++){
-		mouseButtons[i].down = (windowHover && (mouseState & mouseButtons[i].code));
+		mouseButtons[i].down = (SDL_GetWindowFlags(window) & SDL_WINDOW_INPUT_FOCUS && (mouseState & mouseButtons[i].code));
 		if(mouseButtons[i].down){
 			if(!mouseButtons[i].pressCheck){
 				mouseButtons[i].pressCheck = true;
@@ -119,6 +121,7 @@ SDL_AppResult SDL_AppIterate(void *appstate){
 			}
 		}else mouseButtons[i].pressCheck = false;
 	}
+	SDL_SetCursor(SDL_CreateSystemCursor(SDL_SYSTEM_CURSOR_DEFAULT));
 	
 	last = now;
 	now = SDL_GetTicks();
