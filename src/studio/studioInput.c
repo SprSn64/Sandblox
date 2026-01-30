@@ -101,6 +101,11 @@ void buttonAddObject(Button* item){
 	Vector3 normalizedColour = normalize3((Vector3){SDL_randf(), SDL_randf(), SDL_randf()});
 	newItem->colour = (CharColour){normalizedColour.x * 255, normalizedColour.y * 255, normalizedColour.z * 255, 255, 0, COLOURMODE_RGB};
 	
+	if(newItem->classData == &blockClass){ //not piratesoftwaring here, add button object will have a dropdown of all the objects soon probably
+		newItem->asInt[0] = true;
+		newItem->asInt[1] = 1;
+	}
+	
 	parentItem->studioOpen = true;
 	//focusObject = newItem;
 }

@@ -24,6 +24,8 @@ extern float timer;
 
 extern Uint32 objListLength;
 
+DataType workspaceClass = {"Workspace", 1, 0, NULL, NULL, NULL};
+
 DataObj gameHeader = {
 	.pos = (Vector3){0, 0, 0},
 	.scale = (Vector3){1, 1, 1},
@@ -31,14 +33,7 @@ DataObj gameHeader = {
 	.transform = NULL,
 	.colour = (CharColour){0, 0, 0, 255, 0, COLOURMODE_RGB},
 	.name = "Workspace",
-	.classData = &(DataType){
-		"Workspace",
-		1,
-		0,
-		NULL,
-		NULL,
-		NULL
-	},
+	.classData = &workspaceClass,
 	.asVoidptr = {NULL},
 	.asVec3 = {{0}},
 	.asInt = {0},

@@ -1,66 +1,30 @@
 {  
   "objects": [
     {
-      "name": "Spamton G Spamton",
-      "class": "Player",
-      "pos": [0, 0, 0],
-      "scale": [1, 1, 1],
+      "name": "Baseplate", 
+      "class": "Block",
+      "pos": [-128, 0, -128],
+      "scale": [256, 1, 256],
       "rot": [0, 0, 0],
-      "colour": [255, 255, 255, 255],
-      "isPlayer": true,
-      "collision": {
-        "enabled": false,
-        "type": "none"
-      }
-    },
-    {
-      "name": "Pipis",
-      "class": "Block", 
-      "pos": [0, 5, -80],
-      "scale": [1, 1.5, 1],
-      "rot": [0, 0, 90],
-      "colour": [0, 191, 255, 255],
+      "colour": [128, 128, 128, 255],
       "collision": {
         "enabled": true,
         "type": "block"
       },
-      "children": [
+	"children": [
         {
-          "name": "Mesh",
+          "name": "PlaneMesh",
           "class": "Mesh",
           "pos": [0, 0, 0],
           "scale": [1, 1, 1], 
           "rot": [0, 0, 0],
           "colour": [255, 255, 255, 255],
-          "mesh": "assets/models/primitives/sphere.obj"
+          "meshType": "plane",
+          "meshParams": [1, 1, 8, 8]
         }
       ]
     },
-    {
-      "name": "Spamton",
-      "class": "Block", 
-      "pos": [0, 0, -80],
-      "scale": [1, 1, 1],
-      "rot": [0, 0, 0],
-      "colour": [255, 255, 255, 255],
-      "collision": {
-        "enabled": true,
-        "type": "block"
-      },
-      "children": [
         {
-          "name": "Mesh",
-          "class": "Mesh",
-          "pos": [0, 0, 0],
-          "scale": [1, 1, 1], 
-          "rot": [0, 0, 0],
-          "colour": [255, 255, 255, 255],
-          "mesh": "maps/spamton.obj",
-	    "texture": "maps/spamton.png"
-        }
-      ]
-    },
-    {
       "name": "ArtGroup",
       "class": "Group",
       "pos": [0, 0, 0],
@@ -359,28 +323,64 @@
       ]
     },
     {
-      "name": "Baseplate", 
-      "class": "Block",
-      "pos": [-128, 0, -128],
-      "scale": [256, 1, 256],
+      "name": "Spamton",
+      "class": "Block", 
+      "pos": [0, 0, -80],
+      "scale": [1, 1, 1],
       "rot": [0, 0, 0],
-      "colour": [128, 128, 128, 255],
+      "colour": [255, 255, 255, 255],
       "collision": {
         "enabled": true,
         "type": "block"
       },
-	"children": [
+      "children": [
         {
-          "name": "PlaneMesh",
+          "name": "Mesh",
           "class": "Mesh",
           "pos": [0, 0, 0],
           "scale": [1, 1, 1], 
           "rot": [0, 0, 0],
           "colour": [255, 255, 255, 255],
-          "meshType": "plane",
-          "meshParams": [1, 1, 8, 8]
+          "mesh": "maps/spamton.obj",
+	    "texture": "maps/spamton.png"
         }
       ]
+    },
+    {
+      "name": "Pipis",
+      "class": "Block", 
+      "pos": [0, 5, -80],
+      "scale": [1, 1.5, 1],
+      "rot": [0, 0, 90],
+      "colour": [0, 191, 255, 255],
+      "collision": {
+        "enabled": true,
+        "type": "block"
+      },
+      "children": [
+        {
+          "name": "Mesh",
+          "class": "Mesh",
+          "pos": [0, 0, 0],
+          "scale": [1, 1, 1], 
+          "rot": [0, 0, 0],
+          "colour": [255, 255, 255, 255],
+          "mesh": "assets/models/primitives/sphere.obj"
+        }
+      ]
+    },
+    {
+      "name": "Spamton G Spamton",
+      "class": "Player",
+      "pos": [0, 0, 0],
+      "scale": [1, 1, 1],
+      "rot": [0, 0, 0],
+      "colour": [255, 255, 255, 255],
+      "isPlayer": true,
+      "collision": {
+        "enabled": false,
+        "type": "none"
+      }
     }
   ]
 }

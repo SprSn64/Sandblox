@@ -89,8 +89,7 @@ void playerDraw(DataObj* object){
 DataType meshClass = (DataType){"Mesh\0", 4, 0, NULL, NULL, NULL};
 
 void blockInit(DataObj* object){
-	object->asInt[0] = 1; // enabled
-	object->asInt[1] = 1; // block type
+	(void)object;
 }
 
 void blockDraw(DataObj* object){

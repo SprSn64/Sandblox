@@ -312,7 +312,7 @@ SDL_AppResult SDL_AppIterate(void *appstate){
 	if(!client.pause){
 		//sunAngle = (Vector3){timer, timer, 0};
 		//lightNormal = rotToNorm3(sunAngle);
-		updateObjects(&gameHeader, 0, &idCounter, false);
+		updateObjects(client.gameWorld->headObj, 0, &idCounter, false);
 	}
 	
 	skyboxMatrix = translateMatrix(defaultMatrix, currentCamera.pos);
@@ -328,7 +328,7 @@ SDL_AppResult SDL_AppIterate(void *appstate){
 	//SDL_SetRenderDrawColor(renderer, 255, 255, 255, SDL_ALPHA_OPAQUE);
 	
 	idCounter = 0;
-	updateObjects(&gameHeader, 0, &idCounter, true);
+	updateObjects(client.gameWorld->headObj, 0, &idCounter, true);
 	
 	updateStudio();
 	
@@ -375,7 +375,7 @@ SDL_AppResult SDL_AppIterate(void *appstate){
 
 void SDL_AppQuit(void *appstate, SDL_AppResult result){
 	(void)appstate; (void)result;
-	cleanupObjects(&gameHeader);
+	cleanupObjects(client.gameWorld->headObj);
 	studioCleanup();
 	SDL_DestroyTexture(fontTex); SDL_DestroyTexture(playerTex); SDL_DestroyTexture(homerTex); SDL_DestroyTexture(cowTex); SDL_DestroyTexture(skyTex);
 	

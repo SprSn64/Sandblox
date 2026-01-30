@@ -9,7 +9,6 @@
 #include "loader.h"
 
 extern ClientData client;
-extern GameWorld game;
 extern DataObj gameHeader;
 
 DataObj* newPlayer = NULL;
@@ -90,7 +89,7 @@ DataObj* createObjectFromJSON(cJSON* obj, DataObj* parent) {
     if(!objClass) return NULL;
     
     DataObj* newParent = parent;
-    if(!parent) newParent = &gameHeader;
+    if(!parent) newParent = client.gameWorld->headObj;
     DataObj* newObj = newObject(newParent, objClass);
     if(!newObj) return NULL;
     
@@ -256,6 +255,7 @@ int loadGameFile(const char* filename) {
     newPlayer = NULL;
     
     client.pause = true;
+    
     int objectCount = cJSON_GetArraySize(objects);
     for(int i = 0; i < objectCount; i++) {
         cJSON* obj = cJSON_GetArrayItem(objects, i);
@@ -265,7 +265,7 @@ int loadGameFile(const char* filename) {
     }
 	
     if(newPlayer){
-        game.currPlayer = newPlayer;
+        client.gameWorld->currPlayer = newPlayer;
         printf("Set current player to: %s\n", newPlayer->name ? newPlayer->name : "unnamed");
         newPlayer = NULL;
     }
@@ -363,5 +363,5 @@ int saveGameFile(const char* filename){
 }
 
 DataObj* createPlayerFromJSON() {
-    return game.currPlayer;
+    return client.gameWorld->currPlayer;
 }
