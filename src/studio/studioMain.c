@@ -87,6 +87,7 @@ void initStudio(){
 	stuKeyList[STUDIOKEYBIND_Z].code = SDL_SCANCODE_Z; stuKeyList[STUDIOKEYBIND_X].code = SDL_SCANCODE_X;
 	stuKeyList[STUDIOKEYBIND_C].code = SDL_SCANCODE_C; stuKeyList[STUDIOKEYBIND_V].code = SDL_SCANCODE_V;
 	stuKeyList[STUDIOKEYBIND_B].code = SDL_SCANCODE_B; stuKeyList[STUDIOKEYBIND_N].code = SDL_SCANCODE_N;
+	stuKeyList[STUDIOKEYBIND_D].code = SDL_SCANCODE_D;
 	
 	stuMouseButtons[0].code = SDL_BUTTON_LMASK; stuMouseButtons[1].code = SDL_BUTTON_MMASK; stuMouseButtons[2].code = SDL_BUTTON_RMASK;
 	
@@ -167,6 +168,9 @@ void updateStudio(){
 		char colourHex[8]; sprintf(colourHex, "#%x%x%x", focusObject->colour.r, focusObject->colour.g, focusObject->colour.b);
 		SDL_SetClipboardText(colourHex);
 	}
+	
+	if(stuKeyList[STUDIOKEYBIND_D].pressed && focusObject)
+		focusObject = duplicateObject(focusObject);
 	
 	int idCounter = 0;
 	drawObjectList(client.gameWorld->headObj, 0, &idCounter);

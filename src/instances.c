@@ -149,6 +149,16 @@ DataObj* newObject(DataObj* parent, DataType* classData){
 	return newObj;
 }
 
+DataObj* duplicateObject(DataObj* ogItem){
+	DataObj* newItem = newObject(ogItem->parent, ogItem->classData);
+	newItem->pos = ogItem->pos; newItem->scale = ogItem->scale; newItem->rot = ogItem->rot; newItem->colour = ogItem->colour;
+	char* newName = malloc(256);
+	sprintf(newName, "%s (Copy)", ogItem->name);
+	newItem->name = newName;
+	
+	return newItem;
+}
+
 void removeObject(DataObj* object){
 	//object->onRemove(object);
 	
