@@ -22,8 +22,8 @@
 
 /* TODO:
 	Get OpenGL GLEW working
-	Implemennt saving workspace objects to JSON file
-	Make studio widgets work properly
+	Make studio widgets work properly (1/3 complete)
+	Make studio widgets not crash game when used in post-loaded file
 	Add multiplayer server shit
 	Implement simple physics
 	Add secondary studio menu for changing object properties (colour, scale, etc)
