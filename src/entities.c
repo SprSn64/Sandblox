@@ -3,6 +3,7 @@
 #include <string.h>
 #include <math.h>
 #include <stdlib.h>
+#include <stdio.h>
 
 #include "entities.h"
 #include "instances.h"
@@ -137,8 +138,8 @@ void killBrickFunc(DataObj* object){
 	Vector3 *playerPos = &game.currPlayer->pos;
 	if(
 		between(playerPos->x, object->pos.x - 1, object->pos.x + object->scale.x + 1) && 
-		between(playerPos->y, object->pos.y - 1, object->pos.y - object->scale.y - 4) &&
-		between(playerPos->x, object->pos.x - 1, object->pos.x + object->scale.x + 1)
+		between(playerPos->y, object->pos.y - object->scale.y - 4, object->pos.y + 1) &&
+		between(playerPos->z, object->pos.z - 1, object->pos.z + object->scale.z + 1)
 	)
 		playerPos->y = -69420;
 }

@@ -19,7 +19,18 @@ void (*getFunctionByName(const char* name))(DataObj*) {
     if(!name) return NULL;
     
     if(!strcmp(name, "objSpinFunc")) return objSpinFunc;
+    if(!strcmp(name, "killBrickFunc")) return killBrickFunc;
     return NULL;
+}
+
+char* getFunctionName(void (*func)){
+    if(!func) return NULL;
+    
+    char* output = malloc(sizeof(Uint8) * 64);
+    
+    if(func == objSpinFunc) sprintf(output, "objSpinFunc");
+    if(func == killBrickFunc) sprintf(output, "killBrickFunc");
+    return output;
 }
 
 DataType* getClassByName(const char* name) {
@@ -324,6 +335,9 @@ void addObjToJsonArray(cJSON* array, DataObj* item){
 	if(itemTex)
 		cJSON_AddStringToObject(newObj, "texture", itemTex->filePath);
 	*/
+	
+	if(item->asVoidptr[OBJVAL_SCRIPT])
+		cJSON_AddStringToObject(newObj, "script", getFunctionName(item->asVoidptr[OBJVAL_SCRIPT]));
 	
 	CollisionHull *collider = item->asVoidptr[OBJVAL_COLLIDER];
 	

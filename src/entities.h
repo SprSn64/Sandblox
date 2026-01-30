@@ -9,8 +9,6 @@ void playerDraw(DataObj* object);
 void blockDraw(DataObj* object);
 void homerDraw(DataObj* object);
 
-void objSpinFunc(DataObj* object);
-
 extern DataType playerClass;
 extern DataType blockClass;
 extern DataType meshClass;
@@ -22,5 +20,8 @@ extern DataType imageClass;
 extern DataType accessoryClass;
 
 extern DataType fuckingBeerdrinkerClass;
+
+void objSpinFunc(DataObj* object);
+void killBrickFunc(DataObj* object);
 
 #endif

@@ -53,6 +53,7 @@ void updateObjects(DataObj* item, int nodeDepth, int *idCount, bool uord){ //uor
 			//sendPopup("fuck", NULL, NULL, 0.2);
 			//scriptFunc(item); //doesnt work
 		}
+		if(scriptFunc == killBrickFunc) killBrickFunc(item);
 	}else{ 
 		if(item->parent && item->parent->studioOpen == true)
 			objListLength += item->parent->studioOpen;
@@ -156,6 +157,12 @@ DataObj* duplicateObject(DataObj* ogItem){
 	char* newName = malloc(256);
 	sprintf(newName, "%s (Copy)", ogItem->name);
 	newItem->name = newName;
+	
+	newItem->asVoidptr[OBJVAL_SCRIPT] = ogItem->asVoidptr[OBJVAL_SCRIPT];
+	if(ogItem->asVoidptr[OBJVAL_COLLIDER]){
+		CollisionHull* newColl = malloc(sizeof(CollisionHull)); memcpy(newColl, ogItem->asVoidptr[OBJVAL_COLLIDER], sizeof(CollisionHull));
+		newItem->asVoidptr[OBJVAL_COLLIDER] = newColl;
+	}
 	
 	return newItem;
 }
