@@ -172,6 +172,7 @@ DataObj* createObjectFromJSON(cJSON* obj, DataObj* parent) {
 		//if(!cJSON_IsTrue(enabled))free(collider);
         } else {
             //newObj->asInt[0] = true; 
+		free(collider); goto colliderLoadSkip;
         }
         
         if(type && cJSON_IsString(type)) {
@@ -190,6 +191,7 @@ DataObj* createObjectFromJSON(cJSON* obj, DataObj* parent) {
                 free(collider); // no collision
             }
         }
+	  colliderLoadSkip:
 	  newObj->asVoidptr[OBJVAL_COLLIDER] = collider;
     }
     

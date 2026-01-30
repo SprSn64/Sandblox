@@ -18,8 +18,8 @@
 					"rot":	[0.000000, 0.000000, 0.000000],
 					"colour":	[255, 255, 255, 255],
 					"collision":	{
-						"enabled":	false,
-						"type":	"none"
+						"enabled":	true,
+						"type":	"block"
 					},
 					"children":	[]
 				}]
@@ -31,8 +31,8 @@
 			"rot":	[0.000000, 0.000000, 0.000000],
 			"colour":	[255, 255, 255, 255],
 			"collision":	{
-				"enabled":	false,
-				"type":	"none"
+				"enabled":	true,
+				"type":	"block"
 			},
 			"children":	[{
 					"name":	"PinkLens",
@@ -402,8 +402,8 @@
 					"rot":	[0.000000, 0.000000, 0.000000],
 					"colour":	[156, 156, 156, 255],
 					"collision":	{
-						"enabled":	false,
-						"type":	"none"
+						"enabled":	true,
+						"type":	"block"
 					},
 					"children":	[]
 				}, {
@@ -414,8 +414,8 @@
 					"rot":	[0.000000, 0.000000, 0.000000],
 					"colour":	[156, 156, 156, 255],
 					"collision":	{
-						"enabled":	false,
-						"type":	"none"
+						"enabled":	true,
+						"type":	"block"
 					},
 					"children":	[]
 				}, {
@@ -426,8 +426,8 @@
 					"rot":	[0.000000, 0.000000, 0.000000],
 					"colour":	[156, 156, 156, 255],
 					"collision":	{
-						"enabled":	false,
-						"type":	"none"
+						"enabled":	true,
+						"type":	"block"
 					},
 					"children":	[]
 				}, {
@@ -438,8 +438,8 @@
 					"rot":	[0.000000, 0.000000, 0.000000],
 					"colour":	[156, 156, 156, 255],
 					"collision":	{
-						"enabled":	false,
-						"type":	"none"
+						"enabled":	true,
+						"type":	"block"
 					},
 					"children":	[]
 				}, {
@@ -450,8 +450,8 @@
 					"rot":	[0.000000, 0.000000, 0.000000],
 					"colour":	[156, 156, 156, 255],
 					"collision":	{
-						"enabled":	false,
-						"type":	"none"
+						"enabled":	true,
+						"type":	"block"
 					},
 					"children":	[]
 				}, {
@@ -462,8 +462,8 @@
 					"rot":	[0.000000, 0.000000, 0.000000],
 					"colour":	[0, 0, 0, 255],
 					"collision":	{
-						"enabled":	false,
-						"type":	"none"
+						"enabled":	true,
+						"type":	"block"
 					},
 					"children":	[]
 				}, {
@@ -474,8 +474,92 @@
 					"rot":	[0.000000, 0.000000, 0.000000],
 					"colour":	[0, 0, 0, 255],
 					"collision":	{
-						"enabled":	false,
-						"type":	"none"
+						"enabled":	true,
+						"type":	"block"
+					},
+					"children":	[]
+				}, {
+					"name":	"PinkLens (Copy)",
+					"class":	"Block",
+					"pos":	[0.000000, 23.000000, -94.000000],
+					"scale":	[4.000000, 1.000000, 1.000000],
+					"rot":	[0.000000, 0.000000, 0.000000],
+					"colour":	[0, 0, 0, 255],
+					"collision":	{
+						"enabled":	true,
+						"type":	"block"
+					},
+					"children":	[]
+				}, {
+					"name":	"PinkLens (Copy) (Copy)",
+					"class":	"Block",
+					"pos":	[0.000000, 27.000000, -94.000000],
+					"scale":	[4.000000, 1.000000, 1.000000],
+					"rot":	[0.000000, 0.000000, 0.000000],
+					"colour":	[0, 0, 0, 255],
+					"collision":	{
+						"enabled":	true,
+						"type":	"block"
+					},
+					"children":	[]
+				}, {
+					"name":	"PinkLens (Copy)",
+					"class":	"Block",
+					"pos":	[-5.000000, 27.000000, -94.000000],
+					"scale":	[4.000000, 1.000000, 1.000000],
+					"rot":	[0.000000, 0.000000, 0.000000],
+					"colour":	[0, 0, 0, 255],
+					"collision":	{
+						"enabled":	true,
+						"type":	"block"
+					},
+					"children":	[]
+				}, {
+					"name":	"PinkLens (Copy)",
+					"class":	"Block",
+					"pos":	[-6.000000, 26.000000, -94.000000],
+					"scale":	[1.000000, 3.000000, 1.000000],
+					"rot":	[0.000000, 0.000000, 0.000000],
+					"colour":	[0, 0, 0, 255],
+					"collision":	{
+						"enabled":	true,
+						"type":	"block"
+					},
+					"children":	[]
+				}, {
+					"name":	"PinkLens (Copy) (Copy)",
+					"class":	"Block",
+					"pos":	[-1.000000, 26.000000, -94.000000],
+					"scale":	[1.000000, 3.000000, 1.000000],
+					"rot":	[0.000000, 0.000000, 0.000000],
+					"colour":	[0, 0, 0, 255],
+					"collision":	{
+						"enabled":	true,
+						"type":	"block"
+					},
+					"children":	[]
+				}, {
+					"name":	"PinkLens (Copy) (Copy) (Copy)",
+					"class":	"Block",
+					"pos":	[4.000000, 26.000000, -94.000000],
+					"scale":	[1.000000, 3.000000, 1.000000],
+					"rot":	[0.000000, 0.000000, 0.000000],
+					"colour":	[0, 0, 0, 255],
+					"collision":	{
+						"enabled":	true,
+						"type":	"block"
+					},
+					"children":	[]
+				}, {
+					"name":	"PinkLens (Copy)",
+					"class":	"Block",
+					"pos":	[5.000000, 25.000000, -94.000000],
+					"scale":	[2.000000, 1.000000, 1.000000],
+					"rot":	[0.000000, 0.000000, 0.000000],
+					"colour":	[0, 0, 0, 255],
+					"collision":	{
+						"enabled":	true,
+						"type":	"block"
 					},
 					"children":	[]
 				}]
@@ -499,10 +583,6 @@
 					"colour":	[255, 255, 255, 255],
 					"mesh":	"maps/spamton.obj",
 					"texture":	"maps/spamton.png",
-					"collision":	{
-						"enabled":	false,
-						"type":	"none"
-					},
 					"children":	[]
 				}]
 		}, {
@@ -524,10 +604,6 @@
 					"rot":	[0.000000, 0.000000, 0.000000],
 					"colour":	[255, 255, 255, 255],
 					"mesh":	"assets/models/primitives/sphere.obj",
-					"collision":	{
-						"enabled":	false,
-						"type":	"none"
-					},
 					"children":	[]
 				}]
 		}, {
@@ -538,10 +614,6 @@
 			"rot":	[0.000000, 0.000000, 0.000000],
 			"colour":	[255, 255, 255, 255],
 			"isPlayer":	true,
-			"collision":	{
-				"enabled":	false,
-				"type":	"none"
-			},
 			"children":	[]
 		}]
 }
