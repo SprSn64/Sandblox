@@ -120,7 +120,7 @@ void buttonLaunch(Button* item){
 		char command[1024];
 #ifdef __x86_64__
 			char *arch = "x86_64";
-#elif defined(__x86__)
+#elif defined(__i386__)
 			char *arch = "x86";
 #elif defined(__aarch64__) || defined(__arm64__)
 			char *arch = "aarch64";
@@ -128,7 +128,6 @@ void buttonLaunch(Button* item){
 			char *arch = "arm";
 #endif
 		sprintf(command, "cd %s && %s/sandblox.%s", gameDir, gameDir, arch);
-
 		system(command);
 #endif // __linux__
 	
