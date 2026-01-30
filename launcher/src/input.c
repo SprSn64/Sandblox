@@ -103,17 +103,19 @@ void buttonLaunch(Button* item){
 	FILE *file = fopen("config.txt", "r");
 	if(!file){
 		printf("Couldnt find config file\n");
-		return;
+		goto reenableButton;
 	}
 	
-	char gameDir[512];
-	fgets(gameDir, 512, file);
+	char gameDir[512]; fgets(gameDir, 512, file);
+	char ogDir[512]; sprintf(ogDir, SDL_GetCurrentDirectory());
 	printf("Game directory is at %s.\n", gameDir);
 	fclose(file);
 	
 #ifdef _WIN32
 	SetCurrentDirectory(gameDir);
 	system("sandblox.exe -studio");
+	SetCurrentDirectory(ogDir);
+
 #endif // _WIN32
 
 #ifdef __linux__
@@ -127,9 +129,10 @@ void buttonLaunch(Button* item){
 #elif defined(__arm__)
 			char *arch = "arm";
 #endif
-		sprintf(command, "cd %s && %s/sandblox.%s", gameDir, gameDir, arch);
+		sprintf(command, "cd %s && %s/sandblox.%s && cd %s", gameDir, gameDir, arch, ogDir);
+
 		system(command);
 #endif // __linux__
-	
+reenableButton:
 	item->enabled = true;
 }
