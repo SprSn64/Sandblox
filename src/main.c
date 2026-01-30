@@ -332,9 +332,6 @@ SDL_AppResult SDL_AppIterate(void *appstate){
 	
 	updateStudio();
 	
-	if(client.studio)
-		drawStudioOverlay();
-	
 	updatePopups();
 	free(currentCamera.transform);
 		
