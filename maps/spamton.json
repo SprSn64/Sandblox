@@ -394,6 +394,90 @@
 						"type":	"block"
 					},
 					"children":	[]
+				}, {
+					"name":	"Collar",
+					"class":	"Block",
+					"pos":	[-2.000000, 12.000000, -94.000000],
+					"scale":	[1.000000, 1.000000, 1.000000],
+					"rot":	[0.000000, 0.000000, 0.000000],
+					"colour":	[156, 156, 156, 255],
+					"collision":	{
+						"enabled":	false,
+						"type":	"none"
+					},
+					"children":	[]
+				}, {
+					"name":	"Collar",
+					"class":	"Block",
+					"pos":	[2.000000, 12.000000, -94.000000],
+					"scale":	[1.000000, 1.000000, 1.000000],
+					"rot":	[0.000000, 0.000000, 0.000000],
+					"colour":	[156, 156, 156, 255],
+					"collision":	{
+						"enabled":	false,
+						"type":	"none"
+					},
+					"children":	[]
+				}, {
+					"name":	"Collar",
+					"class":	"Block",
+					"pos":	[1.000000, 11.000000, -94.000000],
+					"scale":	[1.000000, 1.000000, 1.000000],
+					"rot":	[0.000000, 0.000000, 0.000000],
+					"colour":	[156, 156, 156, 255],
+					"collision":	{
+						"enabled":	false,
+						"type":	"none"
+					},
+					"children":	[]
+				}, {
+					"name":	"Collar",
+					"class":	"Block",
+					"pos":	[0.000000, 10.000000, -94.000000],
+					"scale":	[1.000000, 1.000000, 1.000000],
+					"rot":	[0.000000, 0.000000, 0.000000],
+					"colour":	[156, 156, 156, 255],
+					"collision":	{
+						"enabled":	false,
+						"type":	"none"
+					},
+					"children":	[]
+				}, {
+					"name":	"Collar",
+					"class":	"Block",
+					"pos":	[-1.000000, 11.000000, -94.000000],
+					"scale":	[1.000000, 1.000000, 1.000000],
+					"rot":	[0.000000, 0.000000, 0.000000],
+					"colour":	[156, 156, 156, 255],
+					"collision":	{
+						"enabled":	false,
+						"type":	"none"
+					},
+					"children":	[]
+				}, {
+					"name":	"PinkLens",
+					"class":	"Block",
+					"pos":	[-5.000000, 23.000000, -94.000000],
+					"scale":	[4.000000, 1.000000, 1.000000],
+					"rot":	[0.000000, 0.000000, 0.000000],
+					"colour":	[0, 0, 0, 255],
+					"collision":	{
+						"enabled":	false,
+						"type":	"none"
+					},
+					"children":	[]
+				}, {
+					"name":	"PinkLens",
+					"class":	"Block",
+					"pos":	[-4.000000, 22.000000, -94.000000],
+					"scale":	[2.000000, 1.000000, 1.000000],
+					"rot":	[0.000000, 0.000000, 0.000000],
+					"colour":	[0, 0, 0, 255],
+					"collision":	{
+						"enabled":	false,
+						"type":	"none"
+					},
+					"children":	[]
 				}]
 		}, {
 			"name":	"Spamton",
@@ -414,6 +498,7 @@
 					"rot":	[0.000000, 0.000000, 0.000000],
 					"colour":	[255, 255, 255, 255],
 					"mesh":	"maps/spamton.obj",
+					"texture":	"maps/spamton.png",
 					"collision":	{
 						"enabled":	false,
 						"type":	"none"
@@ -448,9 +533,9 @@
 		}, {
 			"name":	"Spamton G Spamton",
 			"class":	"Player",
-			"pos":	[-2.257083, 0.000000, -19.262964],
+			"pos":	[0.000000, 0.000000, 0.000000],
 			"scale":	[1.000000, 1.000000, 1.000000],
-			"rot":	[0.000000, 338.201068, 0.000000],
+			"rot":	[0.000000, 0.000000, 0.000000],
 			"colour":	[255, 255, 255, 255],
 			"isPlayer":	true,
 			"collision":	{
