@@ -20,7 +20,7 @@ typedef enum operatingSystem{
 	Uint32 osType = OS_WINDOWS;
 #endif
 
-#ifdef linux
+#ifdef __linux__
 	Uint32 osType = OS_LINUX;
 #endif
 

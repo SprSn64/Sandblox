@@ -99,9 +99,7 @@ void buttonLaunch(Button* item){
 	item->enabled = false;
 	
 	//run client
-	
-	#ifdef _WIN32
-	
+
 	FILE *file = fopen("config.txt", "r");
 	if(!file){
 		printf("Couldnt find config file\n");
@@ -113,26 +111,26 @@ void buttonLaunch(Button* item){
 	printf("Game directory is at %s.\n", gameDir);
 	fclose(file);
 	
+#ifdef _WIN32
 	SetCurrentDirectory(gameDir);
 	system("sandblox.exe -studio");
-	
-	/*CreateProcessA(
-		gameDir,
-		NULL,
-		NULL,
-		NULL,
-		false,
-		NORMAL_PRIORITY_CLASS,
-		NULL,
-		NULL,
-		&gameStartup,
-		&gameStartInfo
-	);*/
-	#endif
+#endif // _WIN32
 
-	#ifdef linux
-		
-	#endif
+#ifdef __linux__
+		char command[1024];
+#ifdef __x86_64__
+			char *arch = "x86_64";
+#elif defined(__x86__)
+			char *arch = "x86";
+#elif defined(__aarch64__) || defined(__arm64__)
+			char *arch = "aarch64";
+#elif defined(__arm__)
+			char *arch = "arm";
+#endif
+		sprintf(command, "cd %s && %s/sandblox.%s", gameDir, gameDir, arch);
+
+		system(command);
+#endif // __linux__
 	
 	item->enabled = true;
 }
