@@ -121,10 +121,6 @@ DataType blockClass = {"Block\0", 3, 0, blockInit, NULL, blockDraw};
 
 DataType groupClass = {"Group\0", 5, 0, NULL, NULL, NULL};
 
-void objSpinFunc(DataObj* object){
-	object->rot = (Vector3){object->rot.x + 0.02, object->rot.y + 0.01, object->rot.z + 0.005};
-}
-
 extern Mesh* planePrim;
 void imageDraw(DataObj* object){
 	float* transform = genMatrix(object->pos, object->scale, object->rot);
@@ -132,3 +128,17 @@ void imageDraw(DataObj* object){
 }
 
 DataType imageClass = {"Image\0", 8, 0, NULL, NULL, imageDraw};
+
+void objSpinFunc(DataObj* object){
+	object->rot = (Vector3){object->rot.x + 0.02, object->rot.y + 0.01, object->rot.z + 0.005};
+}
+
+void killBrickFunc(DataObj* object){
+	Vector3 *playerPos = &game.currPlayer->pos;
+	if(
+		between(playerPos->x, object->pos.x - 1, object->pos.x + object->scale.x + 1) && 
+		between(playerPos->y, object->pos.y - 1, object->pos.y - object->scale.y - 4) &&
+		between(playerPos->x, object->pos.x - 1, object->pos.x + object->scale.x + 1)
+	)
+		playerPos->y = -69420;
+}

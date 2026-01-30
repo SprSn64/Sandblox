@@ -8,9 +8,11 @@
 // check if a point is inside a block's bounding box (AABB collision)
 // returns the Y position of the top of the block if collision, or -INFINITY if no collision
 float checkBlockCollisionY(Vector3 pos, float footY, DataObj* block){
-	if(block->asInt[0] == 0) return -INFINITY; // collision disabled
+	CollisionHull *collider = block->asVoidptr[OBJVAL_COLLIDER];
 	
-	if(block->asInt[1] != 1) return -INFINITY; // not a solid block
+	if(!collider) return -INFINITY; // collision disabled
+	
+	if(collider->shape != COLLHULL_CUBE) return -INFINITY; // not a solid block
 	
 	// block bounds (pos is corner, scale is size)
 	float bMinX = block->pos.x;

@@ -160,36 +160,37 @@ DataObj* createObjectFromJSON(cJSON* obj, DataObj* parent) {
         newObj->asVoidptr[OBJVAL_TEXTURE] = tex;
     }
     
+    //CollisionHull *block->asVoidptr[OBJVAL_COLLIDER]
     if(collision && cJSON_IsObject(collision)) {
         cJSON* enabled = cJSON_GetObjectItem(collision, "enabled");
         cJSON* type = cJSON_GetObjectItem(collision, "type");
+	  
+	  CollisionHull *collider = malloc(sizeof(CollisionHull));
         
         if(enabled && cJSON_IsBool(enabled)) {
-            newObj->asInt[0] = cJSON_IsTrue(enabled); 
+            //newObj->asInt[0] = cJSON_IsTrue(enabled); 
+		//if(!cJSON_IsTrue(enabled))free(collider);
         } else {
-            newObj->asInt[0] = true; 
+            //newObj->asInt[0] = true; 
         }
         
         if(type && cJSON_IsString(type)) {
             if(strcmp(type->valuestring, "block") == 0) {
-                newObj->asInt[1] = 1; // collision type: block
+               collider->shape = COLLHULL_CUBE; // collision type: block
             } else if(strcmp(type->valuestring, "trigger") == 0) {
-                newObj->asInt[1] = 2; // collision type: trigger
+            //    newObj->asInt[1] = 2; // collision type: trigger
             } else {
-                newObj->asInt[1] = 0; // collision type: none
+                free(collider); // collision type: none
             }
         } else {
             // default collision type based on class
             if(newObj->classData->id == 3) { // blockClass
-                newObj->asInt[1] = 1; // block collision
+                collider->shape = COLLHULL_CUBE; // block collision
             } else {
-                newObj->asInt[1] = 0; // no collision
+                free(collider); // no collision
             }
         }
-    } else {
-        // default collision settings
-        newObj->asInt[0] = false; // disabled
-        newObj->asInt[1] = 0; // no collision
+	  newObj->asVoidptr[OBJVAL_COLLIDER] = collider;
     }
     
     if(scriptFile && cJSON_IsString(scriptFile)) {
@@ -322,14 +323,20 @@ void addObjToJsonArray(cJSON* array, DataObj* item){
 		cJSON_AddStringToObject(newObj, "texture", itemTex->filePath);
 	*/
 	
-	cJSON* collObject = cJSON_AddObjectToObject(newObj, "collision");
-	cJSON_AddBoolToObject(collObject, "enabled", item->asInt[0]);
+	CollisionHull *collider = item->asVoidptr[OBJVAL_COLLIDER];
 	
-	switch(item->asInt[1]){
-		case 1: cJSON_AddStringToObject(collObject, "type", "block"); break;
-		case 2: cJSON_AddStringToObject(collObject, "type", "trigger"); break;
+	if(!collider) goto colliderSkip;
+	
+	cJSON* collObject = cJSON_AddObjectToObject(newObj, "collision");
+	cJSON_AddBoolToObject(collObject, "enabled", collider != NULL);
+	
+	switch(collider->shape){
+		case COLLHULL_CUBE: cJSON_AddStringToObject(collObject, "type", "block"); break;
+		//case 2: cJSON_AddStringToObject(collObject, "type", "trigger"); break;
 		default: cJSON_AddStringToObject(collObject, "type", "none"); break;
 	}
+	
+	colliderSkip:
 	
 	newArray = cJSON_AddArrayToObject(newObj, "children");
 	cJSON_AddItemToArray(array, newObj);

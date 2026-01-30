@@ -102,8 +102,8 @@ void buttonAddObject(Button* item){
 	newItem->colour = (CharColour){normalizedColour.x * 255, normalizedColour.y * 255, normalizedColour.z * 255, 255, 0, COLOURMODE_RGB};
 	
 	if(newItem->classData == &blockClass){ //not piratesoftwaring here, add button object will have a dropdown of all the objects soon probably
-		newItem->asInt[0] = true;
-		newItem->asInt[1] = 1;
+		CollisionHull *newColl = malloc(sizeof(CollisionHull));
+		newColl->shape = COLLHULL_CUBE; newItem->asVoidptr[OBJVAL_COLLIDER] = newColl;
 	}
 	
 	parentItem->studioOpen = true;
