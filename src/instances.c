@@ -101,7 +101,7 @@ DataObj* newObject(DataObj* parent, DataType* classData){
 	newObj->parent = parent;
 	if (parent == NULL) parent = game.headObj;
 	
-	/* first added is first rendered/updated, last added is last rendered/updated
+	// first added is first rendered/updated, last added is last rendered/updated
 	newObj->next = NULL;
 	//newObj->next = parent->child;
 	if(!parent->child){
@@ -114,14 +114,16 @@ DataObj* newObject(DataObj* parent, DataType* classData){
 		loopItem->next = newObj;
 		newObj->prev = loopItem;
 	}
-	*/
+	
 	
 	// first added is last rendered/updated, last added is first rendered/updated
+	/*
 	newObj->prev = NULL;
 	newObj->next = parent->child;
 	if (parent->child)
 		parent->child->prev = newObj;
 	parent->child = newObj;
+	*/
 
 	newObj->pos = (Vector3){0,0,0};
 	newObj->transform = NULL;

@@ -1,45 +1,4 @@
-{
-  "classes": [
-    {
-      "id": 2,
-      "name": "Player",
-      "functions": {
-        "init": "playerInit",
-        "update": "playerUpdate", 
-        "draw": "playerDraw"
-      }
-    },
-    {
-      "id": 3,
-      "name": "Block",
-      "functions": {
-        "init": null,
-        "update": null,
-        "draw": "blockDraw"
-      }
-    },
-    {
-      "id": 4,
-      "name": "Mesh",
-      "functions": {
-        "init": null,
-        "update": null,
-        "draw": null
-      }
-    },
-    {
-      "id": 5,
-      "name": "Group",
-      "functions": {
-        "init": null,
-        "update": null,
-        "draw": "null"
-      }
-    }
-  ],
-  
-  
-  
+{  
   "objects": [
     {
       "name": "Spamton G Spamton",

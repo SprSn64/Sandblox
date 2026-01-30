@@ -14,23 +14,10 @@ extern DataObj gameHeader;
 
 DataObj* newPlayer = NULL;
 
-extern void playerInit(DataObj* object);
-extern void playerUpdate(DataObj* object);
-extern void playerDraw(DataObj* object);
-extern void blockDraw(DataObj* object);
-extern void homerDraw(DataObj* object);
-extern void imageDraw(DataObj* object);
-
 extern void objSpinFunc(DataObj* object);
 
 void (*getFunctionByName(const char* name))(DataObj*) {
     if(!name) return NULL;
-    if(!strcmp(name, "playerInit")) return playerInit;
-    if(!strcmp(name, "playerUpdate")) return playerUpdate;
-    if(!strcmp(name, "playerDraw")) return playerDraw;
-    if(!strcmp(name, "blockDraw")) return blockDraw;
-    if(!strcmp(name, "homerDraw")) return homerDraw;
-    if(!strcmp(name, "imageDraw")) return imageDraw;
     
     if(!strcmp(name, "objSpinFunc")) return objSpinFunc;
     return NULL;
@@ -107,7 +94,7 @@ DataObj* createObjectFromJSON(cJSON* obj, DataObj* parent) {
     DataObj* newObj = newObject(newParent, objClass);
     if(!newObj) return NULL;
     
-    if(isPlayer && cJSON_IsBool(isPlayer) && !newPlayer)
+    if(isPlayer && cJSON_IsBool(isPlayer) && cJSON_IsTrue(isPlayer) && !newPlayer)
 	    newPlayer = newObj;
     
     if(name && cJSON_IsString(name))
@@ -179,7 +166,7 @@ DataObj* createObjectFromJSON(cJSON* obj, DataObj* parent) {
         cJSON* type = cJSON_GetObjectItem(collision, "type");
         
         if(enabled && cJSON_IsBool(enabled)) {
-            newObj->asInt[0] = cJSON_IsTrue(enabled) ? 1 : 0; 
+            newObj->asInt[0] = cJSON_IsTrue(enabled); 
         } else {
             newObj->asInt[0] = 1; 
         }
@@ -233,7 +220,7 @@ DataObj* createObjectFromJSON(cJSON* obj, DataObj* parent) {
 }
 
 int loadGameFile(const char* filename) {
-    printf("Loading game file: %s\n", filename);
+    printf("Loading game file: %s...\n", filename);
     
     FILE* file = fopen(filename, "r");
     if(!file) {
@@ -266,6 +253,7 @@ int loadGameFile(const char* filename) {
     }
     
     printf("Found %d objects in JSON\n", cJSON_GetArraySize(objects));
+    newPlayer = NULL;
     
     client.pause = true;
     int objectCount = cJSON_GetArraySize(objects);
@@ -289,63 +277,91 @@ int loadGameFile(const char* filename) {
     return 0;
 }
 
-DataObj* createPlayerFromJSON() {
-    return game.currPlayer;
+/*
+cJSON* cJSON_AddNullToObject(cJSON * const object, const char * const name);
+cJSON* cJSON_AddBoolToObject(cJSON * const object, const char * const name, const cJSON_bool boolean);
+cJSON* cJSON_AddNumberToObject(cJSON * const object, const char * const name, const double number);
+cJSON* cJSON_AddStringToObject(cJSON * const object, const char * const name, const char * const string);
+cJSON* cJSON_AddRawToObject(cJSON * const object, const char * const name, const char * const raw);
+cJSON* cJSON_AddObjectToObject(cJSON * const object, const char * const name);
+cJSON* cJSON_AddArrayToObject(cJSON * const object, const char * const name);
+*/
+
+void addObjToJsonArray(cJSON* array, DataObj* item){
+	cJSON* newObj = array;
+	cJSON* newArray = array;
+	DataObj* child = item->child;
+	if(item == client.gameWorld->headObj)goto headerSkip;
+	
+	newObj = cJSON_CreateObject();
+	cJSON_AddStringToObject(newObj, "name", item->name);
+	cJSON_AddStringToObject(newObj, "class", item->classData->name);
+	
+	char rawPosition[128];
+	sprintf(rawPosition, "[%f, %f, %f]", item->pos.x, item->pos.y, item->pos.z);
+	cJSON_AddRawToObject(newObj, "pos", rawPosition);
+	
+	char rawScale[128];
+	sprintf(rawScale, "[%f, %f, %f]", item->scale.x, item->scale.y, item->scale.z);
+	cJSON_AddRawToObject(newObj, "scale", rawScale);
+	
+	char rawRotation[128];
+	sprintf(rawRotation, "[%f, %f, %f]", item->rot.x * RAD2DEG, item->rot.y * RAD2DEG, item->rot.z * RAD2DEG);
+	cJSON_AddRawToObject(newObj, "rot", rawRotation);
+	
+	char rawColour[24];
+	sprintf(rawColour, "[%d, %d, %d, %d]", item->colour.r, item->colour.g, item->colour.b, item->colour.a);
+	cJSON_AddRawToObject(newObj, "colour", rawColour);
+	
+	if(item->classData == &playerClass)
+		cJSON_AddBoolToObject(newObj, "isPlayer", (item == client.gameWorld->currPlayer));
+	
+	cJSON* collObject = cJSON_AddObjectToObject(newObj, "collision");
+	cJSON_AddBoolToObject(collObject, "enabled", item->asInt[0]);
+	
+	switch(item->asInt[1]){
+		case 1: cJSON_AddStringToObject(collObject, "type", "block"); break;
+		case 2: cJSON_AddStringToObject(collObject, "type", "trigger"); break;
+		default: cJSON_AddStringToObject(collObject, "type", "none"); break;
+	}
+	
+	newArray = cJSON_AddArrayToObject(newObj, "children");
+	cJSON_AddItemToArray(array, newObj);
+	
+	headerSkip:
+	
+	while (child) {
+		DataObj *next = child->next;
+		addObjToJsonArray(newArray, child);
+		child = next;
+	}
 }
 
-int saveGameFile(const char* filename) {
-    printf("Saving game file: %s\n wait no fuck you cant sorry\n", filename);
+int saveGameFile(const char* filename){
+	printf("Saving game file: %s...\n", filename);
+	
+	FILE* file = fopen(filename, "w");
+	
+	cJSON* jsonHeader = cJSON_CreateObject();
+	cJSON* objectArray = cJSON_AddArrayToObject(jsonHeader, "objects");
+	
+	addObjToJsonArray(objectArray, client.gameWorld->headObj);
+	
+	fprintf(file, cJSON_Print(jsonHeader));
+	fclose(file);
     
-    /*FILE* file = fopen(filename, "r");
-    if(!file) {
-        printf("Failed to open game file: %s\n", filename);
-        return -1;
-    }
-    
-    fseek(file, 0, SEEK_END);
-    long fileSize = ftell(file);
-    fseek(file, 0, SEEK_SET);
-    
-    char* content = malloc(fileSize + 1);
-    fread(content, 1, fileSize, file);
-    content[fileSize] = '\0';
-    fclose(file);
-    
-    cJSON* json = cJSON_Parse(content);
-    if(!json) {
-        printf("Failed to parse JSON: %s\n", cJSON_GetErrorPtr());
-        free(content);
-        return -1;
-    }
-    
-    cJSON* objects = cJSON_GetObjectItem(json, "objects");
-    if(!objects || !cJSON_IsArray(objects)) {
-        printf("No objects array found in JSON\n");
-        cJSON_Delete(json);
-        free(content);
-        return -1;
-    }
-    
-    printf("Found %d objects in JSON\n", cJSON_GetArraySize(objects));
-    
-    client.pause = true;
-    int objectCount = cJSON_GetArraySize(objects);
-    for(int i = 0; i < objectCount; i++) {
-        cJSON* obj = cJSON_GetArrayItem(objects, i);
-        if(obj) {
-            DataObj* newObj = createObjectFromJSON(obj, NULL);
-            if(newObj) {
-                if(newObj->classData == &playerClass) {
-                    game.currPlayer = newObj;
-                    printf("Set current player to: %s\n", newObj->name ? newObj->name : "unnamed");
-                }
-            }
-        }
-    }
-    
-    cJSON_Delete(json);
-    free(content);
-    client.pause = false;
-    printf("Successfully loaded game file\n");*/
-    return 0;
+	/*
+	char* cJSON_Print(const cJSON *item); (output as readable JSON format string)
+	bool cJSON_AddItemToArray(cJSON *array, cJSON *item);
+	
+	cJSON* cJSON_CreateArray(void);
+	cJSON* cJSON_CreateObject(void);
+	*/
+	printf("Successfully saved gamefile %s\n", filename);
+	
+	return 0;
+}
+
+DataObj* createPlayerFromJSON() {
+    return game.currPlayer;
 }

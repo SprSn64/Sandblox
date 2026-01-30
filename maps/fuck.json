@@ -1,0 +1,149 @@
+{
+	"objects":	[{
+			"name":	"Cows",
+			"class":	"Image",
+			"pos":	[18.000000, 12.000000, 512.000000],
+			"scale":	[36.000000, 1.000000, 24.000000],
+			"rot":	[90.000003, 180.000005, 0.000000],
+			"colour":	[255, 255, 255, 255],
+			"collision":	{
+				"enabled":	false,
+				"type":	"none"
+			},
+			"children":	[]
+		}, {
+			"name":	"Beer Drinker",
+			"class":	"beer drinker",
+			"pos":	[0.000000, 0.000000, 0.000000],
+			"scale":	[1.000000, 1.000000, 1.000000],
+			"rot":	[0.000000, 0.000000, 0.000000],
+			"colour":	[255, 255, 255, 255],
+			"collision":	{
+				"enabled":	false,
+				"type":	"none"
+			},
+			"children":	[]
+		}, {
+			"name":	"Baseplate",
+			"class":	"Block",
+			"pos":	[-8.000000, 0.000000, -8.000000],
+			"scale":	[16.000000, 1.000000, 16.000000],
+			"rot":	[0.000000, 0.000000, 0.000000],
+			"colour":	[255, 192, 203, 255],
+			"collision":	{
+				"enabled":	true,
+				"type":	"block"
+			},
+			"children":	[{
+					"name":	"PlaneMesh",
+					"class":	"Mesh",
+					"pos":	[0.000000, 0.000000, 0.000000],
+					"scale":	[1.000000, 1.000000, 1.000000],
+					"rot":	[0.000000, 0.000000, 0.000000],
+					"colour":	[255, 255, 255, 255],
+					"collision":	{
+						"enabled":	false,
+						"type":	"none"
+					},
+					"children":	[]
+				}]
+		}, {
+			"name":	"NPC",
+			"class":	"Player",
+			"pos":	[0.000000, 0.000000, 0.000000],
+			"scale":	[1.000000, 1.000000, 1.000000],
+			"rot":	[0.000000, 0.000000, 0.000000],
+			"colour":	[255, 255, 255, 128],
+			"isPlayer":	false,
+			"collision":	{
+				"enabled":	false,
+				"type":	"none"
+			},
+			"children":	[]
+		}, {
+			"name":	"Red Teapot",
+			"class":	"Block",
+			"pos":	[-4.000000, 2.000000, -4.000000],
+			"scale":	[0.500000, 0.500000, 0.500000],
+			"rot":	[0.000000, 0.000000, 0.000000],
+			"colour":	[255, 0, 0, 128],
+			"collision":	{
+				"enabled":	true,
+				"type":	"block"
+			},
+			"children":	[{
+					"name":	"TorusMesh",
+					"class":	"Mesh",
+					"pos":	[0.000000, 0.000000, 0.000000],
+					"scale":	[1.000000, 1.000000, 1.000000],
+					"rot":	[0.000000, 0.000000, 0.000000],
+					"colour":	[255, 255, 255, 255],
+					"collision":	{
+						"enabled":	false,
+						"type":	"none"
+					},
+					"children":	[]
+				}]
+		}, {
+			"name":	"Yellow Sphere",
+			"class":	"Block",
+			"pos":	[4.000000, 2.000000, 4.000000],
+			"scale":	[2.000000, 2.000000, 2.000000],
+			"rot":	[0.000000, 0.000000, 0.000000],
+			"colour":	[255, 255, 0, 255],
+			"collision":	{
+				"enabled":	true,
+				"type":	"block"
+			},
+			"children":	[{
+					"name":	"CylinderMesh",
+					"class":	"Mesh",
+					"pos":	[0.000000, 0.000000, 0.000000],
+					"scale":	[1.000000, 1.000000, 1.000000],
+					"rot":	[0.000000, 0.000000, 0.000000],
+					"colour":	[255, 255, 255, 255],
+					"collision":	{
+						"enabled":	false,
+						"type":	"none"
+					},
+					"children":	[]
+				}]
+		}, {
+			"name":	"uwu",
+			"class":	"Player",
+			"pos":	[-5.592615, 0.000000, 1.755585],
+			"scale":	[1.000000, 1.000000, 1.000000],
+			"rot":	[0.000000, 26.410655, 0.000000],
+			"colour":	[255, 255, 255, 255],
+			"isPlayer":	true,
+			"collision":	{
+				"enabled":	false,
+				"type":	"none"
+			},
+			"children":	[{
+					"name":	"Face",
+					"class":	"Accessory",
+					"pos":	[0.000000, 0.000000, 0.000000],
+					"scale":	[1.000000, 1.000000, 1.000000],
+					"rot":	[0.000000, 0.000000, 0.000000],
+					"colour":	[255, 255, 255, 255],
+					"collision":	{
+						"enabled":	false,
+						"type":	"none"
+					},
+					"children":	[]
+				}, {
+					"name":	"Dope ass hat",
+					"class":	"Accessory",
+					"pos":	[0.000000, 0.000000, 0.000000],
+					"scale":	[1.000000, 1.000000, 1.000000],
+					"rot":	[0.000000, 0.000000, 0.000000],
+					"colour":	[255, 51, 76, 255],
+					"collision":	{
+						"enabled":	false,
+						"type":	"none"
+					},
+					"children":	[]
+				}]
+		}]
+}

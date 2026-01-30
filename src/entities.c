@@ -20,7 +20,7 @@ extern SDL_Texture *homerTex;
 DataType accessoryClass = {"Accessory\0", 10, 0, NULL, NULL, NULL};
 
 void playerInit(DataObj* object){
-	object->pos.y = 0;
+	//object->pos.y = 0;
 }
 
 void playerUpdate(DataObj* object){
@@ -88,8 +88,9 @@ void playerDraw(DataObj* object){
 
 DataType meshClass = (DataType){"Mesh\0", 4, 0, NULL, NULL, NULL};
 
-void blockUpdate(DataObj* object){
-	(void)object;
+void blockInit(DataObj* object){
+	object->asInt[0] = 1; // enabled
+	object->asInt[1] = 1; // block type
 }
 
 void blockDraw(DataObj* object){
@@ -99,8 +100,8 @@ void blockDraw(DataObj* object){
 	float *meshTransform = object->transform;
 	float *meshMatrix;
 	if(meshItem){
-		itemMesh = meshItem->asVoidptr[OBJVAL_MESH];
-		itemTex = meshItem->asVoidptr[OBJVAL_TEXTURE];
+		if(meshItem->asVoidptr[OBJVAL_MESH])itemMesh = meshItem->asVoidptr[OBJVAL_MESH];
+		if(meshItem->asVoidptr[OBJVAL_TEXTURE])itemTex = meshItem->asVoidptr[OBJVAL_TEXTURE];
 		meshMatrix = genMatrix(meshItem->pos, meshItem->scale, meshItem->rot);
 		meshTransform = multMatrix(meshMatrix, object->transform);
 	}
@@ -117,7 +118,7 @@ void homerDraw(DataObj* object){
 
 DataType playerClass = {"Player\0", 2, 0, playerInit, playerUpdate, playerDraw};
 DataType fuckingBeerdrinkerClass = {"beer drinker\0", 666, 0, NULL, NULL, homerDraw};
-DataType blockClass = {"Block\0", 3, 0, NULL, blockUpdate, blockDraw};
+DataType blockClass = {"Block\0", 3, 0, blockInit, NULL, blockDraw};
 
 DataType groupClass = {"Group\0", 5, 0, NULL, NULL, NULL};
 

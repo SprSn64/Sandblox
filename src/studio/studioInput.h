@@ -43,6 +43,7 @@ void updateAndDrawButton(SDL_Renderer* render, Button* item);
 void buttonAddObject(Button* item);
 void buttonRemoveObject(Button* item);
 void buttonLoadMap(Button* item);
+void buttonSaveMap(Button* item);
 void buttonPauseGame(Button* item);
 void buttonSetTool(Button* item);
 

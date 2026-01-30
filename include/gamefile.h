@@ -4,6 +4,7 @@
 #include <structs.h>
 
 int loadGameFile(const char* filename);
+int saveGameFile(const char* filename);
 DataObj* createPlayerFromJSON();
 
 #endif

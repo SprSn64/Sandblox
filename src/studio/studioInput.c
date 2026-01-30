@@ -120,7 +120,7 @@ static const SDL_DialogFileFilter mapLoadFilter[] = {
     {"JSON Map", "json"}, {"All File Types", "*"}
 };
 
-static void SDLCALL openMapDialogue(void* userdata, const char* const* filelist, int filter){
+static void SDLCALL loadMapDialogue(void* userdata, const char* const* filelist, int filter){
 	(void)userdata;
 	if (!filelist) {
 		printf("An error occured: %s\n", SDL_GetError());
@@ -139,8 +139,30 @@ static void SDLCALL openMapDialogue(void* userdata, const char* const* filelist,
 	if(loadGameFile(*filelist))
 		sendPopup("Failed to load gamefile", NULL, NULL, 3);
 	
+	if (filter < 0) {
+		printf("fuck!\n");
+		return;
+	} else if ((size_t)filter < SDL_arraysize(mapLoadFilter)) {
+		printf("The filter selected by the user is '%s' (%s).\n", mapLoadFilter[filter].pattern, mapLoadFilter[filter].name);
+		return;
+	}
+	
 	//DataObj *playerObj = newObject(NULL, &playerClass);
 	//client.gameWorld->currPlayer = playerObj;
+}
+
+static void SDLCALL saveMapDialogue(void* userdata, const char* const* filelist, int filter){
+	(void)userdata;
+	if (!filelist) {
+		printf("An error occured: %s\n", SDL_GetError());
+		return;
+	} else if (!*filelist) {
+		printf("No file was selected.\n");
+		return;
+	}
+        
+	printf("Full path to selected file: '%s'\n", *filelist);
+	saveGameFile(*filelist);
 	
 	if (filter < 0) {
 		printf("fuck!\n");
@@ -149,11 +171,19 @@ static void SDLCALL openMapDialogue(void* userdata, const char* const* filelist,
 		printf("The filter selected by the user is '%s' (%s).\n", mapLoadFilter[filter].pattern, mapLoadFilter[filter].name);
 		return;
 	}
+	
+	//DataObj *playerObj = newObject(NULL, &playerClass);
+	//client.gameWorld->currPlayer = playerObj;
 }
 
 void buttonLoadMap(Button* item){
 	(void)item;
-	SDL_ShowOpenFileDialog(openMapDialogue, NULL, studioWindow, mapLoadFilter, SDL_arraysize(mapLoadFilter), SDL_GetCurrentDirectory(), false);
+	SDL_ShowOpenFileDialog(loadMapDialogue, NULL, studioWindow, mapLoadFilter, SDL_arraysize(mapLoadFilter), SDL_GetCurrentDirectory(), false);
+}
+
+void buttonSaveMap(Button* item){
+	(void)item;
+	SDL_ShowSaveFileDialog(saveMapDialogue, NULL, studioWindow, mapLoadFilter, SDL_arraysize(mapLoadFilter), SDL_GetCurrentDirectory());
 }
 
 void buttonPauseGame(Button* item){
