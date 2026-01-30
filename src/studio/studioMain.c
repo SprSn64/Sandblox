@@ -1,5 +1,4 @@
-#include "studioMain.h"
-#include "studioInput.h"
+#include "studio.h"
 #include <structs.h>
 
 #include <SDL3/SDL.h>
@@ -139,7 +138,7 @@ void updateStudio(){
 		focusObject = NULL;
 	}
 	
-	Vector3 gimbleAddVec = {
+	/*Vector3 gimbleAddVec = {
 		(float)(stuKeyList[STUDIOKEYBIND_X].pressed - stuKeyList[STUDIOKEYBIND_Z].pressed) / 2, 
 		(float)(stuKeyList[STUDIOKEYBIND_V].pressed - stuKeyList[STUDIOKEYBIND_C].pressed) / 2, 
 		(float)(stuKeyList[STUDIOKEYBIND_N].pressed - stuKeyList[STUDIOKEYBIND_B].pressed) / 2
@@ -148,6 +147,20 @@ void updateStudio(){
 		case STUDIOTOOL_MOVE: focusObject->pos = vec3Add(focusObject->pos, gimbleAddVec); break;
 		case STUDIOTOOL_SCALE: focusObject->scale = vec3Add(focusObject->scale, gimbleAddVec); break;
 		case STUDIOTOOL_ROTATE: focusObject->rot = vec3Add(focusObject->rot, (Vector3){gimbleAddVec.x * HALFPI / 3, gimbleAddVec.y * HALFPI / 3, gimbleAddVec.z * HALFPI / 3}); break;
+	}*/
+	
+	if(stuKeyList[STUDIOKEYBIND_V].pressed && focusObject){
+		char* clipboardText = SDL_GetClipboardText();
+		
+		if(clipboardText[0] == '#'){
+			char rHex[3]; sprintf(rHex, "%c%c", clipboardText[1], clipboardText[2]); focusObject->colour.r = (Uint8)strtol(rHex, NULL, 16);
+			char gHex[3]; sprintf(gHex, "%c%c", clipboardText[3], clipboardText[4]); focusObject->colour.g = (Uint8)strtol(gHex, NULL, 16);
+			char bHex[3]; sprintf(bHex, "%c%c", clipboardText[5], clipboardText[6]); focusObject->colour.b = (Uint8)strtol(bHex, NULL, 16);
+			
+			//strtol(str, &endptr, 10);
+		}
+		
+		free(clipboardText);
 	}
 	
 	int idCounter = 0;

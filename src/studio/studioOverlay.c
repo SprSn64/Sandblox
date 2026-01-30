@@ -1,5 +1,4 @@
-#include "studioMain.h"
-#include "studioInput.h"
+#include "studio.h"
 #include <structs.h>
 
 #include <SDL3/SDL.h>
@@ -41,7 +40,6 @@ char gimbleGrabbed = 0;
 float ogLerp = 0;
 bool lerpSet = false;
 void translateGimbleUpdate(DataObj* item){
-	//projToScreen(viewProj(worldToCamera(pos)))
 	if(!(SDL_GetWindowFlags(window) & SDL_WINDOW_INPUT_FOCUS)) return;
 	
 	//code spaghetti.... yum!
@@ -86,10 +84,14 @@ void translateGimbleUpdate(DataObj* item){
 		}
 	}
 	
+	Vector3* vector = &item->pos;
+	if(toolMode == STUDIOTOOL_SCALE)
+		vector = &item->scale;
+	
 	switch(gimbleGrabbed){
-		case 1: item->pos.x = closest(ogPos.x + dist * (dragDist - ogLerp), 1); break;
-		case 2: item->pos.y = closest(ogPos.y + dist * (dragDist - ogLerp), 1); break;
-		case 3: item->pos.z = closest(ogPos.z + dist * (dragDist - ogLerp), 1); break;
+		case 1: vector->x = closest(ogPos.x + dist * (dragDist - ogLerp), 1); break;
+		case 2: vector->y = closest(ogPos.y + dist * (dragDist - ogLerp), 1); break;
+		case 3: vector->z = closest(ogPos.z + dist * (dragDist - ogLerp), 1); break;
 	}
 	
 	if(mouseButtons[0].pressed && gimbleGrabbed == 0){
@@ -116,6 +118,8 @@ void translateGimbleUpdate(DataObj* item){
 		
 translateEnd:
 		ogPos = item->pos;
+		if(toolMode == STUDIOTOOL_SCALE)
+			ogPos = item->scale;
 	}
 }
 
@@ -195,7 +199,7 @@ void drawStudioOverlay(){
 void updateStudioGimbles(){
 	switch(toolMode){
 		case STUDIOTOOL_MOVE: translateGimbleUpdate(focusObject); break;
-		case STUDIOTOOL_SCALE:  break;
+		case STUDIOTOOL_SCALE:  translateGimbleUpdate(focusObject); break;
 		case STUDIOTOOL_ROTATE:  break;
 	}
 }

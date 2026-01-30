@@ -1,4 +1,4 @@
-#include "studioInput.h"
+#include "studio.h"
 #include <structs.h>
 
 #include <SDL3/SDL.h>
