@@ -87,6 +87,17 @@ void cleanupObjects(DataObj* item){
 	free(item);
 }
 
+void lesserCleanupObjects(DataObj* item){
+	DataObj* child = item->child;
+	while (child) {
+		DataObj *next = child->next;
+		cleanupObjects(child);
+		free(item);
+		child = next;
+	}
+	
+}
+
 DataObj* newObject(DataObj* parent, DataType* classData){
 	DataObj *newObj = calloc(1, sizeof(DataObj)); 
 	if(newObj == NULL){

@@ -255,6 +255,7 @@ int loadGameFile(const char* filename) {
     newPlayer = NULL;
     
     client.pause = true;
+    lesserCleanupObjects(client.gameWorld->headObj);
     
     int objectCount = cJSON_GetArraySize(objects);
     for(int i = 0; i < objectCount; i++) {
