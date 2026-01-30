@@ -1,386 +1,462 @@
-{  
-  "objects": [
-    {
-      "name": "Baseplate", 
-      "class": "Block",
-      "pos": [-128, 0, -128],
-      "scale": [256, 1, 256],
-      "rot": [0, 0, 0],
-      "colour": [128, 128, 128, 255],
-      "collision": {
-        "enabled": true,
-        "type": "block"
-      },
-	"children": [
-        {
-          "name": "PlaneMesh",
-          "class": "Mesh",
-          "pos": [0, 0, 0],
-          "scale": [1, 1, 1], 
-          "rot": [0, 0, 0],
-          "colour": [255, 255, 255, 255],
-          "meshType": "plane",
-          "meshParams": [1, 1, 8, 8]
-        }
-      ]
-    },
-        {
-      "name": "ArtGroup",
-      "class": "Group",
-      "pos": [0, 0, 0],
-      "scale": [0, 0, 0],
-      "rot": [0, 0, 0], 
-      "colour": [255, 255, 255, 255],
-      "children": [
-	  {
-	    "name": "PinkLens",
-	    "class": "Block",
-	    "pos": [-5, 27, -94],
-	    "scale": [4, 3, 1],
-	    "rot": [0, 0, 0], 
-	    "colour": [255, 174, 201, 255],
-	    "collision": {
-	  	"enabled": true,
-		"type": "block"
-	    }
-	  },
-	  {
-	    "name": "YellowLens",
-	    "class": "Block",
-	    "pos": [0, 27, -94],
-	    "scale": [4, 3, 1],
-	    "rot": [0, 0, 0], 
-	    "colour": [255, 242, 0, 255],
-	    "collision": {
-	  	"enabled": true,
-		"type": "block"
-	    }
-	  },
-	  {
-	    "name": "Cheek",
-	    "class": "Block",
-	    "pos": [-5, 23, -94],
-	    "scale": [1, 1, 1],
-	    "rot": [0, 0, 0], 
-	    "colour": [237, 28, 36, 255],
-	    "collision": {
-	  	"enabled": true,
-		"type": "block"
-	    }
-	  },
-	  {
-	    "name": "Cheek",
-	    "class": "Block",
-	    "pos": [3, 23, -94],
-	    "scale": [2, 1, 1],
-	    "rot": [0, 0, 0], 
-	    "colour": [237, 28, 36, 255],
-	    "collision": {
-	  	"enabled": true,
-		"type": "block"
-	    }
-	  },
-	  {
-	    "name": "Cheek",
-	    "class": "Block",
-	    "pos": [4, 22, -94],
-	    "scale": [1, 1, 1],
-	    "rot": [0, 0, 0], 
-	    "colour": [237, 28, 36, 255],
-	    "collision": {
-	  	"enabled": true,
-		"type": "block"
-	    }
-	  },
-	  {
-	    "name": "Smile",
-	    "class": "Block",
-	    "pos": [3, 22, -94],
-	    "scale": [1, 2, 1],
-	    "rot": [0, 0, 0], 
-	    "colour": [0, 0, 0, 255],
-	    "collision": {
-	  	"enabled": true,
-		"type": "block"
-	    }
-	  },
-	  {
-	    "name": "Smile",
-	    "class": "Block",
-	    "pos": [2, 21, -94],
-	    "scale": [1, 3, 1],
-	    "rot": [0, 0, 0], 
-	    "colour": [0, 0, 0, 255],
-	    "collision": {
-	  	"enabled": true,
-		"type": "block"
-	    }
-	  },
-	  {
-	    "name": "Smile",
-	    "class": "Block",
-	    "pos": [-6, 20, -94],
-	    "scale": [8, 1, 1],
-	    "rot": [0, 0, 0], 
-	    "colour": [0, 0, 0, 255],
-	    "collision": {
-	  	"enabled": true,
-		"type": "block"
-	    }
-	  },
-	  {
-	    "name": "Smile",
-	    "class": "Block",
-	    "pos": [-3, 19, -94],
-	    "scale": [1, 1, 1],
-	    "rot": [0, 0, 0], 
-	    "colour": [0, 0, 0, 255],
-	    "collision": {
-	  	"enabled": true,
-		"type": "block"
-	    }
-	  },
-	  {
-	    "name": "Nose",
-	    "class": "Block",
-	    "pos": [-12, 20, -94],
-	    "scale": [6, 1, 1],
-	    "rot": [0, 0, 0], 
-	    "colour": [156, 156, 156, 255],
-	    "collision": {
-	  	"enabled": true,
-		"type": "block"
-	    }
-	  },
-	  {
-	    "name": "Collar",
-	    "class": "Block",
-	    "pos": [-1, 12, -94],
-	    "scale": [3, 1, 1],
-	    "rot": [0, 0, 0], 
-	    "colour": [255, 255, 255, 255],
-	    "collision": {
-	  	"enabled": true,
-		"type": "block"
-	    }
-	  },
-	  {
-	    "name": "Collar",
-	    "class": "Block",
-	    "pos": [0, 11, -94],
-	    "scale": [1, 1, 1],
-	    "rot": [0, 0, 0], 
-	    "colour": [255, 255, 255, 255],
-	    "collision": {
-	  	"enabled": true,
-		"type": "block"
-	    }
-	  },
-	  {
-	    "name": "Block",
-	    "class": "Block",
-	    "pos": [-1, 1, -94],
-	    "scale": [3, 1, 1],
-	    "rot": [0, 0, 0], 
-	    "colour": [156, 156, 156, 255],
-	    "collision": {
-	  	"enabled": true,
-		"type": "block"
-	    }
-	  },
-	  {
-	    "name": "Block",
-	    "class": "Block",
-	    "pos": [2, 2, -94],
-	    "scale": [1, 2, 1],
-	    "rot": [0, 0, 0], 
-	    "colour": [156, 156, 156, 255],
-	    "collision": {
-	  	"enabled": true,
-		"type": "block"
-	    }
-	  },
-	  {
-	    "name": "Block",
-	    "class": "Block",
-	    "pos": [-2, 3, -94],
-	    "scale": [1, 2, 1],
-	    "rot": [0, 0, 0], 
-	    "colour": [156, 156, 156, 255],
-	    "collision": {
-	  	"enabled": true,
-		"type": "block"
-	    }
-	  },
-	  {
-	    "name": "Block",
-	    "class": "Block",
-	    "pos": [-1, 3, -94],
-	    "scale": [1, 2, 1],
-	    "rot": [0, 0, 0], 
-	    "colour": [255, 255, 255, 255],
-	    "collision": {
-	  	"enabled": true,
-		"type": "block"
-	    }
-	  },
-	  {
-	    "name": "Block",
-	    "class": "Block",
-	    "pos": [0, 3, -94],
-	    "scale": [1, 2, 1],
-	    "rot": [0, 0, 0], 
-	    "colour": [0, 0, 0, 255],
-	    "collision": {
-	  	"enabled": true,
-		"type": "block"
-	    }
-	  },
-	  {
-	    "name": "Block",
-	    "class": "Block",
-	    "pos": [1, 3, -94],
-	    "scale": [1, 2, 1],
-	    "rot": [0, 0, 0], 
-	    "colour": [255, 255, 255, 255],
-	    "collision": {
-	  	"enabled": true,
-		"type": "block"
-	    }
-	  },
-	  {
-	    "name": "Block",
-	    "class": "Block",
-	    "pos": [2, 3, -94],
-	    "scale": [1, 1, 1],
-	    "rot": [0, 0, 0], 
-	    "colour": [255, 255, 255, 255],
-	    "collision": {
-	  	"enabled": true,
-		"type": "block"
-	    }
-	  },
-	  {
-	    "name": "Block",
-	    "class": "Block",
-	    "pos": [-1, 4, -94],
-	    "scale": [4, 1, 1],
-	    "rot": [0, 0, 0], 
-	    "colour": [255, 255, 255, 255],
-	    "collision": {
-	  	"enabled": true,
-		"type": "block"
-	    }
-	  },
-	  {
-	    "name": "Block",
-	    "class": "Block",
-	    "pos": [-3, 5, -94],
-	    "scale": [1, 2, 1],
-	    "rot": [0, 0, 0], 
-	    "colour": [156, 156, 156, 255],
-	    "collision": {
-	  	"enabled": true,
-		"type": "block"
-	    }
-	  },
-	  {
-	    "name": "Block",
-	    "class": "Block",
-	    "pos": [3, 5, -94],
-	    "scale": [1, 3, 1],
-	    "rot": [0, 0, 0], 
-	    "colour": [156, 156, 156, 255],
-	    "collision": {
-	  	"enabled": true,
-		"type": "block"
-	    }
-	  },
-	  {
-	    "name": "Block",
-	    "class": "Block",
-	    "pos": [-2, 4, -94],
-	    "scale": [1, 1, 1],
-	    "rot": [0, 0, 0], 
-	    "colour": [0, 0, 0, 255],
-	    "collision": {
-	  	"enabled": true,
-		"type": "block"
-	    }
-	  },
-	  {
-	    "name": "Block",
-	    "class": "Block",
-	    "pos": [-2, 5, -94],
-	    "scale": [5, 1, 1],
-	    "rot": [0, 0, 0], 
-	    "colour": [0, 0, 0, 255],
-	    "collision": {
-	  	"enabled": true,
-		"type": "block"
-	    }
-	  }
-      ]
-    },
-    {
-      "name": "Spamton",
-      "class": "Block", 
-      "pos": [0, 0, -80],
-      "scale": [1, 1, 1],
-      "rot": [0, 0, 0],
-      "colour": [255, 255, 255, 255],
-      "collision": {
-        "enabled": true,
-        "type": "block"
-      },
-      "children": [
-        {
-          "name": "Mesh",
-          "class": "Mesh",
-          "pos": [0, 0, 0],
-          "scale": [1, 1, 1], 
-          "rot": [0, 0, 0],
-          "colour": [255, 255, 255, 255],
-          "mesh": "maps/spamton.obj",
-	    "texture": "maps/spamton.png"
-        }
-      ]
-    },
-    {
-      "name": "Pipis",
-      "class": "Block", 
-      "pos": [0, 5, -80],
-      "scale": [1, 1.5, 1],
-      "rot": [0, 0, 90],
-      "colour": [0, 191, 255, 255],
-      "collision": {
-        "enabled": true,
-        "type": "block"
-      },
-      "children": [
-        {
-          "name": "Mesh",
-          "class": "Mesh",
-          "pos": [0, 0, 0],
-          "scale": [1, 1, 1], 
-          "rot": [0, 0, 0],
-          "colour": [255, 255, 255, 255],
-          "mesh": "assets/models/primitives/sphere.obj"
-        }
-      ]
-    },
-    {
-      "name": "Spamton G Spamton",
-      "class": "Player",
-      "pos": [0, 0, 0],
-      "scale": [1, 1, 1],
-      "rot": [0, 0, 0],
-      "colour": [255, 255, 255, 255],
-      "isPlayer": true,
-      "collision": {
-        "enabled": false,
-        "type": "none"
-      }
-    }
-  ]
+{
+	"objects":	[{
+			"name":	"Baseplate",
+			"class":	"Block",
+			"pos":	[-128.000000, 0.000000, -128.000000],
+			"scale":	[256.000000, 1.000000, 256.000000],
+			"rot":	[0.000000, 0.000000, 0.000000],
+			"colour":	[128, 128, 128, 255],
+			"collision":	{
+				"enabled":	true,
+				"type":	"block"
+			},
+			"children":	[{
+					"name":	"PlaneMesh",
+					"class":	"Mesh",
+					"pos":	[0.000000, 0.000000, 0.000000],
+					"scale":	[1.000000, 1.000000, 1.000000],
+					"rot":	[0.000000, 0.000000, 0.000000],
+					"colour":	[255, 255, 255, 255],
+					"collision":	{
+						"enabled":	false,
+						"type":	"none"
+					},
+					"children":	[]
+				}]
+		}, {
+			"name":	"ArtGroup",
+			"class":	"Group",
+			"pos":	[0.000000, 0.000000, 0.000000],
+			"scale":	[0.000000, 0.000000, 0.000000],
+			"rot":	[0.000000, 0.000000, 0.000000],
+			"colour":	[255, 255, 255, 255],
+			"collision":	{
+				"enabled":	false,
+				"type":	"none"
+			},
+			"children":	[{
+					"name":	"PinkLens",
+					"class":	"Block",
+					"pos":	[-5.000000, 26.000000, -94.000000],
+					"scale":	[4.000000, 3.000000, 1.000000],
+					"rot":	[0.000000, 0.000000, 0.000000],
+					"colour":	[255, 174, 201, 255],
+					"collision":	{
+						"enabled":	true,
+						"type":	"block"
+					},
+					"children":	[]
+				}, {
+					"name":	"YellowLens",
+					"class":	"Block",
+					"pos":	[0.000000, 26.000000, -94.000000],
+					"scale":	[4.000000, 3.000000, 1.000000],
+					"rot":	[0.000000, 0.000000, 0.000000],
+					"colour":	[255, 242, 0, 255],
+					"collision":	{
+						"enabled":	true,
+						"type":	"block"
+					},
+					"children":	[]
+				}, {
+					"name":	"Cheek",
+					"class":	"Block",
+					"pos":	[-5.000000, 22.000000, -94.000000],
+					"scale":	[1.000000, 1.000000, 1.000000],
+					"rot":	[0.000000, 0.000000, 0.000000],
+					"colour":	[237, 28, 36, 255],
+					"collision":	{
+						"enabled":	true,
+						"type":	"block"
+					},
+					"children":	[]
+				}, {
+					"name":	"Cheek",
+					"class":	"Block",
+					"pos":	[3.000000, 22.000000, -94.000000],
+					"scale":	[2.000000, 1.000000, 1.000000],
+					"rot":	[0.000000, 0.000000, 0.000000],
+					"colour":	[237, 28, 36, 255],
+					"collision":	{
+						"enabled":	true,
+						"type":	"block"
+					},
+					"children":	[]
+				}, {
+					"name":	"Cheek",
+					"class":	"Block",
+					"pos":	[4.000000, 21.000000, -94.000000],
+					"scale":	[1.000000, 1.000000, 1.000000],
+					"rot":	[0.000000, 0.000000, 0.000000],
+					"colour":	[237, 28, 36, 255],
+					"collision":	{
+						"enabled":	true,
+						"type":	"block"
+					},
+					"children":	[]
+				}, {
+					"name":	"Smile",
+					"class":	"Block",
+					"pos":	[3.000000, 21.000000, -94.000000],
+					"scale":	[1.000000, 2.000000, 1.000000],
+					"rot":	[0.000000, 0.000000, 0.000000],
+					"colour":	[0, 0, 0, 255],
+					"collision":	{
+						"enabled":	true,
+						"type":	"block"
+					},
+					"children":	[]
+				}, {
+					"name":	"Smile",
+					"class":	"Block",
+					"pos":	[2.000000, 20.000000, -94.000000],
+					"scale":	[1.000000, 3.000000, 1.000000],
+					"rot":	[0.000000, 0.000000, 0.000000],
+					"colour":	[0, 0, 0, 255],
+					"collision":	{
+						"enabled":	true,
+						"type":	"block"
+					},
+					"children":	[]
+				}, {
+					"name":	"Smile",
+					"class":	"Block",
+					"pos":	[-6.000000, 19.000000, -94.000000],
+					"scale":	[8.000000, 1.000000, 1.000000],
+					"rot":	[0.000000, 0.000000, 0.000000],
+					"colour":	[0, 0, 0, 255],
+					"collision":	{
+						"enabled":	true,
+						"type":	"block"
+					},
+					"children":	[]
+				}, {
+					"name":	"Smile",
+					"class":	"Block",
+					"pos":	[-3.000000, 18.000000, -94.000000],
+					"scale":	[1.000000, 1.000000, 1.000000],
+					"rot":	[0.000000, 0.000000, 0.000000],
+					"colour":	[0, 0, 0, 255],
+					"collision":	{
+						"enabled":	true,
+						"type":	"block"
+					},
+					"children":	[]
+				}, {
+					"name":	"Nose",
+					"class":	"Block",
+					"pos":	[-12.000000, 19.000000, -94.000000],
+					"scale":	[6.000000, 1.000000, 1.000000],
+					"rot":	[0.000000, 0.000000, 0.000000],
+					"colour":	[156, 156, 156, 255],
+					"collision":	{
+						"enabled":	true,
+						"type":	"block"
+					},
+					"children":	[]
+				}, {
+					"name":	"Collar",
+					"class":	"Block",
+					"pos":	[-1.000000, 12.000000, -94.000000],
+					"scale":	[3.000000, 1.000000, 1.000000],
+					"rot":	[0.000000, 0.000000, 0.000000],
+					"colour":	[255, 255, 255, 255],
+					"collision":	{
+						"enabled":	true,
+						"type":	"block"
+					},
+					"children":	[]
+				}, {
+					"name":	"Collar",
+					"class":	"Block",
+					"pos":	[0.000000, 11.000000, -94.000000],
+					"scale":	[1.000000, 1.000000, 1.000000],
+					"rot":	[0.000000, 0.000000, 0.000000],
+					"colour":	[255, 255, 255, 255],
+					"collision":	{
+						"enabled":	true,
+						"type":	"block"
+					},
+					"children":	[]
+				}, {
+					"name":	"Block",
+					"class":	"Block",
+					"pos":	[-1.000000, 1.000000, -94.000000],
+					"scale":	[3.000000, 1.000000, 1.000000],
+					"rot":	[0.000000, 0.000000, 0.000000],
+					"colour":	[156, 156, 156, 255],
+					"collision":	{
+						"enabled":	true,
+						"type":	"block"
+					},
+					"children":	[]
+				}, {
+					"name":	"Block",
+					"class":	"Block",
+					"pos":	[2.000000, 2.000000, -94.000000],
+					"scale":	[1.000000, 2.000000, 1.000000],
+					"rot":	[0.000000, 0.000000, 0.000000],
+					"colour":	[156, 156, 156, 255],
+					"collision":	{
+						"enabled":	true,
+						"type":	"block"
+					},
+					"children":	[]
+				}, {
+					"name":	"Block",
+					"class":	"Block",
+					"pos":	[-2.000000, 3.000000, -94.000000],
+					"scale":	[1.000000, 2.000000, 1.000000],
+					"rot":	[0.000000, 0.000000, 0.000000],
+					"colour":	[156, 156, 156, 255],
+					"collision":	{
+						"enabled":	true,
+						"type":	"block"
+					},
+					"children":	[]
+				}, {
+					"name":	"Block",
+					"class":	"Block",
+					"pos":	[-1.000000, 3.000000, -94.000000],
+					"scale":	[1.000000, 2.000000, 1.000000],
+					"rot":	[0.000000, 0.000000, 0.000000],
+					"colour":	[255, 255, 255, 255],
+					"collision":	{
+						"enabled":	true,
+						"type":	"block"
+					},
+					"children":	[]
+				}, {
+					"name":	"Block",
+					"class":	"Block",
+					"pos":	[0.000000, 3.000000, -94.000000],
+					"scale":	[1.000000, 2.000000, 1.000000],
+					"rot":	[0.000000, 0.000000, 0.000000],
+					"colour":	[0, 0, 0, 255],
+					"collision":	{
+						"enabled":	true,
+						"type":	"block"
+					},
+					"children":	[]
+				}, {
+					"name":	"Block",
+					"class":	"Block",
+					"pos":	[1.000000, 3.000000, -94.000000],
+					"scale":	[1.000000, 2.000000, 1.000000],
+					"rot":	[0.000000, 0.000000, 0.000000],
+					"colour":	[255, 255, 255, 255],
+					"collision":	{
+						"enabled":	true,
+						"type":	"block"
+					},
+					"children":	[]
+				}, {
+					"name":	"Block",
+					"class":	"Block",
+					"pos":	[2.000000, 3.000000, -94.000000],
+					"scale":	[1.000000, 1.000000, 1.000000],
+					"rot":	[0.000000, 0.000000, 0.000000],
+					"colour":	[255, 255, 255, 255],
+					"collision":	{
+						"enabled":	true,
+						"type":	"block"
+					},
+					"children":	[]
+				}, {
+					"name":	"Block",
+					"class":	"Block",
+					"pos":	[-1.000000, 4.000000, -94.000000],
+					"scale":	[4.000000, 1.000000, 1.000000],
+					"rot":	[0.000000, 0.000000, 0.000000],
+					"colour":	[255, 255, 255, 255],
+					"collision":	{
+						"enabled":	true,
+						"type":	"block"
+					},
+					"children":	[]
+				}, {
+					"name":	"Block",
+					"class":	"Block",
+					"pos":	[-3.000000, 5.000000, -94.000000],
+					"scale":	[1.000000, 2.000000, 1.000000],
+					"rot":	[0.000000, 0.000000, 0.000000],
+					"colour":	[156, 156, 156, 255],
+					"collision":	{
+						"enabled":	true,
+						"type":	"block"
+					},
+					"children":	[]
+				}, {
+					"name":	"Block",
+					"class":	"Block",
+					"pos":	[3.000000, 5.000000, -94.000000],
+					"scale":	[1.000000, 3.000000, 1.000000],
+					"rot":	[0.000000, 0.000000, 0.000000],
+					"colour":	[156, 156, 156, 255],
+					"collision":	{
+						"enabled":	true,
+						"type":	"block"
+					},
+					"children":	[]
+				}, {
+					"name":	"Block",
+					"class":	"Block",
+					"pos":	[-2.000000, 4.000000, -94.000000],
+					"scale":	[1.000000, 1.000000, 1.000000],
+					"rot":	[0.000000, 0.000000, 0.000000],
+					"colour":	[0, 0, 0, 255],
+					"collision":	{
+						"enabled":	true,
+						"type":	"block"
+					},
+					"children":	[]
+				}, {
+					"name":	"Block",
+					"class":	"Block",
+					"pos":	[-2.000000, 5.000000, -94.000000],
+					"scale":	[5.000000, 1.000000, 1.000000],
+					"rot":	[0.000000, 0.000000, 0.000000],
+					"colour":	[0, 0, 0, 255],
+					"collision":	{
+						"enabled":	true,
+						"type":	"block"
+					},
+					"children":	[]
+				}, {
+					"name":	"Block",
+					"class":	"Block",
+					"pos":	[-2.000000, 18.000000, -94.000000],
+					"scale":	[4.000000, 1.000000, 1.000000],
+					"rot":	[0.000000, 0.000000, 0.000000],
+					"colour":	[255, 255, 255, 255],
+					"collision":	{
+						"enabled":	true,
+						"type":	"block"
+					},
+					"children":	[]
+				}, {
+					"name":	"Block",
+					"class":	"Block",
+					"pos":	[-1.000000, 17.000000, -94.000000],
+					"scale":	[3.000000, 1.000000, 1.000000],
+					"rot":	[0.000000, 0.000000, 0.000000],
+					"colour":	[0, 0, 0, 255],
+					"collision":	{
+						"enabled":	true,
+						"type":	"block"
+					},
+					"children":	[]
+				}, {
+					"name":	"Block",
+					"class":	"Block",
+					"pos":	[-2.000000, 17.000000, -94.000000],
+					"scale":	[1.000000, 3.000000, 1.000000],
+					"rot":	[0.000000, 0.000000, 0.000000],
+					"colour":	[0, 0, 0, 255],
+					"collision":	{
+						"enabled":	true,
+						"type":	"block"
+					},
+					"children":	[]
+				}, {
+					"name":	"Block",
+					"class":	"Block",
+					"pos":	[1.000000, 16.000000, -94.000000],
+					"scale":	[1.000000, 1.000000, 1.000000],
+					"rot":	[0.000000, 0.000000, 0.000000],
+					"colour":	[0, 0, 0, 255],
+					"collision":	{
+						"enabled":	true,
+						"type":	"block"
+					},
+					"children":	[]
+				}, {
+					"name":	"Block",
+					"class":	"Block",
+					"pos":	[-1.000000, 15.000000, -94.000000],
+					"scale":	[3.000000, 1.000000, 1.000000],
+					"rot":	[0.000000, 0.000000, 0.000000],
+					"colour":	[0, 0, 0, 255],
+					"collision":	{
+						"enabled":	true,
+						"type":	"block"
+					},
+					"children":	[]
+				}, {
+					"name":	"Block",
+					"class":	"Block",
+					"pos":	[-1.000000, 16.000000, -94.000000],
+					"scale":	[2.000000, 1.000000, 1.000000],
+					"rot":	[0.000000, 0.000000, 0.000000],
+					"colour":	[255, 255, 255, 255],
+					"collision":	{
+						"enabled":	true,
+						"type":	"block"
+					},
+					"children":	[]
+				}]
+		}, {
+			"name":	"Spamton",
+			"class":	"Block",
+			"pos":	[0.000000, 0.000000, -80.000000],
+			"scale":	[1.000000, 1.000000, 1.000000],
+			"rot":	[0.000000, 0.000000, 0.000000],
+			"colour":	[255, 255, 255, 255],
+			"collision":	{
+				"enabled":	true,
+				"type":	"block"
+			},
+			"children":	[{
+					"name":	"Mesh",
+					"class":	"Mesh",
+					"pos":	[0.000000, 0.000000, 0.000000],
+					"scale":	[1.000000, 1.000000, 1.000000],
+					"rot":	[0.000000, 0.000000, 0.000000],
+					"colour":	[255, 255, 255, 255],
+					"mesh":	"maps/spamton.obj",
+					"collision":	{
+						"enabled":	false,
+						"type":	"none"
+					},
+					"children":	[]
+				}]
+		}, {
+			"name":	"Pipis",
+			"class":	"Block",
+			"pos":	[0.000000, 5.000000, -80.000000],
+			"scale":	[1.000000, 1.500000, 1.000000],
+			"rot":	[0.000000, 0.000000, 90.000003],
+			"colour":	[0, 191, 255, 255],
+			"collision":	{
+				"enabled":	true,
+				"type":	"block"
+			},
+			"children":	[{
+					"name":	"Mesh",
+					"class":	"Mesh",
+					"pos":	[0.000000, 0.000000, 0.000000],
+					"scale":	[1.000000, 1.000000, 1.000000],
+					"rot":	[0.000000, 0.000000, 0.000000],
+					"colour":	[255, 255, 255, 255],
+					"mesh":	"assets/models/primitives/sphere.obj",
+					"collision":	{
+						"enabled":	false,
+						"type":	"none"
+					},
+					"children":	[]
+				}]
+		}, {
+			"name":	"Spamton G Spamton",
+			"class":	"Player",
+			"pos":	[-2.257083, 0.000000, -19.262964],
+			"scale":	[1.000000, 1.000000, 1.000000],
+			"rot":	[0.000000, 338.201068, 0.000000],
+			"colour":	[255, 255, 255, 255],
+			"isPlayer":	true,
+			"collision":	{
+				"enabled":	false,
+				"type":	"none"
+			},
+			"children":	[]
+		}]
 }

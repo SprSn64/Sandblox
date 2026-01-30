@@ -312,6 +312,16 @@ void addObjToJsonArray(cJSON* array, DataObj* item){
 	if(item->classData == &playerClass)
 		cJSON_AddBoolToObject(newObj, "isPlayer", (item == client.gameWorld->currPlayer));
 	
+	Mesh* itemMesh = item->asVoidptr[OBJVAL_MESH];
+	if(itemMesh && itemMesh->meshType == MESHTYPE_FILE)
+		cJSON_AddStringToObject(newObj, "mesh", itemMesh->filePath);
+	
+	/*
+	Texture* itemTex = item->asVoidptr[OBJVAL_TEXTURE];
+	if(itemTex)
+		cJSON_AddStringToObject(newObj, "texture", itemTex->filePath);
+	*/
+	
 	cJSON* collObject = cJSON_AddObjectToObject(newObj, "collision");
 	cJSON_AddBoolToObject(collObject, "enabled", item->asInt[0]);
 	

@@ -81,6 +81,10 @@ Mesh *loadMeshFromObj(const char *path) {
     mesh->faceCount = tricount;
     mesh->verts = calloc(vcount, sizeof(MeshVert));
     mesh->faces = calloc(tricount, sizeof(MeshFace));
+    
+    mesh->meshType = MESHTYPE_FILE;
+    mesh->filePath = malloc(sizeof(char) * (strlen(path) + 1)); sprintf(mesh->filePath, path);
+    
 
     SDL_FPoint *uvs = calloc(vtcount, sizeof(SDL_FPoint));
     Vector3 *normals = calloc(vncount, sizeof(Vector3));

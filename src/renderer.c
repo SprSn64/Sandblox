@@ -291,6 +291,7 @@ Mesh* genTorusMesh(float outerRad, float innerRad, int ringRes, int ringCount){
 	
 	Mesh* newMesh = malloc(sizeof(Mesh));
 	newMesh->vertCount = vertCount; newMesh->verts = newVerts; newMesh->faceCount = faceCount; newMesh->faces = newFaces; 
+	newMesh->meshType = MESHTYPE_TORUS;
 	return newMesh;
 }
 
@@ -333,6 +334,7 @@ Mesh* genCylinderMesh(float btmRad, float topRad, float length, int res){
 	
 	Mesh* newMesh = malloc(sizeof(Mesh));
 	newMesh->vertCount = vertCount; newMesh->verts = newVerts; newMesh->faceCount = faceCount; newMesh->faces = newFaces; 
+	newMesh->meshType = MESHTYPE_CYLINDER;
 	return newMesh;
 }
 
@@ -364,6 +366,7 @@ Mesh* genPlaneMesh(float xScale, float yScale, int xRes, int yRes){
 	
 	Mesh* newMesh = malloc(sizeof(Mesh));
 	newMesh->vertCount = vertCount; newMesh->verts = newVerts; newMesh->faceCount = faceCount; newMesh->faces = newFaces; 
+	newMesh->meshType = MESHTYPE_PLANE;
 	return newMesh;
 }
 

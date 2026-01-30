@@ -17,11 +17,19 @@ typedef struct{
 	//Material material; or something
 } MeshFace;
 
+typedef enum meshTypes{
+	MESHTYPE_FILE,
+	MESHTYPE_PLANE, MESHTYPE_SPHERE, MESHTYPE_TORUS, MESHTYPE_CYLINDER 
+} meshTypes;
+
 typedef struct{
 	Uint32 vertCount;
 	MeshVert *verts;
 	Uint32 faceCount;
 	MeshFace *faces;
+	
+	Uint32 meshType;
+	char* filePath;
 } Mesh;
 
 typedef struct{
