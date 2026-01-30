@@ -276,6 +276,7 @@ void drawObjectProperties(DataObj* item, int posY){
 
 void studioCameraUpdate(Camera* cam){
 	float camSpeed = 18;
+	static float camTime = 0;
 	
 	Vector4 moveVec = {
 		(keyList[KEYBIND_D].down - keyList[KEYBIND_A].down), 
@@ -284,9 +285,16 @@ void studioCameraUpdate(Camera* cam){
 		0
 	};
 	
+	if(moveVec.x == 0 && moveVec.y == 0 && moveVec.z == 0){
+		camTime = 0;
+		return;
+	}
+	camTime += deltaTime;
+	float timeSpeedMult = camSpeed * max(sqrt(camTime), 1);
+	
 	float* camRotMatrix = rotateMatrix(defaultMatrix, cam->rot);
 	moveVec = matrixMult(moveVec, camRotMatrix);
 	
-	cam->pos = (Vector3){cam->pos.x + moveVec.x * camSpeed * deltaTime, cam->pos.y + moveVec.y * camSpeed * deltaTime, cam->pos.z + moveVec.z * camSpeed * deltaTime};
+	cam->pos = (Vector3){cam->pos.x + moveVec.x * timeSpeedMult * deltaTime, cam->pos.y + moveVec.y * timeSpeedMult * deltaTime, cam->pos.z + moveVec.z * timeSpeedMult * deltaTime};
 	free(camRotMatrix);
 }
