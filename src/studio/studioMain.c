@@ -83,6 +83,7 @@ void initStudio(){
 	
 	stuKeyList[STUDIOKEYBIND_DELETE].code = SDL_SCANCODE_DELETE;
 	//shitty widget keys
+	
 	stuKeyList[STUDIOKEYBIND_Z].code = SDL_SCANCODE_Z; stuKeyList[STUDIOKEYBIND_X].code = SDL_SCANCODE_X;
 	stuKeyList[STUDIOKEYBIND_C].code = SDL_SCANCODE_C; stuKeyList[STUDIOKEYBIND_V].code = SDL_SCANCODE_V;
 	stuKeyList[STUDIOKEYBIND_B].code = SDL_SCANCODE_B; stuKeyList[STUDIOKEYBIND_N].code = SDL_SCANCODE_N;
@@ -161,6 +162,10 @@ void updateStudio(){
 		}
 		
 		free(clipboardText);
+	}
+	if(stuKeyList[STUDIOKEYBIND_C].pressed && focusObject){
+		char colourHex[8]; sprintf(colourHex, "#%x%x%x", focusObject->colour.r, focusObject->colour.g, focusObject->colour.b);
+		SDL_SetClipboardText(colourHex);
 	}
 	
 	int idCounter = 0;

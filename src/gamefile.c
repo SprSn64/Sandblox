@@ -167,7 +167,7 @@ DataObj* createObjectFromJSON(cJSON* obj, DataObj* parent) {
         if(enabled && cJSON_IsBool(enabled)) {
             newObj->asInt[0] = cJSON_IsTrue(enabled); 
         } else {
-            newObj->asInt[0] = 1; 
+            newObj->asInt[0] = true; 
         }
         
         if(type && cJSON_IsString(type)) {
@@ -188,13 +188,8 @@ DataObj* createObjectFromJSON(cJSON* obj, DataObj* parent) {
         }
     } else {
         // default collision settings
-        if(newObj->classData->id == 3) { // blockClass gets collision by default
-            newObj->asInt[0] = 1; // enabled
-            newObj->asInt[1] = 1; // block type
-        } else {
-            newObj->asInt[0] = 0; // disabled
-            newObj->asInt[1] = 0; // no collision
-        }
+        newObj->asInt[0] = false; // disabled
+        newObj->asInt[1] = 0; // no collision
     }
     
     if(scriptFile && cJSON_IsString(scriptFile)) {
