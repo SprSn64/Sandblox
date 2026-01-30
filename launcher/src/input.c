@@ -113,7 +113,8 @@ void buttonLaunch(Button* item){
 	printf("Game directory is at %s.\n", gameDir);
 	fclose(file);
 	
-	system(gameDir);
+	SetCurrentDirectory(gameDir);
+	system("sandblox.exe -studio");
 	
 	/*CreateProcessA(
 		gameDir,
