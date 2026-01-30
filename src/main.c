@@ -23,7 +23,6 @@
 /* TODO:
 	Get OpenGL GLEW working
 	Make studio widgets work properly (1/3 complete)
-	Make studio widgets not crash game when used in post-loaded file
 	Add multiplayer server shit
 	Implement simple physics
 	Add secondary studio menu for changing object properties (colour, scale, etc)
@@ -304,7 +303,7 @@ SDL_AppResult SDL_AppIterate(void *appstate){
 	Vector3 invVec3 = {-1, -1, -1};
 	currentCamera.transform = genMatrix(vec3Mult(currentCamera.pos, invVec3), (Vector3){currentCamera.zoom, currentCamera.zoom, currentCamera.zoom}, vec3Mult(currentCamera.rot, invVec3));
 	
-	if(client.studio)
+	if(client.studio && focusObject)
 		updateStudioGimbles();
 	
 	int idCounter = 0;

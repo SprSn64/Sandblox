@@ -133,4 +133,6 @@ void buttonLaunch(Button* item){
 	#ifdef linux
 		
 	#endif
+	
+	item->enabled = true;
 }

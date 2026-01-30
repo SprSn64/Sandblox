@@ -178,7 +178,7 @@ void updateStudio(){
 		SDL_RenderFillRect(studioRenderer, &(SDL_FRect){objListRect.x + objListRect.w - 8, objListRect.y + (objListRect.h - scrollHeight) * scrollT, 8, scrollHeight});
 	}
 	
-	drawStudioOverlay();
+	if(focusObject)drawStudioOverlay();
 	
 	//make this less shitty soon
 	updateAndDrawButton(studioRenderer, &addObjButton); updateAndDrawButton(studioRenderer, &removeObjButton); updateAndDrawButton(studioRenderer, &pauseButton);
