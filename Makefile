@@ -7,7 +7,7 @@ CXXFLAGS := $(CFLAGS) -std=c++17
 
 ifeq ($(OS),Windows_NT)
 	TARGET := sandblox
-	LDFLAGS := -lSDL3 -lSDL3_image -lgdi32 -lopengl32 resource.res
+	LDFLAGS := -lSDL3 -lSDL3_image -lgdi32 -lopengl32 -lglew32 resource.res
 else
 	TARGET := sandblox.$(shell uname -m)
 	LDFLAGS := -lm -lSDL3 -lSDL3_image -lGL

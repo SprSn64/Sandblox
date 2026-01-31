@@ -210,7 +210,7 @@ SDL_AppResult SDL_AppEvent(void *appstate, SDL_Event *event){
 		bool mainFocus = SDL_GetWindowFlags(window) & SDL_WINDOW_INPUT_FOCUS;
 		bool studioFocus = studioWindow && (SDL_GetWindowFlags(studioWindow) & SDL_WINDOW_INPUT_FOCUS);
 		
-		if(mainFocus){
+		if(mainFocus && !client.pause){
 			float zoomSpeed = max(1, sqrt(currentCamera.focusDist));
 			float zoomMin = 0.0f;
 			float zoomMax = 64.0f;
@@ -270,7 +270,7 @@ SDL_AppResult SDL_AppIterate(void *appstate){
 	
 	SDL_ShowCursor();
 	bool mainWindowFocus = SDL_GetWindowFlags(window) & SDL_WINDOW_INPUT_FOCUS;
-	if(currentCamera.focusDist == 0){
+	if(currentCamera.focusDist == 0 && !client.pause){
 		if(camMoveMode != 2){
 			storedMousePos = mousePos;
 			camMoveMode = 2;
