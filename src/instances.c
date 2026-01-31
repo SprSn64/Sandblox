@@ -48,12 +48,9 @@ void updateObjects(DataObj* item, int nodeDepth, int *idCount, bool uord){ //uor
 	if (!uord){
 		item->rot = (Vector3){fmod(item->rot.x, 6.28318), fmod(item->rot.y, 6.28318), fmod(item->rot.z, 6.28318)};
 		if(item->classData->update)item->classData->update(item);
-		void (*scriptFunc) = item->asVoidptr[OBJVAL_SCRIPT];
-		if(scriptFunc != NULL){
-			//sendPopup("fuck", NULL, NULL, 0.2);
-			//scriptFunc(item); //doesnt work
-		}
-		if(scriptFunc == killBrickFunc) killBrickFunc(item);
+		ScriptItem *scriptFunc = item->asVoidptr[OBJVAL_SCRIPT];
+		if(scriptFunc != NULL)
+			scriptFunc->func(item);
 	}else{ 
 		if(item->parent && item->parent->studioOpen == true)
 			objListLength += item->parent->studioOpen;

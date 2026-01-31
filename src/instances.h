@@ -15,6 +15,11 @@ typedef struct NotiPopup{
 	struct NotiPopup* last;
 } NotiPopup;
 
+typedef struct ScriptItem{
+	void (*func)(DataObj*);
+	char* funcName;
+} ScriptItem;
+
 DataObj* newObject(DataObj* parent, DataType* classData);
 void removeObject(DataObj* object);
 bool parentObject(DataObj* child, DataObj* parent);

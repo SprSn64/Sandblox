@@ -23,16 +23,6 @@ void (*getFunctionByName(const char* name))(DataObj*) {
     return NULL;
 }
 
-char* getFunctionName(void (*func)){
-    if(!func) return NULL;
-    
-    char* output = malloc(sizeof(Uint8) * 64);
-    
-    if(func == objSpinFunc) sprintf(output, "objSpinFunc");
-    if(func == killBrickFunc) sprintf(output, "killBrickFunc");
-    return output;
-}
-
 DataType* getClassByName(const char* name) {
     if(!strcmp(name, "Player")) return &playerClass;
     if(!strcmp(name, "Block")) return &blockClass;
@@ -207,7 +197,10 @@ DataObj* createObjectFromJSON(cJSON* obj, DataObj* parent) {
     }
     
     if(scriptFile && cJSON_IsString(scriptFile)) {
-	  newObj->asVoidptr[OBJVAL_SCRIPT] = getFunctionByName(scriptFile->valuestring);
+	  ScriptItem *newScript = malloc(sizeof(ScriptItem));
+        newScript->func = getFunctionByName(scriptFile->valuestring); newScript->funcName = strdup(scriptFile->valuestring);  
+	  
+	  newObj->asVoidptr[OBJVAL_SCRIPT] = newScript;
     }
     
     if(children && cJSON_IsArray(children)) {
@@ -336,8 +329,9 @@ void addObjToJsonArray(cJSON* array, DataObj* item){
 		cJSON_AddStringToObject(newObj, "texture", itemTex->filePath);
 	*/
 	
-	if(item->asVoidptr[OBJVAL_SCRIPT])
-		cJSON_AddStringToObject(newObj, "script", getFunctionName(item->asVoidptr[OBJVAL_SCRIPT]));
+	ScriptItem *itemScript = item->asVoidptr[OBJVAL_SCRIPT];
+	if(itemScript && itemScript->funcName)
+		cJSON_AddStringToObject(newObj, "script", itemScript->funcName);
 	
 	CollisionHull *collider = item->asVoidptr[OBJVAL_COLLIDER];
 	
