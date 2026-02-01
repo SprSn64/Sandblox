@@ -348,8 +348,9 @@ void addObjToJsonArray(cJSON* array, DataObj* item){
 	
 	colliderSkip:
 	
-	newArray = cJSON_AddArrayToObject(newObj, "children");
 	cJSON_AddItemToArray(array, newObj);
+	if(!child) return;
+	newArray = cJSON_AddArrayToObject(newObj, "children");
 	
 	headerSkip:
 	
