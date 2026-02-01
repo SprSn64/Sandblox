@@ -193,24 +193,16 @@ void rotateMatrix2(mat4 matrix, Vector3 angle){
 }
 
 float *projMatrix(float fov, float aspect, float zNear, float zFar){
-	//bool rORl = false;
-	//bool ZOorNO = true;
-	float halfFov = tan(fov / 2);
-	float *output = newMatrix();
-
-	output[0] = 1 / (halfFov * aspect);
-	output[5] = 1 / halfFov;
-	output[11] = 1;// - 2 * rORl;
-	/*if (!ZOorNO)
-	{
-		output[10] = zFar / (zNear - zFar);
-		output[14] = -(zFar * zNear) / (zNear - zFar);
-	}
-	else
-	{*/
-		output[10] = -(zFar + zNear) / (zNear - zFar);
-		output[14] = -(2 * zFar * zNear) / (zNear - zFar);
-	//}
+	float *output = calloc(1, sizeof(mat4));
+	
+	float range = zNear - zFar;
+	float fovTan = SDL_tan(fov / 2 * DEG2RAD);
+	
+	output[0] = 1 / (fovTan * aspect);
+	output[5] = 1 / fovTan;
+	output[10] = (-zNear - zFar) / range;
+	output[11] = 2 * zNear * zFar / range;
+	output[14] = 1;
 
 	return output;
 }

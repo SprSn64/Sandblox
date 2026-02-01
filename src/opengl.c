@@ -24,6 +24,8 @@ extern float* defaultMatrix;
 extern Mesh* playerMesh;
 extern SDL_FColor skyboxColour;
 
+Uint32 mainShader;
+
 float triVerts[] = {
      0.5f,  0.5f, 0.0f,  // top right
      0.5f, -0.5f, 0.0f,  // bottom right
@@ -50,11 +52,23 @@ Sint32 projLoc;
 
 Uint32 loadShader(char* vertPath, char* fragPath){
 	const char* vertSource = loadTextFile(vertPath);
-	unsigned int vertShader = glCreateShader(GL_VERTEX_SHADER);
+	Uint32 vertShader = glCreateShader(GL_VERTEX_SHADER);
 	glShaderSource(vertShader, 1, &vertSource, NULL);
 	
 	const char* fragSource = loadTextFile(fragPath);
-	return 0;
+	Uint32 fragShader = glCreateShader(GL_FRAGMENT_SHADER);
+	glShaderSource(fragShader, 1, &fragSource, NULL);
+	
+	glCompileShader(vertShader); glCompileShader(fragShader);
+	
+	Uint32 shaderProg = glCreateProgram();
+	glAttachShader(shaderProg, vertShader); glAttachShader(shaderProg, fragShader);
+	glLinkProgram(shaderProg);
+	
+	glUseProgram(shaderProg);
+	glDeleteShader(vertShader); glDeleteShader(fragShader);
+	
+	return shaderProg;
 }
 
 bool initOpenGL(){
@@ -73,32 +87,13 @@ bool initOpenGL(){
 	SDL_SetWindowParent(glWindow, window); //SDL_SetWindowModal(glWindow, true);
 	SDL_SetWindowMinimumSize(glWindow, 320, 240);
 	
-	vertexShaderSource = loadTextFile("assets/shaders/default.vert");
-	unsigned int vertexShader;
-	vertexShader = glCreateShader(GL_VERTEX_SHADER);
-	glShaderSource(vertexShader, 1, &vertexShaderSource, NULL);
-	glCompileShader(vertexShader);
+	mainShader = loadShader("assets/shaders/default.vert", "assets/shaders/default.frag");
 	
-	fragmentShaderSource = loadTextFile("assets/shaders/default.frag");
-	unsigned int fragmentShader;
-	fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
-	glShaderSource(fragmentShader, 1, &fragmentShaderSource, NULL);
-	glCompileShader(fragmentShader);
+	unsigned int VAO; glGenVertexArrays(1, &VAO); glBindVertexArray(VAO);	
 	
-	unsigned int shaderProgram;
-	shaderProgram = glCreateProgram();
-	glAttachShader(shaderProgram, vertexShader);
-	glAttachShader(shaderProgram, fragmentShader);
-	glLinkProgram(shaderProgram);
+	unsigned int VBO; glGenBuffers(1, &VBO); glBindBuffer(GL_ARRAY_BUFFER, VBO);
 	
-	unsigned int VAO; glGenVertexArrays(1, &VAO);
-	glBindVertexArray(VAO);	
-	
-	unsigned int VBO; glGenBuffers(1, &VBO);
-	glBindBuffer(GL_ARRAY_BUFFER, VBO);
-	
-	unsigned int EBO; glGenBuffers(1, &EBO);
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
+	unsigned int EBO; glGenBuffers(1, &EBO); glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(triFaces), triFaces, GL_STATIC_DRAW); 
 	
 	glBufferData(GL_ARRAY_BUFFER, sizeof(triVerts), triVerts, GL_STATIC_DRAW);
@@ -106,16 +101,10 @@ bool initOpenGL(){
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
 	glEnableVertexAttribArray(0);  
 	
-	glUseProgram(shaderProgram);
-	glDeleteShader(vertexShader);
-	glDeleteShader(fragmentShader);
+	//projMat = projMatrix(90, 4/3, 0.01, 10000);
 	
-	glBindVertexArray(VAO);
-	
-	projMat = projMatrix(90, 4/3, 0.01, 10000);
-	
-	viewLoc = glGetUniformLocation(shaderProgram, "view");
-	projLoc = glGetUniformLocation(shaderProgram, "proj");
+	viewLoc = glGetUniformLocation(mainShader, "view");
+	projLoc = glGetUniformLocation(mainShader, "proj");
 	
 	SDL_GL_SetSwapInterval(1);
 	//glEnable(GL_DEPTH_TEST);
@@ -128,11 +117,13 @@ void updateOpenGL(){
 	SDL_GetWindowSize(glWindow, &glWindowScale.x, &glWindowScale.y);
 	glViewport(0, 0, glWindowScale.x, glWindowScale.y);
 	
-	projMat = projMatrix(90, (float)glWindowScale.x/glWindowScale.y, 0.01, 10000);
+	glUseProgram(mainShader);
+	
+	projMat = projMatrix(90, (float)glWindowScale.x/glWindowScale.y, 0.1, 100);
 	
 	glClear(GL_COLOR_BUFFER_BIT);
 	
-	float* viewMatTranslate = translateMatrix(defaultMatrix, currentCamera.pos);
+	float* viewMatTranslate = translateMatrix(defaultMatrix, vec3Mult(currentCamera.pos, (Vector3){-1, -1, 1}));
 	viewMat = rotateMatrix(viewMatTranslate, currentCamera.rot);
 	free(viewMatTranslate);
 	
