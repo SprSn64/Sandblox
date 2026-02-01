@@ -13,11 +13,17 @@
 #include <structs.h>
 #include "loader.h"
 #include "renderer.h"
+#include "math.h"
 
 extern SDL_Window *window;
 extern SDL_Point windowScale;
 
+extern ClientData client;
+extern Camera currentCamera;
+extern float* defaultMatrix;
+
 extern Mesh* playerMesh;
+extern SDL_FColor skyboxColour;
 
 float triVerts[] = {
      0.5f,  0.5f, 0.0f,  // top right
@@ -30,15 +36,24 @@ unsigned int triFaces[] = {  // note that we start from 0!
     1, 2, 3    // second triangle
 };  
 
+float* projMat;
+float* viewMat;
+
 const char *vertexShaderSource = NULL;
 const char *fragmentShaderSource = NULL;
 
 SDL_Window *glWindow = NULL;
 
-extern SDL_FColor skyboxColour;
+Sint32 worldLoc;
+Sint32 viewLoc;
+Sint32 projLoc;
 
-Uint32 newGlShader(const char* vertSource, const char* fragSource){
-	(void)vertSource; (void)fragSource; 
+Uint32 loadShader(char* vertPath, char* fragPath){
+	const char* vertSource = loadTextFile(vertPath);
+	unsigned int vertShader = glCreateShader(GL_VERTEX_SHADER);
+	glShaderSource(vertShader, 1, &vertSource, NULL);
+	
+	const char* fragSource = loadTextFile(fragPath);
 	return 0;
 }
 
@@ -54,8 +69,6 @@ bool initOpenGL(){
 		return 0;
 	}
 	printf("Glew initiation successful!\n");
-	
-	//how the fuck do i get glew to work
 	
 	SDL_SetWindowParent(glWindow, window); //SDL_SetWindowModal(glWindow, true);
 	SDL_SetWindowMinimumSize(glWindow, 320, 240);
@@ -94,9 +107,15 @@ bool initOpenGL(){
 	glEnableVertexAttribArray(0);  
 	
 	glUseProgram(shaderProgram);
-		glDeleteShader(vertexShader);
-		glDeleteShader(fragmentShader);
+	glDeleteShader(vertexShader);
+	glDeleteShader(fragmentShader);
+	
 	glBindVertexArray(VAO);
+	
+	projMat = projMatrix(90, 4/3, 0.01, 10000);
+	
+	viewLoc = glGetUniformLocation(shaderProgram, "view");
+	projLoc = glGetUniformLocation(shaderProgram, "proj");
 	
 	SDL_GL_SetSwapInterval(1);
 	//glEnable(GL_DEPTH_TEST);
@@ -107,6 +126,13 @@ bool initOpenGL(){
 
 void updateOpenGL(){
 	glClear(GL_COLOR_BUFFER_BIT);
+	
+	float* viewMatTranslate = translateMatrix(defaultMatrix, currentCamera.pos);
+	viewMat = rotateMatrix(viewMatTranslate, currentCamera.rot);
+	free(viewMatTranslate);
+	
+	glUniformMatrix4fv(projLoc, 1, GL_FALSE, projMat);
+	glUniformMatrix4fv(viewLoc, 1, GL_FALSE, viewMat);
 	//glDrawArrays(GL_TRIANGLES, 0, 3);
 	glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 	

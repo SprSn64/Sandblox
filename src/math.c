@@ -192,7 +192,7 @@ void rotateMatrix2(mat4 matrix, Vector3 angle){
 	matrix[8] += -SDL_sin(angle.y); matrix[9] += SDL_sin(angle.x); matrix[10] *= SDL_cos(angle.x) * SDL_cos(angle.y);
 }
 
-float *perspMatrix(float fov, float aspect, float zNear, float zFar){
+float *projMatrix(float fov, float aspect, float zNear, float zFar){
 	//bool rORl = false;
 	//bool ZOorNO = true;
 	float halfFov = tan(fov / 2);
