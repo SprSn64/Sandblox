@@ -150,19 +150,25 @@ void drawMesh(Mesh* mesh, mat4 transform, SDL_FColor colour, SDL_Texture* textur
 	rotMatrix[2] = rotMatrix[2] / matrixScale.z; rotMatrix[6] = rotMatrix[6] / matrixScale.z; rotMatrix[10] = rotMatrix[10] / matrixScale.z; 
 	
 	for(Uint32 i=0; i < mesh->faceCount; i++){
-		if (!(mesh->faces[i].vertA && mesh->faces[i].vertB && mesh->faces[i].vertC)) continue;
+		MeshVert* currVerts[3] = {
+			&mesh->verts[mesh->faces[i].vertA % mesh->vertCount], 
+			&mesh->verts[mesh->faces[i].vertB % mesh->vertCount], 
+			&mesh->verts[mesh->faces[i].vertC % mesh->vertCount]
+		};
+		if (!(currVerts[0] && currVerts[1] && currVerts[2])) continue;
 		
-		pointCalcs[0] = matrixMult(vec3ToVec4(mesh->faces[i].vertA->pos), transform);
-		pointCalcs[1] = matrixMult(vec3ToVec4(mesh->faces[i].vertB->pos), transform);
-		pointCalcs[2] = matrixMult(vec3ToVec4(mesh->faces[i].vertC->pos), transform);
+		
+		pointCalcs[0] = matrixMult(vec3ToVec4(currVerts[0]->pos), transform);
+		pointCalcs[1] = matrixMult(vec3ToVec4(currVerts[1]->pos), transform);
+		pointCalcs[2] = matrixMult(vec3ToVec4(currVerts[2]->pos), transform);
 		
 		SDL_FColor shadedColour[3] = {colour, colour, colour};
 		if(!shaded) goto unshadedSkip;
 		
 		Vector4 multFaceNormal[3] = {
-			matrixMult(vec3ToVec4(mesh->faces[i].vertA->norm), rotMatrix),
-			matrixMult(vec3ToVec4(mesh->faces[i].vertB->norm), rotMatrix),
-			matrixMult(vec3ToVec4(mesh->faces[i].vertC->norm), rotMatrix)
+			matrixMult(vec3ToVec4(currVerts[0]->norm), rotMatrix),
+			matrixMult(vec3ToVec4(currVerts[1]->norm), rotMatrix),
+			matrixMult(vec3ToVec4(currVerts[2]->norm), rotMatrix)
 		};
 		
 		for(Uint8 index=0; index < 3; index++){
@@ -190,9 +196,9 @@ void drawMesh(Mesh* mesh, mat4 transform, SDL_FColor colour, SDL_Texture* textur
 		unshadedSkip:
 		
 		draw3DTriangle(
-			(MeshVert){vec4ToVec3(pointCalcs[0]), (Vector3){0,0,0}, mesh->faces[i].vertA->uv, shadedColour[0]}, 
-			(MeshVert){vec4ToVec3(pointCalcs[1]), (Vector3){0,0,0}, mesh->faces[i].vertB->uv, shadedColour[1]}, 
-			(MeshVert){vec4ToVec3(pointCalcs[2]), (Vector3){0,0,0}, mesh->faces[i].vertC->uv, shadedColour[2]}, 
+			(MeshVert){vec4ToVec3(pointCalcs[0]), (Vector3){0,0,0}, currVerts[0]->uv, shadedColour[0]}, 
+			(MeshVert){vec4ToVec3(pointCalcs[1]), (Vector3){0,0,0}, currVerts[1]->uv, shadedColour[1]}, 
+			(MeshVert){vec4ToVec3(pointCalcs[2]), (Vector3){0,0,0}, currVerts[2]->uv, shadedColour[2]}, 
 		texture);
 	}
 }
@@ -283,10 +289,10 @@ Mesh* genTorusMesh(float outerRad, float innerRad, int ringRes, int ringCount){
 	
 	for(Uint32 i=0; i<faceCount/2; i++){
 		Uint32 newI = i * 2;
-		MeshVert *quadVerts[4] = {&newVerts[i], &newVerts[(i+1) % vertCount], &newVerts[(i + ringRes) % vertCount], &newVerts[(i+1 + ringRes) % vertCount]};
+		//MeshVert *quadVerts[4] = {&newVerts[i], &newVerts[(i+1) % vertCount], &newVerts[(i + ringRes) % vertCount], &newVerts[(i+1 + ringRes) % vertCount]};
 		
-		newFaces[newI] = (MeshFace){quadVerts[0], quadVerts[1], quadVerts[2]};
-		newFaces[(newI + 1)] = (MeshFace){quadVerts[2], quadVerts[1], quadVerts[3]};
+		newFaces[newI] = (MeshFace){i, (i+1) % vertCount, (i + ringRes) % vertCount};
+		newFaces[(newI + 1)] = (MeshFace){(i + ringRes) % vertCount, (i+1) % vertCount, (i+1 + ringRes) % vertCount};
 	}
 	
 	Mesh* newMesh = malloc(sizeof(Mesh));
@@ -320,16 +326,16 @@ Mesh* genCylinderMesh(float btmRad, float topRad, float length, int res){
 	
 	for(int i=0; i<res; i++){
 		int newI = i * 2;
-		MeshVert *quadVerts[4] = {&newVerts[i], &newVerts[(i+1) % res], &newVerts[(i + res)], &newVerts[(i+1)%res + res]};
+		//MeshVert *quadVerts[4] = {&newVerts[i], &newVerts[(i+1) % res], &newVerts[(i + res)], &newVerts[(i+1)%res + res]};
 		
-		newFaces[newI] = (MeshFace){quadVerts[0], quadVerts[1], quadVerts[2]};
-		newFaces[(newI + 1)] = (MeshFace){quadVerts[2], quadVerts[1], quadVerts[3]};
+		newFaces[newI] = (MeshFace){i, (i+1) % res, i + res};
+		newFaces[(newI + 1)] = (MeshFace){i + res, (i+1) % res, (i+1)%res + res};
 	}
 	
 	for(int i=0; i<res-2; i++){
 		int newI = 2 * res + i;
-		newFaces[newI] = (MeshFace){&newVerts[i], &newVerts[0], &newVerts[(i + 1) % res]};
-		newFaces[newI + res - 2] = (MeshFace){&newVerts[res], &newVerts[i + res], &newVerts[res + (i + 1) % res]};
+		newFaces[newI] = (MeshFace){i, 0, (i + 1) % res};
+		newFaces[newI + res - 2] = (MeshFace){res, i + res, res + (i+1) % res};
 	}
 	
 	Mesh* newMesh = malloc(sizeof(Mesh));
@@ -358,10 +364,10 @@ Mesh* genPlaneMesh(float xScale, float yScale, int xRes, int yRes){
 	}
 	for(Uint32 i=0; i<faceCount/2; i++){
 		Uint32 newI = i * 2;
-		MeshVert *quadVerts[4] = {&newVerts[i], &newVerts[i+1], &newVerts[i + (xRes + 1)], &newVerts[i + 2 + xRes]};
+		//MeshVert *quadVerts[4] = {&newVerts[i], &newVerts[i+1], &newVerts[i + (xRes + 1)], &newVerts[i + 2 + xRes]};
 		
-		newFaces[newI] = (MeshFace){quadVerts[0], quadVerts[1], quadVerts[2]};
-		newFaces[(newI + 1)] = (MeshFace){quadVerts[2], quadVerts[1], quadVerts[3]};
+		newFaces[newI] = (MeshFace){i, i+1, i + (xRes + 1)};
+		newFaces[(newI + 1)] = (MeshFace){i + (xRes + 1), i+1, i + 2 + xRes};
 	}
 	
 	Mesh* newMesh = malloc(sizeof(Mesh));

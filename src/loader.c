@@ -138,9 +138,9 @@ Mesh *loadMeshFromObj(const char *path) {
                 if (idx[0].vn >= 0) a->norm = normals[idx[0].vn];
                 if (idx[i].vn >= 0) b->norm = normals[idx[i].vn];
                 if (idx[i+1].vn >= 0) c->norm = normals[idx[i+1].vn];
-                face->vertA = a;
-                face->vertB = b;
-                face->vertC = c;
+                face->vertA = idx[0].v;
+                face->vertB = idx[i].v;
+                face->vertC = idx[i + 1].v;
             }
         }
     }

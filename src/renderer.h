@@ -13,7 +13,7 @@ typedef struct{
 } MeshVert;
 
 typedef struct{
-	MeshVert *vertA, *vertB, *vertC;
+	Uint32 vertA, vertB, vertC;
 	//Material material; or something
 } MeshFace;
 
