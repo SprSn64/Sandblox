@@ -3,7 +3,6 @@
 #include <SDL3/SDL.h>
 #include <SDL3_image/SDL_image.h>
 #include <GL/glew.h>
-//include <GL/glut.h>
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -43,6 +42,7 @@ const char *vertexShaderSource = NULL;
 const char *fragmentShaderSource = NULL;
 
 SDL_Window *glWindow = NULL;
+SDL_Point glWindowScale = {640, 480};
 
 Sint32 worldLoc;
 Sint32 viewLoc;
@@ -58,7 +58,7 @@ Uint32 loadShader(char* vertPath, char* fragPath){
 }
 
 bool initOpenGL(){
-	glWindow = SDL_CreateWindow("Sandblox (3D OpenGL)", windowScale.x, windowScale.y, SDL_WINDOW_RESIZABLE | SDL_WINDOW_OPENGL);
+	glWindow = SDL_CreateWindow("Sandblox (3D OpenGL)", glWindowScale.x, glWindowScale.y, SDL_WINDOW_RESIZABLE | SDL_WINDOW_OPENGL);
 	SDL_GL_CreateContext(glWindow);
 	if(!SDL_GL_CreateContext(glWindow)){
 		printf("OpenGL initiation failed!\n");
@@ -125,6 +125,11 @@ bool initOpenGL(){
 }
 
 void updateOpenGL(){
+	SDL_GetWindowSize(glWindow, &glWindowScale.x, &glWindowScale.y);
+	glViewport(0, 0, glWindowScale.x, glWindowScale.y);
+	
+	projMat = projMatrix(90, (float)glWindowScale.x/glWindowScale.y, 0.01, 10000);
+	
 	glClear(GL_COLOR_BUFFER_BIT);
 	
 	float* viewMatTranslate = translateMatrix(defaultMatrix, currentCamera.pos);
@@ -135,6 +140,8 @@ void updateOpenGL(){
 	glUniformMatrix4fv(viewLoc, 1, GL_FALSE, viewMat);
 	//glDrawArrays(GL_TRIANGLES, 0, 3);
 	glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+	
+	free(projMat);
 	
 	SDL_GL_SwapWindow(glWindow);
 }

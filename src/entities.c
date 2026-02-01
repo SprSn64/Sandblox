@@ -81,7 +81,10 @@ void playerDraw(DataObj* object){
 	while(hatItem){
 		if(hatItem->classData->id == accessoryClass.id){
 			SDL_FColor hatCol = ConvertSDLColour(hatItem->colour); hatCol.a = plrColour.a;
-			drawMesh(hatItem->asVoidptr[OBJVAL_MESH], object->transform, hatCol, hatItem->asVoidptr[OBJVAL_TEXTURE], true);
+			SDL_Texture *itemTex = NULL;
+			TextureRef *itemTexRef = hatItem->asVoidptr[OBJVAL_TEXTURE];
+			if(itemTexRef)itemTex = itemTexRef->image;
+			drawMesh(hatItem->asVoidptr[OBJVAL_MESH], object->transform, hatCol, itemTex, true);
 		}
 		hatItem = hatItem->next;
 	}
@@ -101,7 +104,10 @@ void blockDraw(DataObj* object){
 	float *meshMatrix;
 	if(meshItem){
 		if(meshItem->asVoidptr[OBJVAL_MESH])itemMesh = meshItem->asVoidptr[OBJVAL_MESH];
-		if(meshItem->asVoidptr[OBJVAL_TEXTURE])itemTex = meshItem->asVoidptr[OBJVAL_TEXTURE];
+		if(meshItem->asVoidptr[OBJVAL_TEXTURE]){
+			TextureRef *itemTexRef = meshItem->asVoidptr[OBJVAL_TEXTURE];
+			itemTex = itemTexRef->image;
+		}
 		meshMatrix = genMatrix(meshItem->pos, meshItem->scale, meshItem->rot);
 		meshTransform = multMatrix(meshMatrix, object->transform);
 	}
@@ -125,7 +131,9 @@ DataType groupClass = {"Group\0", 5, 0, NULL, NULL, NULL};
 extern Mesh* planePrim;
 void imageDraw(DataObj* object){
 	float* transform = genMatrix(object->pos, object->scale, object->rot);
-	drawMesh(planePrim, transform, ConvertSDLColour(object->colour), object->asVoidptr[OBJVAL_TEXTURE], true);
+	TextureRef *itemTex = object->asVoidptr[OBJVAL_TEXTURE];
+	if(!itemTex) return;
+	drawMesh(planePrim, transform, ConvertSDLColour(object->colour), itemTex->image, true);
 }
 
 DataType imageClass = {"Image\0", 8, 0, NULL, NULL, imageDraw};

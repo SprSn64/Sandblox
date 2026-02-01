@@ -40,6 +40,13 @@ typedef struct{
 	Uint16 columns;
 } Font;
 
+typedef struct TextureRef{
+	SDL_Texture *image;
+	char* filePath;
+	
+	struct TextureRef *next; //for cleaning up and checking if texture already exists
+} TextureRef;
+
 SDL_Texture *newTexture(char* path, SDL_ScaleMode scaleMode);
 void drawText(SDL_Renderer *renderLoc, Font *textFont, char* text, short posX, short posY, float size, SDL_FColor colour);
 void setDrawColour(SDL_Renderer *render, CharColour colour);

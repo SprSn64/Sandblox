@@ -151,14 +151,19 @@ DataObj* createObjectFromJSON(cJSON* obj, DataObj* parent) {
         newObj->asVoidptr[OBJVAL_MESH] = mesh;
     }
     
+    TextureRef* texItem = NULL;
     SDL_Texture* tex = NULL;
     if(texture && cJSON_IsString(texture)) {
         tex = newTexture(texture->valuestring, SDL_SCALEMODE_LINEAR);
+	  
         if(!tex)
             printf("Failed to load texture from file: %s\n", texture->valuestring);
     }
     if(tex) {
-        newObj->asVoidptr[OBJVAL_TEXTURE] = tex;
+	  texItem = malloc(sizeof(TextureRef));
+	  texItem->filePath = malloc(sizeof(char) * (strlen(texture->valuestring) + 1)); sprintf(texItem->filePath, texture->valuestring);
+	  texItem->image = tex;
+        newObj->asVoidptr[OBJVAL_TEXTURE] = texItem;
     }
     
     //CollisionHull *block->asVoidptr[OBJVAL_COLLIDER]
@@ -323,11 +328,10 @@ void addObjToJsonArray(cJSON* array, DataObj* item){
 	if(itemMesh && itemMesh->meshType == MESHTYPE_FILE)
 		cJSON_AddStringToObject(newObj, "mesh", itemMesh->filePath);
 	
-	/*
-	Texture* itemTex = item->asVoidptr[OBJVAL_TEXTURE];
+	
+	TextureRef* itemTex = item->asVoidptr[OBJVAL_TEXTURE];
 	if(itemTex)
 		cJSON_AddStringToObject(newObj, "texture", itemTex->filePath);
-	*/
 	
 	ScriptItem *itemScript = item->asVoidptr[OBJVAL_SCRIPT];
 	if(itemScript && itemScript->funcName)
