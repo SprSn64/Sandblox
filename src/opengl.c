@@ -20,9 +20,14 @@ extern SDL_Point windowScale;
 extern Mesh* playerMesh;
 
 float triVerts[] = {
-    -0.5, -0.5, 0,
-     0.5, -0.5, 0,
-     0,  0.5, 0
+     0.5f,  0.5f, 0.0f,  // top right
+     0.5f, -0.5f, 0.0f,  // bottom right
+    -0.5f, -0.5f, 0.0f,  // bottom left
+    -0.5f,  0.5f, 0.0f   // top left 
+};
+unsigned int triFaces[] = {  // note that we start from 0!
+    0, 1, 3,   // first triangle
+    1, 2, 3    // second triangle
 };  
 
 const char *vertexShaderSource = NULL;
@@ -73,13 +78,15 @@ bool initOpenGL(){
 	glAttachShader(shaderProgram, fragmentShader);
 	glLinkProgram(shaderProgram);
 	
-	unsigned int VAO;
-	glGenVertexArrays(1, &VAO);
+	unsigned int VAO; glGenVertexArrays(1, &VAO);
 	glBindVertexArray(VAO);	
 	
-	unsigned int VBO;
-	glGenBuffers(1, &VBO);
+	unsigned int VBO; glGenBuffers(1, &VBO);
 	glBindBuffer(GL_ARRAY_BUFFER, VBO);
+	
+	unsigned int EBO; glGenBuffers(1, &EBO);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(triFaces), triFaces, GL_STATIC_DRAW); 
 	
 	glBufferData(GL_ARRAY_BUFFER, sizeof(triVerts), triVerts, GL_STATIC_DRAW);
 	
@@ -100,7 +107,8 @@ bool initOpenGL(){
 
 void updateOpenGL(){
 	glClear(GL_COLOR_BUFFER_BIT);
-	glDrawArrays(GL_TRIANGLES, 0, 3);
+	//glDrawArrays(GL_TRIANGLES, 0, 3);
+	glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 	
 	SDL_GL_SwapWindow(glWindow);
 }
