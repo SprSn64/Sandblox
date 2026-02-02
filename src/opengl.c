@@ -39,6 +39,8 @@ SDL_Point glWindowScale = {640, 480};
 Sint32 worldLoc, viewLoc,  projLoc;
 Uint32 VAO, VBO, EBO;
 
+float *rotateMatrixEvil(mat4 matrix, Vector3 angle);
+
 Uint32 loadShader(char* vertPath, char* fragPath){
 	const char* vertSource = loadTextFile(vertPath);
 	Uint32 vertShader = glCreateShader(GL_VERTEX_SHADER);
@@ -120,7 +122,7 @@ void updateOpenGL(){
 	glClear(GL_DEPTH_BUFFER_BIT);
 	
 	float* viewMatTranslate = translateMatrix(defaultMatrix, vec3Mult(currentCamera.pos, (Vector3){-1, -1, 1}));
-	viewMat = rotateMatrix(viewMatTranslate, currentCamera.rot);
+	viewMat = rotateMatrixEvil(viewMatTranslate, currentCamera.rot);
 	free(viewMatTranslate);
 	
 	//glUniformMatrix4fv(worldLoc, 1, GL_FALSE, client.gameWorld->currPlayer->transform);
@@ -137,4 +139,17 @@ void updateOpenGL(){
 void cleanupOpenGL(){
 	glDeleteProgram(mainShader);
 	glDeleteBuffers(1, &VAO); glDeleteBuffers(1, &VBO); glDeleteBuffers(1, &EBO);
+}
+
+float *rotateMatrixEvil(mat4 matrix, Vector3 angle){
+	float *output;
+	output = malloc(sizeof(mat4));
+	
+	float *xMatrix = multMatrix(matrix, axisRotMatrix(1, angle.y));
+	float *yMatrix = multMatrix(xMatrix, axisRotMatrix(0, angle.x));
+	float *zMatrix = multMatrix(yMatrix, axisRotMatrix(2, angle.z));
+	
+	memcpy(output, zMatrix, sizeof(mat4));
+	free(xMatrix); free(yMatrix); free(zMatrix); 
+	return output;
 }
