@@ -10,6 +10,7 @@
 #include <math.h>
 
 #include <structs.h>
+#include "opengl.h"
 #include "loader.h"
 #include "renderer.h"
 #include "math.h"
@@ -37,6 +38,8 @@ SDL_Window *glWindow = NULL;
 SDL_Point glWindowScale = {640, 480};
 
 Sint32 worldLoc, viewLoc,  projLoc;
+Sint32 glLocs[GLVAL_MAX];
+
 Uint32 VAO, VBO, EBO;
 
 float *rotateMatrixEvil(mat4 matrix, Vector3 angle);
@@ -98,13 +101,17 @@ bool initOpenGL(){
 	
 	//projMat = projMatrix(90, 4/3, 0.01, 10000);
 	
-	worldLoc = glGetUniformLocation(mainShader, "world");
-	viewLoc = glGetUniformLocation(mainShader, "view");
-	projLoc = glGetUniformLocation(mainShader, "proj");
+	glLocs[GLVAL_WORLDMATRIX] = glGetUniformLocation(mainShader, "world");
+	glLocs[GLVAL_VIEWMATRIX] = glGetUniformLocation(mainShader, "view");
+	glLocs[GLVAL_PROJMATRIX] = glGetUniformLocation(mainShader, "proj");
+	glLocs[GLVAL_MULTCOLOUR] = glGetUniformLocation(mainShader, "multColour");
+	
+	//float multColour[4] = {1, 1, 1, 1};
+	//glUniform4fv(glLocs[GLVAL_MULTCOLOUR], 1, multColour);
 	
 	SDL_GL_SetSwapInterval(1);
 	glEnable(GL_DEPTH_TEST);
-	//glEnable(GL_CULL_FACE); glCullFace(GL_BACK); glFrontFace(GL_CCW);
+	glEnable(GL_CULL_FACE); glCullFace(GL_BACK); glFrontFace(GL_CCW);
 	glClearColor(skyboxColour.r, skyboxColour.g, skyboxColour.b, 1);
 	
 	return 1;
@@ -116,22 +123,25 @@ void updateOpenGL(){
 	
 	glUseProgram(mainShader);
 	
-	projMat = projMatrix(90, (float)glWindowScale.x/glWindowScale.y, 0.1, 100);
+	projMat = projMatrix(90, (float)glWindowScale.x/glWindowScale.y, 0.1, 100); //world flipped?
 	
 	glClear(GL_COLOR_BUFFER_BIT);
 	glClear(GL_DEPTH_BUFFER_BIT);
+	
+	float* worldMat = genMatrix(client.gameWorld->currPlayer->pos, client.gameWorld->currPlayer->scale, client.gameWorld->currPlayer->rot);
 	
 	float* viewMatTranslate = translateMatrix(defaultMatrix, vec3Mult(currentCamera.pos, (Vector3){-1, -1, 1}));
 	viewMat = rotateMatrixEvil(viewMatTranslate, currentCamera.rot);
 	free(viewMatTranslate);
 	
-	//glUniformMatrix4fv(worldLoc, 1, GL_FALSE, client.gameWorld->currPlayer->transform);
-	glUniformMatrix4fv(projLoc, 1, GL_FALSE, projMat);
-	glUniformMatrix4fv(viewLoc, 1, GL_FALSE, viewMat);
+	//glUniformMatrix4fv(glLocs[GLVAL_WORLDMATRIX], 1, GL_FALSE, client.gameWorld->currPlayer->transform);
+	glUniformMatrix4fv(glLocs[GLVAL_WORLDMATRIX], 1, GL_FALSE, worldMat);
+	glUniformMatrix4fv(glLocs[GLVAL_PROJMATRIX], 1, GL_FALSE, projMat);
+	glUniformMatrix4fv(glLocs[GLVAL_VIEWMATRIX], 1, GL_FALSE, viewMat);
 	//glDrawArrays(GL_TRIANGLES, 0, 3);
 	glDrawElements(GL_TRIANGLES, playerMesh->faceCount * 3, GL_UNSIGNED_INT, 0);
 	
-	free(projMat);
+	free(projMat); free(worldMat);
 	
 	SDL_GL_SwapWindow(glWindow);
 }
@@ -152,4 +162,13 @@ float *rotateMatrixEvil(mat4 matrix, Vector3 angle){
 	memcpy(output, zMatrix, sizeof(mat4));
 	free(xMatrix); free(yMatrix); free(zMatrix); 
 	return output;
+}
+
+void drawMeshOpenGL(Mesh* mesh, mat4 transform, SDL_FColor colour, SDL_Texture* texture){
+	glUniformMatrix4fv(glLocs[GLVAL_WORLDMATRIX], 1, GL_FALSE, transform);
+	
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(MeshFace) * mesh->faceCount, mesh->faces, GL_STATIC_DRAW); 
+	glBufferData(GL_ARRAY_BUFFER, sizeof(MeshVert) * mesh->vertCount, mesh->verts, GL_STATIC_DRAW);
+	
+	glDrawElements(GL_TRIANGLES, mesh->faceCount * 3, GL_UNSIGNED_INT, 0);
 }
