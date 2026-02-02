@@ -22,20 +22,10 @@ extern Camera currentCamera;
 extern float* defaultMatrix;
 
 extern Mesh* playerMesh;
+extern Mesh* cubePrim;
 extern SDL_FColor skyboxColour;
 
 Uint32 mainShader;
-
-float triVerts[] = {
-     0.5,  0.5, 0, 0, 0, 1, 0, 0, 1, 1, 1,  // top right
-     0.5, -0.5, 0, 0, 0, 1, 1, 0, 1, 1, 1,  // bottom right
-    -0.5, -0.5, 0, 0, 0, 1, 0, 1, 1, 1, 1,  // bottom left
-    -0.5,  0.5, 0, 0, 0, 1, 1, 1, 1, 1, 1   // top left 
-};
-unsigned int triFaces[] = {  // note that we start from 0!
-    0, 1, 3,   // first triangle
-    1, 2, 3    // second triangle
-};  
 
 float* projMat;
 float* viewMat;
@@ -85,36 +75,34 @@ bool initOpenGL(){
 	SDL_SetWindowParent(glWindow, window); //SDL_SetWindowModal(glWindow, true);
 	SDL_SetWindowMinimumSize(glWindow, 320, 240);
 	
-	//glEnable(GL_DEPTH_TEST);
-	glEnable(GL_CULL_FACE);
-	glCullFace(GL_BACK);
-	glFrontFace(GL_CCW);
-	
 	mainShader = loadShader("assets/shaders/default.vert", "assets/shaders/default.frag");
 	
 	glGenVertexArrays(1, &VAO); glBindVertexArray(VAO);	
-	
 	glGenBuffers(1, &VBO); glBindBuffer(GL_ARRAY_BUFFER, VBO);
-	
 	glGenBuffers(1, &EBO); glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(triFaces), triFaces, GL_STATIC_DRAW); 
 	
-	glBufferData(GL_ARRAY_BUFFER, sizeof(triVerts), triVerts, GL_STATIC_DRAW);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(MeshFace) * playerMesh->faceCount, playerMesh->faces, GL_STATIC_DRAW); 
+	glBufferData(GL_ARRAY_BUFFER, sizeof(MeshVert) * playerMesh->vertCount, playerMesh->verts, GL_STATIC_DRAW);
 	
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 11 * sizeof(float), (void*)0); //pos
-	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 11 * sizeof(float), (void*)(3 * sizeof(float))); //norm
-	glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, 11 * sizeof(float), (void*)(6 * sizeof(float))); //uv
-	glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, 11 * sizeof(float), (void*)(8 * sizeof(float))); //colour
+	//glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(MeshFace) * playerMesh->faceCount, playerMesh->faces, GL_STATIC_DRAW); 
+	//glBufferData(GL_ARRAY_BUFFER, sizeof(MeshVert) * playerMesh->vertCount, playerMesh->verts, GL_STATIC_DRAW);
 	
-	glEnableVertexAttribArray(0);  
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 12 * sizeof(float), (void*)0); //pos
+	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 12 * sizeof(float), (void*)(3 * sizeof(float))); //norm
+	glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 12 * sizeof(float), (void*)(6 * sizeof(float))); //uv
+	glVertexAttribPointer(3, 4, GL_FLOAT, GL_FALSE, 12 * sizeof(float), (void*)(8 * sizeof(float))); //colour
+	
+	glEnableVertexAttribArray(0); glEnableVertexAttribArray(1); glEnableVertexAttribArray(2); glEnableVertexAttribArray(3);
 	
 	//projMat = projMatrix(90, 4/3, 0.01, 10000);
 	
+	worldLoc = glGetUniformLocation(mainShader, "world");
 	viewLoc = glGetUniformLocation(mainShader, "view");
 	projLoc = glGetUniformLocation(mainShader, "proj");
 	
 	SDL_GL_SetSwapInterval(1);
-	//glEnable(GL_DEPTH_TEST);
+	glEnable(GL_DEPTH_TEST);
+	//glEnable(GL_CULL_FACE); glCullFace(GL_BACK); glFrontFace(GL_CCW);
 	glClearColor(skyboxColour.r, skyboxColour.g, skyboxColour.b, 1);
 	
 	return 1;
@@ -129,15 +117,17 @@ void updateOpenGL(){
 	projMat = projMatrix(90, (float)glWindowScale.x/glWindowScale.y, 0.1, 100);
 	
 	glClear(GL_COLOR_BUFFER_BIT);
+	glClear(GL_DEPTH_BUFFER_BIT);
 	
 	float* viewMatTranslate = translateMatrix(defaultMatrix, vec3Mult(currentCamera.pos, (Vector3){-1, -1, 1}));
 	viewMat = rotateMatrix(viewMatTranslate, currentCamera.rot);
 	free(viewMatTranslate);
 	
+	//glUniformMatrix4fv(worldLoc, 1, GL_FALSE, client.gameWorld->currPlayer->transform);
 	glUniformMatrix4fv(projLoc, 1, GL_FALSE, projMat);
 	glUniformMatrix4fv(viewLoc, 1, GL_FALSE, viewMat);
 	//glDrawArrays(GL_TRIANGLES, 0, 3);
-	glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+	glDrawElements(GL_TRIANGLES, playerMesh->faceCount * 3, GL_UNSIGNED_INT, 0);
 	
 	free(projMat);
 	

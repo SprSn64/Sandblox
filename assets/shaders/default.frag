@@ -3,8 +3,8 @@ out vec4 FragColor;
 
 in vec3 norm;
 in vec2 uv;
-in vec3 colour;
+in vec4 colour;
 
 void main(){
-    FragColor = vec4(colour, 1.0f);
+    FragColor = vec4(norm, 1.0);
 } 

@@ -5,4 +5,6 @@ bool initOpenGL();
 void updateOpenGL();
 void cleanupOpenGL();
 
+//void openGlBindMesh(Mesh* mesh);
+
 #endif
