@@ -27,10 +27,10 @@ extern SDL_FColor skyboxColour;
 Uint32 mainShader;
 
 float triVerts[] = {
-     0.5f,  0.5f, 0.0f,  // top right
-     0.5f, -0.5f, 0.0f,  // bottom right
-    -0.5f, -0.5f, 0.0f,  // bottom left
-    -0.5f,  0.5f, 0.0f   // top left 
+     0.5,  0.5, 0, 0, 0, 1, 0, 0, 1, 1, 1,  // top right
+     0.5, -0.5, 0, 0, 0, 1, 1, 0, 1, 1, 1,  // bottom right
+    -0.5, -0.5, 0, 0, 0, 1, 0, 1, 1, 1, 1,  // bottom left
+    -0.5,  0.5, 0, 0, 0, 1, 1, 1, 1, 1, 1   // top left 
 };
 unsigned int triFaces[] = {  // note that we start from 0!
     0, 1, 3,   // first triangle
@@ -46,9 +46,8 @@ const char *fragmentShaderSource = NULL;
 SDL_Window *glWindow = NULL;
 SDL_Point glWindowScale = {640, 480};
 
-Sint32 worldLoc;
-Sint32 viewLoc;
-Sint32 projLoc;
+Sint32 worldLoc, viewLoc,  projLoc;
+Uint32 VAO, VBO, EBO;
 
 Uint32 loadShader(char* vertPath, char* fragPath){
 	const char* vertSource = loadTextFile(vertPath);
@@ -64,8 +63,7 @@ Uint32 loadShader(char* vertPath, char* fragPath){
 	Uint32 shaderProg = glCreateProgram();
 	glAttachShader(shaderProg, vertShader); glAttachShader(shaderProg, fragShader);
 	glLinkProgram(shaderProg);
-	
-	glUseProgram(shaderProg);
+
 	glDeleteShader(vertShader); glDeleteShader(fragShader);
 	
 	return shaderProg;
@@ -87,18 +85,27 @@ bool initOpenGL(){
 	SDL_SetWindowParent(glWindow, window); //SDL_SetWindowModal(glWindow, true);
 	SDL_SetWindowMinimumSize(glWindow, 320, 240);
 	
+	//glEnable(GL_DEPTH_TEST);
+	glEnable(GL_CULL_FACE);
+	glCullFace(GL_BACK);
+	glFrontFace(GL_CCW);
+	
 	mainShader = loadShader("assets/shaders/default.vert", "assets/shaders/default.frag");
 	
-	unsigned int VAO; glGenVertexArrays(1, &VAO); glBindVertexArray(VAO);	
+	glGenVertexArrays(1, &VAO); glBindVertexArray(VAO);	
 	
-	unsigned int VBO; glGenBuffers(1, &VBO); glBindBuffer(GL_ARRAY_BUFFER, VBO);
+	glGenBuffers(1, &VBO); glBindBuffer(GL_ARRAY_BUFFER, VBO);
 	
-	unsigned int EBO; glGenBuffers(1, &EBO); glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
+	glGenBuffers(1, &EBO); glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(triFaces), triFaces, GL_STATIC_DRAW); 
 	
 	glBufferData(GL_ARRAY_BUFFER, sizeof(triVerts), triVerts, GL_STATIC_DRAW);
 	
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 11 * sizeof(float), (void*)0); //pos
+	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 11 * sizeof(float), (void*)(3 * sizeof(float))); //norm
+	glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, 11 * sizeof(float), (void*)(6 * sizeof(float))); //uv
+	glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, 11 * sizeof(float), (void*)(8 * sizeof(float))); //colour
+	
 	glEnableVertexAttribArray(0);  
 	
 	//projMat = projMatrix(90, 4/3, 0.01, 10000);
@@ -135,4 +142,9 @@ void updateOpenGL(){
 	free(projMat);
 	
 	SDL_GL_SwapWindow(glWindow);
+}
+
+void cleanupOpenGL(){
+	glDeleteProgram(mainShader);
+	glDeleteBuffers(1, &VAO); glDeleteBuffers(1, &VBO); glDeleteBuffers(1, &EBO);
 }

@@ -255,8 +255,8 @@ SDL_AppResult SDL_AppIterate(void *appstate){
 	renderScale = min(windowScale.x, windowScale.y);
 	
 	//setDrawColour(renderer, skyboxColour);
-	SDL_SetRenderDrawColor(renderer, skyboxColour.r * 255, skyboxColour.g * 255, skyboxColour.b * 255, SDL_ALPHA_OPAQUE);
-	SDL_RenderClear(renderer);
+	//SDL_SetRenderDrawColor(renderer, skyboxColour.r * 255, skyboxColour.g * 255, skyboxColour.b * 255, SDL_ALPHA_OPAQUE);
+	//SDL_RenderClear(renderer);
 	
 	/*for(int i = 0; i < playerMesh->vertCount; i++){
 		playerMesh->verts[i].pos.x += (1 - SDL_randf() * 2) * 0.002;
@@ -300,8 +300,9 @@ SDL_AppResult SDL_AppIterate(void *appstate){
 	currentCamera.rot = (Vector3){fmod(currentCamera.rot.x, 6.28318), fmod(currentCamera.rot.y, 6.28318), fmod(currentCamera.rot.z, 6.28318)};
 	currentCamera.focusDist = min(max(currentCamera.focusDist + (keyList[KEYBIND_I].down - keyList[KEYBIND_O].down) * 4 * max(1, sqrt(currentCamera.focusDist)) * deltaTime, 0), 64);
 	
-	Vector3 invVec3 = {-1, -1, -1};
-	currentCamera.transform = genMatrix(vec3Mult(currentCamera.pos, invVec3), (Vector3){currentCamera.zoom, currentCamera.zoom, currentCamera.zoom}, vec3Mult(currentCamera.rot, invVec3));
+	//Vector3 invVec3 = {-1, -1, -1};
+	//currentCamera.transform = genMatrix(vec3Mult(currentCamera.pos, invVec3), (Vector3){currentCamera.zoom, currentCamera.zoom, currentCamera.zoom}, vec3Mult(currentCamera.rot, invVec3));
+	//currentCamera.transform = genMatrix((Vector3){0, 0, 0}, (Vector3){1, 1, 1}, currentCamera.rot);
 	
 	if(client.studio && focusObject)
 		updateStudioGimbles();
@@ -332,7 +333,6 @@ SDL_AppResult SDL_AppIterate(void *appstate){
 	updateStudio();
 	
 	updatePopups();
-	free(currentCamera.transform);
 		
 	static char fpsText[256] = "FPS: 0";
 	static char rotText[256] = "Camera Rot: 0, 0";
@@ -363,6 +363,7 @@ SDL_AppResult SDL_AppIterate(void *appstate){
 
 	if(glEnabled)
 		updateOpenGL();
+	free(currentCamera.transform);
 	
 	SDL_RenderPresent(renderer);
 
@@ -372,7 +373,7 @@ SDL_AppResult SDL_AppIterate(void *appstate){
 void SDL_AppQuit(void *appstate, SDL_AppResult result){
 	(void)appstate; (void)result;
 	cleanupObjects(client.gameWorld->headObj);
-	studioCleanup();
+	studioCleanup(); cleanupOpenGL();
 	SDL_DestroyTexture(fontTex); SDL_DestroyTexture(playerTex); SDL_DestroyTexture(homerTex); SDL_DestroyTexture(cowTex); SDL_DestroyTexture(skyTex);
 	
 	free(defaultMatrix);

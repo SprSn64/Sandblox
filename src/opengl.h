@@ -3,5 +3,6 @@
 
 bool initOpenGL();
 void updateOpenGL();
+void cleanupOpenGL();
 
 #endif
