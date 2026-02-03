@@ -138,9 +138,12 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[]){
 
 	char windowName[64] = "Sandblox vXX.XX (3D Software)";
 	sprintf(windowName, "Sandblox v%s (3D Software)", client.version);
-	if(!SDL_CreateWindowAndRenderer(windowName, windowScale.x, windowScale.y, SDL_WINDOW_RESIZABLE, &window, &renderer)){
-		SDL_Log("Couldn't create window/renderer: %s", SDL_GetError());
-		return SDL_APP_FAILURE;
+	//why would you need this if youre gonna use opengl anyway?
+	if (!glEnabled) {
+		if(!SDL_CreateWindowAndRenderer(windowName, windowScale.x, windowScale.y, SDL_WINDOW_RESIZABLE, &window, &renderer)){
+			SDL_Log("Couldn't create window/renderer: %s", SDL_GetError());
+			return SDL_APP_FAILURE;
+		}
 	}
 	SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
 	SDL_SetWindowMinimumSize(window, 320, 240);
