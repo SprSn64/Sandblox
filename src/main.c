@@ -286,8 +286,8 @@ SDL_AppResult SDL_AppIterate(void *appstate){
 		if(camMoveMode == 1){
 			firstPerson:
 			float moveScale = mouseSense / (renderScale / windowScale.x);
-			currentCamera.rot.x += -(mousePos.y - storedMousePos.y) * moveScale * deltaTime;
-			currentCamera.rot.y += -(mousePos.x - storedMousePos.x) * moveScale * deltaTime;  
+			currentCamera.rot.x += -(floor(mousePos.y) - floor(storedMousePos.y)) * moveScale * deltaTime;
+			currentCamera.rot.y += -(floor(mousePos.x) - floor(storedMousePos.x)) * moveScale * deltaTime;  
 			camResetTimer++;
 			if(camResetTimer >= 4){
 				SDL_WarpMouseInWindow(window, storedMousePos.x, storedMousePos.y); 
