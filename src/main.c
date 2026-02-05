@@ -21,7 +21,6 @@
 #include "studio/studio.h"
 
 /* TODO:
-	Get OpenGL GLEW working
 	Make studio widgets work properly (1/3 complete)
 	Add multiplayer server shit
 	Implement simple physics
@@ -114,20 +113,20 @@ Vector3 sunAngle = {0, 0, 0};
 
 SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[]){
 	(void)appstate;
-	client.version = "0.0";
+	client.version = "0.01";
 	SDL_SetAppMetadata("SandBlox", client.version, NULL);
 	
 	char *mapToLoad = "assets/gamefile.json";
 	
 	for(int i=0; i < argc; i++){
 		//printf("%s\n", argv[i]); 
-		if(!strcmp("-opengl", argv[i]))glEnabled = true;
-		if(!strcmp("-debug", argv[i]))client.debug = true;
+		//if(!strcmp("-opengl", argv[i]))glEnabled = true;
+		//if(!strcmp("-debug", argv[i]))client.debug = true;
 		if(!strcmp("-studio", argv[i]))client.studio = true;
 		
 		if(!strcmp("-mapfile", argv[i]))
 			mapToLoad = argv[++i];
-		if(!strcmp("-server", argv[i])) printf("cant join server '%s'... not implemented yet sorry\n", argv[i+1]);
+		//if(!strcmp("-server", argv[i])) printf("cant join server '%s'... not implemented yet sorry\n", argv[i+1]);
 			//connectServer(argv[i++]);
 	}
 	
@@ -137,18 +136,20 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[]){
 	}
 
 	char windowName[64] = "Sandblox vXX.XX (3D Software)";
-	sprintf(windowName, "Sandblox v%s (3D Software)", client.version);
+	sprintf(windowName, "Sandblox v%s ALPHA (3D Software)", client.version);
 	//why would you need this if youre gonna use opengl anyway?
 	//erm.... debugg'eth stuff?
-	//if (!glEnabled) {
+	if (!glEnabled) {
 		if(!SDL_CreateWindowAndRenderer(windowName, windowScale.x, windowScale.y, SDL_WINDOW_RESIZABLE, &window, &renderer)){
 			SDL_Log("Couldn't create window/renderer: %s", SDL_GetError());
 			return SDL_APP_FAILURE;
 		}
-	//}
+	}
 	SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
 	SDL_SetWindowMinimumSize(window, 320, 240);
 	SDL_SetRenderVSync(renderer, 1);
+
+	printf("!! Game is still in development, expect huge changes soon!\n");
 	
 	fontTex = newTexture("assets/textures/font.png", SDL_SCALEMODE_NEAREST);
 	playerTex = newTexture("assets/textures/playertemp.png", SDL_SCALEMODE_NEAREST);
@@ -339,7 +340,7 @@ SDL_AppResult SDL_AppIterate(void *appstate){
 	
 	updatePopups();
 		
-	static char fpsText[256] = "FPS: 0";
+	/*static char fpsText[256] = "FPS: 0";
 	static char rotText[256] = "Camera Rot: 0, 0";
 	static double lastDebugUpdate = 0;
 	if ((Uint32)(timer*100)%64 == 0) {
@@ -351,7 +352,7 @@ SDL_AppResult SDL_AppIterate(void *appstate){
 		sprintf(rotText, "Camera Rot: %d, %d", (int)(currentCamera.rot.y * RAD2DEG), (int)(currentCamera.rot.x * RAD2DEG));
 	}
 	drawText(renderer, &defaultFont, fpsText, 0, 0, 2, (SDL_FColor){1, 1, 1, 1});
-	drawText(renderer, &defaultFont, rotText, 0, 16, 2, (SDL_FColor){1, 1, 1, 1});
+	drawText(renderer, &defaultFont, rotText, 0, 16, 2, (SDL_FColor){1, 1, 1, 1});*/
 	
 	if(client.pause)drawText(renderer, &defaultFont, "Game Paused", 0, windowScale.y - 16, 2, (SDL_FColor){1, 1, 1, 1});
 	

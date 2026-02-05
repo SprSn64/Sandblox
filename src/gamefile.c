@@ -216,11 +216,11 @@ DataObj* createObjectFromJSON(cJSON* obj, DataObj* parent) {
         }
     }
     
-    printf("Loaded object: %s (%s) pos[%.1f,%.1f,%.1f] scale[%.1f,%.1f,%.1f] color[%d,%d,%d,%d]\n", 
+    /*printf("Loaded object: %s (%s) pos[%.1f,%.1f,%.1f] scale[%.1f,%.1f,%.1f] color[%d,%d,%d,%d]\n", 
            newObj->name, className->valuestring, 
            newObj->pos.x, newObj->pos.y, newObj->pos.z,
            newObj->scale.x, newObj->scale.y, newObj->scale.z,
-           newObj->colour.r, newObj->colour.g, newObj->colour.b, newObj->colour.a);
+           newObj->colour.r, newObj->colour.g, newObj->colour.b, newObj->colour.a);*/
     
     return newObj;
 }

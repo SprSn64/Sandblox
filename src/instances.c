@@ -143,7 +143,7 @@ DataObj* newObject(DataObj* parent, DataType* classData){
 	if (classData->init)
 		classData->init(newObj);
 
-	printf("Created new object of type '%s'.\n", classData->name);
+	//printf("Created new object of type '%s'.\n", classData->name);
 	
 	return newObj;
 }
