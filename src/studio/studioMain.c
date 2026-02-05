@@ -84,10 +84,10 @@ void initStudio(){
 	stuKeyList[STUDIOKEYBIND_DELETE].code = SDL_SCANCODE_DELETE;
 	//shitty widget keys
 	
-	stuKeyList[STUDIOKEYBIND_Z].code = SDL_SCANCODE_Z; stuKeyList[STUDIOKEYBIND_X].code = SDL_SCANCODE_X;
-	stuKeyList[STUDIOKEYBIND_C].code = SDL_SCANCODE_C; stuKeyList[STUDIOKEYBIND_V].code = SDL_SCANCODE_V;
-	stuKeyList[STUDIOKEYBIND_B].code = SDL_SCANCODE_B; stuKeyList[STUDIOKEYBIND_N].code = SDL_SCANCODE_N;
-	stuKeyList[STUDIOKEYBIND_D].code = SDL_SCANCODE_D;
+	stuKeyList[STUDIOKEYBIND_UNDO].code = SDL_SCANCODE_Z; stuKeyList[STUDIOKEYBIND_REDO].code = SDL_SCANCODE_Y; 
+	stuKeyList[STUDIOKEYBIND_CUT].code = SDL_SCANCODE_X; stuKeyList[STUDIOKEYBIND_COPY].code = SDL_SCANCODE_C; stuKeyList[STUDIOKEYBIND_PASTE].code = SDL_SCANCODE_V;
+	stuKeyList[STUDIOKEYBIND_DUPE].code = SDL_SCANCODE_D;
+	stuKeyList[STUDIOKEYBIND_CTRL].code = SDL_SCANCODE_LCTRL; 
 	
 	stuMouseButtons[0].code = SDL_BUTTON_LMASK; stuMouseButtons[1].code = SDL_BUTTON_MMASK; stuMouseButtons[2].code = SDL_BUTTON_RMASK;
 	
@@ -140,18 +140,7 @@ void updateStudio(){
 		focusObject = NULL;
 	}
 	
-	/*Vector3 gimbleAddVec = {
-		(float)(stuKeyList[STUDIOKEYBIND_X].pressed - stuKeyList[STUDIOKEYBIND_Z].pressed) / 2, 
-		(float)(stuKeyList[STUDIOKEYBIND_V].pressed - stuKeyList[STUDIOKEYBIND_C].pressed) / 2, 
-		(float)(stuKeyList[STUDIOKEYBIND_N].pressed - stuKeyList[STUDIOKEYBIND_B].pressed) / 2
-	};
-	switch(toolMode){
-		case STUDIOTOOL_MOVE: focusObject->pos = vec3Add(focusObject->pos, gimbleAddVec); break;
-		case STUDIOTOOL_SCALE: focusObject->scale = vec3Add(focusObject->scale, gimbleAddVec); break;
-		case STUDIOTOOL_ROTATE: focusObject->rot = vec3Add(focusObject->rot, (Vector3){gimbleAddVec.x * HALFPI / 3, gimbleAddVec.y * HALFPI / 3, gimbleAddVec.z * HALFPI / 3}); break;
-	}*/
-	
-	if(stuKeyList[STUDIOKEYBIND_V].pressed && focusObject){
+	if(stuKeyList[STUDIOKEYBIND_PASTE].pressed && focusObject){
 		char* clipboardText = SDL_GetClipboardText();
 		
 		if(clipboardText[0] == '#'){
@@ -164,12 +153,12 @@ void updateStudio(){
 		
 		free(clipboardText);
 	}
-	if(stuKeyList[STUDIOKEYBIND_C].pressed && focusObject){
+	if(stuKeyList[STUDIOKEYBIND_COPY].pressed && focusObject){
 		char colourHex[8]; sprintf(colourHex, "#%x%x%x", focusObject->colour.r, focusObject->colour.g, focusObject->colour.b);
 		SDL_SetClipboardText(colourHex);
 	}
 	
-	if(stuKeyList[STUDIOKEYBIND_D].pressed && focusObject)
+	if(stuKeyList[STUDIOKEYBIND_DUPE].pressed && focusObject)
 		focusObject = duplicateObject(focusObject);
 	
 	int idCounter = 0;

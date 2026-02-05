@@ -201,6 +201,7 @@ void buttonSetTool(Button* item){
 	toolMode = (int)floor(item->imageSrc->x / 16);
 }
 
+extern SDL_Window* window;
 void StudioHandleKeys(){
 	const bool* stuKeyState = SDL_GetKeyboardState(NULL);
 	bool hasFocus = SDL_GetWindowFlags(studioWindow) & SDL_WINDOW_INPUT_FOCUS;
