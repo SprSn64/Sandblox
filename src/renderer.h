@@ -28,6 +28,8 @@ typedef struct{
 	Uint32 faceCount;
 	MeshFace *faces;
 	
+	Uint32 VAO, VBO, EBO;
+
 	Uint32 meshType;
 	char* filePath;
 } Mesh;

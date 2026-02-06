@@ -1,6 +1,5 @@
-//load txt and obj/custom binary mesh files functions
-
 #include <SDL3/SDL.h>
+#include <GL/glew.h>
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -69,6 +68,7 @@ static FaceIndex parseFaceToken(const char *tok) {
     return fi;
 }
 
+extern bool glEnabled;
 Mesh *loadMeshFromObj(const char *path) {
     Uint32 vcount = 0, vtcount = 0, vncount = 0, tricount = 0;
     objCount(path, &vcount, &vtcount, &vncount, &tricount);
@@ -148,6 +148,28 @@ Mesh *loadMeshFromObj(const char *path) {
     fclose(f);
     free(uvs);
     free(normals);
+
+    /*if(glEnabled){
+        glGenVertexArrays(1, &mesh->VAO); glBindVertexArray(mesh->VAO);
+
+        glGenBuffers(1, &mesh->VBO); glBindBuffer(GL_ARRAY_BUFFER, mesh->VBO);
+        glBufferData(GL_ARRAY_BUFFER, sizeof(MeshVert) * vcount, mesh->verts, GL_STATIC_DRAW);
+
+        glGenBuffers(1, &mesh->EBO);
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, mesh->EBO);
+        glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(MeshFace) * tricount, mesh->faces, GL_STATIC_DRAW);
+
+        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 12 * sizeof(float), (void*)0); //pos
+        glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 12 * sizeof(float), (void*)(3 * sizeof(float))); //norm
+        glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 12 * sizeof(float), (void*)(6 * sizeof(float))); //uv
+        glVertexAttribPointer(3, 4, GL_FLOAT, GL_FALSE, 12 * sizeof(float), (void*)(8 * sizeof(float))); //colour
+    
+        glEnableVertexAttribArray(0); 
+        glEnableVertexAttribArray(1); 
+        glEnableVertexAttribArray(2); 
+        glEnableVertexAttribArray(3);
+    }*/
+
     return mesh;
 }
 

@@ -97,7 +97,10 @@ bool initOpenGL(){
 	glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 12 * sizeof(float), (void*)(6 * sizeof(float))); //uv
 	glVertexAttribPointer(3, 4, GL_FLOAT, GL_FALSE, 12 * sizeof(float), (void*)(8 * sizeof(float))); //colour
 	
-	glEnableVertexAttribArray(0); glEnableVertexAttribArray(1); glEnableVertexAttribArray(2); glEnableVertexAttribArray(3);
+	glEnableVertexAttribArray(0); 
+	glEnableVertexAttribArray(1); 
+	glEnableVertexAttribArray(2); 
+	glEnableVertexAttribArray(3);
 	
 	//projMat = projMatrix(90, 4/3, 0.01, 10000);
 	
@@ -120,14 +123,13 @@ bool initOpenGL(){
 void updateOpenGL(){
 	SDL_GetWindowSize(glWindow, &glWindowScale.x, &glWindowScale.y);
 	glViewport(0, 0, glWindowScale.x, glWindowScale.y);
-	
+
+	glClear(GL_COLOR_BUFFER_BIT);
+	glClear(GL_DEPTH_BUFFER_BIT);
+
 	glUseProgram(mainShader);
 	
 	projMat = projMatrix(90, (float)glWindowScale.x/glWindowScale.y, 0.1, 100); //world flipped?
-	
-	glClear(GL_COLOR_BUFFER_BIT);
-	glClear(GL_DEPTH_BUFFER_BIT);
-	
 	float* worldMat = genMatrix(client.gameWorld->currPlayer->pos, client.gameWorld->currPlayer->scale, client.gameWorld->currPlayer->rot);
 	
 	float* viewMatTranslate = translateMatrix(defaultMatrix, vec3Mult(currentCamera.pos, (Vector3){-1, -1, 1}));
@@ -139,7 +141,7 @@ void updateOpenGL(){
 	glUniformMatrix4fv(glLocs[GLVAL_PROJMATRIX], 1, GL_FALSE, projMat);
 	glUniformMatrix4fv(glLocs[GLVAL_VIEWMATRIX], 1, GL_FALSE, viewMat);
 	//glDrawArrays(GL_TRIANGLES, 0, 3);
-	//glDrawElements(GL_TRIANGLES, playerMesh->faceCount * 3, GL_UNSIGNED_INT, 0);
+	//glDrawElements(GL_TRIANGLES, playerMesh->faceCount * 3, GL_UNSIGNED_INT, 0); //segment faults on second frame
 	
 	free(projMat); free(worldMat);
 	
