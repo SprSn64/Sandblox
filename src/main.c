@@ -273,7 +273,7 @@ SDL_AppResult SDL_AppIterate(void *appstate){
 	//currentCamera.pos.y += (keyList[KEYBIND_SPACE].down - keyList[KEYBIND_SHIFT].down) * 2 * deltaTime;
 	//currentCamera.pos.z += ((-SDL_sin(currentCamera.rot.y) * (keyList[KEYBIND_D].down - keyList[KEYBIND_A].down)) + (SDL_cos(currentCamera.rot.y) * (keyList[KEYBIND_S].down - keyList[KEYBIND_W].down))) * 2 * deltaTime;
 	
-	SDL_ShowCursor();
+	//SDL_ShowCursor();
 	bool mainWindowFocus = SDL_GetWindowFlags(window) & SDL_WINDOW_INPUT_FOCUS;
 	if(currentCamera.focusDist == 0 && !client.pause){
 		if(camMoveMode != 2){
@@ -293,7 +293,7 @@ SDL_AppResult SDL_AppIterate(void *appstate){
 				SDL_WarpMouseInWindow(window, storedMousePos.x, storedMousePos.y); 
 				camResetTimer = 0;
 			}
-			SDL_HideCursor();
+			//SDL_HideCursor();
 		}else{
 			storedMousePos = mousePos;
 			camMoveMode = 1;

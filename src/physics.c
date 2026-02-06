@@ -15,18 +15,32 @@ float checkBlockCollisionY(Vector3 pos, float footY, DataObj* block){
 	if(collider->shape != COLLHULL_CUBE) return -INFINITY; // not a solid block
 	
 	// block bounds (pos is corner, scale is size)
-	float bMinX = block->pos.x - 1;
-	float bMaxX = block->pos.x + block->scale.x + 1;
-	float bMinY = block->pos.y - block->scale.y - 4;
-	float bMaxY = block->pos.y;
-	float bMinZ = block->pos.z - 1;
-	float bMaxZ = block->pos.z + block->scale.z + 1;
+	Vector3 bMin = {block->pos.x - 1, block->pos.y - block->scale.y - 4, block->pos.z - 1};
+	Vector3 bMax = {block->pos.x + block->scale.x + 1, block->pos.y, block->pos.z + block->scale.z + 1};
 	
-	if(pos.x >= bMinX && pos.x <= bMaxX &&
-	   pos.z >= bMinZ && pos.z <= bMaxZ){
-		if(footY <= bMaxY && footY >= bMinY - 0.5f){
-			return bMaxY;
+	if(pos.x >= bMin.x && pos.x <= bMax.x &&
+	   pos.z >= bMin.z && pos.z <= bMax.z){
+		if(footY <= bMax.y && footY >= bMin.y - 0.5f){
+			return bMax.y;
 		}
+	}
+	return -INFINITY;
+}
+
+float checkSphereCollisionY(Vector3 pos, float footY, DataObj* block){
+	CollisionHull *collider = block->asVoidptr[OBJVAL_COLLIDER];
+	
+	if(!collider) return -INFINITY; // collision disabled
+	
+	if(collider->shape != COLLHULL_SPHERE) return -INFINITY; // not a solid block
+	
+	// block bounds (pos is corner, scale is size)
+	float bRadius = (block->scale.x + block->scale.y + block->scale.z) / 6;
+	Vector3 bDist = {block->pos.x + block->scale.x / 2 - pos.x, block->pos.y - block->scale.y / 2  - pos.y, block->pos.z + block->scale.z / 2  - pos.z};
+	float pythag = bDist.x * bDist.x + bDist.y * bDist.y + bDist.z * bDist.z;
+	
+	if(pythag <= bRadius * bRadius){
+		return block->pos.y - fabs(SDL_sin(bDist.x / block->scale.x)) * fabs(SDL_cos(bDist.z / block->scale.z)) * (block->scale.y / 2);
 	}
 	return -INFINITY;
 }
@@ -34,8 +48,8 @@ float checkBlockCollisionY(Vector3 pos, float footY, DataObj* block){
 float findFloorY(Vector3 pos, float footY, DataObj* item){
 	float highestFloor = -INFINITY;
 	
-	float blockFloor = checkBlockCollisionY(pos, footY, item);
-	if(blockFloor > highestFloor) highestFloor = blockFloor;
+	float blockFloor = max(checkBlockCollisionY(pos, footY, item), checkSphereCollisionY(pos, footY, item));
+	highestFloor = max(blockFloor, highestFloor);
 	
 	DataObj* child = item->child;
 	while(child){

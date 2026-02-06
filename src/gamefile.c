@@ -15,6 +15,15 @@ DataObj* newPlayer = NULL;
 
 extern void objSpinFunc(DataObj* object);
 
+char* collTypes[6] = {"point", "sphere", "block", "cylinder", "function", "trigger"};
+
+Uint32 stringIdInList(const char* string, char** list, Uint32 listLength){
+    for(Uint32 i=0; i<listLength; i++){
+        if(!strcmp(list[i], string)) return i;
+    }
+    return listLength + 1;
+}
+
 void (*getFunctionByName(const char* name))(DataObj*) {
     if(!name) return NULL;
     
@@ -161,7 +170,7 @@ DataObj* createObjectFromJSON(cJSON* obj, DataObj* parent) {
     }
     if(tex) {
 	  texItem = malloc(sizeof(TextureRef));
-	  texItem->filePath = malloc(sizeof(char) * (strlen(texture->valuestring) + 1)); sprintf(texItem->filePath, texture->valuestring);
+	  texItem->filePath = malloc(sizeof(char) * (strlen(texture->valuestring) + 1)); sprintf(texItem->filePath, "%s",texture->valuestring);
 	  texItem->image = tex;
         newObj->asVoidptr[OBJVAL_TEXTURE] = texItem;
     }
@@ -171,7 +180,7 @@ DataObj* createObjectFromJSON(cJSON* obj, DataObj* parent) {
         cJSON* enabled = cJSON_GetObjectItem(collision, "enabled");
         cJSON* type = cJSON_GetObjectItem(collision, "type");
 	  
-	  CollisionHull *collider = malloc(sizeof(CollisionHull));
+	    CollisionHull *collider = malloc(sizeof(CollisionHull));
         
         if(enabled && cJSON_IsBool(enabled)) {
             //newObj->asInt[0] = cJSON_IsTrue(enabled); 
@@ -182,13 +191,10 @@ DataObj* createObjectFromJSON(cJSON* obj, DataObj* parent) {
         }
         
         if(type && cJSON_IsString(type)) {
-            if(strcmp(type->valuestring, "block") == 0) {
-               collider->shape = COLLHULL_CUBE; // collision type: block
-            } else if(strcmp(type->valuestring, "trigger") == 0) {
-            //    newObj->asInt[1] = 2; // collision type: trigger
-            } else {
-                free(collider); // collision type: none
-            }
+            Uint32 collShape = stringIdInList(type->valuestring, collTypes, 6);
+            if(!collShape)
+                free(collider);
+            else collider->shape = collShape;
         } else {
             // default collision type based on class
             if(newObj->classData->id == 3) { // blockClass
@@ -197,15 +203,15 @@ DataObj* createObjectFromJSON(cJSON* obj, DataObj* parent) {
                 free(collider); // no collision
             }
         }
-	  colliderLoadSkip:
-	  newObj->asVoidptr[OBJVAL_COLLIDER] = collider;
+	    colliderLoadSkip:
+	    newObj->asVoidptr[OBJVAL_COLLIDER] = collider;
     }
     
     if(scriptFile && cJSON_IsString(scriptFile)) {
 	  ScriptItem *newScript = malloc(sizeof(ScriptItem));
         newScript->func = getFunctionByName(scriptFile->valuestring); newScript->funcName = strdup(scriptFile->valuestring);  
 	  
-	  newObj->asVoidptr[OBJVAL_SCRIPT] = newScript;
+        newObj->asVoidptr[OBJVAL_SCRIPT] = newScript;
     }
     
     if(children && cJSON_IsArray(children)) {
@@ -239,7 +245,7 @@ int loadGameFile(const char* filename) {
     fseek(file, 0, SEEK_SET);
     
     char* content = malloc(fileSize + 1);
-    fread(content, 1, fileSize, file);
+    int readThing = fread(content, 1, fileSize, file); (void)readThing;
     content[fileSize] = '\0';
     fclose(file);
     
@@ -375,7 +381,7 @@ int saveGameFile(const char* filename){
 	
 	addObjToJsonArray(objectArray, client.gameWorld->headObj);
 	
-	fprintf(file, cJSON_Print(jsonHeader));
+	fprintf(file, "%s", cJSON_Print(jsonHeader));
 	fclose(file);
     
 	/*
