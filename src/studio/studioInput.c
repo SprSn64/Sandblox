@@ -204,7 +204,7 @@ void buttonSetTool(Button* item){
 extern SDL_Window* window;
 void StudioHandleKeys(){
 	const bool* stuKeyState = SDL_GetKeyboardState(NULL);
-	bool hasFocus = SDL_GetWindowFlags(studioWindow) & SDL_WINDOW_INPUT_FOCUS;
+	bool hasFocus = (SDL_GetWindowFlags(studioWindow) | SDL_GetWindowFlags(window)) & SDL_WINDOW_INPUT_FOCUS;
 	for(int i = 0; i < STUDIOKEYBIND_MAX; i++){
 		bool oldHeld = stuKeyList[i].down;
 		stuKeyList[i].down = stuKeyState[stuKeyList[i].code] && hasFocus;

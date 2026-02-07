@@ -1,6 +1,8 @@
 #ifndef DEVSTUDIO_MAIN_H
 #define DEVSTUDIO_MAIN_H
 
+#include <SDL3/SDL.h>
+
 void initStudio();
 void updateStudio();
 void studioCleanup();

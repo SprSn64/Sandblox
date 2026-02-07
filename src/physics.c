@@ -27,7 +27,7 @@ float checkBlockCollisionY(Vector3 pos, float footY, DataObj* block){
 	return -INFINITY;
 }
 
-float checkSphereCollisionY(Vector3 pos, float footY, DataObj* block){
+float checkSphereCollisionY(Vector3 pos, DataObj* block){
 	CollisionHull *collider = block->asVoidptr[OBJVAL_COLLIDER];
 	
 	if(!collider) return -INFINITY; // collision disabled
@@ -40,7 +40,8 @@ float checkSphereCollisionY(Vector3 pos, float footY, DataObj* block){
 	float pythag = bDist.x * bDist.x + bDist.y * bDist.y + bDist.z * bDist.z;
 	
 	if(pythag <= bRadius * bRadius){
-		return block->pos.y - fabs(SDL_sin(bDist.x / block->scale.x)) * fabs(SDL_cos(bDist.z / block->scale.z)) * (block->scale.y / 2);
+		//return block->pos.y + vec3Mult(normalize3(block->pos), (Vector3){block->scale.x / 2, block->scale.y / 2, block->scale.z / 2}).y;
+		return block->pos.y - (fabs(SDL_sin(bDist.x / block->scale.x)) + fabs(SDL_sin(bDist.z / block->scale.z))) * (block->scale.y / 2);
 	}
 	return -INFINITY;
 }
@@ -48,7 +49,7 @@ float checkSphereCollisionY(Vector3 pos, float footY, DataObj* block){
 float findFloorY(Vector3 pos, float footY, DataObj* item){
 	float highestFloor = -INFINITY;
 	
-	float blockFloor = max(checkBlockCollisionY(pos, footY, item), checkSphereCollisionY(pos, footY, item));
+	float blockFloor = max(checkBlockCollisionY(pos, footY, item), checkSphereCollisionY(pos, item));
 	highestFloor = max(blockFloor, highestFloor);
 	
 	DataObj* child = item->child;

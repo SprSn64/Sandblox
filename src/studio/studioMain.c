@@ -140,6 +140,7 @@ void updateStudio(){
 		focusObject = NULL;
 	}
 	
+	if(!stuKeyList[STUDIOKEYBIND_CTRL].down) goto ctrlSkip;
 	if(stuKeyList[STUDIOKEYBIND_PASTE].pressed && focusObject){
 		char* clipboardText = SDL_GetClipboardText();
 		
@@ -160,7 +161,8 @@ void updateStudio(){
 	
 	if(stuKeyList[STUDIOKEYBIND_DUPE].pressed && focusObject)
 		focusObject = duplicateObject(focusObject);
-	
+ctrlSkip:
+
 	int idCounter = 0;
 	drawObjectList(client.gameWorld->headObj, 0, &idCounter);
 	

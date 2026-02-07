@@ -150,13 +150,13 @@ Mesh *loadMeshFromObj(const char *path) {
     free(normals);
 
     /*if(glEnabled){
-        glGenVertexArrays(1, &mesh->VAO); glBindVertexArray(mesh->VAO);
+        glGenVertexArrays(1, &mesh->vertArray); glBindVertexArray(mesh->vertArray);
 
-        glGenBuffers(1, &mesh->VBO); glBindBuffer(GL_ARRAY_BUFFER, mesh->VBO);
+        glGenBuffers(1, &mesh->vertBuffer); glBindBuffer(GL_ARRAY_BUFFER, mesh->vertBuffer);
         glBufferData(GL_ARRAY_BUFFER, sizeof(MeshVert) * vcount, mesh->verts, GL_STATIC_DRAW);
 
-        glGenBuffers(1, &mesh->EBO);
-        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, mesh->EBO);
+        glGenBuffers(1, &mesh->eleBuffer);
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, mesh->eleBuffer);
         glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(MeshFace) * tricount, mesh->faces, GL_STATIC_DRAW);
 
         glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 12 * sizeof(float), (void*)0); //pos
