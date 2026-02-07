@@ -49,7 +49,7 @@ extern Uint32 objListLength;
 
 Camera currentCamera = {(Vector3){0, 2, 10}, (Vector3){0, 0, 0}, 90, 1, 16, NULL, NULL};
 Uint8 camMoveMode = 0;
-float mouseSense = 0.1;
+float mouseSense = 0.4;
 
 bool mapLoaded = false;
 bool gameFileLoaded = false;
@@ -285,7 +285,7 @@ SDL_AppResult SDL_AppIterate(void *appstate){
 	if(mouseButtons[2].down && mainWindowFocus){
 		if(camMoveMode == 1){
 			firstPerson:
-			float moveScale = mouseSense / (renderScale / windowScale.x);
+			float moveScale = mouseSense;// / (((float)windowScale.x + windowScale.y) / 1280);
 			currentCamera.rot.x += -(floor(mousePos.y) - floor(storedMousePos.y)) * moveScale * deltaTime;
 			currentCamera.rot.y += -(floor(mousePos.x) - floor(storedMousePos.x)) * moveScale * deltaTime;  
 			camResetTimer++;
