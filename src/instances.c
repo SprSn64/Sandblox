@@ -97,13 +97,13 @@ void lesserCleanupObjects(DataObj* item){
 	
 }
 
-DataObj* newObject(DataObj* parent, DataType* classData){
+DataObj* newObject(DataType* classData){
 	DataObj *newObj = calloc(1, sizeof(DataObj)); 
 	if(newObj == NULL){
 		printf("Failed to create object of type '%s'.\n", classData->name);
 		return NULL;
 	}
-	newObj->parent = parent;
+	/*newObj->parent = parent;
 	if (parent == NULL) parent = game.headObj;
 	
 	// first added is first rendered/updated, last added is last rendered/updated
@@ -118,7 +118,7 @@ DataObj* newObject(DataObj* parent, DataType* classData){
 		}
 		loopItem->next = newObj;
 		newObj->prev = loopItem;
-	}
+	}*/
 	
 	
 	// first added is last rendered/updated, last added is first rendered/updated
@@ -149,7 +149,8 @@ DataObj* newObject(DataObj* parent, DataType* classData){
 }
 
 DataObj* duplicateObject(DataObj* ogItem){
-	DataObj* newItem = newObject(ogItem->parent, ogItem->classData);
+	DataObj* newItem = newObject(ogItem->classData);
+	parentObject(newItem, ogItem->parent);
 	newItem->pos = ogItem->pos; newItem->scale = ogItem->scale; newItem->rot = ogItem->rot; newItem->colour = ogItem->colour;
 	char* newName = malloc(256);
 	sprintf(newName, "%s (Copy)", ogItem->name);
@@ -209,23 +210,19 @@ void removeObject(DataObj* object){
 }
 
 bool parentObject(DataObj* child, DataObj* parent){
-	if(parent->child == NULL){
-		parent->child = child;
-		//printf("%s -> %s\n", parent->name, parent->child->name);
-		return 0;
-	}
-
-	DataObj* loopItem = parent->child;
-	Uint32 loopCount = 1;
-	for(Uint32 i = 0; i < loopCount; i++){
-		if(loopItem->next == NULL) continue;
-		loopItem = loopItem->next;
-		loopCount++;
-	}
-
 	child->parent = parent;
-	loopItem->next = child;
-	child->prev = child;
+	child->next = NULL;
+
+	if(!parent->child){
+		parent->child = child;
+	}else{
+		DataObj *loopItem = parent->child;
+		while(loopItem->next){
+			loopItem = loopItem->next;
+		}
+		loopItem->next = child;
+		child->prev = loopItem;
+	}
 
 	//printf("%s -> %s\n", parent->name, loopItem->next->name);
 

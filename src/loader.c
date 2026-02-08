@@ -83,7 +83,7 @@ Mesh *loadMeshFromObj(const char *path) {
     mesh->faces = calloc(tricount, sizeof(MeshFace));
     
     mesh->meshType = MESHTYPE_FILE;
-    mesh->filePath = malloc(sizeof(char) * (strlen(path) + 1)); sprintf(mesh->filePath, path);
+    mesh->filePath = malloc(sizeof(char) * (strlen(path) + 1)); sprintf(mesh->filePath, "%s", path);
     
 
     SDL_FPoint *uvs = calloc(vtcount, sizeof(SDL_FPoint));

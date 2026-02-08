@@ -20,7 +20,7 @@ typedef struct ScriptItem{
 	char* funcName;
 } ScriptItem;
 
-DataObj* newObject(DataObj* parent, DataType* classData);
+DataObj* newObject(DataType* classData);
 void removeObject(DataObj* object);
 bool parentObject(DataObj* child, DataObj* parent);
 DataObj* duplicateObject(DataObj* ogItem);

@@ -100,8 +100,9 @@ DataObj* createObjectFromJSON(cJSON* obj, DataObj* parent) {
     
     DataObj* newParent = parent;
     if(!parent) newParent = client.gameWorld->headObj;
-    DataObj* newObj = newObject(newParent, objClass);
+    DataObj* newObj = newObject(objClass);
     if(!newObj) return NULL;
+    parentObject(newObj, newParent);
     
     if(isPlayer && cJSON_IsBool(isPlayer) && cJSON_IsTrue(isPlayer) && !newPlayer)
 	    newPlayer = newObj;

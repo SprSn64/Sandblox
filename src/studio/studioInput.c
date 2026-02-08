@@ -96,7 +96,8 @@ void buttonAddObject(Button* item){
 	(void)item;
 	DataObj *parentItem = focusObject;
 	if(!focusObject) parentItem = client.gameWorld->headObj;
-	DataObj *newItem = newObject(parentItem, &blockClass);
+	DataObj *newItem = newObject(&blockClass);
+	parentObject(newItem, parentItem);
 	newItem->pos = (Vector3){floor(parentItem->pos.x) + 1, floor(parentItem->pos.y) + 1, floor(parentItem->pos.z) + 1};
 	Vector3 normalizedColour = normalize3((Vector3){SDL_randf(), SDL_randf(), SDL_randf()});
 	newItem->colour = (CharColour){normalizedColour.x * 255, normalizedColour.y * 255, normalizedColour.z * 255, 255, 0, COLOURMODE_RGB};
