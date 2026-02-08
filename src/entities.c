@@ -73,6 +73,8 @@ void playerUpdate(DataObj* object){
 		object->pos.z + (SDL_cos(game.currCamera->rot.x) * SDL_cos(game.currCamera->rot.y)) * game.currCamera->focusDist};
 }
 
+extern SDL_Renderer* renderer;
+extern Font defaultFont;
 void playerDraw(DataObj* object){
 	SDL_FColor plrColour = ConvertSDLColour(object->colour);
 	drawMesh(playerMesh, object->transform, plrColour, NULL, true);
@@ -88,6 +90,12 @@ void playerDraw(DataObj* object){
 		}
 		hatItem = hatItem->next;
 	}
+
+	//if(object == game.currPlayer) return;
+	Vector3 textPos = vec3Add(object->pos, (Vector3){0, 5, 0});
+	Vector3 textProj = projToScreen(viewProj(worldToCamera(textPos)));
+	float nameScale = 2;
+	drawText(renderer, &defaultFont, object->name, textProj.x - strlen(object->name) / 2 * defaultFont.kerning.x * nameScale, textProj.y - defaultFont.glyphSize.y * nameScale, nameScale, (SDL_FColor){1, 1, 1, 1});
 }
 
 DataType meshClass = (DataType){"Mesh\0", 4, 0, NULL, NULL, NULL};

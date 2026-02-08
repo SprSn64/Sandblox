@@ -49,7 +49,7 @@ extern Uint32 objListLength;
 
 Camera currentCamera = {(Vector3){0, 2, 10}, (Vector3){0, 0, 0}, 90, 1, 16, NULL, NULL};
 Uint8 camMoveMode = 0;
-float mouseSense = 0.4;
+float mouseSense = 0.2;
 
 bool mapLoaded = false;
 bool gameFileLoaded = false;
@@ -180,6 +180,7 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[]){
 	lightNormal = normalize3(lightNormal);
 	
 	initStudio();
+	serverInit();
 
 	client.gameWorld = &game;
 	client.gameWorld->headObj = &gameHeader;
