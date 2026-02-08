@@ -325,7 +325,7 @@ SDL_AppResult SDL_AppIterate(void *appstate){
 	drawMesh(skyboxMesh, skyboxMatrix, (SDL_FColor){1,1,1,1}, skyTex, false);
 	free(skyboxMatrix);
 	
-	sunMatrix = genMatrix(currentCamera.pos, (Vector3){1, 1, 1}, sunAngle);
+	sunMatrix = genMatrix(currentCamera.pos, (Vector3){1, 1, 1}, vec3Add(normToRot3(lightNormal), (Vector3){PI, PI, 0}));
 	drawMesh(sunMesh, sunMatrix, lightColour, sunTex, false);
 	free(sunMatrix);
 	

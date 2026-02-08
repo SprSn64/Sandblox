@@ -34,6 +34,17 @@ typedef struct{
 	char* filePath;
 } Mesh;
 
+typedef enum lightTypes{
+	LIGHTSOURCE_SUN, LIGHTSOURCE_POINT
+} lightTypes;
+
+typedef struct{
+	Uint32 lightType;
+	Vector3 pos, rot, normal;
+	SDL_FColor colour, specular;
+	float strength, specStrength;
+} LightSource;
+
 typedef struct{
 	SDL_Texture *image;
 	Uint16 startChar; //32 starts at the space glyth

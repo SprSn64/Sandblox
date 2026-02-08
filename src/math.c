@@ -39,7 +39,7 @@ Vector3 rotToNorm3(Vector3 rot){
 Vector3 normToRot3(Vector3 norm){
 	Vector3 normed = normalize3(norm);
 	
-	return (Vector3){atan2(normed.y, normed.x), atan2(sqrt(normed.x * normed.x + normed.y * normed.y), normed.z), 0};
+	return (Vector3){atan2(atan2(normed.x, normed.z), normed.y), atan2(normed.x, normed.z), 0};
 }
 
 float closest(float input, float snap){return floor(input / snap) * snap;}
