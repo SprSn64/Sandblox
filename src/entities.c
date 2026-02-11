@@ -22,12 +22,13 @@ DataType accessoryClass = {"Accessory\0", 10, 0, NULL, NULL, NULL};
 
 void playerInit(DataObj* object){
 	//object->pos.y = 0;
+	object->objVel = calloc(1, sizeof(Vector3));
 }
 
 void playerUpdate(DataObj* object){
 	if(!game.currPlayer || object != game.currPlayer) return;
 	
-	Vector3 *playerVel = &object->objVel;
+	Vector3 *playerVel = object->objVel;
 	//Vector3 gravity = {-object->pos.x, object->pos.y, -object->pos.z};
 	
 	SDL_FPoint playerMove = {0, 0};
@@ -91,7 +92,7 @@ void playerDraw(DataObj* object){
 		hatItem = hatItem->next;
 	}
 
-	//if(object == game.currPlayer) return;
+	if(object == game.currPlayer) return;
 	Vector3 textPos = vec3Add(object->pos, (Vector3){0, 5, 0});
 	Vector3 textProj = projToScreen(viewProj(worldToCamera(textPos)));
 	float nameScale = 2;

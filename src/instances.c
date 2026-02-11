@@ -35,9 +35,6 @@ DataObj gameHeader = {
 	.name = "Workspace",
 	.classData = &workspaceClass,
 	.asVoidptr = {NULL},
-	.asVec3 = {{0}},
-	.asInt = {0},
-	.asFloat = {0},
 	.prev = NULL, .next = NULL, .parent = NULL, .child = NULL,
 	.studioOpen = true,
 };

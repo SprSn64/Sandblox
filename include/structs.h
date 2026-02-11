@@ -69,9 +69,9 @@ typedef struct DataObj{
 	DataType* classData;
 
 	void *asVoidptr[OBJVAL_MAX];
-	Vector3 asVec3[OBJVAL_MAX];
-	int asInt[OBJVAL_MAX];
-	float asFloat[OBJVAL_MAX];
+	//Vector3 asVec3[OBJVAL_MAX];
+	//int asInt[OBJVAL_MAX];
+	//float asFloat[OBJVAL_MAX];
 
 	struct DataObj* prev;
 	struct DataObj* next;
