@@ -91,8 +91,8 @@ void initStudio(){
 	
 	stuMouseButtons[0].code = SDL_BUTTON_LMASK; stuMouseButtons[1].code = SDL_BUTTON_MMASK; stuMouseButtons[2].code = SDL_BUTTON_RMASK;
 	
-	classIconTex = IMG_LoadTexture(studioRenderer, "assets/textures/classicons.png");
-	stuButtonTex = IMG_LoadTexture(studioRenderer, "assets/textures/studiobuttons.png");
+	classIconTex = IMG_LoadTexture(studioRenderer, "assets/textures/studio/classicons.png");
+	stuButtonTex = IMG_LoadTexture(studioRenderer, "assets/textures/studio/studiobuttons.png");
 	rotateGimbleMesh = genTorusMesh(2, 0.1, 3, 24);
 	translateGimbleMesh = loadMeshFromObj("assets/models/arrowwidget.obj");
 	

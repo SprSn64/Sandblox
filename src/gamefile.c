@@ -39,6 +39,7 @@ DataType* getClassByName(const char* name) {
     if(!strcmp(name, "beer drinker")) return &fuckingBeerdrinkerClass;
     if(!strcmp(name, "Group")) return &groupClass;
     if(!strcmp(name, "Image")) return &imageClass;
+    if(!strcmp(name, "Script")) return &scriptClass;
     if(!strcmp(name, "Accessory")) return &accessoryClass;
     return NULL;
 }

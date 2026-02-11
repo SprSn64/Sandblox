@@ -148,15 +148,24 @@ void imageDraw(DataObj* object){
 DataType imageClass = {"Image\0", 8, 0, NULL, NULL, imageDraw};
 
 void objSpinFunc(DataObj* object){
-	object->rot = (Vector3){object->rot.x + 0.02, object->rot.y + 0.01, object->rot.z + 0.005};
+	object->parent->rot = vec3Add(object->parent->rot, (Vector3){0.02, 0.01, 0.005});
 }
 
 void killBrickFunc(DataObj* object){
 	Vector3 *playerPos = &game.currPlayer->pos;
+	DataObj* parent = object->parent;
 	if(
-		between(playerPos->x, object->pos.x - 1, object->pos.x + object->scale.x + 1) && 
-		between(playerPos->y, object->pos.y - object->scale.y - 4, object->pos.y + 1) &&
-		between(playerPos->z, object->pos.z - 1, object->pos.z + object->scale.z + 1)
+		between(playerPos->x, parent->pos.x - 1, parent->pos.x + parent->scale.x + 1) && 
+		between(playerPos->y, parent->pos.y - parent->scale.y - 4, parent->pos.y + 1) &&
+		between(playerPos->z, parent->pos.z - 1, parent->pos.z + parent->scale.z + 1)
 	)
 		playerPos->y = -69420;
 }
+
+void scriptUpdate(DataObj* object){
+	ScriptItem *scriptFunc = object->asVoidptr[OBJVAL_SCRIPT];
+	if(scriptFunc != NULL)
+		scriptFunc->func(object);
+}
+
+DataType scriptClass = {"Script\0", 9, 0, NULL, scriptUpdate, NULL};
