@@ -91,6 +91,7 @@ typedef struct{
 	float fov, zoom, focusDist;
 	DataObj* focusObj;
 	float *transform;
+	float *proj;
 } Camera;
 
 typedef struct{

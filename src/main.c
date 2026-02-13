@@ -48,7 +48,7 @@ extern SDL_Rect objListRect;
 extern float objListScroll;
 extern Uint32 objListLength;
 
-Camera currentCamera = {(Vector3){0, -2, 10}, (Vector3){0, PI, 0}, 90, 1, 16, NULL, NULL};
+Camera currentCamera = {(Vector3){0, -2, 10}, (Vector3){0, PI, 0}, 90, 1, 16, NULL, NULL, NULL};
 Uint8 camMoveMode = 0;
 float mouseSense = 0.2;
 
@@ -167,6 +167,7 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[]){
 	spherePrim = loadMeshFromObj("assets/models/primitives/sphere.obj");
 
 	testRig = genTestRig();
+	currentCamera.proj = projMatrix(90, (float)windowScale.x/windowScale.y, 0.1, 100);
 	
 	if(glEnabled)
 		glEnabled = initOpenGL();
@@ -271,10 +272,6 @@ SDL_AppResult SDL_AppIterate(void *appstate){
 		playerMesh->verts[i].pos.z += (1 - SDL_randf() * 2) * 0.002;
 	}*/
 	
-	//currentCamera.pos.x += ((SDL_cos(currentCamera.rot.y) * (keyList[KEYBIND_D].down - keyList[KEYBIND_A].down)) + (SDL_sin(currentCamera.rot.y) * (keyList[KEYBIND_S].down - keyList[KEYBIND_W].down))) * 2 * deltaTime;
-	//currentCamera.pos.y += (keyList[KEYBIND_SPACE].down - keyList[KEYBIND_SHIFT].down) * 2 * deltaTime;
-	//currentCamera.pos.z += ((-SDL_sin(currentCamera.rot.y) * (keyList[KEYBIND_D].down - keyList[KEYBIND_A].down)) + (SDL_cos(currentCamera.rot.y) * (keyList[KEYBIND_S].down - keyList[KEYBIND_W].down))) * 2 * deltaTime;
-	
 	//SDL_ShowCursor();
 	bool mainWindowFocus = SDL_GetWindowFlags(window) & SDL_WINDOW_INPUT_FOCUS;
 	if(currentCamera.focusDist == 0 && !client.pause){
@@ -309,7 +306,7 @@ SDL_AppResult SDL_AppIterate(void *appstate){
 	
 	//Vector3 invVec3 = {-1, -1, -1};
 	//currentCamera.transform = genMatrix(vec3Mult(currentCamera.pos, invVec3), (Vector3){currentCamera.zoom, currentCamera.zoom, currentCamera.zoom}, vec3Mult(currentCamera.rot, invVec3));
-	//currentCamera.transform = genMatrix((Vector3){0, 0, 0}, (Vector3){1, 1, 1}, currentCamera.rot);
+	currentCamera.transform = genMatrix(currentCamera.pos, (Vector3){1, 1, 1}, currentCamera.rot);
 	
 	if(client.studio && focusObject)
 		updateStudioGimbles();

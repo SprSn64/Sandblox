@@ -28,7 +28,6 @@ extern SDL_FColor skyboxColour;
 
 Uint32 mainShader;
 
-float* projMat;
 float* viewMat;
 
 const char *vertexShaderSource = NULL;
@@ -128,7 +127,7 @@ void updateOpenGL(){
 
 	glUseProgram(mainShader);
 	
-	projMat = projMatrix(90, (float)glWindowScale.x/glWindowScale.y, 0.1, 100); //world flipped?
+	//projMat = projMatrix(90, (float)glWindowScale.x/glWindowScale.y, 0.1, 100); //world flipped?
 	float* worldMat = genMatrix(client.gameWorld->currPlayer->pos, client.gameWorld->currPlayer->scale, client.gameWorld->currPlayer->rot);
 	
 	float* viewMatTranslate = translateMatrix(defaultMatrix, vec3Mult(currentCamera.pos, (Vector3){-1, -1, 1}));
@@ -137,12 +136,12 @@ void updateOpenGL(){
 	
 	//glUniformMatrix4fv(glLocs[GLVAL_WORLDMATRIX], 1, GL_FALSE, client.gameWorld->currPlayer->transform);
 	glUniformMatrix4fv(glLocs[GLVAL_WORLDMATRIX], 1, GL_FALSE, worldMat);
-	glUniformMatrix4fv(glLocs[GLVAL_PROJMATRIX], 1, GL_FALSE, projMat);
+	glUniformMatrix4fv(glLocs[GLVAL_PROJMATRIX], 1, GL_FALSE, currentCamera.proj);
 	glUniformMatrix4fv(glLocs[GLVAL_VIEWMATRIX], 1, GL_FALSE, viewMat);
 	//glDrawArrays(GL_TRIANGLES, 0, 3);
 	//glDrawElements(GL_TRIANGLES, playerMesh->faceCount * 3, GL_UNSIGNED_INT, 0); //segment faults on second frame
 	
-	free(projMat); free(worldMat);
+	free(worldMat);
 	
 	SDL_GL_SwapWindow(glWindow);
 }
