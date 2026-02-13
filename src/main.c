@@ -17,6 +17,7 @@
 #include "opengl.h"
 #include "gamefile.h"
 #include "server.h"
+#include "bones.h"
 
 #include "studio/studio.h"
 
@@ -47,7 +48,7 @@ extern SDL_Rect objListRect;
 extern float objListScroll;
 extern Uint32 objListLength;
 
-Camera currentCamera = {(Vector3){0, 2, 10}, (Vector3){0, 0, 0}, 90, 1, 16, NULL, NULL};
+Camera currentCamera = {(Vector3){0, -2, 10}, (Vector3){0, PI, 0}, 90, 1, 16, NULL, NULL};
 Uint8 camMoveMode = 0;
 float mouseSense = 0.2;
 
@@ -67,17 +68,21 @@ SDL_Texture *homerTex = NULL;
 
 Font defaultFont;
 
+SDL_Texture *boneTex = NULL;
 SDL_Texture *cowTex = NULL;
 SDL_Texture *skyTex = NULL;
 SDL_Texture *sunTex = NULL;
 
 Mesh *playerMesh = NULL;
+Mesh *boneMesh = NULL;
 Mesh *skyboxMesh = NULL;
 Mesh *sunMesh = NULL;
 
 Mesh *planePrim = NULL;
 Mesh *cubePrim = NULL;
 Mesh *spherePrim = NULL;
+
+Skeleton* testRig = NULL;
 
 ButtonMap keyList[KEYBIND_MAX];
 
@@ -90,13 +95,6 @@ Uint8 camResetTimer = 0;
 void HandleKeyInput();
 
 extern float renderScale;
-
-//insert better mesh initiating system here or somewhere
-extern DataType playerClass;
-extern DataType fuckingBeerdrinkerClass;
-extern DataType blockClass;
-extern DataType meshClass;
-extern DataType groupClass;
 
 extern DataObj gameHeader;
 extern DataObj *focusObject;
@@ -151,7 +149,7 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[]){
 	SDL_SetRenderVSync(renderer, 1);
 	
 	fontTex = newTexture("assets/textures/font.png", SDL_SCALEMODE_NEAREST);
-	playerTex = newTexture("assets/textures/playertemp.png", SDL_SCALEMODE_NEAREST);
+	boneTex = newTexture("assets/textures/bonetex.png", SDL_SCALEMODE_NEAREST);
 	homerTex = newTexture("assets/textures/homer.png", SDL_SCALEMODE_NEAREST);
 	cowTex = newTexture("assets/textures/cows.png", SDL_SCALEMODE_LINEAR);
 	skyTex = newTexture("assets/textures/skybox.png", SDL_SCALEMODE_LINEAR);
@@ -159,13 +157,16 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[]){
 	
 	defaultFont = (Font){fontTex, 32, (SDL_Point){8, 8}, (SDL_FPoint){6, 0}, 16};
 
-	playerMesh = loadMeshFromObj("assets/models/player.obj"); //will be replaced with a better model soon
+	playerMesh = loadMeshFromObj("assets/models/player.obj"); 
+	boneMesh = loadMeshFromObj("assets/models/bone.obj"); 
 	skyboxMesh = loadMeshFromObj("assets/models/advskybox.obj");
 	sunMesh = loadMeshFromObj("assets/models/skyboxsun.obj");
 	
 	planePrim = genPlaneMesh(1, 1, 1, 1);
 	cubePrim = loadMeshFromObj("assets/models/primitives/cube.obj");
 	spherePrim = loadMeshFromObj("assets/models/primitives/sphere.obj");
+
+	testRig = genTestRig();
 	
 	if(glEnabled)
 		glEnabled = initOpenGL();
@@ -335,6 +336,8 @@ SDL_AppResult SDL_AppIterate(void *appstate){
 	
 	idCounter = 0;
 	updateObjects(client.gameWorld->headObj, 0, &idCounter, true);
+
+	drawSkeleton(testRig);
 	
 	updateStudio();
 	
