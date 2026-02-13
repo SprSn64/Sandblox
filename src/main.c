@@ -337,7 +337,7 @@ SDL_AppResult SDL_AppIterate(void *appstate){
 	idCounter = 0;
 	updateObjects(client.gameWorld->headObj, 0, &idCounter, true);
 
-	drawSkeleton(testRig);
+	drawBone(testRig->rootBone);
 	
 	updateStudio();
 	
