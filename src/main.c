@@ -48,7 +48,7 @@ extern SDL_Rect objListRect;
 extern float objListScroll;
 extern Uint32 objListLength;
 
-Camera currentCamera = {(Vector3){0, -2, 10}, (Vector3){0, PI, 0}, 90, 1, 16, NULL, NULL, NULL};
+Camera currentCamera = {(Vector3){0, 2, 10}, (Vector3){0, 0, 0}, 90, 1, 16, NULL, NULL, NULL};
 Uint8 camMoveMode = 0;
 float mouseSense = 0.2;
 
@@ -112,7 +112,7 @@ Vector3 sunAngle = {0, 0, 0};
 
 SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[]){
 	(void)appstate;
-	client.version = "0.0";
+	client.version = "0.01 INDEV";
 	SDL_SetAppMetadata("SandBlox", client.version, NULL);
 	
 	char *mapToLoad = "assets/gamefile.json";
@@ -263,8 +263,8 @@ SDL_AppResult SDL_AppIterate(void *appstate){
 	renderScale = min(windowScale.x, windowScale.y);
 	
 	//setDrawColour(renderer, skyboxColour);
-	//SDL_SetRenderDrawColor(renderer, skyboxColour.r * 255, skyboxColour.g * 255, skyboxColour.b * 255, SDL_ALPHA_OPAQUE);
-	//SDL_RenderClear(renderer);
+	SDL_SetRenderDrawColor(renderer, skyboxColour.r * 255, skyboxColour.g * 255, skyboxColour.b * 255, SDL_ALPHA_OPAQUE);
+	SDL_RenderClear(renderer);
 	
 	/*for(int i = 0; i < playerMesh->vertCount; i++){
 		playerMesh->verts[i].pos.x += (1 - SDL_randf() * 2) * 0.002;
@@ -304,9 +304,9 @@ SDL_AppResult SDL_AppIterate(void *appstate){
 	currentCamera.rot = (Vector3){fmod(currentCamera.rot.x, 6.28318), fmod(currentCamera.rot.y, 6.28318), fmod(currentCamera.rot.z, 6.28318)};
 	currentCamera.focusDist = min(max(currentCamera.focusDist + (keyList[KEYBIND_I].down - keyList[KEYBIND_O].down) * 4 * max(1, sqrt(currentCamera.focusDist)) * deltaTime, 0), 64);
 	
-	//Vector3 invVec3 = {-1, -1, -1};
-	//currentCamera.transform = genMatrix(vec3Mult(currentCamera.pos, invVec3), (Vector3){currentCamera.zoom, currentCamera.zoom, currentCamera.zoom}, vec3Mult(currentCamera.rot, invVec3));
-	currentCamera.transform = genMatrix(currentCamera.pos, (Vector3){1, 1, 1}, currentCamera.rot);
+	Vector3 invVec3 = {-1, -1, -1};
+	currentCamera.transform = genMatrix(vec3Mult(currentCamera.pos, invVec3), (Vector3){currentCamera.zoom, currentCamera.zoom, currentCamera.zoom}, vec3Mult(currentCamera.rot, invVec3));
+	//currentCamera.transform = genMatrix(currentCamera.pos, (Vector3){1, 1, 1}, currentCamera.rot);
 	
 	if(client.studio && focusObject)
 		updateStudioGimbles();

@@ -20,15 +20,16 @@ extern ClientData client;
 extern SDL_Point windowScale;
 
 float renderScale = 480;
-Vector3 lightNormal = (Vector3){-0.25, 0.42, -0.33};
+Vector3 lightNormal = (Vector3){0.25, 0.42, 0.33};
 SDL_FColor lightColour = {1, 1, 1, 1};
 SDL_FColor lightAmbient = {0.25, 0.25, 0.3, 1};
 
 bool matrixOrSlopProject = false;
+extern float* defaultMatrix;
 
 Vector3 worldToCamera(Vector3 pos){
 	if(matrixOrSlopProject){
-		Vector4 newPos = matrixMult(vec3ToVec4(pos), client.gameWorld->currCamera->transform);
+		Vector4 newPos = matrixMult(matrixMult(vec3ToVec4(pos), client.gameWorld->currCamera->transform), client.gameWorld->currCamera->proj);
 		return vec4ToVec3(newPos);
 	}
 	Vector4 firstPos = {pos.x - client.gameWorld->currCamera->pos.x, pos.y - client.gameWorld->currCamera->pos.y, pos.z - client.gameWorld->currCamera->pos.z, 1};
@@ -40,6 +41,8 @@ Vector3 worldToCamera(Vector3 pos){
 }
 
 Vector3 viewProj(Vector3 pos){
+	if(matrixOrSlopProject) return pos;
+
 	float absZ = fabs(pos.z);
 	if(absZ < 0.001f) absZ = 0.001f;
 	float safeZ = (pos.z < 0) ? -absZ : absZ;

@@ -48,6 +48,23 @@ void translateGimbleUpdate(DataObj* item){
 	if(!(SDL_GetWindowFlags(window) & SDL_WINDOW_INPUT_FOCUS)) return;
 	
 	//code spaghetti.... yum!
+
+	char hovers = 0;
+	for(int i=0; i<6; i++){
+		Vector3 pos = vec3Add(item->pos, (Vector3){
+			item->scale.x / 2 * (i / 2 != 0), 
+			-item->scale.y / 2 * (i / 2 != 1), 
+			item->scale.z / 2 * (i / 2 != 3)});
+		Vector3 proj = projToScreen(viewProj(worldToCamera(pos)));
+		float scale = 1 / proj.z * renderScale;
+		hovers |= (int)pow(2 * (between(mousePos.x, proj.x + scale / 2, proj.x - scale / 2) && between(mousePos.y, proj.y + scale / 2, proj.y - scale / 2) && proj.z < 0), i);
+		//hovers |= (int)pow(2 * ((pow(mousePos.x - proj.x, 2) + pow(mousePos.y - proj.y, 2) <= scale / 2) && proj.z < 0), i);
+	}
+
+	/*if(hovers != 0){
+		char popupText[8]; sprintf(popupText, "%d", hovers);
+		sendPopup(popupText, NULL, NULL, 0.06);
+	}*/
 	
 	Vector3 xPos[2] = {vec3Add(item->pos, (Vector3){-1.5, -item->scale.y / 2, item->scale.z / 2}), vec3Add(item->pos, (Vector3){item->scale.x + 1.5, -item->scale.y / 2, item->scale.z / 2})};
 	Vector3 xProj[2] = {projToScreen(viewProj(worldToCamera(xPos[0]))), projToScreen(viewProj(worldToCamera(xPos[1])))};
@@ -70,13 +87,14 @@ void translateGimbleUpdate(DataObj* item){
 	if(!mouseButtons[0].down){
 		gimbleGrabbed = 0;
 		lerpSet = false;
+		return;
 	}
 	
-	SDL_FPoint distVec; float dist; float angle; SDL_FPoint mouseDist; float dragDist;
+	SDL_FPoint distVec; float dist = 0; float angle = 0; SDL_FPoint mouseDist; float dragDist = 0;
 	
 	if(gimbleGrabbed){
 		distVec = (SDL_FPoint){ogProjs[1].x - ogProjs[0].x, ogProjs[1].y - ogProjs[0].y};
-		dist = ogGimbles[1] - ogGimbles[0];
+		dist = ogGimbles[1] - ogGimbles[0]; 
 		
 		angle = atan2(distVec.y, distVec.x);
 		mouseDist = (SDL_FPoint){mousePos.x - ogProjs[0].x, mousePos.y - ogProjs[0].y};

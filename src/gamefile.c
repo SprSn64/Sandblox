@@ -7,9 +7,11 @@
 #include "entities.h"
 #include "renderer.h"
 #include "loader.h"
+#include "math.h"
 
 extern ClientData client;
 extern DataObj gameHeader;
+extern Vector3 lightNormal;
 
 DataObj* newPlayer = NULL;
 
@@ -24,11 +26,15 @@ Uint32 stringIdInList(const char* string, char** list, Uint32 listLength){
     return listLength + 1;
 }
 
+#include "tempMaps/mapInit.h"
+
 void (*getFunctionByName(const char* name))(DataObj*) {
     if(!name) return NULL;
     
     if(!strcmp(name, "objSpinFunc")) return objSpinFunc;
     if(!strcmp(name, "killBrickFunc")) return killBrickFunc;
+    if(!strcmp(name, "soulControlFunc")) return soulControlFunc;
+    if(!strcmp(name, "knightHoverFunc")) return knightHoverFunc;
     return NULL;
 }
 
@@ -210,10 +216,14 @@ DataObj* createObjectFromJSON(cJSON* obj, DataObj* parent) {
     }
     
     if(scriptFile && cJSON_IsString(scriptFile)) {
-	  ScriptItem *newScript = malloc(sizeof(ScriptItem));
+	    ScriptItem *newScript = malloc(sizeof(ScriptItem));
+
         newScript->func = getFunctionByName(scriptFile->valuestring); newScript->funcName = strdup(scriptFile->valuestring);  
-	  
-        newObj->asVoidptr[OBJVAL_SCRIPT] = newScript;
+	   
+        if(newScript->func != NULL)
+            newObj->asVoidptr[OBJVAL_SCRIPT] = newScript;
+        else
+            free(newScript);
     }
     
     if(children && cJSON_IsArray(children)) {
@@ -258,6 +268,15 @@ int loadGameFile(const char* filename) {
         return -1;
     }
     
+    cJSON* lightDir = cJSON_GetObjectItem(json, "lightDir");
+    if(lightDir && cJSON_IsArray(lightDir) && cJSON_GetArraySize(lightDir) >= 3) {
+        lightNormal = rotToNorm3((Vector3){
+            cJSON_GetArrayItem(lightDir, 0)->valuedouble * DEG2RAD,
+            cJSON_GetArrayItem(lightDir, 1)->valuedouble * DEG2RAD,
+            cJSON_GetArrayItem(lightDir, 2)->valuedouble * DEG2RAD
+        });
+    }
+
     cJSON* objects = cJSON_GetObjectItem(json, "objects");
     if(!objects || !cJSON_IsArray(objects)) {
         printf("No objects array found in JSON\n");

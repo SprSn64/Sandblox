@@ -1,0 +1,166 @@
+{
+	"objects":	[{
+			"name":	"Part1",
+			"class":	"Group",
+			"pos":	[0.000000, 0.000000, 0.000000],
+			"scale":	[1.000000, 1.000000, 1.000000],
+			"rot":	[0.000000, 0.000000, 0.000000],
+			"colour":	[255, 255, 255, 255],
+			"children":	[{
+					"name":	"Platform",
+					"class":	"Block",
+					"pos":	[-8.000000, 0.000000, -8.000000],
+					"scale":	[16.000000, 1.000000, 16.000000],
+					"rot":	[0.000000, 0.000000, 0.000000],
+					"colour":	[128, 128, 128, 255],
+					"collision":	{
+						"enabled":	true,
+						"type":	"block"
+					},
+					"children":	[]
+				}, {
+					"name":	"Platform",
+					"class":	"Block",
+					"pos":	[-4.000000, 0.000000, 17.000000],
+					"scale":	[8.000000, 1.000000, 8.000000],
+					"rot":	[0.000000, 0.000000, 0.000000],
+					"colour":	[128, 128, 128, 255],
+					"collision":	{
+						"enabled":	true,
+						"type":	"block"
+					},
+					"children":	[]
+				}, {
+					"name":	"Platform (Copy)",
+					"class":	"Block",
+					"pos":	[-4.000000, 0.000000, 34.000000],
+					"scale":	[8.000000, 1.000000, 8.000000],
+					"rot":	[0.000000, 0.000000, 0.000000],
+					"colour":	[128, 128, 128, 255],
+					"collision":	{
+						"enabled":	true,
+						"type":	"block"
+					},
+					"children":	[]
+				}, {
+					"name":	"Platform",
+					"class":	"Block",
+					"pos":	[-4.000000, 0.000000, 51.000000],
+					"scale":	[8.000000, 1.000000, 8.000000],
+					"rot":	[0.000000, 0.000000, 0.000000],
+					"colour":	[128, 128, 128, 255],
+					"collision":	{
+						"enabled":	true,
+						"type":	"block"
+					},
+					"children":	[]
+				}, {
+					"name":	"Spawn",
+					"class":	"Block",
+					"pos":	[-2.000000, 1.000000, -2.000000],
+					"scale":	[4.000000, 1.000000, 4.000000],
+					"rot":	[0.000000, 0.000000, 0.000000],
+					"colour":	[255, 255, 255, 255],
+					"collision":	{
+						"enabled":	true,
+						"type":	"block"
+					},
+					"children":	[{
+							"name":	"Mesh",
+							"class":	"Mesh",
+							"pos":	[0.500000, -1.000000, 0.500000],
+							"scale":	[0.250000, 1.000000, 0.250000],
+							"rot":	[0.000000, 0.000000, 0.000000],
+							"mesh":	"assets/models/spawnpoint.obj",
+							"texture":	"assets/textures/spawn.png",
+							"colour":	[255, 255, 255, 255],
+							"children":	[]
+						}]
+				}]
+		}, {
+			"name":	"Part2",
+			"class":	"Group",
+			"pos":	[0.000000, 0.000000, 0.000000],
+			"scale":	[1.000000, 1.000000, 1.000000],
+			"rot":	[0.000000, 0.000000, 0.000000],
+			"colour":	[255, 255, 255, 255],
+			"children":	[{
+					"name":	"Platform",
+					"class":	"Block",
+					"pos":	[-8.000000, 0.000000, 69.000000],
+					"scale":	[16.000000, 1.000000, 64.000000],
+					"rot":	[0.000000, 0.000000, 0.000000],
+					"colour":	[128, 128, 128, 255],
+					"collision":	{
+						"enabled":	true,
+						"type":	"block"
+					},
+					"children":	[]
+				}, {
+					"name":	"KillBrick",
+					"class":	"Block",
+					"pos":	[-8.000000, 1.000000, 85.000000],
+					"scale":	[16.000000, 1.000000, 4.000000],
+					"rot":	[0.000000, 0.000000, 0.000000],
+					"colour":	[255, 0, 0, 255],
+					"script":	"killBrickFunc",
+					"collision":	{
+						"enabled":	true,
+						"type":	"block"
+					},
+					"children":	[]
+				}, {
+					"name":	"KillBrick",
+					"class":	"Block",
+					"pos":	[-8.000000, 1.000000, 93.000000],
+					"scale":	[16.000000, 1.000000, 4.000000],
+					"rot":	[0.000000, 0.000000, 0.000000],
+					"colour":	[255, 0, 0, 255],
+					"script":	"killBrickFunc",
+					"collision":	{
+						"enabled":	true,
+						"type":	"block"
+					},
+					"children":	[]
+				}, {
+					"name":	"KillBrick",
+					"class":	"Block",
+					"pos":	[-8.000000, 1.000000, 101.000000],
+					"scale":	[16.000000, 1.000000, 4.000000],
+					"rot":	[0.000000, 0.000000, 0.000000],
+					"colour":	[255, 0, 0, 255],
+					"script":	"killBrickFunc",
+					"collision":	{
+						"enabled":	true,
+						"type":	"block"
+					},
+					"children":	[]
+				}, {
+					"name":	"KillBrick",
+					"class":	"Block",
+					"pos":	[-8.000000, 1.000000, 109.000000],
+					"scale":	[16.000000, 1.000000, 4.000000],
+					"rot":	[0.000000, 0.000000, 0.000000],
+					"colour":	[255, 0, 0, 255],
+					"script":	"killBrickFunc",
+					"collision":	{
+						"enabled":	true,
+						"type":	"block"
+					},
+					"children":	[]
+				}]
+		}, {
+			"name":	"Player",
+			"class":	"Player",
+			"pos":	[-0.000000, 1.000000, 0.000000],
+			"scale":	[1.000000, 1.000000, 1.000000],
+			"rot":	[0.000000, 175.476757, 0.000000],
+			"colour":	[255, 255, 255, 255],
+			"isPlayer":	true,
+			"collision":	{
+				"enabled":	true,
+				"type":	"none"
+			},
+			"children":	[]
+		}]
+}

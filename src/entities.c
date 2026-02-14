@@ -95,6 +95,7 @@ void playerDraw(DataObj* object){
 	if(object == game.currPlayer) return;
 	Vector3 textPos = vec3Add(object->pos, (Vector3){0, 5, 0});
 	Vector3 textProj = projToScreen(viewProj(worldToCamera(textPos)));
+	if(textProj.z >= 0) return;
 	float nameScale = 2;
 	drawText(renderer, &defaultFont, object->name, textProj.x - strlen(object->name) / 2 * defaultFont.kerning.x * nameScale, textProj.y - defaultFont.glyphSize.y * nameScale, nameScale, (SDL_FColor){1, 1, 1, 1});
 }
