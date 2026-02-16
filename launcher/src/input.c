@@ -48,11 +48,16 @@ typedef struct _PROCESS_INFORMATION {
 extern SDL_Window *window;
 extern SDL_Renderer *renderer;
 
+extern Font defaultFont;
+void drawText(SDL_Renderer *renderLoc, Font *textFont, char* text, short posX, short posY, float scale, SDL_FColor colour);
+
 extern bool windowHover;
 extern SDL_FPoint mousePos;
 extern ButtonMap mouseButtons[3];
 
 extern char *clientLoc;
+
+char *runArgs = "-studio";
 
 bool updateButton(Button* item){
 	if(!item->enabled || !item->pressed) return 1;
@@ -92,13 +97,11 @@ void drawButton(SDL_Renderer* render, Button* item){
 	SDL_RenderFillRect(render, &(SDL_FRect){item->rect.x, item->rect.y, item->rect.w, item->rect.h});
 	
 	SDL_SetRenderDrawColor(render, 0, 0, 0, SDL_ALPHA_OPAQUE);
-	SDL_RenderDebugText(render, item->rect.x + 2, item->rect.y + 2, item->labelText);
+	drawText(render, &defaultFont, item->labelText, item->rect.x + 2, item->rect.y + 2, 1, (SDL_FColor){0, 0, 0, 1});
 }
 
 void buttonLaunch(Button* item){
 	item->enabled = false;
-	
-	//run client
 
 	FILE *file = fopen("config.txt", "r");
 	if(!file){
@@ -106,20 +109,22 @@ void buttonLaunch(Button* item){
 		goto reenableButton;
 	}
 	
-	char gameDir[512]; fgets(gameDir, 512, file);
-	char ogDir[512]; sprintf(ogDir, SDL_GetCurrentDirectory());
+	char gameDir[512]; bool fget = fgets(gameDir, 512, file); (void)fget;
+	char ogDir[512]; sprintf(ogDir, "%s", SDL_GetCurrentDirectory());
 	printf("Game directory is at %s.\n", gameDir);
 	fclose(file);
+
+	char command[2048];
 	
 #ifdef _WIN32
 	SetCurrentDirectory(gameDir);
-	system("sandblox.exe -studio");
+	sprintf(command, "sandblox.exe %s", runArgs);
+	int systReturn = system(command);
 	SetCurrentDirectory(ogDir);
 
 #endif // _WIN32
 
 #ifdef __linux__
-		char command[1024];
 #ifdef __x86_64__
 			char *arch = "x86_64";
 #elif defined(__i386__)
@@ -129,10 +134,33 @@ void buttonLaunch(Button* item){
 #elif defined(__arm__)
 			char *arch = "arm";
 #endif
-		sprintf(command, "cd %s && %s/sandblox.%s && cd %s", gameDir, gameDir, arch, ogDir);
+		sprintf(command, "cd %s \n %s/sandblox.%s %s \n cd %s", gameDir, gameDir, arch, runArgs, ogDir);
 
-		system(command);
+		int systReturn = system(command);
 #endif // __linux__
+		printf("Program Output: %d\n", systReturn);
 reenableButton:
 	item->enabled = true;
+}
+
+static void SDLCALL getClientDialogue(void* userdata, const char* const* filelist, int filter){
+	(void)userdata; (void)filter;
+	if (!filelist) {
+		printf("An error occured: %s\n", SDL_GetError());
+		return;
+	} else if (!*filelist) {
+		printf("No file was selected.\n");
+		return;
+	}
+        
+	printf("Full path to selected file: '%s'\n", *filelist);
+
+	FILE *file = fopen("config.txt", "w");
+	fprintf(file, "%s", *filelist);
+	fclose(file);
+}
+
+void buttonSelectClient(Button* item){
+	(void)item;
+	SDL_ShowOpenFolderDialog(getClientDialogue, NULL, window, SDL_GetCurrentDirectory(), false);
 }

@@ -14,5 +14,6 @@ bool updateButton(Button* item);
 void drawButton(SDL_Renderer* render, Button* item);
 
 void buttonLaunch(Button* item);
+void buttonSelectClient(Button* item);
 
 #endif

@@ -27,6 +27,8 @@ typedef enum operatingSystem{
 #include <structs.h>
 #include "input.h"
 
+char* version = "0.0 INDEV";
+
 SDL_Window *window = NULL;
 SDL_Renderer *renderer = NULL;
 
@@ -49,19 +51,20 @@ SDL_FPoint mousePos;
 ButtonMap mouseButtons[3];
 void HandleKeyInput();
 
-char *clientLoc = "..//sandblox.exe";
-
-Button launchButton = {"launch", (SDL_FRect){224, 304, 64, 16}, buttonLaunch, true, true, false, false};
+Button launchButton = {"Launch Sandblox", (SDL_FRect){0, 458, 640, 32}, buttonLaunch, true, true, false, false};
+Button clientDirButton = {"select client dir", (SDL_FRect){512, 0, 128, 16}, buttonSelectClient, true, true, false, false};
 
 SDL_Texture *newTexture(char* path, SDL_ScaleMode scaleMode);
-void drawText(SDL_Renderer *renderer, SDL_Texture *texture, char* text, char charOff, short posX, short posY, short width, short height, short kern);
+void drawText(SDL_Renderer *renderLoc, Font *textFont, char* text, short posX, short posY, float scale, SDL_FColor colour);
 
 SDL_Texture* fontTex = NULL;
+Font defaultFont;
 
 char osText[64];
 
 SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[]){
-	SDL_SetAppMetadata("SandBlox", "0.0", NULL);
+	(void)appstate; (void)argv;
+	SDL_SetAppMetadata("SandBlox Launcher", version, NULL);
 	
 	for(int i=0; i < argc; i++){
 		//printf("%s\n", argv[i]);
@@ -72,7 +75,10 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[]){
 		return SDL_APP_FAILURE;
 	}
 
-	if(!SDL_CreateWindowAndRenderer("Sandblox Launcher 0.0", windowScale.x, windowScale.y, SDL_WINDOW_RESIZABLE * 0, &window, &renderer)){
+	char windowName[64] = "Sandblox Launcher vXX.XX";
+	sprintf(windowName, "Sandblox Launcher v%s", version);
+
+	if(!SDL_CreateWindowAndRenderer(windowName, windowScale.x, windowScale.y, SDL_WINDOW_RESIZABLE * 0, &window, &renderer)){
 		SDL_Log("Couldn't create window/renderer: %s", SDL_GetError());
 		return SDL_APP_FAILURE;
 	}
@@ -81,6 +87,7 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[]){
 	SDL_SetRenderVSync(renderer, 1);
 	
 	fontTex = newTexture("assets/font.png", 0);
+	defaultFont = (Font){fontTex, 32, (SDL_Point){8, 8}, (SDL_FPoint){6, 0}, 16};
 	
 	mouseButtons[0].code = SDL_BUTTON_LMASK; mouseButtons[1].code = SDL_BUTTON_MMASK; mouseButtons[2].code = SDL_BUTTON_RMASK;
 	
@@ -97,6 +104,7 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[]){
 }	
 
 SDL_AppResult SDL_AppEvent(void *appstate, SDL_Event *event){
+	(void)appstate;
 	if(event->type == SDL_EVENT_QUIT){
 		return SDL_APP_SUCCESS;
 	}
@@ -104,6 +112,7 @@ SDL_AppResult SDL_AppEvent(void *appstate, SDL_Event *event){
 }
 
 SDL_AppResult SDL_AppIterate(void *appstate){
+	(void)appstate;
 	HandleKeyInput();
 	
 	windowHover = SDL_GetWindowFlags(window) & SDL_WINDOW_INPUT_FOCUS;
@@ -135,10 +144,9 @@ SDL_AppResult SDL_AppIterate(void *appstate){
 	SDL_RenderClear(renderer);
 	
 	updateButton(&launchButton); drawButton(renderer, &launchButton);
+	updateButton(&clientDirButton); drawButton(renderer, &clientDirButton);
 	
-	drawText(renderer, fontTex, osText, 32, 0, 0, 16, 16, 12);
-	
-	//drawText(renderer, fontTex, "johnsons", 32, 0, 0, 16, 16, 14);
+	drawText(renderer, &defaultFont, osText, 0, 0, 2, (SDL_FColor){1, 1, 1, 1});
 
 	SDL_RenderPresent(renderer);
 
@@ -146,6 +154,7 @@ SDL_AppResult SDL_AppIterate(void *appstate){
 }
 
 void SDL_AppQuit(void *appstate, SDL_AppResult result){
+	(void)appstate; (void)result;
 	SDL_DestroyTexture(fontTex);
 }
     
@@ -174,13 +183,18 @@ SDL_Texture *newTexture(char* path, SDL_ScaleMode scaleMode){
 	return texture;
 }
 
-void drawText(SDL_Renderer *renderer, SDL_Texture *texture, char* text, char charOff, short posX, short posY, short width, short height, short kern){
+void drawText(SDL_Renderer *renderLoc, Font *textFont, char* text, short posX, short posY, float scale, SDL_FColor colour){
+	SDL_SetTextureColorMod(textFont->image, (Uint8)(colour.r * 255), (Uint8)(colour.g * 255), (Uint8)(colour.b * 255));
+	if(!renderLoc){
+		printf("cant draw text '%s'\n", text);
+		return;
+	}
 	for(size_t i=0; i<=strlen(text); i++){
-		char charVal = (unsigned)text[i] - charOff;
-		int xOff = (charVal % 16) * width;
-		int yOff = floor((float)charVal / 16) * height;
-		SDL_FRect sprRect = {xOff, yOff, width, height};
-		SDL_FRect sprPos = {posX + kern * i, posY, width, height};
-		SDL_RenderTexture(renderer, texture, &sprRect, &sprPos);
+		char charVal = text[i] - textFont->startChar;
+		int xOff = (charVal % textFont->columns) * textFont->glyphSize.x;
+		int yOff = floor((float)charVal / textFont->columns) * textFont->glyphSize.y;
+		SDL_FRect sprRect = {xOff, yOff, textFont->glyphSize.x, textFont->glyphSize.y};
+		SDL_FRect sprPos = {posX + textFont->kerning.x * i * scale, posY + textFont->kerning.y * i * scale, textFont->glyphSize.x * scale, textFont->glyphSize.y * scale};
+		SDL_RenderTexture(renderLoc, textFont->image, &sprRect, &sprPos);
 	}
 }
