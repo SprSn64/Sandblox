@@ -15,7 +15,7 @@ extern DataType playerClass;
 extern DataType blockClass;
 extern DataType meshClass;
 extern DataType groupClass;
-//extern DataType cameraClass;
+extern DataType cameraClass;
 //extern DataType lightClass;
 extern DataType imageClass;
 extern DataType scriptClass;

@@ -69,7 +69,7 @@ SDL_Texture *homerTex = NULL;
 Font defaultFont;
 
 SDL_Texture *boneTex = NULL;
-SDL_Texture *cowTex = NULL;
+SDL_Texture *cursorTex = NULL;
 SDL_Texture *skyTex = NULL;
 SDL_Texture *sunTex = NULL;
 
@@ -151,7 +151,7 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[]){
 	fontTex = newTexture("assets/textures/font.png", SDL_SCALEMODE_NEAREST);
 	boneTex = newTexture("assets/textures/bonetex.png", SDL_SCALEMODE_NEAREST);
 	homerTex = newTexture("assets/textures/homer.png", SDL_SCALEMODE_NEAREST);
-	cowTex = newTexture("assets/textures/cows.png", SDL_SCALEMODE_LINEAR);
+	cursorTex = newTexture("assets/textures/cursor.png", SDL_SCALEMODE_NEAREST);
 	skyTex = newTexture("assets/textures/skybox.png", SDL_SCALEMODE_LINEAR);
 	sunTex = newTexture("assets/textures/sunflare.png", SDL_SCALEMODE_LINEAR);
 	
@@ -366,6 +366,9 @@ SDL_AppResult SDL_AppIterate(void *appstate){
 	
 	//drawText(renderer, fontTex, "Diagnostics: Skill issue", 32, 0, 64, 16, 16, 12);
 	//SDL_RenderDebugText(renderer, 0, 0, guiText);
+	
+	//SDL_FPoint drawCursorPos = mousePos;
+	//SDL_RenderTexture(renderer, cursorTex, &(SDL_FRect){0, 0, 32, 32}, &(SDL_FRect){drawCursorPos.x, drawCursorPos.y, 32, 32});
 
 	if(glEnabled)
 		updateOpenGL();
@@ -380,7 +383,7 @@ void SDL_AppQuit(void *appstate, SDL_AppResult result){
 	(void)appstate; (void)result;
 	cleanupObjects(client.gameWorld->headObj);
 	studioCleanup(); cleanupOpenGL();
-	SDL_DestroyTexture(fontTex); SDL_DestroyTexture(playerTex); SDL_DestroyTexture(homerTex); SDL_DestroyTexture(cowTex); SDL_DestroyTexture(skyTex);
+	SDL_DestroyTexture(fontTex); SDL_DestroyTexture(playerTex); SDL_DestroyTexture(homerTex); SDL_DestroyTexture(cursorTex); SDL_DestroyTexture(skyTex);
 	
 	free(defaultMatrix);
 	free(playerMesh); free(skyboxMesh);

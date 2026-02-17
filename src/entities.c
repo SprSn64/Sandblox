@@ -138,6 +138,22 @@ DataType blockClass = {"Block\0", 3, 0, blockInit, NULL, blockDraw};
 
 DataType groupClass = {"Group\0", 5, 0, NULL, NULL, NULL};
 
+void cameraInit(DataObj* object){
+	Camera *cam = calloc(1, sizeof(Camera));
+	cam->fov = 90; cam->zoom = 90; cam->focusDist = 16;
+	object->asVoidptr[OBJVAL_OTHER] = cam;
+}
+
+void cameraUpdate(DataObj* object){
+	Camera *cam = object->asVoidptr[OBJVAL_OTHER];
+	if(cam != NULL){
+		free(cam->transform);
+		cam->transform = genMatrix(object->pos, object->scale, object->rot);
+	}
+}
+
+DataType cameraClass = {"Camera\0", 6, 0, cameraInit, cameraUpdate, NULL};
+
 extern Mesh* planePrim;
 void imageDraw(DataObj* object){
 	float* transform = genMatrix(object->pos, object->scale, object->rot);
