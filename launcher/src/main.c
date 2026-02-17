@@ -51,8 +51,8 @@ SDL_FPoint mousePos;
 ButtonMap mouseButtons[3];
 void HandleKeyInput();
 
-Button launchButton = {"Launch Sandblox", (SDL_FRect){0, 458, 640, 32}, buttonLaunch, true, true, false, false};
-Button clientDirButton = {"select client dir", (SDL_FRect){512, 0, 128, 16}, buttonSelectClient, true, true, false, false};
+Button launchButton = {"Launch Sandblox", (SDL_FRect){2, 446, 636, 32}, buttonLaunch, true, true, false, false};
+Button clientDirButton = {"select client dir", (SDL_FRect){510, 2, 128, 16}, buttonSelectClient, true, true, false, false};
 
 SDL_Texture *newTexture(char* path, SDL_ScaleMode scaleMode);
 void drawText(SDL_Renderer *renderLoc, Font *textFont, char* text, short posX, short posY, float scale, SDL_FColor colour);

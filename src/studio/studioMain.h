@@ -17,7 +17,7 @@ typedef enum studioToolMode{
 typedef enum historyType{
 	HISTORY_CHANGEVAL,
 	HISTORY_ADDOBJ, HISTORY_DELOBJ,
-	HISTORY_PARENTOBJ, HISTORY_MOVEOBJ, 
+	HISTORY_PARENTOBJ, HISTORY_MOVEOBJ, //HISTORY_MOVEOBJ means change order within child list
 } historyType;
 
 typedef struct HistoryItem{

@@ -289,3 +289,19 @@ void studioCameraUpdate(Camera* cam){
 	cam->pos = (Vector3){cam->pos.x + moveVec.x * timeSpeedMult * deltaTime, cam->pos.y + moveVec.y * timeSpeedMult * deltaTime, cam->pos.z + moveVec.z * timeSpeedMult * deltaTime};
 	free(camRotMatrix);
 }
+
+HistoryItem* historyHead = NULL;
+
+bool addHistoryItem(Uint32 type, void** items){
+	(void)type; (void)items;
+	return false;
+}
+
+bool undoHistory(HistoryItem* item){
+	(void)item;
+	return false;
+}
+
+void clearHistory(){
+
+}
