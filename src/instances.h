@@ -12,7 +12,7 @@ typedef struct NotiPopup{
 	SDL_FRect* imageSrc;
 	float age, life; //in seconds
 	struct NotiPopup* next;
-	struct NotiPopup* last;
+	struct NotiPopup* prev;
 } NotiPopup;
 
 typedef struct ScriptItem{

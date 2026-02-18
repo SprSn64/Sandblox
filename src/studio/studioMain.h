@@ -27,4 +27,7 @@ typedef struct HistoryItem{
 	struct HistoryItem* prev;
 } HistoryItem;
 
+HistoryItem* addHistoryItem(Uint32 type, void** items);
+bool undoHistory(HistoryItem* item);
+
 #endif

@@ -84,9 +84,16 @@ void translateGimbleUpdate(DataObj* item){
 	bool zHoverA = between(mousePos.x, zProj[0].x + zScale[0] / 2, zProj[0].x - zScale[0] / 2) && between(mousePos.y, zProj[0].y + zScale[0] / 2, zProj[0].y - zScale[0] / 2) && zProj[0].z < 0;
 	bool zHoverB = between(mousePos.x, zProj[1].x + zScale[1] / 2, zProj[1].x - zScale[1] / 2) && between(mousePos.y, zProj[1].y + zScale[1] / 2, zProj[1].y - zScale[1] / 2) && zProj[1].z < 0;
 	
-	if(!mouseButtons[0].down){
+	Vector3* vector = &item->pos;
+	if(toolMode == STUDIOTOOL_SCALE)
+		vector = &item->scale;
+
+	if(!mouseButtons[0].down && gimbleGrabbed){
 		gimbleGrabbed = 0;
 		lerpSet = false;
+		void* undoList[3] = {&vector, &ogPos, NULL};
+
+		addHistoryItem(HISTORY_CHANGEVAL, undoList);
 		return;
 	}
 	
@@ -104,10 +111,6 @@ void translateGimbleUpdate(DataObj* item){
 			lerpSet = true;
 		}
 	}
-	
-	Vector3* vector = &item->pos;
-	if(toolMode == STUDIOTOOL_SCALE)
-		vector = &item->scale;
 	
 	switch(gimbleGrabbed){
 		case 1: vector->x = closest(ogPos.x + dist * (dragDist - ogLerp), 1); break;

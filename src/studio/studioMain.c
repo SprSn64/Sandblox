@@ -42,6 +42,7 @@ Uint32 objListLength = 0;
 SDL_Rect objListRect = {32, 16, 208, 240};
 
 Uint32 toolMode = STUDIOTOOL_NONE;
+HistoryItem* historyHead = NULL;
 
 DataObj *focusObject = NULL;
 extern SDL_MouseButtonFlags mouseState;
@@ -161,6 +162,11 @@ void updateStudio(){
 	
 	if(stuKeyList[STUDIOKEYBIND_DUPE].pressed && focusObject)
 		focusObject = duplicateObject(focusObject);
+
+	if(stuKeyList[STUDIOKEYBIND_UNDO].pressed && historyHead){
+		undoHistory(historyHead);
+		sendPopup("undid history!", NULL, NULL, 2);
+	}
 ctrlSkip:
 
 	int idCounter = 0;
@@ -290,18 +296,42 @@ void studioCameraUpdate(Camera* cam){
 	free(camRotMatrix);
 }
 
-HistoryItem* historyHead = NULL;
+HistoryItem* addHistoryItem(Uint32 type, void** items){
+	HistoryItem* newItem = malloc(sizeof(HistoryItem));
+	if(!newItem) return NULL;
 
-bool addHistoryItem(Uint32 type, void** items){
-	(void)type; (void)items;
-	return false;
+	newItem->type = type;
+	newItem->items = items;
+	
+	newItem->prev = NULL;
+	if(historyHead)
+		historyHead->prev = newItem;
+	newItem->next = historyHead;
+	historyHead = newItem;
+
+	return NULL;
 }
 
 bool undoHistory(HistoryItem* item){
 	(void)item;
+	switch(item->type){
+		case HISTORY_CHANGEVAL:
+			item->items[0] = &item->items[1];
+			break;
+	}
+
+	if(item->prev)
+		item->prev->next = item->next;
+	if(item->next)
+		item->next->prev = item->prev;
+	if(item == historyHead)
+		historyHead = NULL;
+	free(item);
+
 	return false;
 }
 
-void clearHistory(){
-
+bool redoHistory(HistoryItem* item){
+	(void)item;
+	return false;
 }
