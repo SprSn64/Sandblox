@@ -29,6 +29,8 @@ typedef enum operatingSystem{
 
 char* version = "0.0 INDEV";
 
+char* basePath;
+
 SDL_Window *window = NULL;
 SDL_Renderer *renderer = NULL;
 
@@ -86,6 +88,8 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[]){
 	SDL_SetWindowMinimumSize(window, 320, 240);
 	SDL_SetRenderVSync(renderer, 1);
 	
+	basePath = SDL_GetPrefPath("Sandblox", "Sandblox");
+
 	fontTex = newTexture("assets/font.png", 0);
 	defaultFont = (Font){fontTex, 32, (SDL_Point){8, 8}, (SDL_FPoint){6, 0}, 16};
 	

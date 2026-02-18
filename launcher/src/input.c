@@ -56,6 +56,7 @@ extern SDL_FPoint mousePos;
 extern ButtonMap mouseButtons[3];
 
 extern char *clientLoc;
+extern char *basePath;
 
 char *runArgs = "-studio";
 
@@ -103,7 +104,8 @@ void drawButton(SDL_Renderer* render, Button* item){
 void buttonLaunch(Button* item){
 	item->enabled = false;
 
-	FILE *file = fopen("config.txt", "r");
+	char configDir[512]; sprintf(configDir, "%s/config.cfg", basePath);
+	FILE *file = fopen(configDir, "r");
 	if(!file){
 		printf("Couldnt find config file\n");
 		goto reenableButton;
@@ -134,7 +136,7 @@ void buttonLaunch(Button* item){
 #elif defined(__arm__)
 			char *arch = "arm";
 #endif
-		sprintf(command, "cd %s \n %s/sandblox.%s %s \n cd %s", gameDir, gameDir, arch, runArgs, ogDir);
+		sprintf(command, "cd %s \n ./sandblox.%s %s \n cd %s", gameDir, arch, runArgs, ogDir);
 
 		int systReturn = system(command);
 #endif // __linux__
@@ -155,7 +157,8 @@ static void SDLCALL getClientDialogue(void* userdata, const char* const* filelis
         
 	printf("Full path to selected file: '%s'\n", *filelist);
 
-	FILE *file = fopen("config.txt", "w");
+	char configDir[512]; sprintf(configDir, "%s/config.cfg", basePath);
+	FILE *file = fopen(configDir, "w");
 	fprintf(file, "%s", *filelist);
 	fclose(file);
 }
