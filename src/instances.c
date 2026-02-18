@@ -269,9 +269,9 @@ void sendPopup(char* string, SDL_Texture* image, SDL_FRect* rect, float life){
 	newPopup->image = image; newPopup->imageSrc = rect;
 	newPopup->age = 0; newPopup->life = life;
 	
-	newPopup->last = NULL;
+	newPopup->prev = NULL;
 	if(popupHead)
-		popupHead->last = newPopup;
+		popupHead->prev = newPopup;
 	newPopup->next = popupHead;
 	popupHead = newPopup;
 }
@@ -282,7 +282,7 @@ void updatePopup(NotiPopup* item){
 	item->age += deltaTime;
 	if(item->age >= item->life){
 		if(popupHead == item) popupHead = NULL;
-		if(item->last) item->last->next = NULL;
+		if(item->prev) item->prev->next = NULL;
 		free(item);
 	}
 }
