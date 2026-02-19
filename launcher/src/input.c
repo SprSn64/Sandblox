@@ -170,7 +170,7 @@ void buttonSelectClient(Button* item){
 extern Uint32 currPage;
 extern Button* sidePanelButtons;
 void buttonSetPage(Button* item){
-	for(int i=0; i<3; i++){
-		if(item == &sidePanelButtons[i]){currPage=i; return;}
-	}
+	if(!strcmp(item->labelText, "GAME")){currPage=0; return;}
+	if(!strcmp(item->labelText, "AVATAR")){currPage=1; return;}
+	if(!strcmp(item->labelText, "SETTINGS")){currPage=2; return;}
 }

@@ -39,6 +39,9 @@ void initPages(){
 	Button* gamePageButtons = malloc(sizeof(Button) * 2);
 	gamePageButtons[0] = (Button){"Launch Sandblox", (SDL_FRect){66, 446, 572, 32}, buttonLaunch, true, true, false, false};
 	gamePageButtons[1] = (Button){"select client dir", (SDL_FRect){510, 2, 128, 16}, buttonSelectClient, true, true, false, false};
-
 	pageList[PAGE_GAME] = (Page){gamePageButtons, 2};
+
+	Button* avatarPageButtons = malloc(sizeof(Button) * 1);
+	avatarPageButtons[0] = (Button){"fuck", (SDL_FRect){66, 446, 572, 32}, NULL, true, true, false, false};
+	pageList[PAGE_AVATAR] = (Page){avatarPageButtons, 1};
 }
