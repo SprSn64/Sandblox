@@ -15,5 +15,6 @@ void drawButton(SDL_Renderer* render, Button* item);
 
 void buttonLaunch(Button* item);
 void buttonSelectClient(Button* item);
+void buttonSetPage(Button* item);
 
 #endif

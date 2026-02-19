@@ -26,9 +26,9 @@ typedef enum operatingSystem{
 
 #include <structs.h>
 #include "input.h"
+#include "pages.h"
 
 char* version = "0.0 INDEV";
-
 char* basePath;
 
 SDL_Window *window = NULL;
@@ -53,16 +53,17 @@ SDL_FPoint mousePos;
 ButtonMap mouseButtons[3];
 void HandleKeyInput();
 
-Button launchButton = {"Launch Sandblox", (SDL_FRect){2, 446, 636, 32}, buttonLaunch, true, true, false, false};
-Button clientDirButton = {"select client dir", (SDL_FRect){510, 2, 128, 16}, buttonSelectClient, true, true, false, false};
-
 SDL_Texture *newTexture(char* path, SDL_ScaleMode scaleMode);
 void drawText(SDL_Renderer *renderLoc, Font *textFont, char* text, short posX, short posY, float scale, SDL_FColor colour);
 
 SDL_Texture* fontTex = NULL;
 Font defaultFont;
 
-char osText[64];
+char osText[12];
+
+extern Uint32 currPage;
+extern Page pageList[PAGE_MAX];
+extern Page sidePanel;
 
 SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[]){
 	(void)appstate; (void)argv;
@@ -103,6 +104,8 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[]){
 	}
 	
 	printf("Operating system is %s\n", osText);
+
+	initPages();
 
 	return SDL_APP_CONTINUE;
 }	
@@ -147,8 +150,11 @@ SDL_AppResult SDL_AppIterate(void *appstate){
 	SDL_SetRenderDrawColor(renderer, 20, 22, 24, SDL_ALPHA_OPAQUE);
 	SDL_RenderClear(renderer);
 	
-	updateButton(&launchButton); drawButton(renderer, &launchButton);
-	updateButton(&clientDirButton); drawButton(renderer, &clientDirButton);
+	/*updateButton(&launchButton); drawButton(renderer, &launchButton);
+	updateButton(&clientDirButton); drawButton(renderer, &clientDirButton);*/
+
+	updatePage(renderer, &pageList[currPage]);
+	updatePage(renderer, &sidePanel);
 	
 	drawText(renderer, &defaultFont, osText, 0, 0, 2, (SDL_FColor){1, 1, 1, 1});
 

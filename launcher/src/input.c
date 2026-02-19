@@ -13,7 +13,6 @@
 #include <windows.h>
 
 /*
-
 _STARTUPINFOA {
   DWORD  cb;
   LPSTR  lpReserved;
@@ -166,4 +165,12 @@ static void SDLCALL getClientDialogue(void* userdata, const char* const* filelis
 void buttonSelectClient(Button* item){
 	(void)item;
 	SDL_ShowOpenFolderDialog(getClientDialogue, NULL, window, SDL_GetCurrentDirectory(), false);
+}
+
+extern Uint32 currPage;
+extern Button* sidePanelButtons;
+void buttonSetPage(Button* item){
+	for(int i=0; i<3; i++){
+		if(item == &sidePanelButtons[i]){currPage=i; return;}
+	}
 }
