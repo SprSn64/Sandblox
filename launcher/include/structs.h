@@ -15,6 +15,7 @@ typedef struct{
 	SDL_Texture *image;
 	Uint16 startChar; //32 starts at the space glyth
 	SDL_Point glyphSize;
+	SDL_Point renderSize;
 	SDL_FPoint kerning;
 	Uint16 columns;
 } Font;

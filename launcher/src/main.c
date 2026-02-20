@@ -91,8 +91,8 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[]){
 	
 	basePath = SDL_GetPrefPath("Sandblox", "Sandblox");
 
-	fontTex = newTexture("assets/font.png", 0);
-	defaultFont = (Font){fontTex, 32, (SDL_Point){8, 8}, (SDL_FPoint){6, 0}, 16};
+	fontTex = newTexture("assets/font.png", SDL_SCALEMODE_LINEAR);
+	defaultFont = (Font){fontTex, 32, (SDL_Point){64, 64}, (SDL_Point){8, 8}, (SDL_FPoint){6, 0}, 16};
 	
 	mouseButtons[0].code = SDL_BUTTON_LMASK; mouseButtons[1].code = SDL_BUTTON_MMASK; mouseButtons[2].code = SDL_BUTTON_RMASK;
 	
@@ -204,7 +204,7 @@ void drawText(SDL_Renderer *renderLoc, Font *textFont, char* text, short posX, s
 		int xOff = (charVal % textFont->columns) * textFont->glyphSize.x;
 		int yOff = floor((float)charVal / textFont->columns) * textFont->glyphSize.y;
 		SDL_FRect sprRect = {xOff, yOff, textFont->glyphSize.x, textFont->glyphSize.y};
-		SDL_FRect sprPos = {posX + textFont->kerning.x * i * scale, posY + textFont->kerning.y * i * scale, textFont->glyphSize.x * scale, textFont->glyphSize.y * scale};
+		SDL_FRect sprPos = {posX + textFont->kerning.x * i * scale, posY + textFont->kerning.y * i * scale, textFont->renderSize.x * scale, textFont->renderSize.y * scale};
 		SDL_RenderTexture(renderLoc, textFont->image, &sprRect, &sprPos);
 	}
 }
