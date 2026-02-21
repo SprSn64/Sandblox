@@ -149,14 +149,16 @@ SDL_AppResult SDL_AppIterate(void *appstate){
 	
 	SDL_SetRenderDrawColor(renderer, 20, 22, 24, SDL_ALPHA_OPAQUE);
 	SDL_RenderClear(renderer);
+
+	drawText(renderer, &defaultFont, osText, 0, 0, 2, (SDL_FColor){1, 1, 1, 1});
 	
 	/*updateButton(&launchButton); drawButton(renderer, &launchButton);
 	updateButton(&clientDirButton); drawButton(renderer, &clientDirButton);*/
+	if(currPage == PAGE_AVATAR)
+		drawAvatar((SDL_Point){96, 24});
 
 	updatePage(renderer, &pageList[currPage]);
 	updatePage(renderer, &sidePanel);
-	
-	drawText(renderer, &defaultFont, osText, 0, 0, 2, (SDL_FColor){1, 1, 1, 1});
 
 	SDL_RenderPresent(renderer);
 

@@ -9,13 +9,13 @@ BEGIN
 	//BLOCK "080904E4" 	// English UK
     BLOCK "040904E4"	// English US
     BEGIN
-	  VALUE "CompanyName", "addcompanynamehere"
+	  VALUE "CompanyName", "Sandblox"
       VALUE "FileDescription", "Sandblox Launcher"
-      VALUE "FileVersion", "1.0.0"
+      VALUE "FileVersion", "0.01"
       VALUE "InternalName", "Sandblox Launcher"
-      VALUE "LegalCopyright", "(c) 2025 addcompanynamehere"
+      VALUE "LegalCopyright", "(c) 2026 Sandblox"
       VALUE "ProductName", "Sandblox Launcher"
-      VALUE "ProductVersion", "1.0.0"
+      VALUE "ProductVersion", "0.01"
     END
   END
   BLOCK "VarFileInfo"

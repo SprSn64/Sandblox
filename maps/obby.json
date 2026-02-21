@@ -103,12 +103,11 @@
 					"scale":	[16.000000, 1.000000, 4.000000],
 					"rot":	[0.000000, 0.000000, 0.000000],
 					"colour":	[255, 0, 0, 255],
-					"script":	"killBrickFunc",
 					"collision":	{
 						"enabled":	true,
 						"type":	"block"
 					},
-					"children":	[]
+					"children":	[{"name": "killBrickFunc", "class": "Script", "script": "killBrickFunc"}]
 				}, {
 					"name":	"KillBrick",
 					"class":	"Block",
@@ -116,12 +115,11 @@
 					"scale":	[16.000000, 1.000000, 4.000000],
 					"rot":	[0.000000, 0.000000, 0.000000],
 					"colour":	[255, 0, 0, 255],
-					"script":	"killBrickFunc",
 					"collision":	{
 						"enabled":	true,
 						"type":	"block"
 					},
-					"children":	[]
+					"children":	[{"name": "killBrickFunc", "class": "Script", "script": "killBrickFunc"}]
 				}, {
 					"name":	"KillBrick",
 					"class":	"Block",
@@ -129,12 +127,11 @@
 					"scale":	[16.000000, 1.000000, 4.000000],
 					"rot":	[0.000000, 0.000000, 0.000000],
 					"colour":	[255, 0, 0, 255],
-					"script":	"killBrickFunc",
 					"collision":	{
 						"enabled":	true,
 						"type":	"block"
 					},
-					"children":	[]
+					"children":	[{"name": "killBrickFunc", "class": "Script", "script": "killBrickFunc"}]
 				}, {
 					"name":	"KillBrick",
 					"class":	"Block",
@@ -142,12 +139,11 @@
 					"scale":	[16.000000, 1.000000, 4.000000],
 					"rot":	[0.000000, 0.000000, 0.000000],
 					"colour":	[255, 0, 0, 255],
-					"script":	"killBrickFunc",
 					"collision":	{
 						"enabled":	true,
 						"type":	"block"
 					},
-					"children":	[]
+					"children":	[{"name": "killBrickFunc", "class": "Script", "script": "killBrickFunc"}]
 				}]
 		}, {
 			"name":	"Player",

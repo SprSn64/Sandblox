@@ -155,7 +155,7 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[]){
 	SDL_SetWindowMinimumSize(window, 320, 240);
 	SDL_SetRenderVSync(renderer, 1);
 	
-	fontTex = newTexture("assets/textures/font.png", SDL_SCALEMODE_NEAREST);
+	fontTex = newTexture("assets/textures/font.png", SDL_SCALEMODE_LINEAR);
 	boneTex = newTexture("assets/textures/bonetex.png", SDL_SCALEMODE_NEAREST);
 	homerTex = newTexture("assets/textures/homer.png", SDL_SCALEMODE_NEAREST);
 	cursorTex = newTexture("assets/textures/cursor.png", SDL_SCALEMODE_NEAREST);
