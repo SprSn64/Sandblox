@@ -7,7 +7,7 @@ CXXFLAGS := $(CFLAGS) -std=c++17
 
 ifeq ($(OS),Windows_NT)
 	TARGET := sandblox
-	LDFLAGS := -lSDL3 -lSDL3_image -lSDL3_net -lgdi32 -lopengl32 -lglew32 resource.res
+	LDFLAGS := -lSDL3 -lSDL3_image -lgdi32 -lopengl32 -lglew32 resource.res
 else
 	TARGET := sandblox.$(shell uname -m)
 	LDFLAGS := -lm -lSDL3 -lSDL3_image -lSDL3_net -lGL -lGLEW
@@ -20,7 +20,7 @@ OBJECTS := \
 	$(C_SOURCES:.c=.o) \
 	$(CPP_SOURCES:.cpp=.o)
 
-LINKER := $(CXX)
+LINKER := $(CC)
 
 all: $(TARGET)
 

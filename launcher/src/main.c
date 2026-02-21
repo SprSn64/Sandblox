@@ -92,7 +92,7 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[]){
 	basePath = SDL_GetPrefPath("Sandblox", "Sandblox");
 
 	fontTex = newTexture("assets/font.png", SDL_SCALEMODE_LINEAR);
-	defaultFont = (Font){fontTex, 32, (SDL_Point){64, 64}, (SDL_Point){8, 8}, (SDL_FPoint){6, 0}, 16};
+	defaultFont = (Font){fontTex, 32, (SDL_Point){32, 32}, (SDL_Point){8, 8}, (SDL_FPoint){6, 0}, 16};
 	
 	mouseButtons[0].code = SDL_BUTTON_LMASK; mouseButtons[1].code = SDL_BUTTON_MMASK; mouseButtons[2].code = SDL_BUTTON_RMASK;
 	

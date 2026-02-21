@@ -11,6 +11,7 @@
 #include "math.h"
 
 extern SDL_Renderer *renderer;
+extern bool glEnabled;
 
 extern float timer;
 extern ClientData client;
@@ -24,11 +25,11 @@ Vector3 lightNormal = (Vector3){0.25, 0.42, 0.33};
 SDL_FColor lightColour = {1, 1, 1, 1};
 SDL_FColor lightAmbient = {0.25, 0.25, 0.3, 1};
 
-bool matrixOrSlopProject = false;
+//bool matrixOrSlopProject = false;
 extern float* defaultMatrix;
 
 Vector3 worldToCamera(Vector3 pos){
-	if(matrixOrSlopProject){
+	if(glEnabled){
 		Vector4 newPos = matrixMult(matrixMult(vec3ToVec4(pos), client.gameWorld->currCamera->transform), client.gameWorld->currCamera->proj);
 		return vec4ToVec3(newPos);
 	}
@@ -41,7 +42,7 @@ Vector3 worldToCamera(Vector3 pos){
 }
 
 Vector3 viewProj(Vector3 pos){
-	if(matrixOrSlopProject) return pos;
+	if(glEnabled) return pos;
 
 	float absZ = fabs(pos.z);
 	if(absZ < 0.001f) absZ = 0.001f;
@@ -203,9 +204,9 @@ void drawMesh(Mesh* mesh, mat4 transform, SDL_FColor colour, SDL_Texture* textur
 		unshadedSkip:
 		
 		draw3DTriangle(
-			(MeshVert){vec4ToVec3(pointCalcs[0]), (Vector3){0,0,0}, currVerts[0]->uv, shadedColour[0]}, 
-			(MeshVert){vec4ToVec3(pointCalcs[1]), (Vector3){0,0,0}, currVerts[1]->uv, shadedColour[1]}, 
-			(MeshVert){vec4ToVec3(pointCalcs[2]), (Vector3){0,0,0}, currVerts[2]->uv, shadedColour[2]}, 
+			(MeshVert){vec4ToVec3(pointCalcs[0]), (Vector3){0,0,0}, currVerts[0]->uv, clampColour(shadedColour[0])}, 
+			(MeshVert){vec4ToVec3(pointCalcs[1]), (Vector3){0,0,0}, currVerts[1]->uv, clampColour(shadedColour[1])}, 
+			(MeshVert){vec4ToVec3(pointCalcs[2]), (Vector3){0,0,0}, currVerts[2]->uv, clampColour(shadedColour[2])}, 
 		texture);
 	}
 }
@@ -218,6 +219,10 @@ SDL_Texture *newTexture(char* path, SDL_ScaleMode scaleMode){
 	}
 	SDL_SetTextureScaleMode(texture, scaleMode);
 	return texture;
+}
+
+SDL_FColor clampColour(SDL_FColor colour){
+	return (SDL_FColor){min(max(colour.r, 0), 1), min(max(colour.g, 0), 1), min(max(colour.b, 0), 1), min(max(colour.a, 0), 1)};
 }
 
 SDL_FColor ConvertSDLColour(CharColour colour){
@@ -265,7 +270,7 @@ void drawText(SDL_Renderer *renderLoc, Font *textFont, char* text, short posX, s
 		int xOff = (charVal % textFont->columns) * textFont->glyphSize.x;
 		int yOff = floor((float)charVal / textFont->columns) * textFont->glyphSize.y;
 		SDL_FRect sprRect = {xOff, yOff, textFont->glyphSize.x, textFont->glyphSize.y};
-		SDL_FRect sprPos = {posX + textFont->kerning.x * i * scale, posY + textFont->kerning.y * i * scale, textFont->glyphSize.x * scale, textFont->glyphSize.y * scale};
+		SDL_FRect sprPos = {posX + textFont->kerning.x * i * scale, posY + textFont->kerning.y * i * scale, textFont->renderSize.x * scale, textFont->renderSize.y * scale};
 		SDL_RenderTexture(renderLoc, textFont->image, &sprRect, &sprPos);
 	}
 }

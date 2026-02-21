@@ -8,6 +8,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <math.h>
+#include <dirent.h>
 
 #include <structs.h>
 #include "instances.h"
@@ -115,6 +116,12 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[]){
 	client.version = "0.01 INDEV";
 	SDL_SetAppMetadata("SandBlox", client.version, NULL);
 	
+	DIR* assetsDir = opendir("assets");
+	if(!assetsDir){
+		printf("Hey, where'd all my assets go?");
+		return SDL_APP_FAILURE;
+	}
+
 	char *mapToLoad = "assets/gamefile.json";
 	
 	for(int i=0; i < argc; i++){
@@ -155,7 +162,7 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[]){
 	skyTex = newTexture("assets/textures/skybox.png", SDL_SCALEMODE_LINEAR);
 	sunTex = newTexture("assets/textures/sunflare.png", SDL_SCALEMODE_LINEAR);
 	
-	defaultFont = (Font){fontTex, 32, (SDL_Point){8, 8}, (SDL_FPoint){6, 0}, 16};
+	defaultFont = (Font){fontTex, 32, (SDL_Point){32, 32}, (SDL_Point){8, 8}, (SDL_FPoint){6, 0}, 16};
 
 	playerMesh = loadMeshFromObj("assets/models/player.obj"); 
 	boneMesh = loadMeshFromObj("assets/models/bone.obj"); 

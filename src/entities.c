@@ -97,7 +97,7 @@ void playerDraw(DataObj* object){
 	Vector3 textProj = projToScreen(viewProj(worldToCamera(textPos)));
 	if(textProj.z >= 0) return;
 	float nameScale = 2;
-	drawText(renderer, &defaultFont, object->name, textProj.x - strlen(object->name) / 2 * defaultFont.kerning.x * nameScale, textProj.y - defaultFont.glyphSize.y * nameScale, nameScale, (SDL_FColor){1, 1, 1, 1});
+	drawText(renderer, &defaultFont, object->name, textProj.x - strlen(object->name) / 2 * defaultFont.kerning.x * nameScale, textProj.y - defaultFont.renderSize.y * nameScale, nameScale, (SDL_FColor){1, 1, 1, 1});
 }
 
 DataType meshClass = (DataType){"Mesh\0", 4, 0, NULL, NULL, NULL};
