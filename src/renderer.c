@@ -9,6 +9,7 @@
 #include <structs.h>
 #include "renderer.h"
 #include "math.h"
+#include "opengl.h"
 
 extern SDL_Renderer *renderer;
 extern bool glEnabled;
@@ -146,8 +147,14 @@ bool draw3DTriangle(MeshVert pointA, MeshVert pointB, MeshVert pointC, SDL_Textu
 	return 0;
 }
 
+extern bool glEnabled;
 void drawMesh(Mesh* mesh, mat4 transform, SDL_FColor colour, SDL_Texture* texture, bool shaded){
 	if(!mesh || !transform) return;
+
+	if(glEnabled){
+		drawMeshOpenGL(mesh, transform, colour, texture);
+		return;
+	}
 	
 	Vector4 pointCalcs[3];
 	mat4 rotMatrix; memcpy(rotMatrix, transform, sizeof(mat4));
