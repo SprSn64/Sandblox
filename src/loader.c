@@ -6,6 +6,7 @@
 #include <math.h>
 
 #include "loader.h"
+#include "opengl.h"
 
 typedef struct {
     int v;
@@ -149,26 +150,9 @@ Mesh *loadMeshFromObj(const char *path) {
     free(uvs);
     free(normals);
 
-    /*if(glEnabled){
-        glGenVertexArrays(1, &mesh->vertArray); glBindVertexArray(mesh->vertArray);
-
-        glGenBuffers(1, &mesh->vertBuffer); glBindBuffer(GL_ARRAY_BUFFER, mesh->vertBuffer);
-        glBufferData(GL_ARRAY_BUFFER, sizeof(MeshVert) * vcount, mesh->verts, GL_STATIC_DRAW);
-
-        glGenBuffers(1, &mesh->eleBuffer);
-        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, mesh->eleBuffer);
-        glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(MeshFace) * tricount, mesh->faces, GL_STATIC_DRAW);
-
-        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 12 * sizeof(float), (void*)0); //pos
-        glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 12 * sizeof(float), (void*)(3 * sizeof(float))); //norm
-        glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 12 * sizeof(float), (void*)(6 * sizeof(float))); //uv
-        glVertexAttribPointer(3, 4, GL_FLOAT, GL_FALSE, 12 * sizeof(float), (void*)(8 * sizeof(float))); //colour
-    
-        glEnableVertexAttribArray(0); 
-        glEnableVertexAttribArray(1); 
-        glEnableVertexAttribArray(2); 
-        glEnableVertexAttribArray(3);
-    }*/
+    if(glEnabled){
+        openGlGenBuffers(mesh);
+    }
 
     return mesh;
 }

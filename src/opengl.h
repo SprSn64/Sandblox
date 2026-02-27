@@ -14,7 +14,9 @@ bool initOpenGL();
 void updateOpenGL();
 void cleanupOpenGL();
 
-//void drawMeshOpenGL(Mesh* mesh, mat4 transform, SDL_FColor colour, SDL_Texture* texture);
+void openGlGenBuffers(Mesh* mesh);
+
+void drawMeshOpenGL(Mesh* mesh, mat4 transform, SDL_FColor colour, SDL_Texture* texture);
 
 //void openGlBindMesh(Mesh* mesh);
 

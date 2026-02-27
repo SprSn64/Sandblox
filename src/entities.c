@@ -11,12 +11,16 @@
 #include "math.h"
 #include "physics.h"
 
+#include "opengl.h"
+
 extern GameWorld game;
 extern double deltaTime;
 extern ButtonMap keyList[KEYBIND_MAX];
 extern Mesh *playerMesh;
 extern Mesh *cubePrim;
 extern SDL_Texture *homerTex;
+
+extern bool glEnabled;
 
 DataType accessoryClass = {"Accessory\0", 10, 0, NULL, NULL, NULL};
 
@@ -79,6 +83,8 @@ extern Font defaultFont;
 void playerDraw(DataObj* object){
 	SDL_FColor plrColour = ConvertSDLColour(object->colour);
 	drawMesh(playerMesh, object->transform, plrColour, NULL, true);
+	if(glEnabled)
+		drawMeshOpenGL(playerMesh, object->transform, plrColour, NULL);
 	
 	DataObj *hatItem = object->child;
 	while(hatItem){
@@ -122,6 +128,8 @@ void blockDraw(DataObj* object){
 		meshTransform = multMatrix(meshMatrix, object->transform);
 	}
 	drawMesh(itemMesh, meshTransform, ConvertSDLColour(object->colour), itemTex, true);
+	if(glEnabled)
+			drawMeshOpenGL(itemMesh, meshTransform, ConvertSDLColour(object->colour), itemTex);
 	if(meshItem){ 
 		free(meshTransform); 
 		free(meshMatrix);

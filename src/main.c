@@ -146,12 +146,12 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[]){
 	sprintf(windowName, "Sandblox v%s (3D Software)", client.version);
 	//why would you need this if youre gonna use opengl anyway?
 	//erm.... debugg'eth stuff?
-	//if (!glEnabled) {
+	if (!glEnabled) {
 		if(!SDL_CreateWindowAndRenderer(windowName, windowScale.x, windowScale.y, SDL_WINDOW_RESIZABLE, &window, &renderer)){
 			SDL_Log("Couldn't create window/renderer: %s", SDL_GetError());
 			return SDL_APP_FAILURE;
 		}
-	//}
+	}
 	SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
 	SDL_SetWindowMinimumSize(window, 320, 240);
 	SDL_SetRenderVSync(renderer, 1);
@@ -398,9 +398,11 @@ void SDL_AppQuit(void *appstate, SDL_AppResult result){
 	free(planePrim); free(cubePrim); free(spherePrim);
 }
     
+extern SDL_Window *glWindow;
+
 void HandleKeyInput(){
 	const bool* keyState = SDL_GetKeyboardState(NULL);
-	bool hasFocus = SDL_GetWindowFlags(window) & SDL_WINDOW_INPUT_FOCUS;
+	bool hasFocus = (SDL_GetWindowFlags(window) | SDL_GetWindowFlags(glWindow)) & SDL_WINDOW_INPUT_FOCUS;
 	for(int i = 0; i < KEYBIND_MAX; i++){
 		keyList[i].down = keyState[keyList[i].code] && hasFocus;
 		if(keyList[i].down){

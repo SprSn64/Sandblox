@@ -21,5 +21,5 @@ void main(){
 	gl_Position = vec4(aPos, 1.0) * world * view * proj;
 	norm = aNormal; uv = aUV; 
 	
-	colour = vec4(aNormal, 1.0); 
+	colour = multColour; 
 }
