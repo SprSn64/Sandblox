@@ -59,6 +59,15 @@ extern char *basePath;
 
 char *runArgs = "-studio";
 
+Button newLableButton(void* func, char* text, SDL_FRect rect){
+	return (Button){text, rect, func, true, true, false, false, NULL, NULL};
+}
+
+Button newImageButton(void* func, SDL_Texture* image, SDL_FRect dest, SDL_FRect source){
+	SDL_FRect* sourceRect = malloc(sizeof(SDL_FRect)); memcpy(sourceRect, &source, sizeof(SDL_FRect));
+	return (Button){NULL, dest, func, true, true, false, false, image, sourceRect};
+}
+
 bool updateButton(Button* item){
 	if(!item->enabled || !item->pressed) return 1;
 	
@@ -76,12 +85,12 @@ bool updateButton(Button* item){
 }
 
 void drawButton(SDL_Renderer* render, Button* item){
-	/*if(item->image){
+	if(item->image != NULL){
 		SDL_FRect* rect = &(SDL_FRect){0, 0, item->image->w, item->image->h};
 		if(item->imageSrc) rect = item->imageSrc;
 		SDL_RenderTexture(render, item->image, rect, &item->rect);
 		return;
-	}*/
+	}
 
 	if(!item->enabled){
 		SDL_SetRenderDrawColor(render, 177, 179, 191, 255);//buttonColours[BUTTONCOLOUR_DISABLED]);
@@ -173,4 +182,23 @@ void buttonSetPage(Button* item){
 	if(!strcmp(item->labelText, "GAME")){currPage=0; return;}
 	if(!strcmp(item->labelText, "AVATAR")){currPage=1; return;}
 	if(!strcmp(item->labelText, "SETTINGS")){currPage=2; return;}
+}
+
+//shit code jumpscare
+extern Uint32 osType;
+void buttonOpenLink(Button* item){
+	Uint32 fuck;
+	switch((int)item->imageSrc->x){
+		case 0: 
+			if(osType == 1)fuck=system("START https://discord.gg/rq9XzhFnAC"); 
+			if(osType == 2)fuck=system("xdg-open https://discord.gg/rq9XzhFnAC"); 
+			printf("discorded"); 
+			break;
+		case 32: 
+			if(osType == 1)fuck=system("START https://github.com/SprSn64/Sandblox"); 
+			if(osType == 2)fuck=system("xdg-open https://github.com/SprSn64/Sandblox"); 
+			printf("githubbed"); 
+			break;
+	}
+	(void)fuck;
 }
