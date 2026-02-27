@@ -24,7 +24,7 @@ ButtonMap stuKeyList[STUDIOKEYBIND_MAX];
 extern SDL_Window *studioWindow;
 extern SDL_Renderer *studioRenderer;
 
-extern Font defaultFont;
+extern Font studioFont;
 
 /*CharColour buttonColours[BUTTONCOLOUR_MAX] = { //what do you MEAN defined in main.c
 	(CharColour){205, 208, 226, 255, 0, COLOURMODE_RGB},
@@ -78,9 +78,9 @@ void drawButton(SDL_Renderer* render, Button* item){
 	buttonDrawStart:
 	SDL_RenderFillRect(render, &(SDL_FRect){item->rect.x, item->rect.y, item->rect.w, item->rect.h});
 	
-	SDL_SetRenderDrawColor(render, 0, 0, 0, SDL_ALPHA_OPAQUE);
-	SDL_RenderDebugText(render, item->rect.x + 2, item->rect.y + 2, item->labelText);
-	drawText(render, &defaultFont, item->labelText, item->rect.x + 2, item->rect.y + 2, 1, (SDL_FColor){0, 0, 0, 1}); //not work on studio window? wtf???
+	//SDL_SetRenderDrawColor(render, 0, 0, 0, SDL_ALPHA_OPAQUE);
+	//SDL_RenderDebugText(render, item->rect.x + 2, item->rect.y + 2, item->labelText);
+	drawText(render, &studioFont, item->labelText, item->rect.x + 2, item->rect.y + 2, 1, (SDL_FColor){0, 0, 0, 1});
 }
 
 void updateAndDrawButton(SDL_Renderer* render, Button* item){

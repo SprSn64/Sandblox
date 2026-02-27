@@ -28,6 +28,8 @@ extern float timer;
 extern float* defaultMatrix;
 extern Font defaultFont;
 
+Font studioFont;
+SDL_Texture *studioFontTex = NULL;
 SDL_Texture *classIconTex = NULL;
 SDL_Texture *stuButtonTex = NULL;
 Mesh *rotateGimbleMesh = NULL;
@@ -96,6 +98,9 @@ void initStudio(){
 	stuButtonTex = IMG_LoadTexture(studioRenderer, "assets/textures/studio/studiobuttons.png");
 	rotateGimbleMesh = genTorusMesh(2, 0.1, 3, 24);
 	translateGimbleMesh = loadMeshFromObj("assets/models/arrowwidget.obj");
+
+	studioFontTex = IMG_LoadTexture(studioRenderer, "assets/textures/font.png");
+	studioFont = (Font){studioFontTex, 32, (SDL_Point){32, 32}, (SDL_Point){8, 8}, (SDL_FPoint){6, 0}, 16};
 	
 	addObjButton.image = stuButtonTex;
 	removeObjButton.image = stuButtonTex;
@@ -220,9 +225,7 @@ void drawObjectList(DataObj* item, int nodeDepth, int *idCount){
 		SDL_RenderFillRect(studioRenderer, &(SDL_FRect){objListRect.x, objListRect.y + itemYOffset, objListRect.w, 16});
 	}
 	
-	SDL_SetRenderDrawColor(studioRenderer, 255, 255, 255, 255);
-	SDL_RenderDebugText(studioRenderer, objListRect.x + 18/**/ + (nodeDepth * 24), 20/**/ + itemYOffset, item->name);
-	drawText(studioRenderer, &defaultFont, item->name, objListRect.x + 18/**/ + (nodeDepth * 24), 20/**/ + itemYOffset, 1, (SDL_FColor){1, 1, 1, 1}); //why no render????
+	drawText(studioRenderer, &studioFont, item->name, objListRect.x + 18/**/ + (nodeDepth * 24), 20/**/ + itemYOffset, 1, (SDL_FColor){1, 1, 1, 1});
 	
 	SDL_FRect iconRect = {(item->classData->id % 16) * 16, (int)floor((float)item->classData->id / 16) * 16 % 256, 16, 16};
 	SDL_FRect iconPos = {objListRect.x + nodeDepth * 24, objListRect.y/**/ + itemYOffset, 16, 16};
@@ -250,21 +253,22 @@ void drawObjectProperties(DataObj* item, int posY){
 	SDL_SetRenderDrawColor(studioRenderer, 255, 255, 255, 255);
 	
 	if(!item){
-		SDL_RenderDebugText(studioRenderer, 2, posY, "No object selected!"); return;
+		drawText(studioRenderer, &studioFont, "No object selected!", 2, posY, 1, (SDL_FColor){1, 1, 1, 1});
+		return;
 	}
 	
 	sprintf(string, "Name: %s", item->name);
-	SDL_RenderDebugText(studioRenderer, 2, posY, string);
+	drawText(studioRenderer, &studioFont, string, 2, posY, 1, (SDL_FColor){1, 1, 1, 1});
 	sprintf(string, "Class: %s", item->classData->name);
-	SDL_RenderDebugText(studioRenderer, 2, posY + 8, string);
+	drawText(studioRenderer, &studioFont, string, 2, posY + 8, 1, (SDL_FColor){1, 1, 1, 1});
 	sprintf(string, "Position: %.2f, %.2f, %.2f", item->pos.x, item->pos.y, item->pos.z);
-	SDL_RenderDebugText(studioRenderer, 2, posY + 16, string);
+	drawText(studioRenderer, &studioFont, string, 2, posY + 16, 1, (SDL_FColor){1, 1, 1, 1});
 	sprintf(string, "Rotation: %d, %d, %d", (int)(item->rot.x * RAD2DEG), (int)(item->rot.y * RAD2DEG), (int)(item->rot.z * RAD2DEG));
-	SDL_RenderDebugText(studioRenderer, 2, posY + 24, string);
+	drawText(studioRenderer, &studioFont, string, 2, posY + 24, 1, (SDL_FColor){1, 1, 1, 1});
 	sprintf(string, "Scale: %.2f, %.2f, %.2f", item->scale.x, item->scale.y, item->scale.z);
-	SDL_RenderDebugText(studioRenderer, 2, posY + 32, string);
+	drawText(studioRenderer, &studioFont, string, 2, posY + 32, 1, (SDL_FColor){1, 1, 1, 1});
 	
-	SDL_RenderDebugText(studioRenderer, 2, posY + 40, "Colour: ");
+	drawText(studioRenderer, &studioFont, "Colour: ", 2, posY + 40, 1, (SDL_FColor){1, 1, 1, 1});
 	SDL_SetRenderDrawColor(studioRenderer, item->colour.r, item->colour.g, item->colour.b, 255); 
 	SDL_RenderFillRect(studioRenderer, &(SDL_FRect){64, posY + 40, 24, 8});
 	SDL_SetRenderDrawColor(studioRenderer, item->colour.r * item->colour.a / 255, item->colour.g * item->colour.a / 255, item->colour.b * item->colour.a / 255, 255); 
