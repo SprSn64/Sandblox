@@ -20,4 +20,13 @@ typedef struct{
 	Uint16 columns;
 } Font;
 
+typedef struct MapEntry{
+	char* path;
+	char* name;
+	struct MapEntry* prev;
+	struct MapEntry* next;
+	//struct MapEntry* parent;
+	//struct MapEntry* child;
+} MapEntry;
+
 #endif

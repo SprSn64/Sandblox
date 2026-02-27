@@ -121,6 +121,7 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[]){
 		printf("Hey, where'd all my assets go?");
 		return SDL_APP_FAILURE;
 	}
+	closedir(assetsDir);
 
 	char *mapToLoad = "assets/gamefile.json";
 	

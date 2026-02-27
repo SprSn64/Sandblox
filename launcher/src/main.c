@@ -26,6 +26,7 @@ typedef enum operatingSystem{
 
 #include <structs.h>
 #include "input.h"
+#include "loader.h"
 #include "pages.h"
 
 char* version = "0.0 INDEV";
@@ -55,6 +56,7 @@ void HandleKeyInput();
 
 SDL_Texture *newTexture(char* path, SDL_ScaleMode scaleMode);
 void drawText(SDL_Renderer *renderLoc, Font *textFont, char* text, short posX, short posY, float scale, SDL_FColor colour);
+void drawMapList();
 
 SDL_Texture* fontTex = NULL;
 Font defaultFont;
@@ -107,6 +109,9 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[]){
 
 	initPages();
 
+	char* mapPath = malloc(256); sprintf(mapPath, "%smaps", SDL_GetCurrentDirectory());  
+	loadMapDir(mapPath);
+
 	return SDL_APP_CONTINUE;
 }	
 
@@ -151,6 +156,9 @@ SDL_AppResult SDL_AppIterate(void *appstate){
 	SDL_RenderClear(renderer);
 
 	drawText(renderer, &defaultFont, osText, 0, 0, 2, (SDL_FColor){1, 1, 1, 1});
+
+	if(currPage == PAGE_GAME)
+		drawMapList();
 	
 	/*updateButton(&launchButton); drawButton(renderer, &launchButton);
 	updateButton(&clientDirButton); drawButton(renderer, &clientDirButton);*/
@@ -208,5 +216,16 @@ void drawText(SDL_Renderer *renderLoc, Font *textFont, char* text, short posX, s
 		SDL_FRect sprRect = {xOff, yOff, textFont->glyphSize.x, textFont->glyphSize.y};
 		SDL_FRect sprPos = {posX + textFont->kerning.x * i * scale, posY + textFont->kerning.y * i * scale, textFont->renderSize.x * scale, textFont->renderSize.y * scale};
 		SDL_RenderTexture(renderLoc, textFont->image, &sprRect, &sprPos);
+	}
+}
+
+extern MapEntry* mapListHead;
+void drawMapList(){
+	MapEntry* currItem = mapListHead;
+	Uint32 yOffset = 0;
+	while(currItem){
+		drawText(renderer, &defaultFont, currItem->name, 96, yOffset * 16 + 32, 1.5, (SDL_FColor){1, 1, 1, 1});
+		currItem = currItem->next;
+		yOffset++;
 	}
 }
