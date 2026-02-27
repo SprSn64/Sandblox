@@ -109,6 +109,8 @@ void drawButton(SDL_Renderer* render, Button* item){
 	drawText(render, &defaultFont, item->labelText, item->rect.x + 2, item->rect.y + 2, 1, (SDL_FColor){0, 0, 0, 1});
 }
 
+extern MapEntry* chosenMap;
+
 void buttonLaunch(Button* item){
 	item->enabled = false;
 
@@ -124,11 +126,15 @@ void buttonLaunch(Button* item){
 	printf("Game directory is at %s.\n", gameDir);
 	fclose(file);
 
+	char newRunArgs[256];
+	if(chosenMap != NULL)
+		sprintf(newRunArgs, "%s -mapfile ./launcher/maps/%s", runArgs, chosenMap->name);
+
 	char command[2048];
 	
 #ifdef _WIN32
 	SetCurrentDirectory(gameDir);
-	sprintf(command, "sandblox.exe %s", runArgs);
+	sprintf(command, "sandblox.exe %s", newRunArgs);
 	int systReturn = system(command);
 	SetCurrentDirectory(ogDir);
 
@@ -144,7 +150,7 @@ void buttonLaunch(Button* item){
 #elif defined(__arm__)
 			char *arch = "arm";
 #endif
-		sprintf(command, "cd %s \n ./sandblox.%s %s \n cd %s", gameDir, arch, runArgs, ogDir);
+		sprintf(command, "cd %s \n ./sandblox.%s %s \n cd %s", gameDir, arch, newRunArgs, ogDir);
 
 		int systReturn = system(command);
 #endif // __linux__
