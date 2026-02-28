@@ -128,7 +128,9 @@ void buttonLaunch(Button* item){
 
 	char newRunArgs[256];
 	if(chosenMap != NULL)
-		sprintf(newRunArgs, "%s -mapfile ./launcher/maps/%s", runArgs, chosenMap->name);
+		sprintf(newRunArgs, "%s -mapfile %s", runArgs, chosenMap->path);
+	else
+		sprintf(newRunArgs, "%s", runArgs);
 
 	char command[2048];
 	

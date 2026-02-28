@@ -177,3 +177,14 @@ char* loadTextFile(char* dir){ //code salvaged from first attempt
     fclose(file);
     return buffer;
 }
+
+char* joinDirectories(char* dirA, char* dirB){
+    // "home/jerma985/johns/eviljohns" + "../../peters" -> "home/jerma985/peters"
+    char *output = malloc(1024); strcpy(output, dirA);
+
+    if(dirB[0] == '.' && dirB[1] == '/')
+        sprintf(output, "%s%s", dirA, dirB + 1);
+
+    printf("%s\n", output);
+    return output;
+}

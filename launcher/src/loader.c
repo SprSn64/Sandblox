@@ -45,11 +45,11 @@ bool loadMapDir(char* path){
 	char fullPath[256];
 	while((entry = readdir(dir))){
 		printf("%s\n", entry->d_name);
-		sprintf(fullPath, "%s%s", path, entry->d_name);
+		sprintf(fullPath, "%s/%s", path, entry->d_name);
 
 		char* extChar = strrchr(entry->d_name, '.');
 		if(!extChar) continue;
-		
+
 		if(!strcmp(extChar, ".json"))
 			addMapEntry(fullPath, entry->d_name);
       }

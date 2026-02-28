@@ -83,6 +83,7 @@ Mesh* createMeshByType(const char* type, cJSON* params) {
 	return newMesh;
 }
 
+char currPath[1024];
 DataObj* createObjectFromJSON(cJSON* obj, DataObj* parent) {
     if(!obj) return NULL;
     
@@ -154,7 +155,7 @@ DataObj* createObjectFromJSON(cJSON* obj, DataObj* parent) {
     
     Mesh* mesh = NULL;
     if(meshFile && cJSON_IsString(meshFile)) {
-        mesh = loadMeshFromObj(meshFile->valuestring);
+        mesh = loadMeshFromObj(joinDirectories(currPath, meshFile->valuestring));
         if(!mesh) {
             printf("Failed to load mesh from file: %s\n", meshFile->valuestring);
         }
@@ -172,7 +173,7 @@ DataObj* createObjectFromJSON(cJSON* obj, DataObj* parent) {
     TextureRef* texItem = NULL;
     SDL_Texture* tex = NULL;
     if(texture && cJSON_IsString(texture)) {
-        tex = newTexture(texture->valuestring, SDL_SCALEMODE_LINEAR);
+        tex = newTexture(joinDirectories(currPath, texture->valuestring), SDL_SCALEMODE_LINEAR);
 	  
         if(!tex)
             printf("Failed to load texture from file: %s\n", texture->valuestring);
@@ -252,6 +253,9 @@ int loadGameFile(const char* filename) {
         printf("Failed to open game file: %s\n", filename);
         return -1;
     }
+    strcpy(currPath, filename);
+    char* dirSlash = strrchr(currPath, '/'); 
+    *dirSlash = '\0';
     
     fseek(file, 0, SEEK_END);
     long fileSize = ftell(file);
