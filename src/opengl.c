@@ -117,7 +117,7 @@ bool initOpenGL(){
 	
 	SDL_GL_SetSwapInterval(1);
 	glEnable(GL_DEPTH_TEST);
-	//glEnable(GL_CULL_FACE); glCullFace(GL_BACK); glFrontFace(GL_CCW);
+	glEnable(GL_CULL_FACE); glCullFace(GL_BACK); glFrontFace(GL_CCW);
 	glClearColor(skyboxColour.r, skyboxColour.g, skyboxColour.b, 1);
 	
 	return 1;
@@ -175,14 +175,14 @@ void drawMeshOpenGL(Mesh* mesh, mat4 transform, SDL_FColor colour, SDL_Texture* 
 
 	float colourFloat[4] = {colour.r, colour.g, colour.b, colour.a};
 	glUniform4fv(glLocs[GLVAL_MULTCOLOUR], 1, colourFloat);
-	
+
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(MeshFace) * mesh->faceCount, mesh->faces, GL_STATIC_DRAW); 
 	glBufferData(GL_ARRAY_BUFFER, sizeof(MeshVert) * mesh->vertCount, mesh->verts, GL_STATIC_DRAW);
 	
 	glDrawElements(GL_TRIANGLES, mesh->faceCount * 3, GL_UNSIGNED_INT, 0);
 }
 
-float* vertsToBuffer(Mesh* mesh){
+float* vertsToArray(Mesh* mesh){
 	float* vertArray = malloc(mesh->vertCount * 12 * sizeof(float));
 
 	for(Uint32 i=0; i<mesh->vertCount; i++){
@@ -199,14 +199,18 @@ float* vertsToBuffer(Mesh* mesh){
 }
 
 void openGlGenBuffers(Mesh* mesh){
-	float* vertBuffer = vertsToBuffer(mesh);
+	float* vertArray = vertsToArray(mesh);
+	mesh->vertArray = (Uint32)(*vertArray);
 
-	/*glGenVertexArrays(1, &mesh->vertArray); glBindVertexArray(mesh->vertArray);
+	//glGenVertexArrays(1, &mesh->vertArray); glBindVertexArray(mesh->vertArray);
 
-    glGenBuffers(1, &mesh->vertBuffer); glBindBuffer(GL_ARRAY_BUFFER, mesh->vertBuffer);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(MeshVert) * mesh->vertCount, mesh->verts, GL_STATIC_DRAW);
+    //glGenBuffers(1, &mesh->vertBuffer); glBindBuffer(GL_ARRAY_BUFFER, mesh->vertBuffer);
+   	//glBufferData(GL_ARRAY_BUFFER, float * mesh->vertCount, vertBuffer, GL_STATIC_DRAW);
 
-    glGenBuffers(1, &mesh->eleBuffer);
+    //glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(MeshFace) * playerMesh->faceCount, playerMesh->faces, GL_STATIC_DRAW); 
+	//glBufferData(GL_ARRAY_BUFFER, sizeof(MeshVert) * playerMesh->vertCount, playerMesh->verts, GL_STATIC_DRAW);
+
+    /*glGenBuffers(1, &mesh->eleBuffer);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, mesh->eleBuffer);
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(MeshFace) * mesh->faceCount, mesh->faces, GL_STATIC_DRAW);
 

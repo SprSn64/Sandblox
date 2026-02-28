@@ -188,3 +188,5 @@ char* joinDirectories(char* dirA, char* dirB){
     printf("%s\n", output);
     return output;
 }
+
+// "$CLIENT/assets/models/primitives/sphere.obj" -> "home/jerma985/epiccoolgames/Sandblox/assets/models/primitives/sphere.obj"

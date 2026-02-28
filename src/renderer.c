@@ -269,7 +269,7 @@ void drawBillboard(SDL_Texture *texture, SDL_FRect rect, Vector3 pos, SDL_FPoint
 void drawText(SDL_Renderer *renderLoc, Font *textFont, char* text, short posX, short posY, float scale, SDL_FColor colour){
 	SDL_SetTextureColorMod(textFont->image, (Uint8)(colour.r * 255), (Uint8)(colour.g * 255), (Uint8)(colour.b * 255));
 	if(!renderLoc){
-		printf("cant draw text '%s'\n", text);
+		//printf("cant draw text '%s'\n", text);
 		return;
 	}
 	for(size_t i=0; i<=strlen(text); i++){
