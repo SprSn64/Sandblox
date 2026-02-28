@@ -16,6 +16,7 @@ typedef enum buttonInputType{
 	INPUTTYPE_DROPDOWN,
 	INPUTTYPE_TEXT,
 	INPUTTYPE_NUMBER, //click and drag left/right to change value
+	INPUTTYPE_COLOUR
 } buttonInputType;
 
 typedef enum buttonColourEnum{
@@ -32,10 +33,15 @@ typedef struct Button{
 	SDL_FRect rect;
 	Uint8 buttonType;
 	void (*pressed)(struct Button*);
+	void *target;
 	bool enabled, visible, hover, down;
 	SDL_Texture* image;
 	SDL_FRect* imageSrc;
 } Button;
+
+Button newLableButton(void* func, char* text, SDL_FRect rect);
+Button newImageButton(void* func, SDL_Texture* image, SDL_FRect dest, SDL_FRect source);
+Button newColourButton(CharColour* target, SDL_FRect rect);
 
 bool updateButton(Button* item);
 void drawButton(SDL_Renderer* render, Button* item);

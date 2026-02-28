@@ -59,17 +59,15 @@ void drawObjectProperties(DataObj* item, int posY);
 
 //TODO: Make button list thing for less ugly looking button implementations
 
-Button addObjButton = {"+", (SDL_FRect){224, 304, 16, 16}, INPUTTYPE_BUTTON, buttonAddObject, true, true, false, false, NULL, &(SDL_FRect){16, 0, 16, 16}};
-Button removeObjButton = {"-", (SDL_FRect){206, 304, 16, 16}, INPUTTYPE_BUTTON, buttonRemoveObject, true, true, false, false, NULL, &(SDL_FRect){32, 0, 16, 16}};
-Button pauseButton = {"ll", (SDL_FRect){0, 304, 16, 16}, INPUTTYPE_BUTTON, buttonPauseGame, true, true, false, false, NULL, &(SDL_FRect){16, 32, 16, 16}};
+Button addObjButton; Button removeObjButton; Button pauseButton;
+Button saveFileButton; Button loadFileButton;
 
-Button saveFileButton = {"Save", (SDL_FRect){0, 0, 40, 16}, INPUTTYPE_BUTTON, buttonSaveMap, true, true, false, false, NULL, NULL};
-Button loadFileButton = {"Load", (SDL_FRect){40, 0, 40, 16}, INPUTTYPE_BUTTON, buttonLoadMap, true, true, false, false, NULL, NULL};
+Button selectWidgetButton = {"\0", (SDL_FRect){0, 16, 16, 16}, INPUTTYPE_BUTTON, buttonSetTool, NULL, true, true, false, false, NULL, &(SDL_FRect){0, 16, 16, 16}};
+Button moveWidgetButton = {"\0", (SDL_FRect){0, 32, 16, 16}, INPUTTYPE_BUTTON, buttonSetTool, NULL, true, true, false, false, NULL, &(SDL_FRect){16, 16, 16, 16}};
+Button scaleWidgetButton = {"\0", (SDL_FRect){0, 48, 16, 16}, INPUTTYPE_BUTTON, buttonSetTool, NULL, true, true, false, false, NULL, &(SDL_FRect){32, 16, 16, 16}};
+Button rotateWidgetButton = {"\0", (SDL_FRect){0, 64, 16, 16}, INPUTTYPE_BUTTON, buttonSetTool, NULL, true, true, false, false, NULL, &(SDL_FRect){48, 16, 16, 16}};
 
-Button selectWidgetButton = {"\0", (SDL_FRect){0, 16, 16, 16}, INPUTTYPE_BUTTON, buttonSetTool, true, true, false, false, NULL, &(SDL_FRect){0, 16, 16, 16}};
-Button moveWidgetButton = {"\0", (SDL_FRect){0, 32, 16, 16}, INPUTTYPE_BUTTON, buttonSetTool, true, true, false, false, NULL, &(SDL_FRect){16, 16, 16, 16}};
-Button scaleWidgetButton = {"\0", (SDL_FRect){0, 48, 16, 16}, INPUTTYPE_BUTTON, buttonSetTool, true, true, false, false, NULL, &(SDL_FRect){32, 16, 16, 16}};
-Button rotateWidgetButton = {"\0", (SDL_FRect){0, 64, 16, 16}, INPUTTYPE_BUTTON, buttonSetTool, true, true, false, false, NULL, &(SDL_FRect){48, 16, 16, 16}};
+Button propColourButton;
 
 void initStudio(){
 	//printf("Studio Initiated\n");
@@ -102,14 +100,19 @@ void initStudio(){
 	studioFontTex = IMG_LoadTexture(studioRenderer, "assets/textures/font.png");
 	studioFont = (Font){studioFontTex, 32, (SDL_Point){32, 32}, (SDL_Point){8, 8}, (SDL_FPoint){6, 0}, 16};
 	
-	addObjButton.image = stuButtonTex;
-	removeObjButton.image = stuButtonTex;
-	pauseButton.image = stuButtonTex;
-	
+	addObjButton = newImageButton(buttonAddObject, stuButtonTex, (SDL_FRect){224, 304, 16, 16}, (SDL_FRect){16, 0, 16, 16});
+	removeObjButton = newImageButton(buttonRemoveObject, stuButtonTex, (SDL_FRect){206, 304, 16, 16}, (SDL_FRect){32, 0, 16, 16});
+	pauseButton = newImageButton(buttonPauseGame, stuButtonTex, (SDL_FRect){0, 304, 16, 16}, (SDL_FRect){16, 32, 16, 16});
+
+	saveFileButton = newLableButton(buttonSaveMap, "Save", (SDL_FRect){0, 0, 40, 16});
+	loadFileButton = newLableButton(buttonLoadMap, "Load", (SDL_FRect){40, 0, 40, 16});
+
 	selectWidgetButton.image = stuButtonTex;
 	moveWidgetButton.image = stuButtonTex;
 	scaleWidgetButton.image = stuButtonTex;
 	rotateWidgetButton.image = stuButtonTex;
+
+	propColourButton = newColourButton(&focusObject->colour, (SDL_FRect){64, 280, 48, 8});
 }
 
 void studioCameraUpdate(Camera* cam);
@@ -124,7 +127,7 @@ void updateStudio(){
 	SDL_RenderClear(studioRenderer);
 	
 	for(int i=0; i<3; i++){
-		stuMouseButtons[i].down = (SDL_GetWindowFlags(studioWindow) & SDL_WINDOW_INPUT_FOCUS && (mouseState & stuMouseButtons[i].code));
+		stuMouseButtons[i].down = (SDL_GetWindowFlags(studioWindow) & SDL_WINDOW_INPUT_FOCUS) && (mouseState & stuMouseButtons[i].code);
 		if(stuMouseButtons[i].down){
 			if(!stuMouseButtons[i].pressCheck){
 				stuMouseButtons[i].pressCheck = true;
@@ -269,10 +272,12 @@ void drawObjectProperties(DataObj* item, int posY){
 	drawText(studioRenderer, &studioFont, string, 2, posY + 32, 1, (SDL_FColor){1, 1, 1, 1});
 	
 	drawText(studioRenderer, &studioFont, "Colour: ", 2, posY + 40, 1, (SDL_FColor){1, 1, 1, 1});
-	SDL_SetRenderDrawColor(studioRenderer, item->colour.r, item->colour.g, item->colour.b, 255); 
-	SDL_RenderFillRect(studioRenderer, &(SDL_FRect){64, posY + 40, 24, 8});
-	SDL_SetRenderDrawColor(studioRenderer, item->colour.r * item->colour.a / 255, item->colour.g * item->colour.a / 255, item->colour.b * item->colour.a / 255, 255); 
-	SDL_RenderFillRect(studioRenderer, &(SDL_FRect){88, posY + 40, 24, 8});
+	//SDL_SetRenderDrawColor(studioRenderer, item->colour.r, item->colour.g, item->colour.b, 255); 
+	//SDL_RenderFillRect(studioRenderer, &(SDL_FRect){64, posY + 40, 24, 8});
+	propColourButton.target = &item->colour;
+	updateAndDrawButton(studioRenderer, &propColourButton);
+	//SDL_SetRenderDrawColor(studioRenderer, item->colour.r * item->colour.a / 255, item->colour.g * item->colour.a / 255, item->colour.b * item->colour.a / 255, 255); 
+	//SDL_RenderFillRect(studioRenderer, &(SDL_FRect){88, posY + 40, 24, 8});
 }
 
 void studioCameraUpdate(Camera* cam){

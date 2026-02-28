@@ -26,6 +26,8 @@ extern SDL_Renderer *studioRenderer;
 
 extern Font studioFont;
 
+Button* currColButton = NULL;
+
 /*CharColour buttonColours[BUTTONCOLOUR_MAX] = { //what do you MEAN defined in main.c
 	(CharColour){205, 208, 226, 255, 0, COLOURMODE_RGB},
 	(CharColour){231, 234, 249, 255, 0, COLOURMODE_RGB},
@@ -34,22 +36,38 @@ extern Font studioFont;
 	(CharColour){255, 255, 255, 255, 0, COLOURMODE_RGB}
 };*/
 
+Button newLableButton(void* func, char* text, SDL_FRect rect){
+	return (Button){text, rect, INPUTTYPE_BUTTON, func, NULL, true, true, false, false, NULL, NULL};
+}
+Button newImageButton(void* func, SDL_Texture* image, SDL_FRect dest, SDL_FRect source){
+	SDL_FRect* sourceRect = malloc(sizeof(SDL_FRect)); memcpy(sourceRect, &source, sizeof(SDL_FRect));
+	return (Button){NULL, dest, INPUTTYPE_BUTTON, func, NULL, true, true, false, false, image, sourceRect};
+}
+Button newColourButton(CharColour* target, SDL_FRect rect){
+	return (Button){NULL, rect, INPUTTYPE_COLOUR, NULL, target, true, true, false, false, NULL, NULL};
+}
+
 bool updateButton(Button* item){
-	if(!item->enabled || !item->pressed) return 1;
+	if(!item->enabled || (item->buttonType == INPUTTYPE_BUTTON && !item->pressed)) return 1;
 	
-	item->hover = SDL_GetWindowFlags(studioWindow) & SDL_WINDOW_INPUT_FOCUS && (mousePos.x >= item->rect.x && mousePos.y >= item->rect.y && mousePos.x <= item->rect.x + item->rect.w && mousePos.y <= item->rect.y  + item->rect.h);
-	//stuMouseButtons[0].down
+	item->hover = (SDL_GetWindowFlags(studioWindow) & SDL_WINDOW_INPUT_FOCUS) && (between(mousePos.x - item->rect.x, 0, item->rect.w) && between(mousePos.y - item->rect.y, 0, item->rect.h));
 	if(item->hover){
 		SDL_SetCursor(SDL_CreateSystemCursor(SDL_SYSTEM_CURSOR_POINTER));
-		//item->pressed();
 		if(!stuMouseButtons[0].down){item->down = false; return 1;}
-		
 		if(item->down) return 1;
 		item->down = true;
-		item->pressed(item);
+
+		switch(item->buttonType){
+			case INPUTTYPE_COLOUR: currColButton = item; break;
+			default: item->pressed(item); break;
+		}
 	}
 	
 	return 0;
+}
+
+void drawColourPicker(SDL_Renderer* render, Button* item, CharColour* target){
+
 }
 
 void drawButton(SDL_Renderer* render, Button* item){
@@ -57,6 +75,16 @@ void drawButton(SDL_Renderer* render, Button* item){
 		SDL_FRect* rect = &(SDL_FRect){0, 0, item->image->w, item->image->h};
 		if(item->imageSrc) rect = item->imageSrc;
 		SDL_RenderTexture(render, item->image, rect, &item->rect);
+		return;
+	}
+
+	if(item->buttonType == INPUTTYPE_COLOUR && item->target){
+		CharColour* targetColour = item->target;
+		SDL_SetRenderDrawColor(render, targetColour->r, targetColour->g, targetColour->b, 255);
+		SDL_RenderFillRect(render, &(SDL_FRect){item->rect.x, item->rect.y, item->rect.w/2, item->rect.h});
+		SDL_SetRenderDrawColor(render, targetColour->r * ((float)targetColour->a/255), targetColour->g * ((float)targetColour->a/255), targetColour->b * ((float)targetColour->a/255), 255);
+		SDL_RenderFillRect(render, &(SDL_FRect){item->rect.x + item->rect.w/2, item->rect.y, item->rect.w/2, item->rect.h});
+		if(currColButton == item)drawColourPicker(render, item, item->target);
 		return;
 	}
 	
@@ -76,7 +104,7 @@ void drawButton(SDL_Renderer* render, Button* item){
 		setDrawColour(render, (CharColour){124, 128, 154, 255, 0, COLOURMODE_RGB});//buttonColours[BUTTONCOLOUR_PRESSED]);
 	
 	buttonDrawStart:
-	SDL_RenderFillRect(render, &(SDL_FRect){item->rect.x, item->rect.y, item->rect.w, item->rect.h});
+	SDL_RenderFillRect(render, &item->rect);
 	
 	//SDL_SetRenderDrawColor(render, 0, 0, 0, SDL_ALPHA_OPAQUE);
 	//SDL_RenderDebugText(render, item->rect.x + 2, item->rect.y + 2, item->labelText);

@@ -25,8 +25,8 @@
 					"scale":	[1.000000, 1.000000, 1.000000],
 					"rot":	[0.000000, 0.000000, 0.000000],
 					"colour":	[255, 255, 255, 255],
-					"mesh":	"maps/knight/knight.obj",
-					"texture":	"maps/knight/knight.png"
+					"mesh":	"./knight.obj",
+					"texture":	"./knight.png"
 				}, {
 					"name":	"Script",
 					"class":	"Script",
@@ -50,7 +50,7 @@
 					"scale":	[1.000000, 1.000000, 1.000000],
 					"rot":	[0.000000, 0.000000, 0.000000],
 					"colour":	[255, 255, 255, 255],
-					"mesh":	"maps/knight/soul.obj"
+					"mesh":	"./soul.obj"
 				}, {
 					"name":	"Script",
 					"class":	"Script",
