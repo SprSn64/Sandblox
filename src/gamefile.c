@@ -309,6 +309,7 @@ int loadGameFile(const char* filename) {
             /*DataObj* newObj = */createObjectFromJSON(obj, NULL);
     }
 	
+    playerRespawn = 10;
     if(loadedPlayer){
         client.gameWorld->currPlayer = loadedPlayer;
         playerRespawn = 0;

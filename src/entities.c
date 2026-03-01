@@ -11,6 +11,7 @@
 #include "math.h"
 #include "physics.h"
 
+extern ClientData client;
 extern GameWorld game;
 extern double deltaTime;
 extern ButtonMap keyList[KEYBIND_MAX];
@@ -61,12 +62,12 @@ void playerUpdate(DataObj* object){
 	
 	float floorY = findFloorY(object->pos, object->pos.y, game.headObj);
 	
-	float friction = (0.92 - 0.005 * (floorY > -INFINITY && object->pos.y <= floorY));
+	float friction = (0.90 - 0.005 * (floorY > -INFINITY && object->pos.y <= floorY));
 	float acc = 1.2;
 	
 	playerVel->x = (playerVel->x + playerMove.x * acc) * friction;
 	playerVel->z = (playerVel->z + playerMove.y * acc) * friction;
-	playerVel->y += -1 + 0.5 * (keyList[KEYBIND_SPACE].down && playerVel->y > 0);
+	playerVel->y += deltaTime * (-60 + 30 * (keyList[KEYBIND_SPACE].down && playerVel->y > 0));
 	
 	object->pos = (Vector3){object->pos.x + playerVel->x * deltaTime, object->pos.y + playerVel->y * deltaTime, object->pos.z + playerVel->z * deltaTime};
 	
@@ -104,7 +105,7 @@ void playerDraw(DataObj* object){
 		hatItem = hatItem->next;
 	}
 
-	if(object == game.currPlayer) return;
+	if(object == game.currPlayer && !client.pause) return;
 	Vector3 textPos = vec3Add(object->pos, (Vector3){0, 5, 0});
 	Vector3 textProj = projToScreen(viewProj(worldToCamera(textPos)));
 	if(textProj.z >= 0) return;

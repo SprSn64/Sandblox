@@ -227,8 +227,12 @@ void drawMapList(){
 	MapEntry* currItem = mapListHead;
 	Uint32 yOffset = 0;
 	while(currItem){
-		if(mouseButtons[0].pressed && between(mousePos.x, 96, 320) && between(mousePos.y, yOffset * 16 + 33, yOffset * 16 + 47))
-			chosenMap = currItem;
+		if(mouseButtons[0].pressed && between(mousePos.x, 96, 320) && between(mousePos.y, yOffset * 16 + 33, yOffset * 16 + 47)){
+			if(chosenMap == currItem)
+				chosenMap = NULL;
+			else
+				chosenMap = currItem;
+		}
 		if(chosenMap == currItem){
 			SDL_SetRenderDrawColor(renderer, 64, 192, 24, SDL_ALPHA_OPAQUE);
 			SDL_RenderFillRect(renderer, &(SDL_FRect){96, yOffset * 16 + 32, 320, 16});
