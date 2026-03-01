@@ -58,7 +58,7 @@ bool updateButton(Button* item){
 		item->down = true;
 
 		switch(item->buttonType){
-			case INPUTTYPE_COLOUR: currColButton = item; break;
+			case INPUTTYPE_COLOUR: if(currColButton == item) currColButton = NULL; else currColButton = item; break;
 			default: item->pressed(item); break;
 		}
 	}
@@ -66,8 +66,13 @@ bool updateButton(Button* item){
 	return 0;
 }
 
+extern SDL_Texture* colourPickTex;
 void drawColourPicker(SDL_Renderer* render, Button* item, CharColour* target){
-
+	float normVal = 255 - max(max(target->r, target->g), target->b);
+	SDL_SetTextureColorMod(colourPickTex, target->r + normVal, target->g + normVal, target->b + normVal);
+	SDL_RenderTexture(render, colourPickTex, &(SDL_FRect){0, 0, 256, 256}, &(SDL_FRect){item->rect.x, item->rect.y - 128, 128, 128});
+	SDL_SetRenderDrawColor(render, 255, 255, 255, 255);
+	SDL_RenderFillRect(render, &(SDL_FRect){item->rect.x, item->rect.y - 128, 4, 4});
 }
 
 void drawButton(SDL_Renderer* render, Button* item){
@@ -84,7 +89,7 @@ void drawButton(SDL_Renderer* render, Button* item){
 		SDL_RenderFillRect(render, &(SDL_FRect){item->rect.x, item->rect.y, item->rect.w/2, item->rect.h});
 		SDL_SetRenderDrawColor(render, targetColour->r * ((float)targetColour->a/255), targetColour->g * ((float)targetColour->a/255), targetColour->b * ((float)targetColour->a/255), 255);
 		SDL_RenderFillRect(render, &(SDL_FRect){item->rect.x + item->rect.w/2, item->rect.y, item->rect.w/2, item->rect.h});
-		if(currColButton == item)drawColourPicker(render, item, item->target);
+		if(item == currColButton)drawColourPicker(render, item, targetColour);
 		return;
 	}
 	

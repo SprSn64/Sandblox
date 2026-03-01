@@ -32,6 +32,7 @@ Font studioFont;
 SDL_Texture *studioFontTex = NULL;
 SDL_Texture *classIconTex = NULL;
 SDL_Texture *stuButtonTex = NULL;
+SDL_Texture *colourPickTex = NULL;
 Mesh *rotateGimbleMesh = NULL;
 Mesh *translateGimbleMesh = NULL;
 
@@ -94,6 +95,7 @@ void initStudio(){
 	
 	classIconTex = IMG_LoadTexture(studioRenderer, "assets/textures/studio/classicons.png");
 	stuButtonTex = IMG_LoadTexture(studioRenderer, "assets/textures/studio/studiobuttons.png");
+	colourPickTex = IMG_LoadTexture(studioRenderer, "assets/textures/studio/colourpicker.png");
 	rotateGimbleMesh = genTorusMesh(2, 0.1, 3, 24);
 	translateGimbleMesh = loadMeshFromObj("assets/models/arrowwidget.obj");
 

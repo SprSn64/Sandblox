@@ -330,6 +330,9 @@ SDL_AppResult SDL_AppIterate(void *appstate){
 		//lightNormal = rotToNorm3(sunAngle);
 		updateObjects(client.gameWorld->headObj, 0, &idCounter, false);
 	}
+
+	if(glEnabled)
+		updateOpenGL();
 	
 	skyboxMatrix = translateMatrix(defaultMatrix, currentCamera.pos);
 	drawMesh(skyboxMesh, skyboxMatrix, (SDL_FColor){1,1,1,1}, skyTex, false);
@@ -382,8 +385,6 @@ SDL_AppResult SDL_AppIterate(void *appstate){
 	//SDL_FPoint drawCursorPos = mousePos;
 	//SDL_RenderTexture(renderer, cursorTex, &(SDL_FRect){0, 0, 32, 32}, &(SDL_FRect){drawCursorPos.x, drawCursorPos.y, 32, 32});
 
-	if(glEnabled)
-		updateOpenGL();
 	free(currentCamera.transform);
 	
 	SDL_RenderPresent(renderer);
