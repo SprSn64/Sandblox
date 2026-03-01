@@ -8,5 +8,6 @@ Mesh *loadMeshFromObj(const char* path);
 char* loadTextFile(char* dir);
 
 char* joinDirectories(char* dirA, char* dirB);
+char* formatDirectory(char* dir);
 
 #endif

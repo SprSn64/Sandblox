@@ -111,10 +111,14 @@ float* sunMatrix = NULL;
 SDL_FColor skyboxColour = {0.8, 0.82, 1, 1};
 Vector3 sunAngle = {0, 0, 0};
 
+char* clientPath;
+
 SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[]){
 	(void)appstate;
 	client.version = "0.01 INDEV";
 	SDL_SetAppMetadata("SandBlox", client.version, NULL);
+
+	clientPath = SDL_GetCurrentDirectory();
 	
 	DIR* assetsDir = opendir("assets");
 	if(!assetsDir){

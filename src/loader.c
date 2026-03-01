@@ -189,4 +189,24 @@ char* joinDirectories(char* dirA, char* dirB){
     return output;
 }
 
-// "$CLIENT/assets/models/primitives/sphere.obj" -> "home/jerma985/epiccoolgames/Sandblox/assets/models/primitives/sphere.obj"
+extern char* clientPath;
+char* formatDirectory(char* dir){
+    // "$CLIENT/assets/models/primitives/sphere.obj" -> "home/jerma985/epiccoolgames/Sandblox/assets/models/primitives/sphere.obj"
+    char* output = malloc(512 * sizeof(Uint8));
+
+    int slashLoc = strcspn(dir, "/");
+    char* stringPiece = malloc(slashLoc * sizeof(Uint8));
+    strncpy(stringPiece, dir, slashLoc);
+
+    if(!strcmp(stringPiece, "$CLIENT")){
+        sprintf(output, "%s%s", clientPath, dir + slashLoc + 1);
+        printf("!-- String %s is in client\n", output);
+    }else
+        strcpy(output, dir);
+
+    printf("!-- output is %s\n", output);
+
+    free(stringPiece);
+
+    return output;
+}

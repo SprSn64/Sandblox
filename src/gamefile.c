@@ -155,15 +155,18 @@ DataObj* createObjectFromJSON(cJSON* obj, DataObj* parent) {
     
     Mesh* mesh = NULL;
     if(meshFile && cJSON_IsString(meshFile)) {
-        mesh = loadMeshFromObj(joinDirectories(currPath, meshFile->valuestring));
-        if(!mesh) {
+        if(meshFile->valuestring[0] == '.' && meshFile->valuestring[1] == '/'){
+            char* meshString = joinDirectories(currPath, meshFile->valuestring);
+            mesh = loadMeshFromObj(meshString);
+            free(meshString);
+        }else
+            mesh = loadMeshFromObj(meshFile->valuestring);
+        if(!mesh)
             printf("Failed to load mesh from file: %s\n", meshFile->valuestring);
-        }
     } else if(meshType && meshParams && cJSON_IsString(meshType)) {
         mesh = createMeshByType(meshType->valuestring, meshParams);
-        if(!mesh) {
+        if(!mesh)
             printf("Failed to generate procedural mesh: %s\n", meshType->valuestring);
-        }
     }
     
     if(mesh) {
@@ -173,7 +176,12 @@ DataObj* createObjectFromJSON(cJSON* obj, DataObj* parent) {
     TextureRef* texItem = NULL;
     SDL_Texture* tex = NULL;
     if(texture && cJSON_IsString(texture)) {
-        tex = newTexture(joinDirectories(currPath, texture->valuestring), SDL_SCALEMODE_LINEAR);
+        if(texture->valuestring[0] == '.' && texture->valuestring[1] == '/'){
+            char* texString = joinDirectories(currPath, texture->valuestring);
+            tex = newTexture(texString, SDL_SCALEMODE_LINEAR);
+            free(texString);
+        }else 
+            tex = newTexture(texture->valuestring, SDL_SCALEMODE_LINEAR);
 	  
         if(!tex)
             printf("Failed to load texture from file: %s\n", texture->valuestring);
