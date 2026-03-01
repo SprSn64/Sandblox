@@ -70,7 +70,7 @@ static FaceIndex parseFaceToken(const char *tok) {
 }
 
 extern bool glEnabled;
-Mesh *loadMeshFromObj(const char *path) {
+Mesh *loadMeshFromObj(char *path) {
     Uint32 vcount = 0, vtcount = 0, vncount = 0, tricount = 0;
     objCount(path, &vcount, &vtcount, &vncount, &tricount);
 
@@ -85,7 +85,6 @@ Mesh *loadMeshFromObj(const char *path) {
     
     mesh->meshType = MESHTYPE_FILE;
     mesh->filePath = malloc(sizeof(char) * (strlen(path) + 1)); sprintf(mesh->filePath, "%s", path);
-    
 
     SDL_FPoint *uvs = calloc(vtcount, sizeof(SDL_FPoint));
     Vector3 *normals = calloc(vncount, sizeof(Vector3));

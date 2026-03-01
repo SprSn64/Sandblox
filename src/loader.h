@@ -4,7 +4,7 @@
 #include "structs.h"
 #include "renderer.h"
 
-Mesh *loadMeshFromObj(const char* path);
+Mesh *loadMeshFromObj(char* path);
 char* loadTextFile(char* dir);
 
 char* joinDirectories(char* dirA, char* dirB);

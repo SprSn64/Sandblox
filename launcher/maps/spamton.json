@@ -20,8 +20,7 @@
 					"collision":	{
 						"enabled":	true,
 						"type":	"block"
-					},
-					"children":	[]
+					}
 				}]
 		}, {
 			"name":	"ArtGroup",
@@ -44,8 +43,7 @@
 					"collision":	{
 						"enabled":	true,
 						"type":	"block"
-					},
-					"children":	[]
+					}
 				}, {
 					"name":	"YellowLens",
 					"class":	"Block",
@@ -56,8 +54,7 @@
 					"collision":	{
 						"enabled":	true,
 						"type":	"block"
-					},
-					"children":	[]
+					}
 				}, {
 					"name":	"Cheek",
 					"class":	"Block",
@@ -68,8 +65,7 @@
 					"collision":	{
 						"enabled":	true,
 						"type":	"block"
-					},
-					"children":	[]
+					}
 				}, {
 					"name":	"Cheek",
 					"class":	"Block",
@@ -80,8 +76,7 @@
 					"collision":	{
 						"enabled":	true,
 						"type":	"block"
-					},
-					"children":	[]
+					}
 				}, {
 					"name":	"Cheek",
 					"class":	"Block",
@@ -92,8 +87,7 @@
 					"collision":	{
 						"enabled":	true,
 						"type":	"block"
-					},
-					"children":	[]
+					}
 				}, {
 					"name":	"Smile",
 					"class":	"Block",
@@ -104,8 +98,7 @@
 					"collision":	{
 						"enabled":	true,
 						"type":	"block"
-					},
-					"children":	[]
+					}
 				}, {
 					"name":	"Smile",
 					"class":	"Block",
@@ -116,8 +109,7 @@
 					"collision":	{
 						"enabled":	true,
 						"type":	"block"
-					},
-					"children":	[]
+					}
 				}, {
 					"name":	"Smile",
 					"class":	"Block",
@@ -128,8 +120,7 @@
 					"collision":	{
 						"enabled":	true,
 						"type":	"block"
-					},
-					"children":	[]
+					}
 				}, {
 					"name":	"Smile",
 					"class":	"Block",
@@ -140,8 +131,7 @@
 					"collision":	{
 						"enabled":	true,
 						"type":	"block"
-					},
-					"children":	[]
+					}
 				}, {
 					"name":	"Nose",
 					"class":	"Block",
@@ -152,8 +142,7 @@
 					"collision":	{
 						"enabled":	true,
 						"type":	"block"
-					},
-					"children":	[]
+					}
 				}, {
 					"name":	"Collar",
 					"class":	"Block",
@@ -164,8 +153,7 @@
 					"collision":	{
 						"enabled":	true,
 						"type":	"block"
-					},
-					"children":	[]
+					}
 				}, {
 					"name":	"Collar",
 					"class":	"Block",
@@ -176,8 +164,7 @@
 					"collision":	{
 						"enabled":	true,
 						"type":	"block"
-					},
-					"children":	[]
+					}
 				}, {
 					"name":	"Block",
 					"class":	"Block",
@@ -188,8 +175,7 @@
 					"collision":	{
 						"enabled":	true,
 						"type":	"block"
-					},
-					"children":	[]
+					}
 				}, {
 					"name":	"Block",
 					"class":	"Block",
@@ -200,8 +186,7 @@
 					"collision":	{
 						"enabled":	true,
 						"type":	"block"
-					},
-					"children":	[]
+					}
 				}, {
 					"name":	"Block",
 					"class":	"Block",
@@ -212,8 +197,7 @@
 					"collision":	{
 						"enabled":	true,
 						"type":	"block"
-					},
-					"children":	[]
+					}
 				}, {
 					"name":	"Block",
 					"class":	"Block",
@@ -224,8 +208,7 @@
 					"collision":	{
 						"enabled":	true,
 						"type":	"block"
-					},
-					"children":	[]
+					}
 				}, {
 					"name":	"Block",
 					"class":	"Block",
@@ -236,8 +219,7 @@
 					"collision":	{
 						"enabled":	true,
 						"type":	"block"
-					},
-					"children":	[]
+					}
 				}, {
 					"name":	"Block",
 					"class":	"Block",
@@ -248,8 +230,7 @@
 					"collision":	{
 						"enabled":	true,
 						"type":	"block"
-					},
-					"children":	[]
+					}
 				}, {
 					"name":	"Block",
 					"class":	"Block",
@@ -260,8 +241,7 @@
 					"collision":	{
 						"enabled":	true,
 						"type":	"block"
-					},
-					"children":	[]
+					}
 				}, {
 					"name":	"Block",
 					"class":	"Block",
@@ -272,8 +252,7 @@
 					"collision":	{
 						"enabled":	true,
 						"type":	"block"
-					},
-					"children":	[]
+					}
 				}, {
 					"name":	"Block",
 					"class":	"Block",
@@ -284,8 +263,7 @@
 					"collision":	{
 						"enabled":	true,
 						"type":	"block"
-					},
-					"children":	[]
+					}
 				}, {
 					"name":	"Block",
 					"class":	"Block",
@@ -296,8 +274,7 @@
 					"collision":	{
 						"enabled":	true,
 						"type":	"block"
-					},
-					"children":	[]
+					}
 				}, {
 					"name":	"Block",
 					"class":	"Block",
@@ -308,8 +285,7 @@
 					"collision":	{
 						"enabled":	true,
 						"type":	"block"
-					},
-					"children":	[]
+					}
 				}, {
 					"name":	"Block",
 					"class":	"Block",
@@ -320,8 +296,7 @@
 					"collision":	{
 						"enabled":	true,
 						"type":	"block"
-					},
-					"children":	[]
+					}
 				}, {
 					"name":	"Block",
 					"class":	"Block",
@@ -332,8 +307,7 @@
 					"collision":	{
 						"enabled":	true,
 						"type":	"block"
-					},
-					"children":	[]
+					}
 				}, {
 					"name":	"Block",
 					"class":	"Block",
@@ -344,8 +318,7 @@
 					"collision":	{
 						"enabled":	true,
 						"type":	"block"
-					},
-					"children":	[]
+					}
 				}, {
 					"name":	"Block",
 					"class":	"Block",
@@ -356,8 +329,7 @@
 					"collision":	{
 						"enabled":	true,
 						"type":	"block"
-					},
-					"children":	[]
+					}
 				}, {
 					"name":	"Block",
 					"class":	"Block",
@@ -368,8 +340,7 @@
 					"collision":	{
 						"enabled":	true,
 						"type":	"block"
-					},
-					"children":	[]
+					}
 				}, {
 					"name":	"Block",
 					"class":	"Block",
@@ -380,8 +351,7 @@
 					"collision":	{
 						"enabled":	true,
 						"type":	"block"
-					},
-					"children":	[]
+					}
 				}, {
 					"name":	"Block",
 					"class":	"Block",
@@ -392,8 +362,7 @@
 					"collision":	{
 						"enabled":	true,
 						"type":	"block"
-					},
-					"children":	[]
+					}
 				}, {
 					"name":	"Collar",
 					"class":	"Block",
@@ -404,8 +373,7 @@
 					"collision":	{
 						"enabled":	true,
 						"type":	"block"
-					},
-					"children":	[]
+					}
 				}, {
 					"name":	"Collar",
 					"class":	"Block",
@@ -416,8 +384,7 @@
 					"collision":	{
 						"enabled":	true,
 						"type":	"block"
-					},
-					"children":	[]
+					}
 				}, {
 					"name":	"Collar",
 					"class":	"Block",
@@ -428,8 +395,7 @@
 					"collision":	{
 						"enabled":	true,
 						"type":	"block"
-					},
-					"children":	[]
+					}
 				}, {
 					"name":	"Collar",
 					"class":	"Block",
@@ -440,8 +406,7 @@
 					"collision":	{
 						"enabled":	true,
 						"type":	"block"
-					},
-					"children":	[]
+					}
 				}, {
 					"name":	"Collar",
 					"class":	"Block",
@@ -452,8 +417,7 @@
 					"collision":	{
 						"enabled":	true,
 						"type":	"block"
-					},
-					"children":	[]
+					}
 				}, {
 					"name":	"PinkLens",
 					"class":	"Block",
@@ -464,8 +428,7 @@
 					"collision":	{
 						"enabled":	true,
 						"type":	"block"
-					},
-					"children":	[]
+					}
 				}, {
 					"name":	"PinkLens",
 					"class":	"Block",
@@ -476,8 +439,7 @@
 					"collision":	{
 						"enabled":	true,
 						"type":	"block"
-					},
-					"children":	[]
+					}
 				}, {
 					"name":	"PinkLens (Copy)",
 					"class":	"Block",
@@ -488,8 +450,7 @@
 					"collision":	{
 						"enabled":	true,
 						"type":	"block"
-					},
-					"children":	[]
+					}
 				}, {
 					"name":	"PinkLens (Copy) (Copy)",
 					"class":	"Block",
@@ -500,8 +461,7 @@
 					"collision":	{
 						"enabled":	true,
 						"type":	"block"
-					},
-					"children":	[]
+					}
 				}, {
 					"name":	"PinkLens (Copy)",
 					"class":	"Block",
@@ -512,8 +472,7 @@
 					"collision":	{
 						"enabled":	true,
 						"type":	"block"
-					},
-					"children":	[]
+					}
 				}, {
 					"name":	"PinkLens (Copy)",
 					"class":	"Block",
@@ -524,8 +483,7 @@
 					"collision":	{
 						"enabled":	true,
 						"type":	"block"
-					},
-					"children":	[]
+					}
 				}, {
 					"name":	"PinkLens (Copy) (Copy)",
 					"class":	"Block",
@@ -536,8 +494,7 @@
 					"collision":	{
 						"enabled":	true,
 						"type":	"block"
-					},
-					"children":	[]
+					}
 				}, {
 					"name":	"PinkLens (Copy) (Copy) (Copy)",
 					"class":	"Block",
@@ -548,8 +505,7 @@
 					"collision":	{
 						"enabled":	true,
 						"type":	"block"
-					},
-					"children":	[]
+					}
 				}, {
 					"name":	"PinkLens (Copy)",
 					"class":	"Block",
@@ -560,8 +516,84 @@
 					"collision":	{
 						"enabled":	true,
 						"type":	"block"
-					},
-					"children":	[]
+					}
+				}, {
+					"name":	"Nose (Copy)",
+					"class":	"Block",
+					"pos":	[-11.000000, 20.000000, -94.000000],
+					"scale":	[3.000000, 1.000000, 1.000000],
+					"rot":	[0.000000, 0.000000, 0.000000],
+					"colour":	[156, 156, 156, 255],
+					"collision":	{
+						"enabled":	true,
+						"type":	"block"
+					}
+				}, {
+					"name":	"Nose (Copy) (Copy)",
+					"class":	"Block",
+					"pos":	[-8.000000, 21.000000, -94.000000],
+					"scale":	[2.000000, 1.000000, 1.000000],
+					"rot":	[0.000000, 0.000000, 0.000000],
+					"colour":	[156, 156, 156, 255],
+					"collision":	{
+						"enabled":	true,
+						"type":	"block"
+					}
+				}, {
+					"name":	"Nose (Copy) (Copy) (Copy)",
+					"class":	"Block",
+					"pos":	[-6.000000, 22.000000, -94.000000],
+					"scale":	[1.000000, 1.000000, 1.000000],
+					"rot":	[0.000000, 0.000000, 0.000000],
+					"colour":	[156, 156, 156, 255],
+					"collision":	{
+						"enabled":	true,
+						"type":	"block"
+					}
+				}, {
+					"name":	"Nose (Copy)",
+					"class":	"Block",
+					"pos":	[-8.000000, 20.000000, -94.000000],
+					"scale":	[10.000000, 1.000000, 1.000000],
+					"rot":	[0.000000, 0.000000, 0.000000],
+					"colour":	[255, 255, 255, 255],
+					"collision":	{
+						"enabled":	true,
+						"type":	"block"
+					}
+				}, {
+					"name":	"Nose (Copy) (Copy)",
+					"class":	"Block",
+					"pos":	[-6.000000, 21.000000, -94.000000],
+					"scale":	[9.000000, 1.000000, 1.000000],
+					"rot":	[0.000000, 0.000000, 0.000000],
+					"colour":	[255, 255, 255, 255],
+					"collision":	{
+						"enabled":	true,
+						"type":	"block"
+					}
+				}, {
+					"name":	"Nose (Copy) (Copy) (Copy)",
+					"class":	"Block",
+					"pos":	[-2.000000, 22.000000, -94.000000],
+					"scale":	[5.000000, 1.000000, 1.000000],
+					"rot":	[0.000000, 0.000000, 0.000000],
+					"colour":	[255, 255, 255, 255],
+					"collision":	{
+						"enabled":	true,
+						"type":	"block"
+					}
+				}, {
+					"name":	"Nose (Copy) (Copy) (Copy) (Copy)",
+					"class":	"Block",
+					"pos":	[-1.000000, 23.000000, -94.000000],
+					"scale":	[1.000000, 1.000000, 1.000000],
+					"rot":	[0.000000, 0.000000, 0.000000],
+					"colour":	[255, 255, 255, 255],
+					"collision":	{
+						"enabled":	true,
+						"type":	"block"
+					}
 				}]
 		}, {
 			"name":	"Spamton",
@@ -582,8 +614,7 @@
 					"rot":	[0.000000, 0.000000, 0.000000],
 					"colour":	[255, 255, 255, 255],
 					"mesh":	"./spamton.obj",
-					"texture":	"./spamton.png",
-					"children":	[]
+					"texture":	"./spamton.png"
 				}]
 		}, {
 			"name":	"Pipis",
@@ -603,17 +634,7 @@
 					"scale":	[1.000000, 1.000000, 1.000000],
 					"rot":	[0.000000, 0.000000, 0.000000],
 					"colour":	[255, 255, 255, 255],
-					"mesh":	"assets/models/primitives/sphere.obj",
-					"children":	[]
+					"mesh":	"assets/models/primitives/sphere.obj"
 				}]
-		}, {
-			"name":	"Spamton G Spamton",
-			"class":	"Player",
-			"pos":	[0.000000, 0.000000, 0.000000],
-			"scale":	[1.000000, 1.000000, 1.000000],
-			"rot":	[0.000000, 0.000000, 0.000000],
-			"colour":	[255, 255, 255, 255],
-			"isPlayer":	true,
-			"children":	[]
 		}]
 }

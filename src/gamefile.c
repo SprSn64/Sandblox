@@ -157,6 +157,7 @@ DataObj* createObjectFromJSON(cJSON* obj, DataObj* parent) {
             char* meshString = joinDirectories(currPath, meshFile->valuestring);
             mesh = loadMeshFromObj(meshString);
             free(meshString);
+            sprintf(mesh->filePath, "%s", meshFile->valuestring);
         }else
             mesh = loadMeshFromObj(meshFile->valuestring);
         if(!mesh)
@@ -273,13 +274,11 @@ int loadGameFile(const char* filename) {
         return -1;
     }
 
-    	cJSON* plrEnabled = cJSON_GetObjectItem(json, "playerEnabled");
-        if(plrEnabled && cJSON_IsBool(plrEnabled))
-			playerEnabled = cJSON_IsTrue(plrEnabled);
-        else
-        	playerEnabled = true;
-
-        printf("player enabled is %d\n", playerEnabled);
+    cJSON* plrEnabled = cJSON_GetObjectItem(json, "playerEnabled");
+    if(plrEnabled && cJSON_IsBool(plrEnabled))
+		playerEnabled = cJSON_IsTrue(plrEnabled);
+    else
+       	playerEnabled = true;
     
     cJSON* lightDir = cJSON_GetObjectItem(json, "lightDir");
     if(lightDir && cJSON_IsArray(lightDir) && cJSON_GetArraySize(lightDir) >= 3)
@@ -315,7 +314,8 @@ int loadGameFile(const char* filename) {
         playerRespawn = 0;
         printf("Set current player to: %s\n", loadedPlayer->name ? loadedPlayer->name : "unnamed");
         loadedPlayer = NULL;
-    }
+    }else
+    	client.gameWorld->currPlayer = NULL;
     
     cJSON_Delete(json);
     free(content);
@@ -340,7 +340,7 @@ void addObjToJsonArray(cJSON* array, DataObj* item){
 	DataObj* child = item->child;
 	if(item == client.gameWorld->headObj) goto headerSkip;
 
-	if(item->classData == &playerClass) return;
+	if(item == client.gameWorld->currPlayer) return;
 
 	newObj = cJSON_CreateObject();
 	cJSON_AddStringToObject(newObj, "name", item->name);
