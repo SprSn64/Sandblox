@@ -244,6 +244,7 @@ DataObj* createObjectFromJSON(cJSON* obj, DataObj* parent) {
     return newObj;
 }
 
+extern bool playerEnabled;
 int loadGameFile(const char* filename) {
     printf("Loading game file: %s...\n", filename);
     
@@ -271,6 +272,14 @@ int loadGameFile(const char* filename) {
         free(content);
         return -1;
     }
+
+    	cJSON* plrEnabled = cJSON_GetObjectItem(json, "playerEnabled");
+        if(plrEnabled && cJSON_IsBool(plrEnabled))
+			playerEnabled = cJSON_IsTrue(plrEnabled);
+        else
+        	playerEnabled = true;
+
+        printf("player enabled is %d\n", playerEnabled);
     
     cJSON* lightDir = cJSON_GetObjectItem(json, "lightDir");
     if(lightDir && cJSON_IsArray(lightDir) && cJSON_GetArraySize(lightDir) >= 3)
@@ -303,6 +312,7 @@ int loadGameFile(const char* filename) {
 	
     if(loadedPlayer){
         client.gameWorld->currPlayer = loadedPlayer;
+        playerRespawn = 0;
         printf("Set current player to: %s\n", loadedPlayer->name ? loadedPlayer->name : "unnamed");
         loadedPlayer = NULL;
     }
@@ -328,8 +338,10 @@ void addObjToJsonArray(cJSON* array, DataObj* item){
 	cJSON* newObj = array;
 	cJSON* newArray = array;
 	DataObj* child = item->child;
-	if(item == client.gameWorld->headObj)goto headerSkip;
-	
+	if(item == client.gameWorld->headObj) goto headerSkip;
+
+	if(item->classData == &playerClass) return;
+
 	newObj = cJSON_CreateObject();
 	cJSON_AddStringToObject(newObj, "name", item->name);
 	cJSON_AddStringToObject(newObj, "class", item->classData->name);
@@ -350,13 +362,9 @@ void addObjToJsonArray(cJSON* array, DataObj* item){
 	sprintf(rawColour, "[%d, %d, %d, %d]", item->colour.r, item->colour.g, item->colour.b, item->colour.a);
 	cJSON_AddRawToObject(newObj, "colour", rawColour);
 	
-	if(item->classData == &playerClass)
-		cJSON_AddBoolToObject(newObj, "isPlayer", (item == client.gameWorld->currPlayer));
-	
 	Mesh* itemMesh = item->asVoidptr[OBJVAL_MESH];
 	if(itemMesh && itemMesh->meshType == MESHTYPE_FILE)
 		cJSON_AddStringToObject(newObj, "mesh", itemMesh->filePath);
-	
 	
 	TextureRef* itemTex = item->asVoidptr[OBJVAL_TEXTURE];
 	if(itemTex)
@@ -450,7 +458,27 @@ DataObj* loadPlayerAvatar(){
     	if(name && cJSON_IsString(name))
         	newPlayer->name = strdup(name->valuestring);
 
+      cJSON* objects = cJSON_GetObjectItem(json, "objects");
+    	if(!objects || !cJSON_IsArray(objects)) {
+        	printf("No objects array found in JSON\n");
+        	cJSON_Delete(json);
+        	free(content);
+        	goto avatarLoadSkip;
+    	}
+    
+   	printf("Found %d objects in JSON\n", cJSON_GetArraySize(objects));
+    
+    	int objectCount = cJSON_GetArraySize(objects);
+    	for(int i = 0; i < objectCount; i++) {
+        	cJSON* obj = cJSON_GetArrayItem(objects, i);
+        	if(!obj)continue;
+            DataObj* newObj = createObjectFromJSON(obj, newPlayer);
+            if(newObj->classData->id == scriptClass.id || newObj->classData->id == playerClass.id)
+            	removeObject(newObj);
+    	}
+
       cJSON_Delete(json);
+      free(content);
 
 avatarLoadSkip:
 	free(avatarPath);

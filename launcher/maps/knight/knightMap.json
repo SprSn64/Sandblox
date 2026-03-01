@@ -1,5 +1,6 @@
 {
 	"lightDir": [200, 20, 0],
+	"playerEnabled":	false,
 	"objects":	[{
 			"name":	"Baseplate",
 			"class":	"Block",

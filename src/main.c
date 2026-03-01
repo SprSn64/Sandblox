@@ -94,6 +94,7 @@ extern SDL_FColor lightColour;
 
 DataObj* playerObj = NULL;
 float playerRespawn = 5;
+bool playerEnabled = true;
 
 float* defaultMatrix = NULL;
 float* skyboxMatrix = NULL; float* sunMatrix = NULL;
@@ -317,9 +318,9 @@ SDL_AppResult SDL_AppIterate(void *appstate){
 	int idCounter = 0;
 	objListLength = 0;
 	if(!client.pause){
-		if(!client.gameWorld->currPlayer){
-			if(playerRespawn >= 5) loadPlayerAvatar();
-			//playerRespawn += deltaTime;
+		if(playerEnabled && !client.gameWorld->currPlayer){
+			if(playerRespawn >= 3) loadPlayerAvatar();
+			playerRespawn += deltaTime;
 		}
 		//sunAngle = (Vector3){timer, timer, 0};
 		//lightNormal = rotToNorm3(sunAngle);
