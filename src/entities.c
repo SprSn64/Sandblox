@@ -18,7 +18,19 @@ extern Mesh *playerMesh;
 extern Mesh *cubePrim;
 extern SDL_Texture *homerTex;
 
-DataType accessoryClass = {"Accessory\0", 10, 0, NULL, NULL, NULL};
+DataType playerClass;
+
+void accessoryDraw(DataObj* object){
+	if(object->parent->classData == &playerClass)
+		return;
+
+	SDL_Texture *itemTex = NULL;
+	TextureRef *itemTexRef = object->asVoidptr[OBJVAL_TEXTURE];
+	if(itemTexRef)itemTex = itemTexRef->image;
+	drawMesh(object->asVoidptr[OBJVAL_MESH], object->transform, ConvertSDLColour(object->colour), itemTex, true);
+}
+
+DataType accessoryClass = {"Accessory\0", 10, 0, NULL, NULL, accessoryDraw};
 
 void playerInit(DataObj* object){
 	//object->pos.y = 0;

@@ -145,18 +145,5 @@
 					},
 					"children":	[{"name": "killBrickFunc", "class": "Script", "script": "killBrickFunc"}]
 				}]
-		}, {
-			"name":	"Player",
-			"class":	"Player",
-			"pos":	[-0.000000, 1.000000, 0.000000],
-			"scale":	[1.000000, 1.000000, 1.000000],
-			"rot":	[0.000000, 175.476757, 0.000000],
-			"colour":	[255, 255, 255, 255],
-			"isPlayer":	true,
-			"collision":	{
-				"enabled":	true,
-				"type":	"none"
-			},
-			"children":	[]
 		}]
 }

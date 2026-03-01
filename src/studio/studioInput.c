@@ -72,7 +72,7 @@ void drawColourPicker(SDL_Renderer* render, Button* item, CharColour* target){
 	SDL_SetTextureColorMod(colourPickTex, target->r + normVal, target->g + normVal, target->b + normVal);
 	SDL_RenderTexture(render, colourPickTex, &(SDL_FRect){0, 0, 256, 256}, &(SDL_FRect){item->rect.x, item->rect.y - 128, 128, 128});
 	SDL_SetRenderDrawColor(render, 255, 255, 255, 255);
-	SDL_RenderFillRect(render, &(SDL_FRect){item->rect.x, item->rect.y - 128, 4, 4});
+	SDL_RenderFillRect(render, &(SDL_FRect){item->rect.x, item->rect.y - 128 + normVal / 2, 4, 4});
 }
 
 void drawButton(SDL_Renderer* render, Button* item){
