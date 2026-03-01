@@ -13,7 +13,9 @@ extern ClientData client;
 extern DataObj gameHeader;
 extern Vector3 lightNormal;
 
-DataObj* newPlayer = NULL;
+DataObj* loadedPlayer = NULL;
+extern float playerRespawn;
+extern char* basePath;
 
 extern void objSpinFunc(DataObj* object);
 
@@ -113,37 +115,34 @@ DataObj* createObjectFromJSON(cJSON* obj, DataObj* parent) {
     if(!newObj) return NULL;
     parentObject(newObj, newParent);
     
-    if(isPlayer && cJSON_IsBool(isPlayer) && cJSON_IsTrue(isPlayer) && !newPlayer)
-	    newPlayer = newObj;
+    if(isPlayer && cJSON_IsBool(isPlayer) && cJSON_IsTrue(isPlayer) && !loadedPlayer)
+	    loadedPlayer = newObj;
     
     if(name && cJSON_IsString(name))
         newObj->name = strdup(name->valuestring);
     
-    if(pos && cJSON_IsArray(pos) && cJSON_GetArraySize(pos) >= 3) {
+    if(pos && cJSON_IsArray(pos) && cJSON_GetArraySize(pos) >= 3)
         newObj->pos = (Vector3){
             cJSON_GetArrayItem(pos, 0)->valuedouble,
             cJSON_GetArrayItem(pos, 1)->valuedouble,
             cJSON_GetArrayItem(pos, 2)->valuedouble
         };
-    }
     
-    if(scale && cJSON_IsArray(scale) && cJSON_GetArraySize(scale) >= 3) {
+    if(scale && cJSON_IsArray(scale) && cJSON_GetArraySize(scale) >= 3)
         newObj->scale = (Vector3){
             cJSON_GetArrayItem(scale, 0)->valuedouble,
             cJSON_GetArrayItem(scale, 1)->valuedouble,
             cJSON_GetArrayItem(scale, 2)->valuedouble
         };
-    }
     
-    if(rot && cJSON_IsArray(rot) && cJSON_GetArraySize(rot) >= 3) {
+    if(rot && cJSON_IsArray(rot) && cJSON_GetArraySize(rot) >= 3)
         newObj->rot = (Vector3){
             cJSON_GetArrayItem(rot, 0)->valuedouble * DEG2RAD,
             cJSON_GetArrayItem(rot, 1)->valuedouble * DEG2RAD,
             cJSON_GetArrayItem(rot, 2)->valuedouble * DEG2RAD
         };
-    }
     
-    if(colour && cJSON_IsArray(colour) && cJSON_GetArraySize(colour) >= 4) {
+    if(colour && cJSON_IsArray(colour) && cJSON_GetArraySize(colour) >= 4)
         newObj->colour = (CharColour){
             cJSON_GetArrayItem(colour, 0)->valueint,
             cJSON_GetArrayItem(colour, 1)->valueint,
@@ -151,7 +150,6 @@ DataObj* createObjectFromJSON(cJSON* obj, DataObj* parent) {
             cJSON_GetArrayItem(colour, 3)->valueint,
             0, COLOURMODE_RGB
         };
-    }
     
     Mesh* mesh = NULL;
     if(meshFile && cJSON_IsString(meshFile)) {
@@ -169,9 +167,8 @@ DataObj* createObjectFromJSON(cJSON* obj, DataObj* parent) {
             printf("Failed to generate procedural mesh: %s\n", meshType->valuestring);
     }
     
-    if(mesh) {
+    if(mesh)
         newObj->asVoidptr[OBJVAL_MESH] = mesh;
-    }
     
     TextureRef* texItem = NULL;
     SDL_Texture* tex = NULL;
@@ -187,9 +184,9 @@ DataObj* createObjectFromJSON(cJSON* obj, DataObj* parent) {
             printf("Failed to load texture from file: %s\n", texture->valuestring);
     }
     if(tex) {
-	  texItem = malloc(sizeof(TextureRef));
-	  texItem->filePath = malloc(sizeof(char) * (strlen(texture->valuestring) + 1)); sprintf(texItem->filePath, "%s",texture->valuestring);
-	  texItem->image = tex;
+	    texItem = malloc(sizeof(TextureRef));
+	    texItem->filePath = malloc(sizeof(char) * (strlen(texture->valuestring) + 1)); sprintf(texItem->filePath, "%s",texture->valuestring);
+	    texItem->image = tex;
         newObj->asVoidptr[OBJVAL_TEXTURE] = texItem;
     }
     
@@ -200,12 +197,8 @@ DataObj* createObjectFromJSON(cJSON* obj, DataObj* parent) {
 	  
 	    CollisionHull *collider = malloc(sizeof(CollisionHull));
         
-        if(enabled && cJSON_IsBool(enabled)) {
-            //newObj->asInt[0] = cJSON_IsTrue(enabled); 
-		//if(!cJSON_IsTrue(enabled))free(collider);
-        } else {
-            //newObj->asInt[0] = true; 
-		free(collider); goto colliderLoadSkip;
+        if(!(enabled && cJSON_IsBool(enabled))) {
+		  free(collider); goto colliderLoadSkip;
         }
         
         if(type && cJSON_IsString(type)) {
@@ -215,11 +208,10 @@ DataObj* createObjectFromJSON(cJSON* obj, DataObj* parent) {
             else collider->shape = collShape;
         } else {
             // default collision type based on class
-            if(newObj->classData->id == 3) { // blockClass
+            if(newObj->classData->id == blockClass.id) // blockClass
                 collider->shape = COLLHULL_CUBE; // block collision
-            } else {
+            else
                 free(collider); // no collision
-            }
         }
 	    colliderLoadSkip:
 	    newObj->asVoidptr[OBJVAL_COLLIDER] = collider;
@@ -229,7 +221,6 @@ DataObj* createObjectFromJSON(cJSON* obj, DataObj* parent) {
 	    ScriptItem *newScript = malloc(sizeof(ScriptItem));
 
         newScript->func = getFunctionByName(scriptFile->valuestring); newScript->funcName = strdup(scriptFile->valuestring);  
-	   
         if(newScript->func != NULL)
             newObj->asVoidptr[OBJVAL_SCRIPT] = newScript;
         else
@@ -282,13 +273,12 @@ int loadGameFile(const char* filename) {
     }
     
     cJSON* lightDir = cJSON_GetObjectItem(json, "lightDir");
-    if(lightDir && cJSON_IsArray(lightDir) && cJSON_GetArraySize(lightDir) >= 3) {
+    if(lightDir && cJSON_IsArray(lightDir) && cJSON_GetArraySize(lightDir) >= 3)
         lightNormal = rotToNorm3((Vector3){
             cJSON_GetArrayItem(lightDir, 0)->valuedouble * DEG2RAD,
             cJSON_GetArrayItem(lightDir, 1)->valuedouble * DEG2RAD,
             cJSON_GetArrayItem(lightDir, 2)->valuedouble * DEG2RAD
         });
-    }
 
     cJSON* objects = cJSON_GetObjectItem(json, "objects");
     if(!objects || !cJSON_IsArray(objects)) {
@@ -299,7 +289,7 @@ int loadGameFile(const char* filename) {
     }
     
     printf("Found %d objects in JSON\n", cJSON_GetArraySize(objects));
-    newPlayer = NULL;
+    loadedPlayer = NULL;
     
     client.pause = true;
     lesserCleanupObjects(client.gameWorld->headObj);
@@ -307,15 +297,14 @@ int loadGameFile(const char* filename) {
     int objectCount = cJSON_GetArraySize(objects);
     for(int i = 0; i < objectCount; i++) {
         cJSON* obj = cJSON_GetArrayItem(objects, i);
-        if(obj) {
+        if(obj)
             /*DataObj* newObj = */createObjectFromJSON(obj, NULL);
-        }
     }
 	
-    if(newPlayer){
-        client.gameWorld->currPlayer = newPlayer;
-        printf("Set current player to: %s\n", newPlayer->name ? newPlayer->name : "unnamed");
-        newPlayer = NULL;
+    if(loadedPlayer){
+        client.gameWorld->currPlayer = loadedPlayer;
+        printf("Set current player to: %s\n", loadedPlayer->name ? loadedPlayer->name : "unnamed");
+        loadedPlayer = NULL;
     }
     
     cJSON_Delete(json);
@@ -430,6 +419,41 @@ int saveGameFile(const char* filename){
 	return 0;
 }
 
-DataObj* createPlayerFromJSON() {
-    return client.gameWorld->currPlayer;
+DataObj* loadPlayerAvatar(){
+	DataObj* newPlayer = newObject(&playerClass);
+	parentObject(newPlayer, client.gameWorld->headObj);
+	playerRespawn = 0;
+
+	char *avatarPath = malloc(256); sprintf(avatarPath, "%splayer.json", basePath);
+	FILE* file = fopen(avatarPath, "r");
+	if(!file){
+		printf("Failed load player file %s\n", avatarPath);
+		goto avatarLoadSkip;
+	}
+
+	fseek(file, 0, SEEK_END);
+    	long fileSize = ftell(file);
+    	fseek(file, 0, SEEK_SET);
+    
+    	char* content = malloc(fileSize + 1);
+    	int readThing = fread(content, 1, fileSize, file); (void)readThing;
+    	content[fileSize] = '\0';
+    	fclose(file);
+
+	cJSON* json = cJSON_Parse(content);
+    	if(!json){
+      	printf("Failed to parse JSON: %s\n", cJSON_GetErrorPtr());
+      	goto avatarLoadSkip;
+    	}
+
+    	cJSON* name = cJSON_GetObjectItem(json, "name");
+    	if(name && cJSON_IsString(name))
+        	newPlayer->name = strdup(name->valuestring);
+
+      cJSON_Delete(json);
+
+avatarLoadSkip:
+	free(avatarPath);
+	client.gameWorld->currPlayer = newPlayer;
+	return newPlayer;
 }

@@ -5,6 +5,6 @@
 
 int loadGameFile(const char* filename);
 int saveGameFile(const char* filename);
-DataObj* createPlayerFromJSON();
+DataObj* loadPlayerAvatar();
 
 #endif

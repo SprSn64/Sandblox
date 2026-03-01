@@ -63,25 +63,14 @@ Uint32 lastFPS = 0;
 
 float timer = 0;
 
-SDL_Texture *fontTex = NULL;
-SDL_Texture *playerTex = NULL;
-SDL_Texture *homerTex = NULL;
-
 Font defaultFont;
 
-SDL_Texture *boneTex = NULL;
-SDL_Texture *cursorTex = NULL;
-SDL_Texture *skyTex = NULL;
-SDL_Texture *sunTex = NULL;
+SDL_Texture *fontTex = NULL; SDL_Texture *playerTex = NULL; SDL_Texture *homerTex = NULL;
+SDL_Texture *boneTex = NULL; SDL_Texture *cursorTex = NULL; SDL_Texture *skyTex = NULL; SDL_Texture *sunTex = NULL;
 
-Mesh *playerMesh = NULL;
-Mesh *boneMesh = NULL;
-Mesh *skyboxMesh = NULL;
-Mesh *sunMesh = NULL;
+Mesh *playerMesh = NULL; Mesh *boneMesh = NULL; Mesh *skyboxMesh = NULL; Mesh *sunMesh = NULL;
 
-Mesh *planePrim = NULL;
-Mesh *cubePrim = NULL;
-Mesh *spherePrim = NULL;
+Mesh *planePrim = NULL; Mesh *cubePrim = NULL; Mesh *spherePrim = NULL;
 
 Skeleton* testRig = NULL;
 
@@ -104,14 +93,15 @@ extern Vector3 lightNormal;
 extern SDL_FColor lightColour;
 
 DataObj* playerObj = NULL;
+float playerRespawn = 5;
 
 float* defaultMatrix = NULL;
-float* skyboxMatrix = NULL;
-float* sunMatrix = NULL;
+float* skyboxMatrix = NULL; float* sunMatrix = NULL;
 SDL_FColor skyboxColour = {0.8, 0.82, 1, 1};
 Vector3 sunAngle = {0, 0, 0};
 
 char* clientPath;
+char* basePath;
 
 SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[]){
 	(void)appstate;
@@ -119,6 +109,7 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[]){
 	SDL_SetAppMetadata("SandBlox", client.version, NULL);
 
 	clientPath = SDL_GetCurrentDirectory();
+	basePath = SDL_GetPrefPath("Sandblox", "Sandblox");
 	
 	DIR* assetsDir = opendir("assets");
 	if(!assetsDir){
@@ -322,10 +313,14 @@ SDL_AppResult SDL_AppIterate(void *appstate){
 	
 	if(client.studio && focusObject)
 		updateStudioGimbles();
-	
+
 	int idCounter = 0;
 	objListLength = 0;
 	if(!client.pause){
+		if(!client.gameWorld->currPlayer){
+			if(playerRespawn >= 5) loadPlayerAvatar();
+			//playerRespawn += deltaTime;
+		}
 		//sunAngle = (Vector3){timer, timer, 0};
 		//lightNormal = rotToNorm3(sunAngle);
 		updateObjects(client.gameWorld->headObj, 0, &idCounter, false);
