@@ -21,6 +21,8 @@
 
 #include "studio/studio.h"
 #include "network/network.h"
+#include "network/server.h"
+
 
 /* TODO:
 	Get OpenGL GLEW working
@@ -104,6 +106,8 @@ Vector3 sunAngle = {0, 0, 0};
 char* clientPath;
 char* basePath;
 
+bool debugServer = false;
+
 SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[]){
 	(void)appstate;
 	client.version = "0.01 INDEV";
@@ -120,7 +124,7 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[]){
 	closedir(assetsDir);
 
 	char *mapToLoad = "assets/gamefile.json";
-	
+
 	for(int i=0; i < argc; i++){
 		//printf("%s\n", argv[i]); 
 		if(!strcmp("-opengl", argv[i]))glEnabled = true;
@@ -129,9 +133,12 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[]){
 		
 		if(!strcmp("-mapfile", argv[i]))
 			mapToLoad = argv[++i];
+		if(!strcmp("-host", argv[i]))
+			//debugServer = serverInit(); //argv[i+1]
 		if(!strcmp("-server", argv[i])) printf("cant join server '%s'... not implemented yet sorry\n", argv[i+1]);
 			//connectServer(argv[i++]);
 	}
+	debugServer = serverInit();
 	
 	if(!SDL_Init(SDL_INIT_VIDEO)){
 		SDL_Log("Couldn't initialize SDL: %s", SDL_GetError());
@@ -186,7 +193,6 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[]){
 	lightNormal = normalize3(lightNormal);
 	
 	initStudio();
-	serverInit();
 
 	client.gameWorld = &game;
 	client.gameWorld->headObj = &gameHeader;
@@ -275,6 +281,9 @@ SDL_AppResult SDL_AppIterate(void *appstate){
 		playerMesh->verts[i].pos.y += (1 - SDL_randf() * 2) * 0.002;
 		playerMesh->verts[i].pos.z += (1 - SDL_randf() * 2) * 0.002;
 	}*/
+
+	if(debugServer)
+		serverUpdate();
 	
 	//SDL_ShowCursor();
 	bool mainWindowFocus = SDL_GetWindowFlags(window) & SDL_WINDOW_INPUT_FOCUS;

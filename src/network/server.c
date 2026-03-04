@@ -22,12 +22,11 @@ int serverInit(){
 	address.sin_port = htons(8080);
 	address.sin_addr.s_addr = htonl(INADDR_ANY);
 
-	if(bind(socketfd, (struct sockaddr*)&address, sizeof(address)) >= 0)
-		printf("Successfully made server!\n");
-	else
-		printf("Fuck! server no worked!\n");
-
-	return 0;
+	if(bind(socketfd, (struct sockaddr*)&address, sizeof(address)) >= 0){
+		printf("Successfully made server at address %d:8080\n", address.sin_addr.s_addr); return 1;
+	}else{
+		printf("Fuck! server no worked!\n"); return 0;
+	}
 }
 
 int serverUpdate(){
