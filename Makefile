@@ -1,4 +1,4 @@
-DIRS := src src/studio src/cjosn src/tempMaps 
+DIRS := src src/studio src/network src/cjosn src/tempMaps 
 
 CC  := gcc
 CXX := g++

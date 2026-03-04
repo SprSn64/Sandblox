@@ -17,10 +17,10 @@
 #include "loader.h"
 #include "opengl.h"
 #include "gamefile.h"
-#include "server.h"
 #include "bones.h"
 
 #include "studio/studio.h"
+#include "network/network.h"
 
 /* TODO:
 	Get OpenGL GLEW working

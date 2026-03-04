@@ -106,7 +106,8 @@ typedef struct{
 } IPAddress;
 
 typedef struct{
-	IPAddress serverIP, clientIP;
+	IPAddress serverIP;
+	IPAddress* clientsIP;
 	Uint16 port;
 	char* version;
 	float avgPing;
