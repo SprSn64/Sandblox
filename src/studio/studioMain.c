@@ -331,12 +331,9 @@ bool undoHistory(HistoryItem* item){
 			break;
 	}
 
-	if(item->prev)
-		item->prev->next = item->next;
-	if(item->next)
-		item->next->prev = item->prev;
-	if(item == historyHead)
-		historyHead = NULL;
+	if(item->prev) item->prev->next = item->next;
+	if(item->next) item->next->prev = item->prev;
+	if(item == historyHead) historyHead = NULL;
 	free(item);
 
 	return false;
