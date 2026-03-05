@@ -67,6 +67,8 @@ extern Uint32 currPage;
 extern Page pageList[PAGE_MAX];
 extern Page sidePanel;
 
+extern char** langStrings;
+
 SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[]){
 	(void)appstate; (void)argv;
 	SDL_SetAppMetadata("SandBlox Launcher", version, NULL);
@@ -111,6 +113,11 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[]){
 
 	char* mapPath = malloc(256); sprintf(mapPath, "%smaps", SDL_GetCurrentDirectory());  
 	loadMapDir(mapPath);
+
+	loadLanguage(LANG_EN);
+	for(int i=0; i<6; i++){
+		printf("%s\n", langStrings[i]);
+	}
 
 	return SDL_APP_CONTINUE;
 }	

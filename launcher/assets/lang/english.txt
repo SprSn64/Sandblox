@@ -1,1 +1,7 @@
 fuck
+GAME
+AVATAR
+SETTINGS
+Launch Sandblox
+Set Client
+

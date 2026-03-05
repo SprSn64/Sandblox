@@ -9,7 +9,6 @@
 #include <dirent.h>
 
 MapEntry* mapListHead = NULL;
-
 MapEntry* addMapEntry(char* path, char* name){
 	MapEntry* newEntry = malloc(sizeof(MapEntry));
 	newEntry->path = malloc(256); sprintf(newEntry->path, "%s", path);
@@ -42,7 +41,7 @@ bool loadMapDir(char* path){
 		return 1;
 	}
 
-	char fullPath[256];
+	char fullPath[512];
 	while((entry = readdir(dir))){
 		printf("%s\n", entry->d_name);
 		sprintf(fullPath, "%s/%s", path, entry->d_name);
@@ -55,5 +54,40 @@ bool loadMapDir(char* path){
       }
 
 	closedir(dir); 
+	return 0;
+}
+
+char* langFiles[24] = { //file paths without the "assets/lang/" and ".txt"
+	"english", "ptbr", "spanish", "german", "japanese"
+};
+
+char** langStrings;
+
+bool loadLanguage(Uint32 lang){
+	char* langPath = malloc(64);
+	sprintf(langPath, "assets/lang/%s.txt", langFiles[lang]);
+	FILE *file = fopen(langPath, "r");
+	free(langPath);
+	if (!file) return 1;
+
+	Uint32 lineCount = 0;
+	while(!feof(file)){
+		char ch = fgetc(file);
+		if(ch == '\n') lineCount++;
+	}
+	rewind(file);
+
+	if(langStrings) free(langStrings);
+	langStrings = malloc(sizeof(char*) * lineCount);
+
+	char* buffer = malloc(256);
+	for(Uint32 i=0; i<lineCount; i++){
+		buffer = fgets(buffer, 255, file);
+		langStrings[i] = malloc(256);
+		strcpy(langStrings[i], buffer);
+	}
+
+	free(buffer);
+	fclose(file);
 	return 0;
 }

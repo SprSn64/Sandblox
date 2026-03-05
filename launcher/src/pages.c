@@ -16,6 +16,7 @@ extern SDL_Renderer *renderer;
 extern Font defaultFont;
 SDL_Texture *newTexture(char* path, SDL_ScaleMode scaleMode);
 void drawText(SDL_Renderer *renderLoc, Font *textFont, char* text, short posX, short posY, float scale, SDL_FColor colour);
+extern char** langStrings;
 
 Uint32 currPage = PAGE_GAME;
 Page pageList[PAGE_MAX];
