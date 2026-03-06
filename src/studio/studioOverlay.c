@@ -183,11 +183,10 @@ void scaleGimbleUpdate(DataObj* item){
 	}
 
 	float roundDist = closest(dist * ((1 - 2*scaleFlip) * dragDist - ogLerp), snapUnit);
-	float roundDistB = closest(dist * (dragDist - ogLerp) + 0.5, snapUnit);
 	switch(gimbleGrabbed){
-		case 1: scaleVec->x = ogScale.x + roundDist; posVec->x = ogPos.x + scaleFlip * roundDistB; break;
-		case 2: scaleVec->y = ogScale.y + roundDist; posVec->y = ogPos.y + scaleFlip * roundDistB; break;
-		case 3: scaleVec->z = ogScale.z + roundDist; posVec->z = ogPos.z + scaleFlip * roundDistB; break;
+		case 1: scaleVec->x = ogScale.x + roundDist; posVec->x = ogPos.x - scaleFlip * roundDist; break;
+		case 2: scaleVec->y = ogScale.y - roundDist; posVec->y = ogPos.y - scaleFlip * roundDist; break;
+		case 3: scaleVec->z = ogScale.z + roundDist; posVec->z = ogPos.z - scaleFlip * roundDist; break;
 	}
 	
 	if(mouseButtons[0].pressed && gimbleGrabbed == 0){

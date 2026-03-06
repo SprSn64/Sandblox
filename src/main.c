@@ -26,7 +26,7 @@
 
 /* TODO:
 	Get OpenGL GLEW working
-	Make studio widgets work properly (1/3 complete)
+	Make studio widgets work properly (2/3 complete) and probably optimize them
 	Add multiplayer server shit
 	Implement simple physics
 	Add secondary studio menu for changing object properties (colour, scale, etc)
