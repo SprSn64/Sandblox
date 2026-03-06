@@ -381,12 +381,7 @@ void addObjToJsonArray(cJSON* array, DataObj* item){
 	
 	cJSON* collObject = cJSON_AddObjectToObject(newObj, "collision");
 	cJSON_AddBoolToObject(collObject, "enabled", collider != NULL);
-	
-	switch(collider->shape){
-		case COLLHULL_CUBE: cJSON_AddStringToObject(collObject, "type", "block"); break;
-		//case 2: cJSON_AddStringToObject(collObject, "type", "trigger"); break;
-		default: cJSON_AddStringToObject(collObject, "type", "none"); break;
-	}
+	cJSON_AddStringToObject(collObject, "type", collTypes[collider->shape]);
 	
 	colliderSkip:
 	
