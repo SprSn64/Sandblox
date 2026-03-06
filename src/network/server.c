@@ -15,18 +15,23 @@
 struct sockaddr_in address; 
 int socketfd;
 
-int serverInit(){
+Server* serverInit(Uint16 port){
 	socketfd = socket(AF_INET, SOCK_STREAM, 0);
 
 	address.sin_family = AF_INET;
-	address.sin_port = htons(8080);
+	address.sin_port = htons(port);
 	address.sin_addr.s_addr = htonl(INADDR_ANY);
 
-	if(bind(socketfd, (struct sockaddr*)&address, sizeof(address)) >= 0){
-		printf("Successfully made server at address %d:8080\n", address.sin_addr.s_addr); return 1;
-	}else{
-		printf("Fuck! server no worked!\n"); return 0;
+	if(bind(socketfd, (struct sockaddr*)&address, sizeof(address)) < 0){
+		printf("Fuck! server no worked!\n"); return NULL;
 	}
+
+	Server* newServer = malloc(sizeof(Server));
+	if(newServer){
+		//newServer->serverIP = address.sin_addr.s_addr; newServer->port = address.sin_port; 
+		printf("Successfully made server at address %d:%d\n", address.sin_addr.s_addr, address.sin_port);
+	}
+	return newServer;
 }
 
 int serverUpdate(){

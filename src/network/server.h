@@ -1,7 +1,7 @@
 #ifndef NETWORK_SERVER_H
 #define NETWORK_SERVER_H
 
-int serverInit();
+Server* serverInit(Uint16 port);
 int serverUpdate();
 
 #endif

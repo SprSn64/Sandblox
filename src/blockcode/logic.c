@@ -4,4 +4,6 @@
 #include <stdlib.h>
 #include <math.h>
 
-#include "structs.h"
+#include <structs.h>
+#include "blockcode.h"
+#include "logic.h"

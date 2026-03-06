@@ -9,7 +9,8 @@
 } IPAddress;
 
 typedef struct{
-	IPAddress serverIP, clientIP;
+	Uint8 serverIP;
+	IPAddress* clientsIP;
 	Uint16 port;
 	char* version;
 	float avgPing;

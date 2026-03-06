@@ -19,10 +19,13 @@
 #include "gamefile.h"
 #include "bones.h"
 
+#include "blockcode/blockcode.h"
+#include "blockcode/renderer.h"
+
 #include "studio/studio.h"
+
 #include "network/network.h"
 #include "network/server.h"
-
 
 /* TODO:
 	Get OpenGL GLEW working
@@ -106,11 +109,14 @@ Vector3 sunAngle = {0, 0, 0};
 char* clientPath;
 char* basePath;
 
-bool debugServer = false;
+Server* debugServer = NULL;
+
+extern cBlockClass testBlockClass;
+CodeBlock testCodeBlock;
 
 SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[]){
 	(void)appstate;
-	client.version = "0.01 INDEV";
+	client.version = "0.02 INDEV";
 	SDL_SetAppMetadata("SandBlox", client.version, NULL);
 
 	clientPath = SDL_GetCurrentDirectory();
@@ -134,11 +140,12 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[]){
 		if(!strcmp("-mapfile", argv[i]))
 			mapToLoad = argv[++i];
 		if(!strcmp("-host", argv[i]))
-			//debugServer = serverInit(); //argv[i+1]
+			//debugServer = serverInit(8080); //argv[i+1]
 		if(!strcmp("-server", argv[i])) printf("cant join server '%s'... not implemented yet sorry\n", argv[i+1]);
 			//connectServer(argv[i++]);
 	}
-	debugServer = serverInit();
+	debugServer = serverInit(8080);
+	client.server = debugServer;
 	
 	if(!SDL_Init(SDL_INIT_VIDEO)){
 		SDL_Log("Couldn't initialize SDL: %s", SDL_GetError());
@@ -202,6 +209,8 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[]){
 	client.gameWorld->currCamera = &currentCamera;
 	
 	defaultMatrix = newMatrix();
+
+	testCodeBlock = (CodeBlock){&testBlockClass, (SDL_FPoint){0, 0}, NULL, NULL, NULL, NULL};
 
 	if(mapLoaded) return SDL_APP_CONTINUE;
 	
@@ -375,6 +384,8 @@ SDL_AppResult SDL_AppIterate(void *appstate){
 	drawText(renderer, &defaultFont, rotText, 0, 16, 2, (SDL_FColor){1, 1, 1, 1});
 	
 	if(client.pause)drawText(renderer, &defaultFont, "Game Paused", 0, windowScale.y - 16, 2, (SDL_FColor){1, 1, 1, 1});
+
+	//drawCodeBlock(renderer, &testCodeBlock);
 	
 	/*if(!gameFileLoaded) {
 		char* noGameText = "NO GAME HERE";
