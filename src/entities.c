@@ -21,6 +21,17 @@ extern SDL_Texture *homerTex;
 
 DataType playerClass;
 
+void accessoryUpdate(DataObj* object){
+	if(object->parent->classData == &playerClass){
+		object->pos = object->parent->pos;
+		object->scale = object->parent->scale;
+		object->rot = object->parent->rot;
+		return;
+	}
+
+	//do the physics thing and fall
+}
+
 void accessoryDraw(DataObj* object){
 	if(object->parent->classData == &playerClass)
 		return;
@@ -31,7 +42,7 @@ void accessoryDraw(DataObj* object){
 	drawMesh(object->asVoidptr[OBJVAL_MESH], object->transform, ConvertSDLColour(object->colour), itemTex, true);
 }
 
-DataType accessoryClass = {"Accessory\0", 10, 0, NULL, NULL, accessoryDraw};
+DataType accessoryClass = {"Accessory\0", 10, 0, NULL, accessoryUpdate, accessoryDraw};
 
 void playerInit(DataObj* object){
 	//object->pos.y = 0;

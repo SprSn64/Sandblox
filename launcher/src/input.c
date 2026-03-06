@@ -73,12 +73,12 @@ bool updateButton(Button* item){
 	if(!item->enabled || !item->pressed) return 1;
 	
 	item->hover = (SDL_GetWindowFlags(window) & SDL_WINDOW_INPUT_FOCUS) && (mousePos.x >= item->rect.x && mousePos.y >= item->rect.y && mousePos.x <= item->rect.x + item->rect.w && mousePos.y <= item->rect.y  + item->rect.h);
-	if(!mouseButtons[0].down){item->down = false; return 0;}
 	if(item->hover){
 		SDL_SetCursor(SDL_CreateSystemCursor(SDL_SYSTEM_CURSOR_POINTER));
-		//item->pressed();
+		if(!mouseButtons[0].down){item->down = false; return 1;}
 		if(item->down) return 1;
 		item->down = true;
+
 		item->pressed(item);
 	}
 	

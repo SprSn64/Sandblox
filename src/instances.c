@@ -40,32 +40,34 @@ DataObj gameHeader = {
 };
 
 extern Mesh *cubePrim;
-void updateObjects(DataObj* item, int nodeDepth, int *idCount, bool uord){ //uord = update or draw
-	//int i = (*idCount)++;
-	if (!uord){
-		item->rot = (Vector3){fmod(item->rot.x, 6.28318), fmod(item->rot.y, 6.28318), fmod(item->rot.z, 6.28318)};
-		if(item->classData->update)item->classData->update(item);
-	}else{ 
-		if(item->parent && item->parent->studioOpen == true)
-			objListLength += item->parent->studioOpen;
-		if(!item->classData->draw) goto noDraw;
-		/*item->transform = newMatrix();
-		scaleMatrix2(item->transform, item->scale);
-		rotateMatrix2(item->transform, item->rot);
-		translateMatrix2(item->transform, item->pos);*/
-		
-		item->transform = genMatrix(item->pos, item->scale, item->rot);
-		
-		item->classData->draw(item);
-		if(item == focusObject && client.studio)drawMesh(cubePrim, item->transform, (SDL_FColor){1, 1, 1, fabs(SDL_sin(timer * 2)) * 0.25}, NULL, false);
-		free(item->transform);
-	}
-	noDraw:
-	//if(uord)drawText(renderer, fontTex, item->name, 32, OBJLIST_HUD_POS_X + (nodeDepth * 24), OBJLIST_HUD_POS_Y + i * 16, 16, 16, 12);
+void updateObjects(DataObj* item, int nodeDepth, int *idCount){
+	item->rot = (Vector3){fmod(item->rot.x, 6.28318), fmod(item->rot.y, 6.28318), fmod(item->rot.z, 6.28318)};
+	if(item->classData->update)item->classData->update(item);
+
 	DataObj* child = item->child;
 	while (child) {
 		DataObj *next = child->next;
-		updateObjects(child, nodeDepth + 1, idCount, uord);
+		updateObjects(child, nodeDepth + 1, idCount);
+		child = next;
+	}
+}
+
+void drawObjects(DataObj* item, int nodeDepth, int *idCount){
+	if(item->parent && item->parent->studioOpen == true)
+		objListLength += item->parent->studioOpen;
+	if(!item->classData->draw) goto noDraw;
+
+	item->transform = genMatrix(item->pos, item->scale, item->rot);
+	
+	item->classData->draw(item);
+	if(item == focusObject && client.studio)drawMesh(cubePrim, item->transform, (SDL_FColor){1, 1, 1, fabs(SDL_sin(timer * 2)) * 0.25}, NULL, false);
+	free(item->transform);
+
+noDraw:
+	DataObj* child = item->child;
+	while (child) {
+		DataObj *next = child->next;
+		drawObjects(child, nodeDepth + 1, idCount);
 		child = next;
 	}
 }

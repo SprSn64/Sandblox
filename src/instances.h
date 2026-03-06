@@ -25,7 +25,8 @@ void removeObject(DataObj* object);
 bool parentObject(DataObj* child, DataObj* parent);
 DataObj* duplicateObject(DataObj* ogItem);
 
-void updateObjects(DataObj* item, int nodeDepth, int *idCount, bool uord);
+void updateObjects(DataObj* item, int nodeDepth, int *idCount);
+void drawObjects(DataObj* item, int nodeDepth, int *idCount);
 void cleanupObjects(DataObj* item);
 void lesserCleanupObjects(DataObj* item);
 

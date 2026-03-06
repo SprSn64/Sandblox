@@ -139,7 +139,7 @@ SDL_AppResult SDL_AppIterate(void *appstate){
 	
 	mouseState = SDL_GetMouseState(&mousePos.x, &mousePos.y);
 	for(int i=0; i<3; i++){
-		mouseButtons[i].down = (SDL_GetWindowFlags(window) & SDL_WINDOW_INPUT_FOCUS) && (mouseState & mouseButtons[i].code);
+		mouseButtons[i].down = windowHover && (mouseState & mouseButtons[i].code);
 		if(mouseButtons[i].down){
 			if(!mouseButtons[i].pressCheck){
 				mouseButtons[i].pressCheck = true;
@@ -234,7 +234,9 @@ void drawMapList(){
 	MapEntry* currItem = mapListHead;
 	Uint32 yOffset = 0;
 	while(currItem){
-		if(mouseButtons[0].pressed && between(mousePos.x, 96, 320) && between(mousePos.y, yOffset * 16 + 33, yOffset * 16 + 47)){
+		bool hover = between(mousePos.x, 96, 320) && between(mousePos.y, yOffset * 16 + 33, yOffset * 16 + 47);
+		if(hover)SDL_SetCursor(SDL_CreateSystemCursor(SDL_SYSTEM_CURSOR_POINTER));
+		if(mouseButtons[0].pressed && hover){
 			if(chosenMap == currItem)
 				chosenMap = NULL;
 			else

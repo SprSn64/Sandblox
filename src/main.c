@@ -342,7 +342,7 @@ SDL_AppResult SDL_AppIterate(void *appstate){
 		}
 		//sunAngle = (Vector3){timer, timer, 0};
 		//lightNormal = rotToNorm3(sunAngle);
-		updateObjects(client.gameWorld->headObj, 0, &idCounter, false);
+		updateObjects(client.gameWorld->headObj, 0, &idCounter);
 	}
 
 	if(glEnabled)
@@ -361,20 +361,17 @@ SDL_AppResult SDL_AppIterate(void *appstate){
 	//SDL_SetRenderDrawColor(renderer, 255, 255, 255, SDL_ALPHA_OPAQUE);
 	
 	idCounter = 0;
-	updateObjects(client.gameWorld->headObj, 0, &idCounter, true);
+	drawObjects(client.gameWorld->headObj, 0, &idCounter);
 
-	drawBone(testRig->rootBone);
-	
+	//drawBone(testRig->rootBone);
 	updateStudio();
-	
 	updatePopups();
 		
 	static char fpsText[256] = "FPS: 0";
 	static char rotText[256] = "Camera Rot: 0, 0";
 	static double lastDebugUpdate = 0;
-	if ((Uint32)(timer*100)%64 == 0) {
+	if ((Uint32)(timer*100)%64 == 0)
 		lastFPS = (Uint32)floor(1/deltaTime);
-	}
 	if(timer - lastDebugUpdate >= 0.5){
 		lastDebugUpdate = timer;
 		sprintf(fpsText, "FPS: %d", lastFPS);

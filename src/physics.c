@@ -15,8 +15,8 @@ float checkBlockCollisionY(Vector3 pos, float footY, DataObj* block){
 	if(collider->shape != COLLHULL_CUBE) return -INFINITY; // not a solid block
 	
 	// block bounds (pos is corner, scale is size)
-	Vector3 bMin = {block->pos.x - 1, block->pos.y - block->scale.y - 4, block->pos.z - 1};
-	Vector3 bMax = {block->pos.x + block->scale.x + 1, block->pos.y, block->pos.z + block->scale.z + 1};
+	Vector3 bMin = {block->pos.x - 0.5, block->pos.y - block->scale.y - 4, block->pos.z - 0.5};
+	Vector3 bMax = {block->pos.x + block->scale.x + 0.5, block->pos.y, block->pos.z + block->scale.z + 0.5};
 	
 	if(pos.x >= bMin.x && pos.x <= bMax.x &&
 	   pos.z >= bMin.z && pos.z <= bMax.z){
