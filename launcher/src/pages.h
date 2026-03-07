@@ -16,6 +16,4 @@ typedef struct{
 void updatePage(SDL_Renderer* render, Page* item);
 void initPages();
 
-void drawAvatar(SDL_Point pos);
-
 #endif

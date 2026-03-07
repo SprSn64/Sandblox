@@ -61,12 +61,14 @@ extern char *basePath;
 char *runArgs = "-studio";
 
 Button newLableButton(void* func, char* text, SDL_FRect rect){
-	return (Button){text, rect, func, true, true, false, false, NULL, NULL};
+	return (Button){text, rect, INPUTTYPE_BUTTON, func, true, false, false, NULL, NULL, NULL};
 }
-
 Button newImageButton(void* func, SDL_Texture* image, SDL_FRect dest, SDL_FRect source){
 	SDL_FRect* sourceRect = malloc(sizeof(SDL_FRect)); memcpy(sourceRect, &source, sizeof(SDL_FRect));
-	return (Button){NULL, dest, func, true, true, false, false, image, sourceRect};
+	return (Button){NULL, dest, INPUTTYPE_BUTTON, func, true, false, false, NULL, image, sourceRect};
+}
+Button newTextboxButton(void* target, char* text, SDL_FRect rect){
+	return (Button){text, rect, INPUTTYPE_TEXT, NULL, true, false, false, target, NULL, NULL};
 }
 
 bool updateButton(Button* item){
@@ -97,6 +99,12 @@ void drawButton(SDL_Renderer* render, Button* item){
 		SDL_SetRenderDrawColor(render, 177, 179, 191, 255);//buttonColours[BUTTONCOLOUR_DISABLED]);
 		goto buttonDrawStart;
 	}
+
+	if(item->buttonType == INPUTTYPE_TEXT || item->buttonType == INPUTTYPE_NUMBER){
+		SDL_SetRenderDrawColor(render, 255, 255, 255, 255);//buttonColours[BUTTONCOLOUR_INPUT]);
+		goto buttonDrawStart;
+	}
+
 	SDL_SetRenderDrawColor(render, 205, 208, 226, 255);//buttonColours[BUTTONCOLOUR_DEFAULT]);
 	if(item->hover)
 		SDL_SetRenderDrawColor(render, 231, 234, 249, 255);//buttonColours[BUTTONCOLOUR_HOVER]);
@@ -105,9 +113,14 @@ void drawButton(SDL_Renderer* render, Button* item){
 	
 	buttonDrawStart:
 	SDL_RenderFillRect(render, &(SDL_FRect){item->rect.x, item->rect.y, item->rect.w, item->rect.h});
-	
-	SDL_SetRenderDrawColor(render, 0, 0, 0, SDL_ALPHA_OPAQUE);
-	drawText(render, &defaultFont, item->labelText, item->rect.x + 2, item->rect.y + 2, 1, (SDL_FColor){0, 0, 0, 1});
+
+	if(item->buttonType == INPUTTYPE_TEXT){
+		//drawText(render, &defaultFont, item->target, item->rect.x + 2, item->rect.y + 2, 1, (SDL_FColor){0, 0, 0, 1});
+		return;
+	}
+
+	bool isText = (item->buttonType == INPUTTYPE_TEXT || item->buttonType == INPUTTYPE_NUMBER);
+	drawText(render, &defaultFont, item->labelText, item->rect.x + 2, item->rect.y + 2, 1, (SDL_FColor){isText * 0.5, isText * 0.5, isText * 0.5, 1});
 }
 
 extern MapEntry* chosenMap;
@@ -210,4 +223,21 @@ void buttonOpenLink(Button* item){
 			break;
 	}
 	(void)fuck;
+}
+
+extern MapEntry* mapListHead;
+void buttonRefreshMaps(Button* item){
+	(void)item;
+
+	MapEntry* loopItem = mapListHead;
+	while(loopItem){
+		MapEntry* currItem = loopItem;
+		loopItem = loopItem->next;
+		if(currItem)free(currItem);
+	}
+	mapListHead = NULL;
+
+	char* mapPath = malloc(256); sprintf(mapPath, "%smaps", SDL_GetCurrentDirectory());  
+	loadMapDir(mapPath);
+	free(mapPath);
 }

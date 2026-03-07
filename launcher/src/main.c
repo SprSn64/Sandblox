@@ -28,6 +28,7 @@ typedef enum operatingSystem{
 #include "input.h"
 #include "loader.h"
 #include "pages.h"
+#include "avatar.h"
 
 char* version = "0.0 INDEV";
 char* basePath;
@@ -113,11 +114,14 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[]){
 
 	char* mapPath = malloc(256); sprintf(mapPath, "%smaps", SDL_GetCurrentDirectory());  
 	loadMapDir(mapPath);
+	free(mapPath);
 
 	loadLanguage(LANG_EN);
 	for(int i=0; i<6; i++){
 		printf("%s\n", langStrings[i]);
 	}
+
+	initAvatar();
 
 	return SDL_APP_CONTINUE;
 }	

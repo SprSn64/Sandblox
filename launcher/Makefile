@@ -1,4 +1,4 @@
-DIRS := src
+DIRS := src src/cjosn
 
 CC  := gcc
 CXX := g++
