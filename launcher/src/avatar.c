@@ -34,26 +34,26 @@ void initAvatar(){
 	}
 
 	fseek(file, 0, SEEK_END);
-    	long fileSize = ftell(file);
-    	fseek(file, 0, SEEK_SET);
-    
-    	char* content = malloc(fileSize + 1);
-    	int readThing = fread(content, 1, fileSize, file); (void)readThing;
-    	content[fileSize] = '\0';
-    	fclose(file);
+	long fileSize = ftell(file);
+	fseek(file, 0, SEEK_SET);
+	
+	char* content = malloc(fileSize + 1);
+	int readThing = fread(content, 1, fileSize, file); (void)readThing;
+	content[fileSize] = '\0';
+	fclose(file);
 
 	cJSON* json = cJSON_Parse(content);
-    	if(!json){
-      	printf("Failed to parse JSON: %s\n", cJSON_GetErrorPtr());
-      	goto avatarLoadSkip;
-    	}
+	if(!json){
+		printf("Failed to parse JSON: %s\n", cJSON_GetErrorPtr());
+		goto avatarLoadSkip;
+	}
 
-    	cJSON* name = cJSON_GetObjectItem(json, "name");
-    	if(name && cJSON_IsString(name))
-        	playerName = strdup(name->valuestring);
+	cJSON* name = cJSON_GetObjectItem(json, "name");
+	if(name && cJSON_IsString(name))
+		playerName = strdup(name->valuestring);
 
-      cJSON_Delete(json);
-      free(content);
+	cJSON_Delete(json);
+	free(content);
 
 avatarLoadSkip:
 	free(avatarPath);
@@ -67,5 +67,4 @@ void drawAvatar(SDL_Point pos){
 	SDL_RenderFillRect(renderer, &drawRect);
 
 	SDL_RenderTexture(renderer, avatarBaseTex, &sourceRect, &drawRect);
-	drawText(renderer, &defaultFont, playerName, pos.x, pos.y, 1, (SDL_FColor){0, 0, 0, 1});
 }

@@ -110,6 +110,7 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[]){
 	
 	printf("Operating system is %s\n", osText);
 
+	initAvatar();
 	initPages();
 
 	char* mapPath = malloc(256); sprintf(mapPath, "%smaps", SDL_GetCurrentDirectory());  
@@ -121,11 +122,10 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[]){
 		printf("%s\n", langStrings[i]);
 	}
 
-	initAvatar();
-
 	return SDL_APP_CONTINUE;
 }	
 
+extern Button* currButtonItem;
 SDL_AppResult SDL_AppEvent(void *appstate, SDL_Event *event){
 	(void)appstate;
 	if(event->type == SDL_EVENT_QUIT){

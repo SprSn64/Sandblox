@@ -60,6 +60,8 @@ extern char *basePath;
 
 char *runArgs = "-studio";
 
+Button* currButtonItem;
+
 Button newLableButton(void* func, char* text, SDL_FRect rect){
 	return (Button){text, rect, INPUTTYPE_BUTTON, func, true, false, false, NULL, NULL, NULL};
 }
@@ -72,7 +74,7 @@ Button newTextboxButton(void* target, char* text, SDL_FRect rect){
 }
 
 bool updateButton(Button* item){
-	if(!item->enabled || !item->pressed) return 1;
+	if(!item->enabled || !(item->pressed || item->target)) return 1;
 	
 	item->hover = (SDL_GetWindowFlags(window) & SDL_WINDOW_INPUT_FOCUS) && (mousePos.x >= item->rect.x && mousePos.y >= item->rect.y && mousePos.x <= item->rect.x + item->rect.w && mousePos.y <= item->rect.y  + item->rect.h);
 	if(item->hover){
@@ -81,7 +83,10 @@ bool updateButton(Button* item){
 		if(item->down) return 1;
 		item->down = true;
 
-		item->pressed(item);
+		switch(item->buttonType){
+			case INPUTTYPE_TEXT: currButtonItem = item; SDL_StartTextInput(window); break;
+			default: item->pressed(item); break;
+		}
 	}
 	
 	return 0;
@@ -113,10 +118,14 @@ void drawButton(SDL_Renderer* render, Button* item){
 	
 	buttonDrawStart:
 	SDL_RenderFillRect(render, &(SDL_FRect){item->rect.x, item->rect.y, item->rect.w, item->rect.h});
+	if(currButtonItem == item){
+		SDL_SetRenderDrawColor(render, 255, 0, 0, 255);
+		SDL_RenderFillRect(render, &(SDL_FRect){item->rect.x, item->rect.y, 2, 2});
+	}
 
-	if(item->buttonType == INPUTTYPE_TEXT){
-		//drawText(render, &defaultFont, item->target, item->rect.x + 2, item->rect.y + 2, 1, (SDL_FColor){0, 0, 0, 1});
-		return;
+	if(item->buttonType == INPUTTYPE_TEXT && item->target){
+		drawText(render, &defaultFont, item->target, item->rect.x + 2, item->rect.y + 2, 1, (SDL_FColor){0, 0, 0, 1});
+		if(strlen(item->target))return;
 	}
 
 	bool isText = (item->buttonType == INPUTTYPE_TEXT || item->buttonType == INPUTTYPE_NUMBER);
