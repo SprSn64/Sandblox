@@ -69,6 +69,9 @@ extern Page pageList[PAGE_MAX];
 extern Page sidePanel;
 
 extern char** langStrings;
+extern Button* currButtonItem;
+
+bool between(float input, float min, float max){return(input >= min && input <= max);}
 
 SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[]){
 	(void)appstate; (void)argv;
@@ -125,7 +128,6 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[]){
 	return SDL_APP_CONTINUE;
 }	
 
-extern Button* currButtonItem;
 SDL_AppResult SDL_AppEvent(void *appstate, SDL_Event *event){
 	(void)appstate;
 	if(event->type == SDL_EVENT_QUIT){
@@ -150,6 +152,10 @@ SDL_AppResult SDL_AppIterate(void *appstate){
 				mouseButtons[i].pressed = true;
 			}else{
 				mouseButtons[i].pressed = false;
+			}
+
+			if(currButtonItem && !(between(mousePos.x - currButtonItem->rect.x, 0, currButtonItem->rect.w) && between(mousePos.y - currButtonItem->rect.y, 0, currButtonItem->rect.h))){
+				currButtonItem = NULL;
 			}
 		}else mouseButtons[i].pressCheck = false;
 	}
@@ -229,8 +235,6 @@ void drawText(SDL_Renderer *renderLoc, Font *textFont, char* text, short posX, s
 		SDL_RenderTexture(renderLoc, textFont->image, &sprRect, &sprPos);
 	}
 }
-
-bool between(float input, float min, float max){return(input >= min && input <= max);}
 
 MapEntry* chosenMap = NULL;
 extern MapEntry* mapListHead;

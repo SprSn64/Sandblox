@@ -62,6 +62,8 @@ char *runArgs = "-studio";
 
 Button* currButtonItem;
 
+bool between(float input, float min, float max);
+
 Button newLableButton(void* func, char* text, SDL_FRect rect){
 	return (Button){text, rect, INPUTTYPE_BUTTON, func, true, false, false, NULL, NULL, NULL};
 }
@@ -76,7 +78,7 @@ Button newTextboxButton(void* target, char* text, SDL_FRect rect){
 bool updateButton(Button* item){
 	if(!item->enabled || !(item->pressed || item->target)) return 1;
 	
-	item->hover = (SDL_GetWindowFlags(window) & SDL_WINDOW_INPUT_FOCUS) && (mousePos.x >= item->rect.x && mousePos.y >= item->rect.y && mousePos.x <= item->rect.x + item->rect.w && mousePos.y <= item->rect.y  + item->rect.h);
+	item->hover = (SDL_GetWindowFlags(window) & SDL_WINDOW_INPUT_FOCUS) && between(mousePos.x - item->rect.x, 0, item->rect.w) && between(mousePos.y - item->rect.y, 0, item->rect.h);
 	if(item->hover){
 		SDL_SetCursor(SDL_CreateSystemCursor(SDL_SYSTEM_CURSOR_POINTER));
 		if(!mouseButtons[0].down){item->down = false; return 1;}
