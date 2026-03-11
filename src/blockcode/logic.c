@@ -5,5 +5,5 @@
 #include <math.h>
 
 #include <structs.h>
-#include "blockcode.h"
+#include "structs.h"
 #include "logic.h"

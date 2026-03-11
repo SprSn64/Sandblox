@@ -20,7 +20,6 @@
 #include "bones.h"
 
 #include "blockcode/blockcode.h"
-#include "blockcode/renderer.h"
 
 #include "studio/studio.h"
 
@@ -111,8 +110,10 @@ char* basePath;
 
 Server* debugServer = NULL;
 
-extern cBlockClass testBlockClass;
+cBlockClass testBlockClass = {0, (SDL_FColor){1, 0.83, 0.31, 1}, 0};
 CodeBlock testCodeBlock;
+
+//extern Uint64 memoryCount;
 
 SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[]){
 	(void)appstate;
@@ -210,7 +211,7 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[]){
 	
 	defaultMatrix = newMatrix();
 
-	testCodeBlock = (CodeBlock){&testBlockClass, (SDL_FPoint){0, 0}, NULL, NULL, NULL, NULL};
+	testCodeBlock = (CodeBlock){&testBlockClass, (SDL_FPoint){24, 24}, NULL, NULL, NULL, NULL};
 
 	if(mapLoaded) return SDL_APP_CONTINUE;
 	

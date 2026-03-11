@@ -2,7 +2,7 @@
 #define BLOCKCODE_RENDERER_H
 
 #include <structs.h>
-#include "blockcode.h"
+#include "structs.h"
 
 void drawCodeBlock(SDL_Renderer* render, CodeBlock* item);
 
