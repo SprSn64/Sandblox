@@ -243,12 +243,11 @@ void StudioHandleKeys(){
 		bool oldHeld = stuKeyList[i].down;
 		stuKeyList[i].down = stuKeyState[stuKeyList[i].code] && hasFocus;
 		stuKeyList[i].released = oldHeld && !stuKeyList[i].down;
+		stuKeyList[i].pressed = false;
 		if(stuKeyList[i].down){
 			if(!stuKeyList[i].pressCheck){
 				stuKeyList[i].pressCheck = true;
 				stuKeyList[i].pressed = true;
-			}else{
-				stuKeyList[i].pressed = false;
 			}
 		}else stuKeyList[i].pressCheck = false;
 	}

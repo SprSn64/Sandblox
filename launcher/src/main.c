@@ -199,12 +199,11 @@ void HandleKeyInput(){
 	const bool* keyState = SDL_GetKeyboardState(NULL);
 	for(int i = 0; i < KEYBINDCOUNT; i++){
 		keyList[i].down = keyState[keyList[i].code] && SDL_GetWindowFlags(window) & SDL_WINDOW_INPUT_FOCUS;
+		keyList[i].pressed = false;
 		if(keyList[i].down){
 			if(!keyList[i].pressCheck){
 				keyList[i].pressCheck = true;
 				keyList[i].pressed = true;
-			}else{
-				keyList[i].pressed = false;
 			}
 		}else keyList[i].pressCheck = false;
 	}

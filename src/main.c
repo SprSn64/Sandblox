@@ -424,12 +424,11 @@ void HandleKeyInput(){
 	bool hasFocus = (SDL_GetWindowFlags(window) | SDL_GetWindowFlags(glWindow)) & SDL_WINDOW_INPUT_FOCUS;
 	for(int i = 0; i < KEYBIND_MAX; i++){
 		keyList[i].down = keyState[keyList[i].code] && hasFocus;
+		keyList[i].pressed = false;
 		if(keyList[i].down){
 			if(!keyList[i].pressCheck){
 				keyList[i].pressCheck = true;
 				keyList[i].pressed = true;
-			}else{
-				keyList[i].pressed = false;
 			}
 		}else keyList[i].pressCheck = false;
 	}

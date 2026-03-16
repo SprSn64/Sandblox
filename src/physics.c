@@ -20,9 +20,8 @@ float checkBlockCollisionY(Vector3 pos, float footY, DataObj* block){
 	
 	if(pos.x >= bMin.x && pos.x <= bMax.x &&
 	   pos.z >= bMin.z && pos.z <= bMax.z){
-		if(footY <= bMax.y && footY >= bMin.y - 0.5f){
+		if(footY <= bMax.y && footY >= bMin.y - 0.5f)
 			return bMax.y;
-		}
 	}
 	return -INFINITY;
 }
