@@ -26,6 +26,8 @@
 #include "network/network.h"
 #include "network/server.h"
 
+#include "softwarerender/main.h"
+
 /* TODO:
 	Get OpenGL GLEW working
 	Make studio widgets work properly (2/3 complete) and probably optimize them
@@ -49,7 +51,8 @@ GameWorld game;
 //SDL_Point windowScaleIntent = {320, 240};
 //double windowScaleFactor;
 SDL_Point windowScale = {640, 480};
-Uint32* displayData;
+Texture* displayTex;
+float* depthBuffer;
 
 extern SDL_Rect objListRect;
 extern float objListScroll;
@@ -176,7 +179,7 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[]){
 	skyTex = newTexture("assets/textures/skybox.png", SDL_SCALEMODE_LINEAR);
 	sunTex = newTexture("assets/textures/sunflare.png", SDL_SCALEMODE_LINEAR);
 
-	displayData = malloc(320 * 240 * sizeof(Uint32));
+	
 	
 	defaultFont = (Font){fontTex, 32, (SDL_Point){32, 32}, (SDL_Point){8, 8}, (SDL_FPoint){6, 0}, 16};
 
@@ -216,7 +219,9 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[]){
 	defaultMatrix = newMatrix();
 
 	testCodeBlock = (CodeBlock){&testBlockClass, (SDL_FPoint){24, 24}, NULL, NULL, NULL, NULL};
-
+	
+	displayTex = newSoftwareTexture(320, 240);
+	depthBuffer = malloc(320 * 240 * sizeof(float));
 	renderTex = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_XBGR8888, SDL_TEXTUREACCESS_TARGET, windowScale.x, windowScale.y);
 	SDL_SetTextureScaleMode(renderTex, SDL_SCALEMODE_NEAREST);
 
@@ -290,6 +295,10 @@ SDL_AppResult SDL_AppIterate(void *appstate){
 	renderScale = min(windowScale.x, windowScale.y);
 	
 	//setDrawColour(renderer, skyboxColour);
+
+	clearTex(displayTex, 0xFF000000);
+	drawHamLine(displayTex, (SDL_Point){160, 120}, (SDL_Point){(1 + sin(timer)) * 160, (1 + cos(timer)) * 120}, WHITE);
+
 	SDL_SetRenderDrawColor(renderer, skyboxColour.r * 255, skyboxColour.g * 255, skyboxColour.b * 255, SDL_ALPHA_OPAQUE);
 	SDL_RenderClear(renderer);
 
@@ -387,7 +396,7 @@ SDL_AppResult SDL_AppIterate(void *appstate){
 
 	free(currentCamera.transform);
 
-	SDL_UpdateTexture(renderTex, NULL, displayData, 320 * 4);
+	SDL_UpdateTexture(renderTex, NULL, displayTex->pixels, displayTex->width * 4);
 	SDL_RenderTexture(renderer, renderTex, &(SDL_FRect){0, 0, 320, 240}, 
 		&(SDL_FRect){
 			windowScale.x - 320, 

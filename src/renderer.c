@@ -157,7 +157,8 @@ void drawMesh(Mesh* mesh, mat4 transform, SDL_FColor colour, SDL_Texture* textur
 	}
 	
 	Vector4 pointCalcs[3];
-	mat4 rotMatrix; memcpy(rotMatrix, transform, sizeof(mat4));
+	float* rotMatrix = malloc(sizeof(mat4)); 
+	memcpy(rotMatrix, transform, sizeof(mat4));
 	rotMatrix[3] = 0; rotMatrix[7] = 0; rotMatrix[11] = 0;  
 	Vector3 matrixScale = extractScale(transform);
 	rotMatrix[0] = rotMatrix[0] / matrixScale.x; rotMatrix[4] = rotMatrix[4] / matrixScale.x; rotMatrix[8] = rotMatrix[8] / matrixScale.x; 
@@ -171,7 +172,6 @@ void drawMesh(Mesh* mesh, mat4 transform, SDL_FColor colour, SDL_Texture* textur
 			&mesh->verts[mesh->faces[i].vertC % mesh->vertCount]
 		};
 		if (!(currVerts[0] && currVerts[1] && currVerts[2])) continue;
-		
 		
 		pointCalcs[0] = matrixMult(vec3ToVec4(currVerts[0]->pos), transform);
 		pointCalcs[1] = matrixMult(vec3ToVec4(currVerts[1]->pos), transform);
@@ -206,8 +206,6 @@ void drawMesh(Mesh* mesh, mat4 transform, SDL_FColor colour, SDL_Texture* textur
 			};
 		}
 		
-		
-		
 		unshadedSkip:
 		
 		draw3DTriangle(
@@ -216,6 +214,7 @@ void drawMesh(Mesh* mesh, mat4 transform, SDL_FColor colour, SDL_Texture* textur
 			(MeshVert){vec4ToVec3(pointCalcs[2]), (Vector3){0,0,0}, currVerts[2]->uv, clampColour(shadedColour[2])}, 
 		texture);
 	}
+	free(rotMatrix);
 }
 
 SDL_Texture *newTexture(char* path, SDL_ScaleMode scaleMode){

@@ -1,0 +1,187 @@
+{
+	"objects":	[{
+			"name":	"Baseplate",
+			"class":	"Block",
+			"pos":	[-128.000000, 0.000000, -128.000000],
+			"scale":	[256.000000, 1.000000, 256.000000],
+			"rot":	[0.000000, 0.000000, 0.000000],
+			"colour":	[55, 114, 55, 255],
+			"collision":	{
+				"enabled":	true,
+				"type":	"block"
+			}
+		}, {
+			"name":	"Group",
+			"class":	"Group",
+			"pos":	[0.000000, 0.000000, 0.000000],
+			"scale":	[1.000000, 1.000000, 1.000000],
+			"rot":	[0.000000, 0.000000, 0.000000],
+			"colour":	[255, 255, 255, 255],
+			"children":	[{
+					"name":	"Block",
+					"class":	"Block",
+					"pos":	[-9.000000, 1.000000, -29.000000],
+					"scale":	[18.000000, 1.000000, 18.000000],
+					"rot":	[0.000000, 0.000000, 0.000000],
+					"colour":	[209, 119, 78, 255],
+					"collision":	{
+						"enabled":	true,
+						"type":	"block"
+					}
+				}, {
+					"name":	"Block (Copy)",
+					"class":	"Block",
+					"pos":	[7.000000, 12.000000, -28.000000],
+					"scale":	[1.000000, 11.000000, 16.000000],
+					"rot":	[0.000000, 0.000000, 0.000000],
+					"colour":	[254, 198, 152, 255],
+					"collision":	{
+						"enabled":	true,
+						"type":	"block"
+					}
+				}, {
+					"name":	"Block (Copy) (Copy)",
+					"class":	"Block",
+					"pos":	[-8.000000, 12.000000, -28.000000],
+					"scale":	[1.000000, 11.000000, 16.000000],
+					"rot":	[0.000000, 0.000000, 0.000000],
+					"colour":	[254, 198, 152, 255],
+					"collision":	{
+						"enabled":	true,
+						"type":	"block"
+					}
+				}, {
+					"name":	"Block (Copy) (Copy)",
+					"class":	"Block",
+					"pos":	[-8.000000, 12.000000, -28.000000],
+					"scale":	[16.000000, 11.000000, 1.000000],
+					"rot":	[0.000000, 0.000000, 0.000000],
+					"colour":	[254, 198, 152, 255],
+					"collision":	{
+						"enabled":	true,
+						"type":	"block"
+					},
+					"children":	[{
+							"name":	"Spamton",
+							"class":	"Block",
+							"pos":	[6.000000, 1.000000, -21.000000],
+							"scale":	[1.000000, 1.000000, 1.000000],
+							"rot":	[0.000000, 270.000000, 0.000000],
+							"colour":	[255, 255, 255, 255],
+							"collision":	{
+								"enabled":	true,
+								"type":	"block"
+							},
+							"children":	[{
+									"name":	"Mesh",
+									"class":	"Mesh",
+									"pos":	[0.000000, 0.000000, 0.000000],
+									"scale":	[1.000000, 1.000000, 1.000000],
+									"rot":	[0.000000, 0.000000, 0.000000],
+									"colour":	[255, 255, 255, 255],
+									"mesh":	"./spamton.obj",
+									"texture":	"./spamton.png"
+								}]
+						}]
+				}, {
+					"name":	"Block (Copy) (Copy) (Copy)",
+					"class":	"Block",
+					"pos":	[-7.000000, 9.000000, -13.000000],
+					"scale":	[5.000000, 8.000000, 1.000000],
+					"rot":	[0.000000, 0.000000, 0.000000],
+					"colour":	[254, 198, 152, 255],
+					"collision":	{
+						"enabled":	true,
+						"type":	"block"
+					}
+				}, {
+					"name":	"Block (Copy) (Copy) (Copy) (Copy)",
+					"class":	"Block",
+					"pos":	[2.000000, 9.000000, -13.000000],
+					"scale":	[5.000000, 8.000000, 1.000000],
+					"rot":	[0.000000, 0.000000, 0.000000],
+					"colour":	[254, 198, 152, 255],
+					"collision":	{
+						"enabled":	true,
+						"type":	"block"
+					}
+				}, {
+					"name":	"Block (Copy) (Copy)",
+					"class":	"Block",
+					"pos":	[-7.000000, 12.000000, -13.000000],
+					"scale":	[14.000000, 3.000000, 1.000000],
+					"rot":	[0.000000, 0.000000, 0.000000],
+					"colour":	[254, 198, 152, 255],
+					"collision":	{
+						"enabled":	true,
+						"type":	"block"
+					}
+				}, {
+					"name":	"Block (Copy)",
+					"class":	"Block",
+					"pos":	[-10.000000, 13.000000, -29.000000],
+					"scale":	[5.000000, 1.000000, 18.000000],
+					"rot":	[0.000000, 0.000000, 0.000000],
+					"colour":	[224, 75, 33, 255],
+					"collision":	{
+						"enabled":	true,
+						"type":	"block"
+					}
+				}, {
+					"name":	"Block (Copy) (Copy)",
+					"class":	"Block",
+					"pos":	[5.000000, 13.000000, -29.000000],
+					"scale":	[5.000000, 1.000000, 18.000000],
+					"rot":	[0.000000, 0.000000, 0.000000],
+					"colour":	[224, 75, 33, 255],
+					"collision":	{
+						"enabled":	true,
+						"type":	"block"
+					}
+				}, {
+					"name":	"Block (Copy) (Copy) (Copy)",
+					"class":	"Block",
+					"pos":	[2.000000, 14.000000, -29.000000],
+					"scale":	[5.000000, 1.000000, 18.000000],
+					"rot":	[0.000000, 0.000000, 0.000000],
+					"colour":	[224, 75, 33, 255],
+					"collision":	{
+						"enabled":	true,
+						"type":	"block"
+					}
+				}, {
+					"name":	"Block (Copy) (Copy)",
+					"class":	"Block",
+					"pos":	[-7.000000, 14.000000, -29.000000],
+					"scale":	[5.000000, 1.000000, 18.000000],
+					"rot":	[0.000000, 0.000000, 0.000000],
+					"colour":	[224, 75, 33, 255],
+					"collision":	{
+						"enabled":	true,
+						"type":	"block"
+					}
+				}, {
+					"name":	"Block (Copy) (Copy) (Copy)",
+					"class":	"Block",
+					"pos":	[-4.000000, 15.000000, -29.000000],
+					"scale":	[8.000000, 1.000000, 18.000000],
+					"rot":	[0.000000, 0.000000, 0.000000],
+					"colour":	[224, 75, 33, 255],
+					"collision":	{
+						"enabled":	true,
+						"type":	"block"
+					}
+				}, {
+					"name":	"Block (Copy)",
+					"class":	"Block",
+					"pos":	[-7.000000, 18.000000, -25.000000],
+					"scale":	[2.000000, 4.000000, 2.000000],
+					"rot":	[0.000000, 0.000000, 0.000000],
+					"colour":	[108, 74, 59, 255],
+					"collision":	{
+						"enabled":	true,
+						"type":	"block"
+					}
+				}]
+		}]
+}

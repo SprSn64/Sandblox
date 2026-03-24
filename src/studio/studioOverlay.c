@@ -69,8 +69,8 @@ void translateGimbleUpdate(DataObj* item){
 	if(!mouseButtons[0].down && gimbleGrabbed){
 		gimbleGrabbed = 0;
 		lerpSet = false;
-		void** undoList = malloc(sizeof(void*) * 3); undoList[0] = &vector; undoList[1] = &ogPos; undoList[2] = NULL;
-		addHistoryItem(HISTORY_CHANGEVAL, undoList);
+		//void** undoList = malloc(sizeof(void*) * 3); undoList[0] = &vector; undoList[1] = &ogPos; undoList[2] = NULL;
+		//addHistoryItem(HISTORY_CHANGEVAL, undoList);
 		return;
 	}
 	
@@ -164,8 +164,8 @@ void scaleGimbleUpdate(DataObj* item){
 	if(!mouseButtons[0].down && gimbleGrabbed){
 		gimbleGrabbed = 0;
 		lerpSet = false;
-		void** undoList = malloc(sizeof(void*) * 3); undoList[0] = &scaleVec; undoList[1] = &ogPos; undoList[2] = NULL;
-		addHistoryItem(HISTORY_CHANGEVAL, undoList);
+		//void** undoList = malloc(sizeof(void*) * 3); undoList[0] = &scaleVec; undoList[1] = &ogPos; undoList[2] = NULL;
+		//addHistoryItem(HISTORY_CHANGEVAL, undoList);
 		return;
 	}
 	
