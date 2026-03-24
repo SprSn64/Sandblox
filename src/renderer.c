@@ -11,8 +11,13 @@
 #include "math.h"
 #include "opengl.h"
 
+#include "softwarerender/main.h"
+#include "softwarerender/depth.h"
+
 extern SDL_Renderer *renderer;
 extern bool glEnabled;
+
+extern Texture* displayTex;
 
 extern float timer;
 extern ClientData client;
@@ -29,6 +34,8 @@ SDL_FColor lightAmbient = {0.25, 0.25, 0.3, 1};
 //bool matrixOrSlopProject = false;
 extern float* defaultMatrix;
 
+bool debugPersp = true; //glEnabled;
+
 Vector3 worldToCamera(Vector3 pos){
 	if(glEnabled){
 		Vector4 newPos = matrixMult(matrixMult(vec3ToVec4(pos), client.gameWorld->currCamera->transform), client.gameWorld->currCamera->proj);
@@ -43,7 +50,8 @@ Vector3 worldToCamera(Vector3 pos){
 }
 
 Vector3 viewProj(Vector3 pos){
-	if(glEnabled) return pos;
+	if(glEnabled) 
+		return pos;
 
 	float absZ = fabs(pos.z);
 	if(absZ < 0.001f) absZ = 0.001f;
@@ -97,6 +105,8 @@ bool draw3DTriangle(MeshVert pointA, MeshVert pointB, MeshVert pointC, SDL_Textu
 	Vector3 camA = worldToCamera(pointA.pos);
 	Vector3 camB = worldToCamera(pointB.pos);
 	Vector3 camC = worldToCamera(pointC.pos);
+
+	drawDepthTriangle(displayTex, camA, camB, camC, colourToInt(pointA.colour));
 	
 	const float NEAR_PLANE = -0.1f;  // near plane in camera space (negative = in front)
 	

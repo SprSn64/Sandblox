@@ -74,11 +74,11 @@ float timer = 0;
 
 Font defaultFont;
 
+Texture *testTex = NULL;
+
 SDL_Texture *fontTex = NULL; SDL_Texture *playerTex = NULL; SDL_Texture *homerTex = NULL;
 SDL_Texture *boneTex = NULL; SDL_Texture *cursorTex = NULL; SDL_Texture *skyTex = NULL; SDL_Texture *sunTex = NULL;
-
 Mesh *playerMesh = NULL; Mesh *boneMesh = NULL; Mesh *skyboxMesh = NULL; Mesh *sunMesh = NULL;
-
 Mesh *planePrim = NULL; Mesh *cubePrim = NULL; Mesh *spherePrim = NULL;
 
 Skeleton* testRig = NULL;
@@ -179,8 +179,6 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[]){
 	skyTex = newTexture("assets/textures/skybox.png", SDL_SCALEMODE_LINEAR);
 	sunTex = newTexture("assets/textures/sunflare.png", SDL_SCALEMODE_LINEAR);
 
-	
-	
 	defaultFont = (Font){fontTex, 32, (SDL_Point){32, 32}, (SDL_Point){8, 8}, (SDL_FPoint){6, 0}, 16};
 
 	playerMesh = loadMeshFromObj("assets/models/player.obj"); 
@@ -225,6 +223,8 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[]){
 	renderTex = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_XBGR8888, SDL_TEXTUREACCESS_TARGET, windowScale.x, windowScale.y);
 	SDL_SetTextureScaleMode(renderTex, SDL_SCALEMODE_NEAREST);
 
+	testTex = loadSoftwareTexture("assets/textures/homer.png");
+
 	if(mapLoaded) return SDL_APP_CONTINUE;
 	
 	if(loadGameFile(mapToLoad) == 0){
@@ -268,6 +268,7 @@ SDL_AppResult SDL_AppEvent(void *appstate, SDL_Event *event){
 	return SDL_APP_CONTINUE;
 }
 
+extern bool doZBuffer;
 SDL_AppResult SDL_AppIterate(void *appstate){
 	(void)appstate;
 	HandleKeyInput();
@@ -297,7 +298,12 @@ SDL_AppResult SDL_AppIterate(void *appstate){
 	//setDrawColour(renderer, skyboxColour);
 
 	clearTex(displayTex, 0xFF000000);
-	drawHamLine(displayTex, (SDL_Point){160, 120}, (SDL_Point){(1 + sin(timer)) * 160, (1 + cos(timer)) * 120}, WHITE);
+	for(int i=0; i<320*240; i++){
+		depthBuffer[i] = 256;
+	}
+
+	//drawTexture(displayTex, testTex, &(SDL_Rect){0, 0, testTex->width, testTex->height}, &(SDL_Rect){0, 0, 320, 240}, WHITE);
+	//drawHamLine(displayTex, (SDL_Point){160, 120}, (SDL_Point){(1 + sin(timer)) * 160, (1 + cos(timer)) * 120}, 0xFF0000FF);
 
 	SDL_SetRenderDrawColor(renderer, skyboxColour.r * 255, skyboxColour.g * 255, skyboxColour.b * 255, SDL_ALPHA_OPAQUE);
 	SDL_RenderClear(renderer);
@@ -357,6 +363,8 @@ SDL_AppResult SDL_AppIterate(void *appstate){
 	if(glEnabled)
 		updateOpenGL();
 	
+	doZBuffer = false;
+
 	skyboxMatrix = translateMatrix(defaultMatrix, currentCamera.pos);
 	drawMesh(skyboxMesh, skyboxMatrix, (SDL_FColor){1,1,1,1}, skyTex, false);
 	free(skyboxMatrix);
@@ -369,6 +377,7 @@ SDL_AppResult SDL_AppIterate(void *appstate){
 	//drawCube((Vector3){SDL_sin(timer) * 2 - 0.5, 1, SDL_cos(timer) * 2 - 0.5}, (Vector3){1, 1, 1}, (SDL_FColor){1, 0.2, 0.3, 1});
 	//SDL_SetRenderDrawColor(renderer, 255, 255, 255, SDL_ALPHA_OPAQUE);
 	
+	doZBuffer = true;
 	idCounter = 0;
 	drawObjects(client.gameWorld->headObj, 0, &idCounter);
 

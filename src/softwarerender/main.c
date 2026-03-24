@@ -6,6 +6,19 @@
 #include <stdlib.h>
 #include <math.h>
 
+Uint32 colourToInt(SDL_FColor colour){
+	return (int)(colour.r * 255) + ((int)(colour.g * 255) << 8) + ((int)(colour.b * 255) << 16) + ((int)(colour.a * 255) << 24); 
+}
+
+SDL_FColor intToColour(Uint32 colour){
+	return (SDL_FColor){
+		(float)(colour & 0x000000FF) / 255, 
+		(float)((colour & 0x0000FF00) >> 8) / 255,
+		(float)((colour & 0x00FF0000) >> 16) / 255,
+		(float)((colour & 0xFF000000) >> 24) / 255
+	};
+}
+
 void setPixel(Texture* target, Uint16 x, Uint16 y, Uint32 colour){
 	if(!target || x >= target->width || y >= target->height || (colour & 0xFF000000) >> 24 == 0) return;
 	target->pixels[x + y * target->width] = colour;
@@ -71,9 +84,6 @@ void drawTexture(Texture* target, Texture* tex, SDL_Rect* source, SDL_Rect* dest
 }*/
 
 void drawRect(Texture* target, Uint16 posX, Uint16 posY, Uint16 width, Uint16 height, Uint32 colour){
-	//Uint16 startLoc = posX + posY * screenRes.x;
-	//Uint16 endLoc = (posX + width) + (posY + height) * screenRes.x;
-
 	if(!target) return;
 	for(Uint32 i=0; i<(Uint32)width * height; i++){
 		setPixel(target, posX + i % width, posY + (i / width), colour);
