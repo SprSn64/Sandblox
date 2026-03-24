@@ -5,6 +5,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
+#include "../math.h"
 
 Uint32 colourToInt(SDL_FColor colour){
 	return (int)(colour.r * 255) + ((int)(colour.g * 255) << 8) + ((int)(colour.b * 255) << 16) + ((int)(colour.a * 255) << 24); 
@@ -19,8 +20,18 @@ SDL_FColor intToColour(Uint32 colour){
 	};
 }
 
+Uint32 colourLerp(Uint32 colA, Uint32 colB, float t){
+	SDL_FColor newColA = intToColour(colA); SDL_FColor newColB = intToColour(colB); 
+	return colourToInt((SDL_FColor){lerp(newColA.r, newColB.r, t), lerp(newColA.g, newColB.g, t), lerp(newColA.b, newColB.b, t), lerp(newColA.a, newColB.a, t)});
+}
+
 void setPixel(Texture* target, Uint16 x, Uint16 y, Uint32 colour){
 	if(!target || x >= target->width || y >= target->height || (colour & 0xFF000000) >> 24 == 0) return;
+	if((colour & 0xFF000000) >> 24 != 0xFF){
+		float alpha = (float)((colour & 0xFF000000) >> 24) / 255;
+		target->pixels[x + y * target->width] = colourLerp(target->pixels[x + y * target->width], colour, alpha);
+		return;
+	}
 	target->pixels[x + y * target->width] = colour;
 }
 

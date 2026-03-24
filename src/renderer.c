@@ -34,10 +34,10 @@ SDL_FColor lightAmbient = {0.25, 0.25, 0.3, 1};
 //bool matrixOrSlopProject = false;
 extern float* defaultMatrix;
 
-bool debugPersp = true; //glEnabled;
+bool debugPersp = false; //glEnabled;
 
 Vector3 worldToCamera(Vector3 pos){
-	if(glEnabled){
+	if(debugPersp){
 		Vector4 newPos = matrixMult(matrixMult(vec3ToVec4(pos), client.gameWorld->currCamera->transform), client.gameWorld->currCamera->proj);
 		return vec4ToVec3(newPos);
 	}
@@ -50,7 +50,7 @@ Vector3 worldToCamera(Vector3 pos){
 }
 
 Vector3 viewProj(Vector3 pos){
-	if(glEnabled) 
+	if(debugPersp) 
 		return pos;
 
 	float absZ = fabs(pos.z);
@@ -106,6 +106,7 @@ bool draw3DTriangle(MeshVert pointA, MeshVert pointB, MeshVert pointC, SDL_Textu
 	Vector3 camB = worldToCamera(pointB.pos);
 	Vector3 camC = worldToCamera(pointC.pos);
 
+	//drawDepthTriangle(displayTex, viewProj(camA), viewProj(camB), viewProj(camC), colourToInt(pointA.colour));
 	drawDepthTriangle(displayTex, camA, camB, camC, colourToInt(pointA.colour));
 	
 	const float NEAR_PLANE = -0.1f;  // near plane in camera space (negative = in front)
