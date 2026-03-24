@@ -180,10 +180,9 @@ DataType cameraClass = {"Camera\0", 6, 0, cameraInit, cameraUpdate, NULL};
 
 extern Mesh* planePrim;
 void imageDraw(DataObj* object){
-	float* transform = genMatrix(object->pos, object->scale, object->rot);
 	TextureRef *itemTex = object->asVoidptr[OBJVAL_TEXTURE];
 	if(!itemTex) return;
-	drawMesh(planePrim, transform, ConvertSDLColour(object->colour), itemTex->image, true);
+	drawMesh(planePrim, object->transform, ConvertSDLColour(object->colour), itemTex->image, true);
 }
 
 DataType imageClass = {"Image\0", 8, 0, NULL, NULL, imageDraw};

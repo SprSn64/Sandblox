@@ -38,6 +38,7 @@ extern SDL_Window *studioWindow;
 
 SDL_Window *window = NULL;
 SDL_Renderer *renderer = NULL;
+SDL_Texture *renderTex = NULL;
 
 bool glEnabled = false;
 Uint32 glVersion[2] = {0, 0};
@@ -48,6 +49,7 @@ GameWorld game;
 //SDL_Point windowScaleIntent = {320, 240};
 //double windowScaleFactor;
 SDL_Point windowScale = {640, 480};
+Uint32* displayData;
 
 extern SDL_Rect objListRect;
 extern float objListScroll;
@@ -158,7 +160,7 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[]){
 	//why would you need this if youre gonna use opengl anyway?
 	//erm.... debugg'eth stuff?
 	if (!glEnabled) {
-		if(!SDL_CreateWindowAndRenderer(windowName, windowScale.x, windowScale.y, SDL_WINDOW_RESIZABLE, &window, &renderer)){
+		if(!SDL_CreateWindowAndRenderer(windowName, windowScale.x, windowScale.y, SDL_WINDOW_RESIZABLE | SDL_WINDOW_MAXIMIZED, &window, &renderer)){
 			SDL_Log("Couldn't create window/renderer: %s", SDL_GetError());
 			return SDL_APP_FAILURE;
 		}
@@ -173,6 +175,8 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[]){
 	cursorTex = newTexture("assets/textures/cursor.png", SDL_SCALEMODE_NEAREST);
 	skyTex = newTexture("assets/textures/skybox.png", SDL_SCALEMODE_LINEAR);
 	sunTex = newTexture("assets/textures/sunflare.png", SDL_SCALEMODE_LINEAR);
+
+	displayData = malloc(320 * 240 * sizeof(Uint32));
 	
 	defaultFont = (Font){fontTex, 32, (SDL_Point){32, 32}, (SDL_Point){8, 8}, (SDL_FPoint){6, 0}, 16};
 
@@ -212,6 +216,9 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[]){
 	defaultMatrix = newMatrix();
 
 	testCodeBlock = (CodeBlock){&testBlockClass, (SDL_FPoint){24, 24}, NULL, NULL, NULL, NULL};
+
+	renderTex = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_XBGR8888, SDL_TEXTUREACCESS_TARGET, windowScale.x, windowScale.y);
+	SDL_SetTextureScaleMode(renderTex, SDL_SCALEMODE_NEAREST);
 
 	if(mapLoaded) return SDL_APP_CONTINUE;
 	
@@ -285,12 +292,6 @@ SDL_AppResult SDL_AppIterate(void *appstate){
 	//setDrawColour(renderer, skyboxColour);
 	SDL_SetRenderDrawColor(renderer, skyboxColour.r * 255, skyboxColour.g * 255, skyboxColour.b * 255, SDL_ALPHA_OPAQUE);
 	SDL_RenderClear(renderer);
-	
-	/*for(int i = 0; i < playerMesh->vertCount; i++){
-		playerMesh->verts[i].pos.x += (1 - SDL_randf() * 2) * 0.002;
-		playerMesh->verts[i].pos.y += (1 - SDL_randf() * 2) * 0.002;
-		playerMesh->verts[i].pos.z += (1 - SDL_randf() * 2) * 0.002;
-	}*/
 
 	if(debugServer)
 		serverUpdate();
@@ -341,8 +342,6 @@ SDL_AppResult SDL_AppIterate(void *appstate){
 			if(playerRespawn >= 3) loadPlayerAvatar();
 			playerRespawn += deltaTime;
 		}
-		//sunAngle = (Vector3){timer, timer, 0};
-		//lightNormal = rotToNorm3(sunAngle);
 		updateObjects(client.gameWorld->headObj, 0, &idCounter);
 	}
 
@@ -383,23 +382,20 @@ SDL_AppResult SDL_AppIterate(void *appstate){
 	
 	if(client.pause)drawText(renderer, &defaultFont, "Game Paused", 0, windowScale.y - 16, 2, (SDL_FColor){1, 1, 1, 1});
 
-	//drawCodeBlock(renderer, &testCodeBlock);
-	
-	/*if(!gameFileLoaded) {
-		char* noGameText = "NO GAME HERE";
-		int textWidth = strlen(noGameText) * 12;
-		int centerX = (windowScale.x - textWidth) / 2;
-		int centerY = windowScale.y / 2;
-		drawText(renderer, fontTex, noGameText, 32, centerX, centerY, 16, 16, 12);
-	}*/
-	
-	//drawText(renderer, fontTex, "Diagnostics: Skill issue", 32, 0, 64, 16, 16, 12);
-	//SDL_RenderDebugText(renderer, 0, 0, guiText);
-	
 	//SDL_FPoint drawCursorPos = mousePos;
 	//SDL_RenderTexture(renderer, cursorTex, &(SDL_FRect){0, 0, 32, 32}, &(SDL_FRect){drawCursorPos.x, drawCursorPos.y, 32, 32});
 
 	free(currentCamera.transform);
+
+	SDL_UpdateTexture(renderTex, NULL, displayData, 320 * 4);
+	SDL_RenderTexture(renderer, renderTex, &(SDL_FRect){0, 0, 320, 240}, 
+		&(SDL_FRect){
+			windowScale.x - 320, 
+			windowScale.y - 240, 
+			320, 
+			240
+		}
+	);
 	
 	SDL_RenderPresent(renderer);
 

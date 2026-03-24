@@ -28,6 +28,7 @@ AvatarItem* headItem = NULL;
 
 AvatarItem* loadHatJson(cJSON* obj){
 	AvatarItem* newItem = malloc(sizeof(AvatarItem));
+	if(!newItem) return NULL;
 
 	cJSON* mesh = cJSON_GetObjectItem(obj, "mesh");
 	cJSON* texture = cJSON_GetObjectItem(obj, "texture");
@@ -39,9 +40,9 @@ AvatarItem* loadHatJson(cJSON* obj){
 	if(texture && cJSON_IsString(texture))
 		newItem->texturePath = strdup(texture->valuestring);
 
-	SDL_Texture* tex = NULL;
+	SDL_Texture* tex;
 	if(graphic && cJSON_IsString(graphic)){
-		//tex = IMG_LoadTexture(renderer, graphic->valuestring); //segment fault?
+		tex = evilHatTex;//newTexture(graphic->valuestring, SDL_SCALEMODE_LINEAR); //segment fault?
 		if(!tex)
 			printf("Failed to load texture from file: %s\n", graphic->valuestring);
 	}
@@ -134,8 +135,8 @@ void drawAvatar(SDL_Point pos){
 	AvatarItem* currItem = headItem;
 	while (currItem) {
 		AvatarItem *next = currItem->next;
-		SDL_SetTextureColorMod(evilHatTex, (Uint8)(currItem->colour.r * 255), (Uint8)(currItem->colour.g * 255), (Uint8)(currItem->colour.b * 255));
-		SDL_RenderTexture(renderer, evilHatTex, &sourceRect, &drawRect);
+		SDL_SetTextureColorMod(currItem->graphic, (Uint8)(currItem->colour.r * 255), (Uint8)(currItem->colour.g * 255), (Uint8)(currItem->colour.b * 255));
+		SDL_RenderTexture(renderer, currItem->graphic, &sourceRect, &drawRect);
 		currItem = next;
 	}
 }
