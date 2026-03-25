@@ -69,6 +69,7 @@ Button scaleWidgetButton = {"\0", (SDL_FRect){0, 48, 16, 16}, INPUTTYPE_BUTTON, 
 Button rotateWidgetButton = {"\0", (SDL_FRect){0, 64, 16, 16}, INPUTTYPE_BUTTON, buttonSetTool, NULL, true, true, false, false, NULL, &(SDL_FRect){48, 16, 16, 16}};
 
 Button propColourButton;
+bool studioFocus = false;
 
 void initStudio(){
 	//printf("Studio Initiated\n");
@@ -128,8 +129,9 @@ void updateStudio(){
 	SDL_SetRenderDrawColor(studioRenderer, 148, 150, 152, 255);
 	SDL_RenderClear(studioRenderer);
 	
+	studioFocus = SDL_GetWindowFlags(studioWindow) & SDL_WINDOW_INPUT_FOCUS;
 	for(int i=0; i<3; i++){
-		stuMouseButtons[i].down = (SDL_GetWindowFlags(studioWindow) & SDL_WINDOW_INPUT_FOCUS) && (mouseState & stuMouseButtons[i].code);
+		stuMouseButtons[i].down = studioFocus && (mouseState & stuMouseButtons[i].code);
 		if(stuMouseButtons[i].down){
 			if(!stuMouseButtons[i].pressCheck){
 				stuMouseButtons[i].pressCheck = true;

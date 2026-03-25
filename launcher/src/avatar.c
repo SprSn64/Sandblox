@@ -110,7 +110,7 @@ void initAvatar(){
 	
 	printf("Found %d objects in JSON\n", cJSON_GetArraySize(objects));
 	
-	int objectCount = cJSON_GetArraySize(objects);
+	int objectCount = min(cJSON_GetArraySize(objects), 1);
 	for(int i = 0; i < objectCount; i++) {
 		cJSON* obj = cJSON_GetArrayItem(objects, i);
 		if(obj)

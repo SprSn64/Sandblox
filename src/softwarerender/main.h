@@ -16,6 +16,7 @@ SDL_FColor intToColour(Uint32 colour);
 
 Texture* newSoftwareTexture(Uint16 width, Uint16 height);
 Texture* loadSoftwareTexture(char* path);
+bool freeSoftwareTexture(Texture* tex);
 
 void setPixel(Texture* target, Uint16 x, Uint16 y, Uint32 colour);
 Uint32 getPixel(Texture* target, Uint16 x, Uint16 y);

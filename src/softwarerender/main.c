@@ -58,6 +58,12 @@ Texture* newSoftwareTexture(Uint16 width, Uint16 height){
 	return newTexture;
 }
 
+bool freeSoftwareTexture(Texture* tex){
+	if(!tex) return 1;
+	free(tex->pixels); free(tex);
+	return 0;
+}
+
 Texture* loadSoftwareTexture(char* path){
 	SDL_Surface* newSurface = IMG_Load(path); if(!newSurface) return NULL;
 	Texture* newTex = newSoftwareTexture(newSurface->w, newSurface->h);

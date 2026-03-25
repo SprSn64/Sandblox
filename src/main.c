@@ -49,7 +49,7 @@ ClientData client;
 GameWorld game;
 
 //SDL_Point windowScaleIntent = {320, 240};
-//double windowScaleFactor;
+//double scaleFactor;
 SDL_Point windowScale = {640, 480};
 Texture* displayTex;
 float* depthBuffer;
@@ -219,7 +219,7 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[]){
 	testCodeBlock = (CodeBlock){&testBlockClass, (SDL_FPoint){24, 24}, NULL, NULL, NULL, NULL};
 	
 	displayTex = newSoftwareTexture(320, 240);
-	depthBuffer = malloc(320 * 240 * sizeof(float));
+	depthBuffer = malloc(displayTex->width*displayTex->height * sizeof(float));
 	renderTex = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_XBGR8888, SDL_TEXTUREACCESS_TARGET, windowScale.x, windowScale.y);
 	SDL_SetTextureScaleMode(renderTex, SDL_SCALEMODE_NEAREST);
 
@@ -246,6 +246,11 @@ SDL_AppResult SDL_AppEvent(void *appstate, SDL_Event *event){
 		return SDL_APP_SUCCESS;
 	}
 
+	/*if(event->type == SDL_EVENT_WINDOW_RESIZED){
+		freeSoftwareTexture(displayTex);
+		displayTex = newSoftwareTexture(event->display.data1, event->display.data2);
+	}*/
+
 	if(event->type == SDL_EVENT_MOUSE_WHEEL){
 		bool mainFocus = SDL_GetWindowFlags(window) & SDL_WINDOW_INPUT_FOCUS;
 		bool studioFocus = studioWindow && (SDL_GetWindowFlags(studioWindow) & SDL_WINDOW_INPUT_FOCUS);
@@ -269,6 +274,7 @@ SDL_AppResult SDL_AppEvent(void *appstate, SDL_Event *event){
 }
 
 extern bool doZBuffer;
+extern bool studioFocus;
 SDL_AppResult SDL_AppIterate(void *appstate){
 	(void)appstate;
 	HandleKeyInput();
@@ -292,21 +298,7 @@ SDL_AppResult SDL_AppIterate(void *appstate){
 	timer += deltaTime;
 	
 	SDL_GetWindowSize(window, &windowScale.x, &windowScale.y);
-	//windowScaleFactor = min((float)windowScale.x / windowScaleIntent.x, (float)windowScale.y / windowScaleIntent.y);
 	renderScale = min(windowScale.x, windowScale.y);
-	
-	//setDrawColour(renderer, skyboxColour);
-
-	clearTex(displayTex, 0xFF000000);
-	for(int i=0; i<320*240; i++){
-		depthBuffer[i] = 256;
-	}
-
-	//drawTexture(displayTex, testTex, &(SDL_Rect){0, 0, testTex->width, testTex->height}, &(SDL_Rect){0, 0, 320, 240}, WHITE);
-	//drawHamLine(displayTex, (SDL_Point){160, 120}, (SDL_Point){(1 + sin(timer)) * 160, (1 + cos(timer)) * 120}, 0xFF0000FF);
-
-	SDL_SetRenderDrawColor(renderer, skyboxColour.r * 255, skyboxColour.g * 255, skyboxColour.b * 255, SDL_ALPHA_OPAQUE);
-	SDL_RenderClear(renderer);
 
 	if(debugServer)
 		serverUpdate();
@@ -360,6 +352,21 @@ SDL_AppResult SDL_AppIterate(void *appstate){
 		updateObjects(client.gameWorld->headObj, 0, &idCounter);
 	}
 
+	//if(!mainWindowFocus && !studioFocus)
+	//	goto drawSkip;
+
+	clearTex(displayTex, 0xFF000000);
+	for(int i=0; i<displayTex->width*displayTex->height; i++){
+		depthBuffer[i] = 256;
+	}
+
+	//drawTexture(displayTex, testTex, &(SDL_Rect){0, 0, testTex->width, testTex->height}, &(SDL_Rect){0, 0, 320, 240}, WHITE);
+	//drawHamLine(displayTex, (SDL_Point){160, 120}, (SDL_Point){(1 + sin(timer)) * 160, (1 + cos(timer)) * 120}, 0xFF0000FF);
+
+	//setDrawColour(renderer, skyboxColour);
+	SDL_SetRenderDrawColor(renderer, skyboxColour.r * 255, skyboxColour.g * 255, skyboxColour.b * 255, SDL_ALPHA_OPAQUE);
+	SDL_RenderClear(renderer);
+
 	if(glEnabled)
 		updateOpenGL();
 	
@@ -380,6 +387,8 @@ SDL_AppResult SDL_AppIterate(void *appstate){
 	doZBuffer = true;
 	idCounter = 0;
 	drawObjects(client.gameWorld->headObj, 0, &idCounter);
+
+	//drawSkip:
 
 	//drawBone(testRig->rootBone);
 	updateStudio();
@@ -405,13 +414,14 @@ SDL_AppResult SDL_AppIterate(void *appstate){
 
 	free(currentCamera.transform);
 
+	float scaleFactor = min((float)windowScale.x / displayTex->width, (float)windowScale.y / displayTex->height);
 	SDL_UpdateTexture(renderTex, NULL, displayTex->pixels, displayTex->width * 4);
 	SDL_RenderTexture(renderer, renderTex, &(SDL_FRect){0, 0, 320, 240}, 
 		&(SDL_FRect){
-			windowScale.x - 320, 
-			windowScale.y - 240, 
-			320, 
-			240
+			(int)(windowScale.x - (displayTex->width * scaleFactor)) >> 1, 
+			(int)(windowScale.y - (displayTex->width * scaleFactor)) >> 1, 
+			displayTex->width * scaleFactor, 
+			displayTex->width * scaleFactor
 		}
 	);
 	
@@ -429,6 +439,8 @@ void SDL_AppQuit(void *appstate, SDL_AppResult result){
 	free(defaultMatrix);
 	free(playerMesh); free(skyboxMesh);
 	free(planePrim); free(cubePrim); free(spherePrim);
+
+	free(depthBuffer); freeSoftwareTexture(displayTex);
 }
     
 extern SDL_Window *glWindow;
