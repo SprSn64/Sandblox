@@ -25,7 +25,7 @@ float *multMatrix(mat4 matrixA, mat4 matrixB);
 float *translateMatrix(mat4 matrix, Vector3 move);
 float *scaleMatrix(mat4 matrix, Vector3 scale);
 float *axisRotMatrix(Uint8 axis, float angle);
-float *rotateMatrix(mat4 matrix, Vector3 angle);
+float *rotateMatrix(mat4 matrix, Vector3 angle, Uint32 rotOrder);
 
 float *genMatrix(Vector3 pos, Vector3 scale, Vector3 rot);
 

@@ -52,6 +52,7 @@ void updateObjects(DataObj* item, int nodeDepth, int *idCount){
 	}
 }
 
+extern bool doZBuffer;
 void drawObjects(DataObj* item, int nodeDepth, int *idCount){
 	if(item->parent && item->parent->studioOpen == true)
 		objListLength += item->parent->studioOpen;
@@ -60,7 +61,11 @@ void drawObjects(DataObj* item, int nodeDepth, int *idCount){
 	item->transform = genMatrix(item->pos, item->scale, item->rot);
 	
 	item->classData->draw(item);
-	if(item == focusObject && client.studio)drawMesh(cubePrim, item->transform, (SDL_FColor){1, 1, 1, fabs(SDL_sin(timer * 2)) * 0.25}, NULL, false);
+	if(item == focusObject && client.studio){
+		doZBuffer = false;
+		drawMesh(cubePrim, item->transform, (SDL_FColor){1, 1, 1, fabs(SDL_sin(timer * 2)) * 0.25}, NULL, false);
+		doZBuffer = true;
+	}
 	free(item->transform);
 
 noDraw:

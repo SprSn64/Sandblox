@@ -236,11 +236,11 @@ void drawRotateGimble(DataObj* item){
 	if(!item) return;
 	if(!item->classData->draw) return;
 	
-	float* rotMatrix = rotateMatrix(defaultMatrix, item->rot);
+	float* rotMatrix = rotateMatrix(defaultMatrix, item->rot, ROT_XYZ);
 	
-	float* xMatrix = rotateMatrix(rotMatrix, (Vector3){0, 0, HALFPI});
-	float* yMatrix = rotateMatrix(rotMatrix, (Vector3){0, HALFPI, 0});
-	float* zMatrix = rotateMatrix(rotMatrix, (Vector3){HALFPI, 0, 0});
+	float* xMatrix = rotateMatrix(rotMatrix, (Vector3){0, 0, HALFPI}, ROT_XYZ);
+	float* yMatrix = rotateMatrix(rotMatrix, (Vector3){0, HALFPI, 0}, ROT_XYZ);
+	float* zMatrix = rotateMatrix(rotMatrix, (Vector3){HALFPI, 0, 0}, ROT_XYZ);
 	
 	free(rotMatrix);
 	
@@ -257,12 +257,15 @@ void drawRotateGimble(DataObj* item){
 	free(xPosMatrix); free(yPosMatrix); free(zPosMatrix);
 }
 
+extern bool doZBuffer;
 void drawStudioOverlay(){
+	doZBuffer = false;
 	switch(toolMode){
 		case STUDIOTOOL_MOVE: drawTranslateGimble(focusObject); break;
 		case STUDIOTOOL_SCALE: drawScaleGimble(focusObject); break;
 		case STUDIOTOOL_ROTATE: drawRotateGimble(focusObject); break;
 	}
+	doZBuffer = true;
 }
 
 void updateStudioGimbles(){

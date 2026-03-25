@@ -1,3 +1,4 @@
+//#include "math.h"
 #include <SDL3/SDL.h>
 
 #include <stdio.h>
@@ -144,52 +145,46 @@ float *axisRotMatrix(Uint8 axis, float angle){ //axis 0 = x (yz planes), axis 1 
 	return output;
 } // probably needs fixing
 
-float *rotateMatrix(mat4 matrix, Vector3 angle){
+float *rotateMatrix(mat4 matrix, Vector3 angle, Uint32 rotOrder){ //rotOrder is the order of the rotations, XYZ, YXZ, all that kind of stuff
+	(void)rotOrder;
 	float *output;
 	output = malloc(sizeof(mat4));
+
+	float *xMatrix; float *yMatrix; float *zMatrix;
+
+	switch(rotOrder){
+		case ROT_YXZ: 
+			yMatrix = multMatrix(matrix, axisRotMatrix(1, angle.y));
+			xMatrix = multMatrix(yMatrix, axisRotMatrix(0, angle.x));
+			zMatrix = multMatrix(xMatrix, axisRotMatrix(2, angle.z));
 	
-	float *xMatrix = multMatrix(matrix, axisRotMatrix(0, angle.x));
-	float *yMatrix = multMatrix(xMatrix, axisRotMatrix(1, angle.y));
-	float *zMatrix = multMatrix(yMatrix, axisRotMatrix(2, angle.z));
+			memcpy(output, zMatrix, sizeof(mat4));
+			break;
+		default: 
+			xMatrix = multMatrix(matrix, axisRotMatrix(0, angle.x));
+			yMatrix = multMatrix(xMatrix, axisRotMatrix(1, angle.y));
+			zMatrix = multMatrix(yMatrix, axisRotMatrix(2, angle.z));
 	
-	memcpy(output, zMatrix, sizeof(mat4));
+			memcpy(output, zMatrix, sizeof(mat4));
+			break;
+	}
+
 	free(xMatrix); free(yMatrix); free(zMatrix); 
 	return output;
 }
 
 extern float* defaultMatrix;
-
 float *genMatrix(Vector3 pos, Vector3 scale, Vector3 rot){
 	float *output;
 	output = malloc(sizeof(mat4));
 	
 	float *scaled = scaleMatrix(defaultMatrix, scale);
-	float *rotated = rotateMatrix(scaled, rot);
+	float *rotated = rotateMatrix(scaled, rot, ROT_XYZ);
 	float *translated = translateMatrix(rotated, pos);
 	
 	memcpy(output, translated, sizeof(mat4));
 	free(translated); free(scaled); free(rotated); 
 	return output;
-}
-
-//versions of above functions but without generating new ones
-
-void translateMatrix2(mat4 matrix, Vector3 move){
-	matrix[3] += move.x;
-	matrix[7] += move.y;
-	matrix[11] += move.z;
-}
-
-void scaleMatrix2(mat4 matrix, Vector3 scale){
-	matrix[0] *= scale.x;
-	matrix[5] *= scale.y;
-	matrix[10] *= scale.z;
-}
-
-void rotateMatrix2(mat4 matrix, Vector3 angle){
-	matrix[0] *= SDL_cos(angle.y) * SDL_cos(angle.z); matrix[1] += -SDL_sin(angle.z); matrix[2] += SDL_sin(angle.y);
-	matrix[5] *= SDL_cos(angle.x); matrix[6] += -SDL_sin(angle.x);
-	matrix[8] += -SDL_sin(angle.y); matrix[9] += SDL_sin(angle.x); matrix[10] *= SDL_cos(angle.x) * SDL_cos(angle.y);
 }
 
 float *projMatrix(float fov, float aspect, float zNear, float zFar){

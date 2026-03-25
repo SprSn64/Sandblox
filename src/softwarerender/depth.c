@@ -17,7 +17,7 @@ bool doZBuffer = true;
 extern ClientData client;
 MeshVert defaultVertShader(MeshVert inputVert){
 	MeshVert newVert = {
-		vec4ToVec3(matrixMult(matrixMult(vec3ToVec4(inputVert.pos), client.gameWorld->currCamera->transform), client.gameWorld->currCamera->proj)),
+		vec4ToVec3(matrixMult(vec3ToVec4(inputVert.pos), client.gameWorld->currCamera->transform)),
 		inputVert.norm,
 		inputVert.uv,
 		inputVert.colour,

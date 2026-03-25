@@ -154,4 +154,8 @@ typedef struct{
 	Uint32 length;
 } ListData;
 
+typedef enum RotationOrder{
+	ROT_XYZ, ROT_YXZ
+} RotationOrder;
+
 #endif

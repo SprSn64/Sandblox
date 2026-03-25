@@ -302,7 +302,7 @@ void studioCameraUpdate(Camera* cam){
 	camTime += deltaTime;
 	float timeSpeedMult = camSpeed * max(sqrt(camTime) * 2, 1);
 	
-	float* camRotMatrix = rotateMatrix(defaultMatrix, cam->rot);
+	float* camRotMatrix = rotateMatrix(defaultMatrix, cam->rot, ROT_XYZ);
 	moveVec = matrixMult(moveVec, camRotMatrix);
 	
 	cam->pos = (Vector3){cam->pos.x + moveVec.x * timeSpeedMult * deltaTime, cam->pos.y + moveVec.y * timeSpeedMult * deltaTime, cam->pos.z + moveVec.z * timeSpeedMult * deltaTime};

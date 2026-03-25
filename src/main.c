@@ -335,10 +335,6 @@ SDL_AppResult SDL_AppIterate(void *appstate){
 	currentCamera.rot = (Vector3){fmod(currentCamera.rot.x, 6.28318), fmod(currentCamera.rot.y, 6.28318), fmod(currentCamera.rot.z, 6.28318)};
 	currentCamera.focusDist = min(max(currentCamera.focusDist + (keyList[KEYBIND_I].down - keyList[KEYBIND_O].down) * 4 * max(1, sqrt(currentCamera.focusDist)) * deltaTime, 0), 64);
 	
-	Vector3 invVec3 = {-1, -1, -1};
-	currentCamera.transform = genMatrix(vec3Mult(currentCamera.pos, invVec3), (Vector3){currentCamera.zoom, currentCamera.zoom, currentCamera.zoom}, vec3Mult(currentCamera.rot, invVec3));
-	//currentCamera.transform = genMatrix(currentCamera.pos, (Vector3){1, 1, 1}, currentCamera.rot);
-	
 	if(client.studio && focusObject)
 		updateStudioGimbles();
 
@@ -366,6 +362,18 @@ SDL_AppResult SDL_AppIterate(void *appstate){
 	//setDrawColour(renderer, skyboxColour);
 	SDL_SetRenderDrawColor(renderer, skyboxColour.r * 255, skyboxColour.g * 255, skyboxColour.b * 255, SDL_ALPHA_OPAQUE);
 	SDL_RenderClear(renderer);
+
+	Vector3 invVec3 = {-1, -1, -1};
+	currentCamera.transform = malloc(sizeof(mat4));
+	
+	float *camScaled = scaleMatrix(defaultMatrix, (Vector3){currentCamera.zoom, currentCamera.zoom, currentCamera.zoom});
+	float *camTranslated = translateMatrix(camScaled, vec3Mult(currentCamera.pos, invVec3));
+	float *camRotated = rotateMatrix(camTranslated, vec3Mult(currentCamera.rot, invVec3), ROT_YXZ);
+	
+	memcpy(currentCamera.transform, camRotated, sizeof(mat4));
+	free(camTranslated); free(camScaled); free(camRotated); 
+
+	//currentCamera.transform = genMatrix(vec3Mult(currentCamera.pos, invVec3), (Vector3){currentCamera.zoom, currentCamera.zoom, currentCamera.zoom}, vec3Mult(currentCamera.rot, invVec3));
 
 	if(glEnabled)
 		updateOpenGL();
