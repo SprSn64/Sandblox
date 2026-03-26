@@ -14,6 +14,8 @@ typedef struct Texture{
 Uint32 colourToInt(SDL_FColor colour);
 SDL_FColor intToColour(Uint32 colour);
 
+Uint32 colourLerp(Uint32 colA, Uint32 colB, float t);
+
 Texture* newSoftwareTexture(Uint16 width, Uint16 height);
 Texture* loadSoftwareTexture(char* path);
 bool freeSoftwareTexture(Texture* tex);

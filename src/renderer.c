@@ -106,8 +106,7 @@ bool draw3DTriangle(MeshVert pointA, MeshVert pointB, MeshVert pointC, SDL_Textu
 	Vector3 camB = worldToCamera(pointB.pos);
 	Vector3 camC = worldToCamera(pointC.pos);
 
-	//drawDepthTriangle(displayTex, viewProj(camA), viewProj(camB), viewProj(camC), colourToInt(pointA.colour));
-	drawDepthTriangle(displayTex, pointA, pointB, pointC, colourToInt(pointA.colour));
+	drawDepthTriangle(displayTex, pointA, pointB, pointC, NULL);
 	
 	const float NEAR_PLANE = -0.1f;  // near plane in camera space (negative = in front)
 	
