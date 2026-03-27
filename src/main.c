@@ -247,9 +247,11 @@ SDL_AppResult SDL_AppEvent(void *appstate, SDL_Event *event){
 	}
 
 	if(event->type == SDL_EVENT_WINDOW_RESIZED){
-		displayTex->pixels = realloc(displayTex->pixels, event->display.data1 * event->display.data2 * sizeof(Uint32));
-		displayTex->width = event->display.data1; displayTex->height = event->display.data2; 
-		depthBuffer = realloc(depthBuffer, event->display.data1 * event->display.data2 * sizeof(float));
+		SDL_Point newScale = {event->display.data1, event->display.data2};
+
+		displayTex->pixels = realloc(displayTex->pixels, newScale.x * newScale.y * sizeof(Uint32));
+		displayTex->width = newScale.x; displayTex->height = newScale.y; 
+		depthBuffer = realloc(depthBuffer, newScale.x * newScale.y * sizeof(float));
 	}
 
 	if(event->type == SDL_EVENT_MOUSE_WHEEL){

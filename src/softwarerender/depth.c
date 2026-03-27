@@ -43,7 +43,7 @@ void drawDepthHamLine(Texture* target, Vector3 pointA, Vector3 pointB, Uint32 co
 		min(pointB.x - pointA.x, target->width): 
 		min(pointB.y - pointA.y, target->height));
 
-	for(int i=0; i < loopCount; i++){
+	for(int i=0; i < min(loopCount, target->width); i++){
 		float lerpVal = i/scaler;
 		drawDepthPixel(target, 
 			lerp(pointA.x, pointB.x, lerpVal), 
@@ -51,6 +51,13 @@ void drawDepthHamLine(Texture* target, Vector3 pointA, Vector3 pointB, Uint32 co
 			lerp(pointA.z, pointB.z, lerpVal),
 			colourLerp(colourA, colourB, lerpVal)
 		);
+	}
+}
+
+void drawDepthBar(Texture* target, int y, SDL_FPoint pointA, SDL_FPoint pointB, Uint32 colourA, Uint32 colourB){
+	float lerpVal = (float)1/(pointB.x - pointA.x);
+	for(int i=0; i < min(pointB.x - pointA.x, target->width); i++){
+		drawDepthPixel(target, pointA.x + i, y, lerp(pointA.y, pointB.y, i * lerpVal), colourLerp(colourA, colourB, i * lerpVal));
 	}
 }
 
@@ -74,7 +81,7 @@ void drawDepthTriangle(Texture* target, MeshVert vertA, MeshVert vertB, MeshVert
 	if((posB.x - posA.x) * (posB.y + posA.y) + (posC.x - posB.x) * (posC.y + posB.y) + (posA.x - posC.x) * (posA.y + posC.y) < 0) return;
 
 	//Replace this stuff with triangle filling algorithm
-	drawDepthHamLine(target, posA, posB, colourToInt(newVerts[0].colour), colourToInt(newVerts[1].colour));
+	/*drawDepthHamLine(target, posA, posB, colourToInt(newVerts[0].colour), colourToInt(newVerts[1].colour));
 	drawDepthHamLine(target, posB, posC, colourToInt(newVerts[1].colour), colourToInt(newVerts[2].colour));
 	drawDepthHamLine(target, posC, posA, colourToInt(newVerts[2].colour), colourToInt(newVerts[0].colour));
 	drawDepthPixel(target, 
@@ -82,5 +89,42 @@ void drawDepthTriangle(Texture* target, MeshVert vertA, MeshVert vertB, MeshVert
 		(posA.y + posB.y + posC.y)/3,
 		(posA.z + posB.z + posC.z)/3,
 		colourToInt(newVerts[0].colour)
-	);
+	);*/
+
+	int triTop = min(posA.y, min(posB.y, posC.y));
+	int triHeight = max(posA.y, max(posB.y, posC.y)) - triTop;
+
+	Uint32 triColour = colourToInt(newVerts[0].colour);
+	for(int i=0; i<triHeight; i++){
+		float triLerp[3] = {invLerp(posA.y, posB.y, triTop + i), invLerp(posB.y, posC.y, triTop + i), invLerp(posC.y, posA.y, triTop + i)};
+		
+		if(between(triLerp[0], 0, 1) && between(triLerp[1], 0, 1)){
+			drawDepthBar(target, triTop + i, 
+				(SDL_FPoint){lerp(posA.x, posB.x, triLerp[0]), lerp(posA.z, posB.z, triLerp[0])},  
+				(SDL_FPoint){lerp(posB.x, posC.x, triLerp[1]), lerp(posB.z, posC.z, triLerp[1])}, 
+				triColour, triColour
+			);
+			/*drawDepthBar(target, triTop + i
+				(SDL_FPoint){lerp(posA.x, posB.x, 1-triLerp[0]), lerp(posA.z, posB.z, 1-triLerp[0])}, 
+				(SDL_FPoint){lerp(posB.x, posC.x, 1-triLerp[1]), lerp(posB.z, posC.z, 1-triLerp[1])}, 
+				triColour, triColour
+			);*/
+		}
+
+		if(between(triLerp[1], 0, 1) && between(triLerp[2], 0, 1)){
+			drawDepthBar(target, triTop + i,
+				(SDL_FPoint){lerp(posB.x, posC.x, triLerp[1]), lerp(posB.z, posC.z, triLerp[1])}, 
+				(SDL_FPoint){lerp(posC.x, posA.x, triLerp[2]), lerp(posC.z, posA.z, triLerp[2])}, 
+				triColour, triColour
+			);
+		}
+
+		if(between(triLerp[2], 0, 1) && between(triLerp[0], 0, 1)){
+			drawDepthBar(target, triTop + i,
+				(SDL_FPoint){lerp(posC.x, posA.x, triLerp[2]), lerp(posC.z, posA.z, triLerp[2])}, 
+				(SDL_FPoint){lerp(posA.x, posB.x, triLerp[0]), lerp(posA.z, posB.z, triLerp[0])}, 
+				triColour, triColour
+			);
+		}
+	}
 }
