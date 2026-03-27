@@ -218,9 +218,9 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[]){
 
 	testCodeBlock = (CodeBlock){&testBlockClass, (SDL_FPoint){24, 24}, NULL, NULL, NULL, NULL};
 	
-	displayTex = newSoftwareTexture(640, 480); //doesnt render fully after 640x480
+	displayTex = newSoftwareTexture(640, 480);
 	depthBuffer = malloc(displayTex->width*displayTex->height * sizeof(float));
-	renderTex = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_XBGR8888, SDL_TEXTUREACCESS_TARGET, windowScale.x, windowScale.y);
+	renderTex = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_XBGR8888, SDL_TEXTUREACCESS_TARGET, 1920, 1080); //somehow make it work for resolutions over 1920x1080
 	SDL_SetTextureScaleMode(renderTex, SDL_SCALEMODE_NEAREST);
 
 	testTex = loadSoftwareTexture("assets/textures/homer.png");
@@ -247,9 +247,9 @@ SDL_AppResult SDL_AppEvent(void *appstate, SDL_Event *event){
 	}
 
 	if(event->type == SDL_EVENT_WINDOW_RESIZED){
-		/*displayTex->pixels = realloc(displayTex->pixels, event->display.data1 * event->display.data2 * sizeof(Uint32));
+		displayTex->pixels = realloc(displayTex->pixels, event->display.data1 * event->display.data2 * sizeof(Uint32));
 		displayTex->width = event->display.data1; displayTex->height = event->display.data2; 
-		depthBuffer = realloc(depthBuffer, event->display.data1 * event->display.data2 * sizeof(float));*/
+		depthBuffer = realloc(depthBuffer, event->display.data1 * event->display.data2 * sizeof(float));
 	}
 
 	if(event->type == SDL_EVENT_MOUSE_WHEEL){
@@ -424,15 +424,8 @@ SDL_AppResult SDL_AppIterate(void *appstate){
 	free(currentCamera.transform);
 
 	float scaleFactor = min((float)windowScale.x / displayTex->width, (float)windowScale.y / displayTex->height);
-	SDL_UpdateTexture(renderTex, NULL, displayTex->pixels, displayTex->width * 4);
-	SDL_RenderTexture(renderer, renderTex, &(SDL_FRect){0, 0, (float)displayTex->width, (float)displayTex->height}, 
-		&(SDL_FRect){
-			(int)(windowScale.x - (displayTex->width * scaleFactor)) >> 1, 
-			(int)(windowScale.y - (displayTex->height * scaleFactor)) >> 1, 
-			displayTex->width * scaleFactor, 
-			displayTex->height * scaleFactor
-		}
-	);
+	SDL_UpdateTexture(renderTex, &(SDL_Rect){0, 0, displayTex->width, displayTex->height}, displayTex->pixels, displayTex->width * 4);
+	SDL_RenderTexture(renderer, renderTex, &(SDL_FRect){0, 0, (float)displayTex->width, (float)displayTex->height}, NULL);
 	
 	SDL_RenderPresent(renderer);
 

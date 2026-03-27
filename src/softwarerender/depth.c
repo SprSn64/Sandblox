@@ -69,6 +69,8 @@ void drawDepthTriangle(Texture* target, MeshVert vertA, MeshVert vertB, MeshVert
 	Vector3 posB = toScreen(target, (Vector3){newVerts[1].pos.x * zoomScale * aspectSquish, -newVerts[1].pos.y * zoomScale, -newVerts[1].pos.z});
 	Vector3 posC = toScreen(target, (Vector3){newVerts[2].pos.x * zoomScale * aspectSquish, -newVerts[2].pos.y * zoomScale, -newVerts[2].pos.z});
 
+	if(max(posA.z, max(posB.z, posC.z)) <= 0) return;
+
 	if((posB.x - posA.x) * (posB.y + posA.y) + (posC.x - posB.x) * (posC.y + posB.y) + (posA.x - posC.x) * (posA.y + posC.y) < 0) return;
 
 	//Replace this stuff with triangle filling algorithm
