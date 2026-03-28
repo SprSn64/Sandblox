@@ -191,7 +191,6 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[]){
 	spherePrim = loadMeshFromObj("assets/models/primitives/sphere.obj");
 
 	testRig = genTestRig();
-	currentCamera.proj = projMatrix(90, (float)windowScale.x/windowScale.y, 0.1, 100);
 	
 	if(glEnabled)
 		glEnabled = initOpenGL();
@@ -356,15 +355,15 @@ SDL_AppResult SDL_AppIterate(void *appstate){
 
 	clearTex(displayTex, 0xFF000000);
 	for(int i=0; i<displayTex->width*displayTex->height; i++){
-		depthBuffer[i] = 256;
+		depthBuffer[i] = 1;
 	}
 
 	//drawTexture(displayTex, testTex, &(SDL_Rect){0, 0, testTex->width, testTex->height}, &(SDL_Rect){0, 0, 320, 240}, WHITE);
 	//drawHamLine(displayTex, (SDL_Point){160, 120}, (SDL_Point){(1 + sin(timer)) * 160, (1 + cos(timer)) * 120}, 0xFF0000FF);
 
 	//setDrawColour(renderer, skyboxColour);
-	SDL_SetRenderDrawColor(renderer, skyboxColour.r * 255, skyboxColour.g * 255, skyboxColour.b * 255, SDL_ALPHA_OPAQUE);
-	SDL_RenderClear(renderer);
+	//SDL_SetRenderDrawColor(renderer, skyboxColour.r * 255, skyboxColour.g * 255, skyboxColour.b * 255, SDL_ALPHA_OPAQUE);
+	//SDL_RenderClear(renderer);
 
 	Vector3 invVec3 = {-1, -1, -1};
 	currentCamera.transform = malloc(sizeof(mat4));
@@ -376,6 +375,8 @@ SDL_AppResult SDL_AppIterate(void *appstate){
 	memcpy(currentCamera.transform, camRotated, sizeof(mat4));
 	free(camTranslated); free(camScaled); free(camRotated); 
 
+	currentCamera.proj = projMatrix(90, (float)windowScale.x/windowScale.y, 0.1, 100);
+
 	//currentCamera.transform = genMatrix(vec3Mult(currentCamera.pos, invVec3), (Vector3){currentCamera.zoom, currentCamera.zoom, currentCamera.zoom}, vec3Mult(currentCamera.rot, invVec3));
 
 	if(glEnabled)
@@ -383,9 +384,9 @@ SDL_AppResult SDL_AppIterate(void *appstate){
 	
 	doZBuffer = false;
 
-	skyboxMatrix = translateMatrix(defaultMatrix, currentCamera.pos);
+	/*skyboxMatrix = translateMatrix(defaultMatrix, currentCamera.pos);
 	drawMesh(skyboxMesh, skyboxMatrix, (SDL_FColor){1,1,1,1}, skyTex, false);
-	free(skyboxMatrix);
+	free(skyboxMatrix);*/
 	
 	sunMatrix = genMatrix(currentCamera.pos, (Vector3){1, 1, 1}, vec3Add(normToRot3(lightNormal), (Vector3){PI, PI, 0}));
 	drawMesh(sunMesh, sunMatrix, lightColour, sunTex, false);
@@ -424,8 +425,9 @@ SDL_AppResult SDL_AppIterate(void *appstate){
 	//SDL_RenderTexture(renderer, cursorTex, &(SDL_FRect){0, 0, 32, 32}, &(SDL_FRect){drawCursorPos.x, drawCursorPos.y, 32, 32});
 
 	free(currentCamera.transform);
+	free(currentCamera.proj);
 
-	float scaleFactor = min((float)windowScale.x / displayTex->width, (float)windowScale.y / displayTex->height);
+	//float scaleFactor = min((float)windowScale.x / displayTex->width, (float)windowScale.y / displayTex->height);
 	SDL_UpdateTexture(renderTex, &(SDL_Rect){0, 0, displayTex->width, displayTex->height}, displayTex->pixels, displayTex->width * 4);
 	SDL_RenderTexture(renderer, renderTex, &(SDL_FRect){0, 0, (float)displayTex->width, (float)displayTex->height}, NULL);
 	

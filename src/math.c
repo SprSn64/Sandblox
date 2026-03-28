@@ -86,9 +86,7 @@ float *translateMatrix(mat4 matrix, Vector3 move){
 }
 
 float *multMatrix(mat4 matrixA, mat4 matrixB){
-	// horrible code warning
-	float *output;
-	output = malloc(sizeof(mat4));
+	float *output; output = malloc(sizeof(mat4));
 
 	output[0] = matrixA[0] * matrixB[0] + matrixA[4] * matrixB[1] + matrixA[8] * matrixB[2] + matrixA[12] * matrixB[3];
 	output[1] = matrixA[1] * matrixB[0] + matrixA[5] * matrixB[1] + matrixA[9] * matrixB[2] + matrixA[13] * matrixB[3];
@@ -195,9 +193,10 @@ float *projMatrix(float fov, float aspect, float zNear, float zFar){
 	
 	output[0] = 1 / (fovTan * aspect);
 	output[5] = 1 / fovTan;
-	output[10] = -(zNear + zFar) / range;
 	output[11] = 1;
-	output[14] = -(2 * zFar * zNear) / range;
+
+	output[10] = -(zFar + zNear) / (zNear - zFar);
+	output[14] = -(2 * zFar * zNear) / (zNear - zFar);
 
 	return output;
 }

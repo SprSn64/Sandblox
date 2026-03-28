@@ -95,7 +95,6 @@ void lesserCleanupObjects(DataObj* item){
 		free(item);
 		child = next;
 	}
-	
 }
 
 DataObj* newObject(DataType* classData){

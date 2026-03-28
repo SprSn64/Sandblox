@@ -102,11 +102,11 @@ Vector3 clipToNearPlane(Vector3 front, Vector3 back, float nearZ){
 }
 
 bool draw3DTriangle(MeshVert pointA, MeshVert pointB, MeshVert pointC, SDL_Texture* image){
+	drawDepthTriangle(displayTex, pointA, pointB, pointC, NULL); return 0;
+
 	Vector3 camA = worldToCamera(pointA.pos);
 	Vector3 camB = worldToCamera(pointB.pos);
 	Vector3 camC = worldToCamera(pointC.pos);
-
-	drawDepthTriangle(displayTex, pointA, pointB, pointC, NULL);
 	
 	const float NEAR_PLANE = -0.1f;  // near plane in camera space (negative = in front)
 	
