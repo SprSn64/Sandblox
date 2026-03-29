@@ -18,8 +18,11 @@ extern ClientData client;
 MeshVert defaultVertShader(MeshVert inputVert){
 	Camera* currCam = client.gameWorld->currCamera;
 
+	Vector4 newPos = matrixMult(matrixMult(vec3ToVec4(inputVert.pos), currCam->transform), currCam->proj);
+	newPos.w = newPos.z;
+
 	MeshVert newVert = {
-		vec4ToVec3(matrixMult(matrixMult(vec3ToVec4(inputVert.pos), currCam->transform), currCam->proj)),
+		(Vector3){-newPos.x / newPos.w, newPos.y / newPos.w, -newPos.z},
 		inputVert.norm,
 		inputVert.uv,
 		inputVert.colour
@@ -73,12 +76,12 @@ void drawDepthTriangle(Texture* target, MeshVert vertA, MeshVert vertB, MeshVert
 	if(!target) return;
 	MeshVert newVerts[3] = {currShader(vertA), currShader(vertB), currShader(vertC)};
 
-	float zoomScale = client.gameWorld->currCamera->zoom * 0.125;
+	float zoomScale = client.gameWorld->currCamera->zoom;
 	Vector3 posA = toScreen(target, (Vector3){newVerts[0].pos.x * zoomScale, newVerts[0].pos.y * zoomScale, newVerts[0].pos.z});
 	Vector3 posB = toScreen(target, (Vector3){newVerts[1].pos.x * zoomScale, newVerts[1].pos.y * zoomScale, newVerts[1].pos.z});
 	Vector3 posC = toScreen(target, (Vector3){newVerts[2].pos.x * zoomScale, newVerts[2].pos.y * zoomScale, newVerts[2].pos.z});
 
-	if(max(posA.z, max(posB.z, posC.z)) <= 0 || min(posA.z, min(posB.z, posC.z)) >= 1) return;
+	if(max(posA.z, max(posB.z, posC.z)) <= 0 || min(posA.z, min(posB.z, posC.z)) >= 1024) return;
 
 	if((posB.x - posA.x) * (posB.y + posA.y) + (posC.x - posB.x) * (posC.y + posB.y) + (posA.x - posC.x) * (posA.y + posC.y) < 0) return;
 

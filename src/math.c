@@ -189,7 +189,7 @@ float *projMatrix(float fov, float aspect, float zNear, float zFar){
 	float *output = calloc(1, sizeof(mat4));
 	
 	float range = zNear - zFar;
-	float fovTan = SDL_tan(fov / 2 * DEG2RAD);
+	float fovTan = SDL_tan(fov / 2);
 	
 	output[0] = 1 / (fovTan * aspect);
 	output[5] = 1 / fovTan;
