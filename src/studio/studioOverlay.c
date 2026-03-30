@@ -13,6 +13,8 @@
 #include "../instances.h"
 #include "../renderer.h"
 
+#include "../softwarerender/main.h"
+
 extern SDL_Window *window;
 extern SDL_Renderer *renderer;
 extern ClientData client;
@@ -38,6 +40,14 @@ Vector3 projectFlip(Vector3 proj){
 	return (Vector3){proj.x * flipMult, proj.y * flipMult, proj.z};
 }
 
+extern Texture* displayTex;
+Vector3 quickProj(Vector3 pos){
+	Camera* currCam = client.gameWorld->currCamera;
+
+	Vector4 newPos = matrixMult(matrixMult(vec3ToVec4(pos), currCam->transform), currCam->proj);
+	return (Vector3){(newPos.x / newPos.z + 1) * (displayTex->width >> 1), (newPos.y / newPos.z + 1) * (displayTex->height >> 1), newPos.z};
+}
+
 Vector3 ogPos;
 float ogGimbles[2];
 Vector3 ogProjs[2];
@@ -48,23 +58,23 @@ float snapUnit = 1;
 void translateGimbleUpdate(DataObj* item){
 	//code spaghetti.... yum!
 	Vector3 xPos[2] = {vec3Add(item->pos, (Vector3){-1.5, -item->scale.y / 2, item->scale.z / 2}), vec3Add(item->pos, (Vector3){item->scale.x + 1.5, -item->scale.y / 2, item->scale.z / 2})};
-	Vector3 xProj[2] = {projToScreen(viewProj(worldToCamera(xPos[0]))), projToScreen(viewProj(worldToCamera(xPos[1])))};
+	Vector3 xProj[2] = {quickProj(xPos[0]), quickProj(xPos[1])};
 	float xScale[2] = {1 / xProj[0].z * renderScale, 1 / xProj[1].z * renderScale};
 	bool xHoverA = between(mousePos.x - xProj[0].x, xScale[0] / 2, -xScale[0] / 2) && between(mousePos.y - xProj[0].y, xScale[0] / 2, -xScale[0] / 2) && xProj[0].z < 0;
 	bool xHoverB = between(mousePos.x - xProj[1].x, xScale[1] / 2, -xScale[1] / 2) && between(mousePos.y - xProj[1].y, xScale[1] / 2, -xScale[1] / 2) && xProj[1].z < 0;
 	
 	Vector3 yPos[2] = {vec3Add(item->pos, (Vector3){item->scale.x / 2, 1.5, item->scale.z / 2}), vec3Add(item->pos, (Vector3){item->scale.x / 2, -item->scale.y - 1.5, item->scale.z / 2})};
-	Vector3 yProj[2] = {projToScreen(viewProj(worldToCamera(yPos[0]))), projToScreen(viewProj(worldToCamera(yPos[1])))};
+	Vector3 yProj[2] = {quickProj(yPos[0]), quickProj(yPos[1])};
 	float yScale[2] = {1 / yProj[0].z * renderScale, 1 / yProj[1].z * renderScale};
 	bool yHoverA = between(mousePos.x - yProj[0].x, yScale[0] / 2, -yScale[0] / 2) && between(mousePos.y - yProj[0].y, yScale[0] / 2, -yScale[0] / 2) && yProj[0].z < 0;
 	bool yHoverB = between(mousePos.x - yProj[1].x, yScale[1] / 2, -yScale[1] / 2) && between(mousePos.y - yProj[1].y, yScale[1] / 2, -yScale[1] / 2) && yProj[1].z < 0;
 	
 	Vector3 zPos[2] = {vec3Add(item->pos, (Vector3){item->scale.x / 2, -item->scale.y / 2, -1.5}), vec3Add(item->pos, (Vector3){item->scale.x / 2, -item->scale.y / 2, item->scale.z + 1.5})};
-	Vector3 zProj[2] = {projToScreen(viewProj(worldToCamera(zPos[0]))), projToScreen(viewProj(worldToCamera(zPos[1])))};
+	Vector3 zProj[2] = {quickProj(yPos[0]), quickProj(yPos[1])};
 	float zScale[2] = {1 / zProj[0].z * renderScale, 1 / zProj[1].z * renderScale};
 	bool zHoverA = between(mousePos.x - zProj[0].x, zScale[0] / 2, -zScale[0] / 2) && between(mousePos.y - zProj[0].y, zScale[0] / 2, -zScale[0] / 2) && zProj[0].z < 0;
 	bool zHoverB = between(mousePos.x - zProj[1].x, zScale[1] / 2, -zScale[1] / 2) && between(mousePos.y - zProj[1].y, zScale[1] / 2, -zScale[1] / 2) && zProj[1].z < 0;
-	
+
 	Vector3* vector = &item->pos;
 	if(!mouseButtons[0].down && gimbleGrabbed){
 		gimbleGrabbed = 0;
@@ -142,19 +152,19 @@ Vector3 ogScale;
 void scaleGimbleUpdate(DataObj* item){
 	//code spaghetti.... yum! 2
 	Vector3 xPos[2] = {vec3Add(item->pos, (Vector3){-1.5, -item->scale.y / 2, item->scale.z / 2}), vec3Add(item->pos, (Vector3){item->scale.x + 1.5, -item->scale.y / 2, item->scale.z / 2})};
-	Vector3 xProj[2] = {projToScreen(viewProj(worldToCamera(xPos[0]))), projToScreen(viewProj(worldToCamera(xPos[1])))};
+	Vector3 xProj[2] = {quickProj(xPos[0]), quickProj(xPos[1])};
 	float xScale[2] = {1 / xProj[0].z * renderScale, 1 / xProj[1].z * renderScale};
 	bool xHoverA = between(mousePos.x - xProj[0].x, xScale[0] / 2, -xScale[0] / 2) && between(mousePos.y - xProj[0].y, xScale[0] / 2, -xScale[0] / 2) && xProj[0].z < 0;
 	bool xHoverB = between(mousePos.x - xProj[1].x, xScale[1] / 2, -xScale[1] / 2) && between(mousePos.y - xProj[1].y, xScale[1] / 2, -xScale[1] / 2) && xProj[1].z < 0;
 	
 	Vector3 yPos[2] = {vec3Add(item->pos, (Vector3){item->scale.x / 2, 1.5, item->scale.z / 2}), vec3Add(item->pos, (Vector3){item->scale.x / 2, -item->scale.y - 1.5, item->scale.z / 2})};
-	Vector3 yProj[2] = {projToScreen(viewProj(worldToCamera(yPos[0]))), projToScreen(viewProj(worldToCamera(yPos[1])))};
+	Vector3 yProj[2] = {quickProj(yPos[0]), quickProj(yPos[1])};
 	float yScale[2] = {1 / yProj[0].z * renderScale, 1 / yProj[1].z * renderScale};
 	bool yHoverA = between(mousePos.x - yProj[0].x, yScale[0] / 2, -yScale[0] / 2) && between(mousePos.y - yProj[0].y, yScale[0] / 2, -yScale[0] / 2) && yProj[0].z < 0;
 	bool yHoverB = between(mousePos.x - yProj[1].x, yScale[1] / 2, -yScale[1] / 2) && between(mousePos.y - yProj[1].y, yScale[1] / 2, -yScale[1] / 2) && yProj[1].z < 0;
 	
 	Vector3 zPos[2] = {vec3Add(item->pos, (Vector3){item->scale.x / 2, -item->scale.y / 2, -1.5}), vec3Add(item->pos, (Vector3){item->scale.x / 2, -item->scale.y / 2, item->scale.z + 1.5})};
-	Vector3 zProj[2] = {projToScreen(viewProj(worldToCamera(zPos[0]))), projToScreen(viewProj(worldToCamera(zPos[1])))};
+	Vector3 zProj[2] = {quickProj(zPos[0]), quickProj(zPos[1])};
 	float zScale[2] = {1 / zProj[0].z * renderScale, 1 / zProj[1].z * renderScale};
 	bool zHoverA = between(mousePos.x - zProj[0].x, zScale[0] / 2, -zScale[0] / 2) && between(mousePos.y - zProj[0].y, zScale[0] / 2, -zScale[0] / 2) && zProj[0].z < 0;
 	bool zHoverB = between(mousePos.x - zProj[1].x, zScale[1] / 2, -zScale[1] / 2) && between(mousePos.y - zProj[1].y, zScale[1] / 2, -zScale[1] / 2) && zProj[1].z < 0;

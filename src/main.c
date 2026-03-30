@@ -217,12 +217,16 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[]){
 
 	testCodeBlock = (CodeBlock){&testBlockClass, (SDL_FPoint){24, 24}, NULL, NULL, NULL, NULL};
 	
+	if(glEnabled) goto openGlInitSkip;
+
 	displayTex = newSoftwareTexture(640, 480);
 	depthBuffer = malloc(displayTex->width*displayTex->height * sizeof(float));
 	renderTex = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_XBGR8888, SDL_TEXTUREACCESS_TARGET, 1920, 1080); //somehow make it work for resolutions over 1920x1080
 	SDL_SetTextureScaleMode(renderTex, SDL_SCALEMODE_NEAREST);
 
 	testTex = loadSoftwareTexture("assets/textures/homer.png");
+
+openGlInitSkip:
 
 	if(mapLoaded) return SDL_APP_CONTINUE;
 	
@@ -336,9 +340,6 @@ SDL_AppResult SDL_AppIterate(void *appstate){
 	currentCamera.rot.y += (keyList[KEYBIND_LEFT].down - keyList[KEYBIND_RIGHT].down) * 1 * deltaTime;
 	currentCamera.rot = (Vector3){fmod(currentCamera.rot.x, 6.28318), fmod(currentCamera.rot.y, 6.28318), fmod(currentCamera.rot.z, 6.28318)};
 	currentCamera.focusDist = min(max(currentCamera.focusDist + (keyList[KEYBIND_I].down - keyList[KEYBIND_O].down) * 4 * max(1, sqrt(currentCamera.focusDist)) * deltaTime, 0), 64);
-	
-	if(client.studio && focusObject)
-		updateStudioGimbles();
 
 	int idCounter = 0;
 	objListLength = 0;
@@ -355,7 +356,7 @@ SDL_AppResult SDL_AppIterate(void *appstate){
 
 	clearTex(displayTex, 0xFF000000);
 	for(int i=0; i<displayTex->width*displayTex->height; i++){
-		depthBuffer[i] = 1024;
+		depthBuffer[i] = 1;
 	}
 
 	//drawTexture(displayTex, testTex, &(SDL_Rect){0, 0, testTex->width, testTex->height}, &(SDL_Rect){0, 0, 320, 240}, WHITE);
@@ -375,12 +376,15 @@ SDL_AppResult SDL_AppIterate(void *appstate){
 	memcpy(currentCamera.transform, camRotated, sizeof(mat4));
 	free(camTranslated); free(camScaled); free(camRotated); 
 
-	currentCamera.proj = projMatrix(90, (float)windowScale.x/windowScale.y, 0.1, 100);
+	currentCamera.proj = projMatrix(currentCamera.fov, (float)windowScale.x/windowScale.y, 0.1, 100);
 
 	//currentCamera.transform = genMatrix(vec3Mult(currentCamera.pos, invVec3), (Vector3){currentCamera.zoom, currentCamera.zoom, currentCamera.zoom}, vec3Mult(currentCamera.rot, invVec3));
 
 	if(glEnabled)
 		updateOpenGL();
+
+	if(client.studio && focusObject)
+		updateStudioGimbles();
 	
 	doZBuffer = false;
 

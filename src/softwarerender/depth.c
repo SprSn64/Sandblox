@@ -19,10 +19,9 @@ MeshVert defaultVertShader(MeshVert inputVert){
 	Camera* currCam = client.gameWorld->currCamera;
 
 	Vector4 newPos = matrixMult(matrixMult(vec3ToVec4(inputVert.pos), currCam->transform), currCam->proj);
-	newPos.w = newPos.z;
 
 	MeshVert newVert = {
-		(Vector3){-newPos.x / newPos.w, newPos.y / newPos.w, -newPos.z},
+		(Vector3){newPos.x / newPos.z, newPos.y / newPos.z, 1-(1/-newPos.z)},
 		inputVert.norm,
 		inputVert.uv,
 		inputVert.colour
@@ -48,7 +47,7 @@ void drawDepthHamLine(Texture* target, Vector3 pointA, Vector3 pointB, Uint32 co
 		min(pointB.x - pointA.x, target->width): 
 		min(pointB.y - pointA.y, target->height));
 
-	for(int i=0; i < min(loopCount, target->width); i++){
+	for(int i=0; i < loopCount; i++){
 		float lerpVal = i/scaler;
 		drawDepthPixel(target, 
 			lerp(pointA.x, pointB.x, lerpVal), 
@@ -81,12 +80,12 @@ void drawDepthTriangle(Texture* target, MeshVert vertA, MeshVert vertB, MeshVert
 	Vector3 posB = toScreen(target, (Vector3){newVerts[1].pos.x * zoomScale, newVerts[1].pos.y * zoomScale, newVerts[1].pos.z});
 	Vector3 posC = toScreen(target, (Vector3){newVerts[2].pos.x * zoomScale, newVerts[2].pos.y * zoomScale, newVerts[2].pos.z});
 
-	if(max(posA.z, max(posB.z, posC.z)) <= 0 || min(posA.z, min(posB.z, posC.z)) >= 1024) return;
+	if(max(posA.z, max(posB.z, posC.z)) <= 0 || min(posA.z, min(posB.z, posC.z)) >= 1) return;
 
 	if((posB.x - posA.x) * (posB.y + posA.y) + (posC.x - posB.x) * (posC.y + posB.y) + (posA.x - posC.x) * (posA.y + posC.y) < 0) return;
 
 	//Replace this stuff with triangle filling algorithm
-	/*drawDepthHamLine(target, posA, posB, colourToInt(newVerts[0].colour), colourToInt(newVerts[1].colour));
+	drawDepthHamLine(target, posA, posB, colourToInt(newVerts[0].colour), colourToInt(newVerts[1].colour));
 	drawDepthHamLine(target, posB, posC, colourToInt(newVerts[1].colour), colourToInt(newVerts[2].colour));
 	drawDepthHamLine(target, posC, posA, colourToInt(newVerts[2].colour), colourToInt(newVerts[0].colour));
 	drawDepthPixel(target, 
@@ -94,9 +93,9 @@ void drawDepthTriangle(Texture* target, MeshVert vertA, MeshVert vertB, MeshVert
 		(posA.y + posB.y + posC.y)/3,
 		(posA.z + posB.z + posC.z)/3,
 		colourToInt(newVerts[0].colour)
-	);*/
+	);
 
-	int triTop = min(posA.y, min(posB.y, posC.y));
+	/*int triTop = min(posA.y, min(posB.y, posC.y));
 	int triHeight = max(posA.y, max(posB.y, posC.y)) - triTop;
 	Uint32 triColour = colourToInt((SDL_FColor){
 		(newVerts[0].colour.r + newVerts[1].colour.r + newVerts[2].colour.r) * 0.3333,
@@ -114,11 +113,11 @@ void drawDepthTriangle(Texture* target, MeshVert vertA, MeshVert vertB, MeshVert
 				(SDL_FPoint){lerp(posB.x, posC.x, triLerp[1]), lerp(posB.z, posC.z, triLerp[1])}, 
 				triColour, triColour
 			);
-			/*drawDepthBar(target, triTop + i,
-				(SDL_FPoint){lerp(posA.x, posB.x, 1-triLerp[0]), lerp(posA.z, posB.z, 1-triLerp[0])}, 
-				(SDL_FPoint){lerp(posB.x, posC.x, 1-triLerp[1]), lerp(posB.z, posC.z, 1-triLerp[1])}, 
-				triColour, triColour
-			);*/
+			//drawDepthBar(target, triTop + i,
+			//	(SDL_FPoint){lerp(posA.x, posB.x, 1-triLerp[0]), lerp(posA.z, posB.z, 1-triLerp[0])}, 
+			//	(SDL_FPoint){lerp(posB.x, posC.x, 1-triLerp[1]), lerp(posB.z, posC.z, 1-triLerp[1])}, 
+			//	triColour, triColour
+			//);
 		}
 
 		if(between(triLerp[1], 0, 1) && between(triLerp[2], 0, 1)){
@@ -136,5 +135,5 @@ void drawDepthTriangle(Texture* target, MeshVert vertA, MeshVert vertB, MeshVert
 				triColour, triColour
 			);
 		}
-	}
+	}*/
 }
