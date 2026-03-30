@@ -388,15 +388,14 @@ SDL_AppResult SDL_AppIterate(void *appstate){
 	
 	doZBuffer = false;
 
-	/* skybox temporary disabled (lags the fuck out of the renderer)
-	skyboxMatrix = translateMatrix(defaultMatrix, currentCamera.pos);
+	// skybox temporary disabled (lags the fuck out of the renderer)
+	/*skyboxMatrix = translateMatrix(defaultMatrix, currentCamera.pos);
 	drawMesh(skyboxMesh, skyboxMatrix, (SDL_FColor){1,1,1,1}, skyTex, false);
 	free(skyboxMatrix);
 	
 	sunMatrix = genMatrix(currentCamera.pos, (Vector3){1, 1, 1}, vec3Add(normToRot3(lightNormal), (Vector3){PI, PI, 0}));
 	drawMesh(sunMesh, sunMatrix, lightColour, sunTex, false);
-	free(sunMatrix);
-	*/
+	free(sunMatrix);*/
 	
 	//drawCube((Vector3){(2 + SDL_cos(timer)) / -2, SDL_sin(timer) + 1, (2 + SDL_cos(timer)) / -2}, (Vector3){2 + SDL_cos(timer), SDL_sin(timer) + 1, 2 + SDL_cos(timer)}, (SDL_FColor){0.6, 0.8, 1, 1});
 	//drawCube((Vector3){SDL_sin(timer) * 2 - 0.5, 1, SDL_cos(timer) * 2 - 0.5}, (Vector3){1, 1, 1}, (SDL_FColor){1, 0.2, 0.3, 1});

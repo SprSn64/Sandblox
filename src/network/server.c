@@ -6,11 +6,13 @@
 #include <string.h>
 #include <math.h>
 
-#include <netinet/in.h>
-#include <sys/socket.h>
 
 #include <structs.h>
 #include "server.h"
+
+#ifdef __linux__
+#include <netinet/in.h>
+#include <sys/socket.h>
 
 struct sockaddr_in address; 
 int socketfd;
@@ -39,3 +41,15 @@ int serverUpdate(){
 
 	return 0;
 }
+
+#endif
+
+#ifndef __linux__
+Server* serverInit(Uint16 port){
+	return NULL;
+}
+
+int serverUpdate(){
+	return 0;
+}
+#endif

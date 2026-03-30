@@ -70,7 +70,7 @@ void translateGimbleUpdate(DataObj* item){
 	bool yHoverB = between(mousePos.x - yProj[1].x, yScale[1] / 2, -yScale[1] / 2) && between(mousePos.y - yProj[1].y, yScale[1] / 2, -yScale[1] / 2) && yProj[1].z < 0;
 	
 	Vector3 zPos[2] = {vec3Add(item->pos, (Vector3){item->scale.x / 2, -item->scale.y / 2, -1.5}), vec3Add(item->pos, (Vector3){item->scale.x / 2, -item->scale.y / 2, item->scale.z + 1.5})};
-	Vector3 zProj[2] = {quickProj(yPos[0]), quickProj(yPos[1])};
+	Vector3 zProj[2] = {quickProj(zPos[0]), quickProj(zPos[1])};
 	float zScale[2] = {1 / zProj[0].z * renderScale, 1 / zProj[1].z * renderScale};
 	bool zHoverA = between(mousePos.x - zProj[0].x, zScale[0] / 2, -zScale[0] / 2) && between(mousePos.y - zProj[0].y, zScale[0] / 2, -zScale[0] / 2) && zProj[0].z < 0;
 	bool zHoverB = between(mousePos.x - zProj[1].x, zScale[1] / 2, -zScale[1] / 2) && between(mousePos.y - zProj[1].y, zScale[1] / 2, -zScale[1] / 2) && zProj[1].z < 0;
