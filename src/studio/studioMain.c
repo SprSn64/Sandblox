@@ -115,7 +115,7 @@ void initStudio(){
 	scaleWidgetButton.image = stuButtonTex;
 	rotateWidgetButton.image = stuButtonTex;
 
-	propColourButton = newColourButton(&focusObject->colour, (SDL_FRect){64, 280, 48, 8});
+	propColourButton = newColourButton(&focusObject->colour, (SDL_FRect){96, 300, 48, 12});
 }
 
 void studioCameraUpdate(Camera* cam);
@@ -232,7 +232,7 @@ void drawObjectList(DataObj* item, int nodeDepth, int *idCount){
 		SDL_RenderFillRect(studioRenderer, &(SDL_FRect){objListRect.x, objListRect.y + itemYOffset, objListRect.w, 16});
 	}
 	
-	drawText(studioRenderer, &studioFont, item->name, objListRect.x + 18/**/ + (nodeDepth * 24), 20/**/ + itemYOffset, 1, (SDL_FColor){1, 1, 1, 1});
+	drawText(studioRenderer, &studioFont, item->name, objListRect.x + 18/**/ + (nodeDepth * 24), 18/**/ + itemYOffset, 1.5, (SDL_FColor){1, 1, 1, 1});
 	
 	SDL_FRect iconRect = {(item->classData->id % 16) * 16, (int)floor((float)item->classData->id / 16) * 16 % 256, 16, 16};
 	SDL_FRect iconPos = {objListRect.x + nodeDepth * 24, objListRect.y/**/ + itemYOffset, 16, 16};
@@ -260,22 +260,22 @@ void drawObjectProperties(DataObj* item, int posY){
 	SDL_SetRenderDrawColor(studioRenderer, 255, 255, 255, 255);
 	
 	if(!item){
-		drawText(studioRenderer, &studioFont, "No object selected!", 2, posY, 1, (SDL_FColor){1, 1, 1, 1});
+		drawText(studioRenderer, &studioFont, "No object selected!", 2, posY, 1.5, (SDL_FColor){1, 1, 1, 1});
 		return;
 	}
 	
 	sprintf(string, "Name: %s", item->name);
-	drawText(studioRenderer, &studioFont, string, 2, posY, 1, (SDL_FColor){1, 1, 1, 1});
+	drawText(studioRenderer, &studioFont, string, 2, posY, 1.5, (SDL_FColor){1, 1, 1, 1});
 	sprintf(string, "Class: %s", item->classData->name);
-	drawText(studioRenderer, &studioFont, string, 2, posY + 8, 1, (SDL_FColor){1, 1, 1, 1});
+	drawText(studioRenderer, &studioFont, string, 2, posY + 12, 1.5, (SDL_FColor){1, 1, 1, 1});
 	sprintf(string, "Position: %.2f, %.2f, %.2f", item->pos.x, item->pos.y, item->pos.z);
-	drawText(studioRenderer, &studioFont, string, 2, posY + 16, 1, (SDL_FColor){1, 1, 1, 1});
+	drawText(studioRenderer, &studioFont, string, 2, posY + 24, 1.5, (SDL_FColor){1, 1, 1, 1});
 	sprintf(string, "Rotation: %d, %d, %d", (int)(item->rot.x * RAD2DEG), (int)(item->rot.y * RAD2DEG), (int)(item->rot.z * RAD2DEG));
-	drawText(studioRenderer, &studioFont, string, 2, posY + 24, 1, (SDL_FColor){1, 1, 1, 1});
+	drawText(studioRenderer, &studioFont, string, 2, posY + 36, 1.5, (SDL_FColor){1, 1, 1, 1});
 	sprintf(string, "Scale: %.2f, %.2f, %.2f", item->scale.x, item->scale.y, item->scale.z);
-	drawText(studioRenderer, &studioFont, string, 2, posY + 32, 1, (SDL_FColor){1, 1, 1, 1});
+	drawText(studioRenderer, &studioFont, string, 2, posY + 48, 1.5, (SDL_FColor){1, 1, 1, 1});
 	
-	drawText(studioRenderer, &studioFont, "Colour: ", 2, posY + 40, 1, (SDL_FColor){1, 1, 1, 1});
+	drawText(studioRenderer, &studioFont, "Colour: ", 2, posY + 60, 1.5, (SDL_FColor){1, 1, 1, 1});
 	//SDL_SetRenderDrawColor(studioRenderer, item->colour.r, item->colour.g, item->colour.b, 255); 
 	//SDL_RenderFillRect(studioRenderer, &(SDL_FRect){64, posY + 40, 24, 8});
 	propColourButton.target = &item->colour;
