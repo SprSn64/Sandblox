@@ -35,6 +35,7 @@ void updatePage(SDL_Renderer* render, Page* item){
 	}
 }
 
+#include "avatar.h"
 void initPages(){
 	buttonTex = newTexture("assets/buttonicons.png", SDL_SCALEMODE_NEAREST);
 
@@ -52,9 +53,10 @@ void initPages(){
 	gamePageButtons[2] = newLableButton(buttonRefreshMaps, "Refresh Map List", (SDL_FRect){380, 2, 128, 16});
 	pageList[PAGE_GAME] = (Page){gamePageButtons, 3};
 
-	Button* avatarPageButtons = malloc(sizeof(Button) * 1);
+	Button* avatarPageButtons = malloc(sizeof(Button) * 2);
 	avatarPageButtons[0] = newTextboxButton(playerName, "Username", (SDL_FRect){96, 346, 128, 16});
-	pageList[PAGE_AVATAR] = (Page){avatarPageButtons, 1};
+	avatarPageButtons[1] = newLableButton(buttonRefreshAvatar, "Refresh Avatar", (SDL_FRect){226, 346, 110, 16});
+	pageList[PAGE_AVATAR] = (Page){avatarPageButtons, 2};
 
 	Button* settingsPageButtons = malloc(sizeof(Button) * 1);
 	settingsPageButtons[0] = newLableButton(NULL, "KILL EVERYONE!!!", (SDL_FRect){204, 208, 128, 16});

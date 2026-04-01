@@ -133,10 +133,32 @@ void drawAvatar(SDL_Point pos){
 
 	SDL_RenderTexture(renderer, avatarBaseTex, &sourceRect, &drawRect);
 	AvatarItem* currItem = headItem;
+	Uint8 itemIndex = 0;
 	while (currItem) {
 		AvatarItem *next = currItem->next;
 		SDL_SetTextureColorMod(currItem->graphic, (Uint8)(currItem->colour.r * 255), (Uint8)(currItem->colour.g * 255), (Uint8)(currItem->colour.b * 255));
 		SDL_RenderTexture(renderer, currItem->graphic, &sourceRect, &drawRect);
+		
+		SDL_SetRenderDrawColor(renderer, (Uint8)(currItem->colour.r * 255), (Uint8)(currItem->colour.g * 255), (Uint8)(currItem->colour.b * 255), (Uint8)(currItem->colour.a * 255));
+		SDL_RenderFillRect(renderer, &(SDL_FRect){pos.x + 4 * itemIndex, pos.y, 4, 4});
+
+		itemIndex++;
 		currItem = next;
 	}
+}
+
+#include "input.h"
+void buttonRefreshAvatar(Button* item){
+	(void)item;
+	return; //currently crashes
+
+	AvatarItem* loopItem = headItem;
+	while(loopItem){
+		AvatarItem* currItem = loopItem;
+		loopItem = loopItem->next;
+		if(currItem)free(currItem);
+	}
+	headItem = NULL;
+
+	initAvatar();
 }

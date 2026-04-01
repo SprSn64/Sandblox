@@ -16,4 +16,7 @@ typedef struct AvatarItem{
 void initAvatar();
 void drawAvatar(SDL_Point pos);
 
+#include "input.h"
+void buttonRefreshAvatar(Button* item);
+
 #endif
