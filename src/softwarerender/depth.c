@@ -44,17 +44,17 @@ void drawDepthHamLine(Texture* target, Vector3 pointA, Vector3 pointB, Uint32 co
 	float scaler = max(fabs(pointB.x - pointA.x), fabs(pointB.y - pointA.y));
 	if(scaler <= 0 || !target) return;
 
-	int loopCount = ((pointB.x - pointA.x) >= (pointB.y - pointA.y) ? 
-		min(pointB.x - pointA.x, target->width): 
-		min(pointB.y - pointA.y, target->height));
+	int loopCount = (fabs(pointB.x - pointA.x) >= fabs(pointB.y - pointA.y) ? 
+		min(fabs(pointB.x - pointA.x), target->width): 
+		min(fabs(pointB.y - pointA.y), target->height));
 
+	float lerpVal = 1.f/loopCount;
 	for(int i=0; i < loopCount; i++){
-		float lerpVal = i/scaler;
 		drawDepthPixel(target, 
-			lerp(pointA.x, pointB.x, lerpVal), 
-			lerp(pointA.y, pointB.y, lerpVal), 
-			lerp(pointA.z, pointB.z, lerpVal),
-			colourLerp(colourA, colourB, lerpVal)
+			lerp(pointA.x, pointB.x, lerpVal * i), 
+			lerp(pointA.y, pointB.y, lerpVal * i), 
+			lerp(pointA.z, pointB.z, lerpVal * i),
+			colourLerp(colourA, colourB, lerpVal * i)
 		);
 	}
 }

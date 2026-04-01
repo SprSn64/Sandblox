@@ -288,12 +288,11 @@ SDL_AppResult SDL_AppIterate(void *appstate){
 	mouseState = SDL_GetMouseState(&mousePos.x, &mousePos.y);
 	for(int i=0; i<3; i++){
 		mouseButtons[i].down = (SDL_GetWindowFlags(window) & SDL_WINDOW_INPUT_FOCUS) && (mouseState & mouseButtons[i].code);
+		mouseButtons[i].pressed = false;
 		if(mouseButtons[i].down){
 			if(!mouseButtons[i].pressCheck){
 				mouseButtons[i].pressCheck = true;
 				mouseButtons[i].pressed = true;
-			}else{
-				mouseButtons[i].pressed = false;
 			}
 		}else mouseButtons[i].pressCheck = false;
 	}
