@@ -16,7 +16,6 @@ extern SDL_Renderer *renderer;
 extern char* basePath;
 
 SDL_Texture* avatarBaseTex = NULL;
-SDL_Texture* evilHatTex = NULL;
 
 extern Font defaultFont;
 SDL_Texture *newTexture(char* path, SDL_ScaleMode scaleMode);
@@ -24,7 +23,7 @@ void drawText(SDL_Renderer *renderLoc, Font *textFont, char* text, short posX, s
 
 char* playerName;
 
-AvatarItem* headItem = NULL;
+AvatarItem* headAvatarItem = NULL;
 
 AvatarItem* loadHatJson(cJSON* obj){
 	AvatarItem* newItem = malloc(sizeof(AvatarItem));
@@ -42,7 +41,7 @@ AvatarItem* loadHatJson(cJSON* obj){
 
 	SDL_Texture* tex;
 	if(graphic && cJSON_IsString(graphic)){
-		tex = evilHatTex;//newTexture(graphic->valuestring, SDL_SCALEMODE_LINEAR); //segment fault?
+		tex = newTexture(graphic->valuestring, SDL_SCALEMODE_LINEAR); //segment fault?
 		if(!tex)
 			printf("Failed to load texture from file: %s\n", graphic->valuestring);
 	}
@@ -57,29 +56,31 @@ AvatarItem* loadHatJson(cJSON* obj){
 			(float)(cJSON_GetArrayItem(colour, 3)->valueint) / 255
 		};
 
-	if(!headItem){
-		headItem = newItem;
-	}else{
-		AvatarItem* loopItem = headItem;
-		while(loopItem->next){
-			loopItem = loopItem->next;
-		}
-		loopItem->next = newItem;
-		newItem->prev = loopItem;
+	if(!headAvatarItem){
+		headAvatarItem = newItem;
+		return newItem;
 	}
+
+	AvatarItem *loopItem = headAvatarItem;
+	while(loopItem->next){
+		loopItem = loopItem->next;
+	}
+	loopItem->next = newItem;
+	newItem->prev = loopItem;
+
+	newItem->next = NULL;
+
 	return newItem;
 }
 
-void initAvatar(){
-	avatarBaseTex = newTexture("assets/avatar/avatarbase.png", SDL_SCALEMODE_LINEAR);
-	evilHatTex = newTexture("assets/avatar/itchysweater.png", SDL_SCALEMODE_LINEAR);
-
+void loadAvatar(){
 	char *avatarPath = malloc(256); sprintf(avatarPath, "%splayer.json", basePath);
 	FILE* file = fopen(avatarPath, "r");
 	if(!file){
 		printf("Failed load player file %s\n", avatarPath);
-		goto avatarLoadSkip;
+		free(avatarPath); return;
 	}
+	free(avatarPath);
 
 	fseek(file, 0, SEEK_END);
 	long fileSize = ftell(file);
@@ -93,7 +94,6 @@ void initAvatar(){
 	cJSON* json = cJSON_Parse(content);
 	if(!json){
 		printf("Failed to parse JSON: %s\n", cJSON_GetErrorPtr());
-		goto avatarLoadSkip;
 	}
 
 	cJSON* name = cJSON_GetObjectItem(json, "name");
@@ -110,7 +110,7 @@ void initAvatar(){
 	
 	printf("Found %d objects in JSON\n", cJSON_GetArraySize(objects));
 	
-	int objectCount = min(cJSON_GetArraySize(objects), 1);
+	int objectCount = cJSON_GetArraySize(objects);
 	for(int i = 0; i < objectCount; i++) {
 		cJSON* obj = cJSON_GetArrayItem(objects, i);
 		if(obj)
@@ -119,9 +119,12 @@ void initAvatar(){
 
 	cJSON_Delete(json);
 	free(content);
+}
 
-avatarLoadSkip:
-	free(avatarPath);
+void initAvatar(){
+	avatarBaseTex = newTexture("assets/avatar/avatarbase.png", SDL_SCALEMODE_LINEAR);
+
+	loadAvatar();
 }
 
 void drawAvatar(SDL_Point pos){
@@ -132,7 +135,7 @@ void drawAvatar(SDL_Point pos){
 	SDL_RenderFillRect(renderer, &drawRect);
 
 	SDL_RenderTexture(renderer, avatarBaseTex, &sourceRect, &drawRect);
-	AvatarItem* currItem = headItem;
+	AvatarItem* currItem = headAvatarItem;
 	Uint8 itemIndex = 0;
 	while (currItem) {
 		AvatarItem *next = currItem->next;
@@ -150,15 +153,15 @@ void drawAvatar(SDL_Point pos){
 #include "input.h"
 void buttonRefreshAvatar(Button* item){
 	(void)item;
-	return; //currently crashes
+	//return; //currently crashes
 
-	AvatarItem* loopItem = headItem;
+	AvatarItem* loopItem = headAvatarItem;
 	while(loopItem){
 		AvatarItem* currItem = loopItem;
 		loopItem = loopItem->next;
 		if(currItem)free(currItem);
 	}
-	headItem = NULL;
+	headAvatarItem = NULL;
 
-	initAvatar();
+	loadAvatar();
 }
