@@ -217,7 +217,7 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[]){
 
 	testCodeBlock = (CodeBlock){&testBlockClass, (SDL_FPoint){24, 24}, NULL, NULL, NULL, NULL};
 	
-	if(glEnabled) goto openGlInitSkip;
+	//if(glEnabled) goto openGlInitSkip;
 
 	displayTex = newSoftwareTexture(640, 480);
 	depthBuffer = malloc(displayTex->width*displayTex->height * sizeof(float));
@@ -226,7 +226,7 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[]){
 
 	testTex = loadSoftwareTexture("assets/textures/homer.png");
 
-openGlInitSkip:
+//openGlInitSkip:
 
 	if(mapLoaded) return SDL_APP_CONTINUE;
 	
@@ -379,8 +379,9 @@ SDL_AppResult SDL_AppIterate(void *appstate){
 
 	//currentCamera.transform = genMatrix(vec3Mult(currentCamera.pos, invVec3), (Vector3){currentCamera.zoom, currentCamera.zoom, currentCamera.zoom}, vec3Mult(currentCamera.rot, invVec3));
 
-	if(glEnabled)
+	if(glEnabled){
 		updateOpenGL();
+	}
 
 	if(client.studio && focusObject)
 		updateStudioGimbles();
@@ -430,6 +431,8 @@ SDL_AppResult SDL_AppIterate(void *appstate){
 
 	free(currentCamera.transform);
 	free(currentCamera.proj);
+
+	if(glEnabled) return SDL_APP_CONTINUE;
 
 	//float scaleFactor = min((float)windowScale.x / displayTex->width, (float)windowScale.y / displayTex->height);
 	SDL_UpdateTexture(renderTex, &(SDL_Rect){0, 0, displayTex->width, displayTex->height}, displayTex->pixels, displayTex->width * 4);
