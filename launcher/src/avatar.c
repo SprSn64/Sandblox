@@ -22,6 +22,7 @@ SDL_Texture *newTexture(char* path, SDL_ScaleMode scaleMode);
 void drawText(SDL_Renderer *renderLoc, Font *textFont, char* text, short posX, short posY, float scale, SDL_FColor colour);
 
 char* playerName;
+SDL_FColor playerColour = {1, 1, 1, 1};
 
 AvatarItem* headAvatarItem = NULL;
 
@@ -100,6 +101,15 @@ void loadAvatar(){
 	if(name && cJSON_IsString(name))
 		playerName = strdup(name->valuestring);
 
+	cJSON* colour = cJSON_GetObjectItem(json, "colour");
+	if(colour && cJSON_IsArray(colour) && cJSON_GetArraySize(colour) >= 4)
+		playerColour = (SDL_FColor){
+			(float)(cJSON_GetArrayItem(colour, 0)->valueint) / 255,
+			(float)(cJSON_GetArrayItem(colour, 1)->valueint) / 255,
+			(float)(cJSON_GetArrayItem(colour, 2)->valueint) / 255,
+			(float)(cJSON_GetArrayItem(colour, 3)->valueint) / 255
+		};
+
 	cJSON* objects = cJSON_GetObjectItem(json, "objects");
 		if(!objects || !cJSON_IsArray(objects)) {
 		printf("No objects array found in JSON\n");
@@ -134,6 +144,7 @@ void drawAvatar(SDL_Point pos){
 	SDL_SetRenderDrawColor(renderer, 192, 192, 192, 255);
 	SDL_RenderFillRect(renderer, &drawRect);
 
+	SDL_SetTextureColorMod(avatarBaseTex, playerColour.r * 255, playerColour.g * 255, playerColour.b * 255);
 	SDL_RenderTexture(renderer, avatarBaseTex, &sourceRect, &drawRect);
 	AvatarItem* currItem = headAvatarItem;
 	Uint8 itemIndex = 0;
@@ -159,9 +170,9 @@ void buttonRefreshAvatar(Button* item){
 	while(loopItem){
 		AvatarItem* currItem = loopItem;
 		loopItem = loopItem->next;
-		if(currItem)free(currItem);
+		free(currItem);
 	}
-	headAvatarItem = NULL;
 
+	headAvatarItem = NULL;
 	loadAvatar();
 }

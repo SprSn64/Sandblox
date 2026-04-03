@@ -112,7 +112,6 @@
 			"scale": [1, 1, 1],
 			"rot": [0, 0, 0],
 			"colour": [255, 255, 255, 255],
-			"isPlayer": true,
 			"collision": {
 				"enabled": false,
 				"type": "none"

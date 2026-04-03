@@ -249,7 +249,7 @@ SDL_AppResult SDL_AppEvent(void *appstate, SDL_Event *event){
 		return SDL_APP_SUCCESS;
 	}
 
-	if(event->type == SDL_EVENT_WINDOW_RESIZED){
+	if(event->type == SDL_EVENT_WINDOW_RESIZED && !glEnabled){
 		SDL_Point newScale = {event->display.data1, event->display.data2};
 
 		displayTex->pixels = realloc(displayTex->pixels, newScale.x * newScale.y * sizeof(Uint32));
