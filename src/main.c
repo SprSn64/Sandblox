@@ -353,7 +353,7 @@ SDL_AppResult SDL_AppIterate(void *appstate){
 	//if(!mainWindowFocus && !studioFocus)
 	//	goto drawSkip;
 
-	clearTex(displayTex, 0xFF000000);
+	clearTex(displayTex, 0xFFFFD4CC);
 	for(int i=0; i<displayTex->width*displayTex->height; i++){
 		depthBuffer[i] = 1;
 	}
@@ -407,7 +407,7 @@ SDL_AppResult SDL_AppIterate(void *appstate){
 
 	//drawSkip:
 
-	//drawBone(testRig->rootBone);
+	drawBone(testRig->rootBone);
 	updateStudio();
 	updatePopups();
 		

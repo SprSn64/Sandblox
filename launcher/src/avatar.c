@@ -34,6 +34,7 @@ AvatarItem* loadHatJson(cJSON* obj){
 	cJSON* texture = cJSON_GetObjectItem(obj, "texture");
 	cJSON* colour = cJSON_GetObjectItem(obj, "colour");
 	cJSON* graphic = cJSON_GetObjectItem(obj, "avatarImg");
+	cJSON* matchSkin = cJSON_GetObjectItem(obj, "matchSkin");
 
 	if(mesh && cJSON_IsString(mesh))
 		newItem->meshPath = strdup(mesh->valuestring);
@@ -56,6 +57,11 @@ AvatarItem* loadHatJson(cJSON* obj){
 			(float)(cJSON_GetArrayItem(colour, 2)->valueint) / 255,
 			(float)(cJSON_GetArrayItem(colour, 3)->valueint) / 255
 		};
+
+	if(matchSkin && cJSON_IsBool(matchSkin))
+		newItem->matchSkin = cJSON_IsTrue(matchSkin);
+	else
+		newItem->matchSkin = false;
 
 	if(!headAvatarItem){
 		headAvatarItem = newItem;
@@ -137,6 +143,14 @@ void initAvatar(){
 	loadAvatar();
 }
 
+void setDrawColor(SDL_Renderer* render, SDL_FColor colour){
+	SDL_SetRenderDrawColor(render, (Uint8)(colour.r * 255), (Uint8)(colour.g * 255), (Uint8)(colour.b * 255), (Uint8)(colour.a * 255));
+}
+
+void setTextureColor(SDL_Texture* texture, SDL_FColor colour){
+	SDL_SetTextureColorMod(texture, (Uint8)(colour.r * 255), (Uint8)(colour.g * 255), (Uint8)(colour.b * 255));
+}
+
 void drawAvatar(SDL_Point pos){
 	SDL_FRect sourceRect = (SDL_FRect){0, 0, 240, 320};
 	SDL_FRect drawRect = (SDL_FRect){pos.x, pos.y, 240, 320};
@@ -144,19 +158,27 @@ void drawAvatar(SDL_Point pos){
 	SDL_SetRenderDrawColor(renderer, 192, 192, 192, 255);
 	SDL_RenderFillRect(renderer, &drawRect);
 
-	SDL_SetTextureColorMod(avatarBaseTex, playerColour.r * 255, playerColour.g * 255, playerColour.b * 255);
+	setTextureColor(avatarBaseTex, playerColour);
 	SDL_RenderTexture(renderer, avatarBaseTex, &sourceRect, &drawRect);
 	AvatarItem* currItem = headAvatarItem;
-	Uint8 itemIndex = 0;
+	//Uint8 itemIndex = 0;
 	while (currItem) {
 		AvatarItem *next = currItem->next;
-		SDL_SetTextureColorMod(currItem->graphic, (Uint8)(currItem->colour.r * 255), (Uint8)(currItem->colour.g * 255), (Uint8)(currItem->colour.b * 255));
+		if(currItem->matchSkin)
+			setTextureColor(currItem->graphic, (SDL_FColor){
+				currItem->colour.r * playerColour.r,
+				currItem->colour.b * playerColour.g,
+				currItem->colour.g * playerColour.b,
+				1
+			});
+		else
+			setTextureColor(currItem->graphic, currItem->colour);
 		SDL_RenderTexture(renderer, currItem->graphic, &sourceRect, &drawRect);
 		
-		SDL_SetRenderDrawColor(renderer, (Uint8)(currItem->colour.r * 255), (Uint8)(currItem->colour.g * 255), (Uint8)(currItem->colour.b * 255), (Uint8)(currItem->colour.a * 255));
-		SDL_RenderFillRect(renderer, &(SDL_FRect){pos.x + 4 * itemIndex, pos.y, 4, 4});
+		//setDrawColor(renderer, currItem->colour);
+		//SDL_RenderFillRect(renderer, &(SDL_FRect){pos.x + 4 * itemIndex, pos.y, 4, 4});
 
-		itemIndex++;
+		//itemIndex++;
 		currItem = next;
 	}
 }
@@ -170,6 +192,7 @@ void buttonRefreshAvatar(Button* item){
 	while(loopItem){
 		AvatarItem* currItem = loopItem;
 		loopItem = loopItem->next;
+		if(currItem->graphic)SDL_DestroyTexture(currItem->graphic);
 		free(currItem);
 	}
 

@@ -7,6 +7,7 @@ typedef struct AvatarItem{
 	char* graphicPath;
 
 	SDL_FColor colour;
+	bool matchSkin;
 	SDL_Texture* graphic;
 
 	struct AvatarItem* prev;

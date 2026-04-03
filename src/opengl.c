@@ -117,6 +117,8 @@ bool initOpenGL(){
 	glEnable(GL_DEPTH_TEST);
 	glEnable(GL_CULL_FACE); glCullFace(GL_BACK); glFrontFace(GL_CCW);
 	glClearColor(skyboxColour.r, skyboxColour.g, skyboxColour.b, 1);
+
+	glUniformMatrix4fv(glLocs[GLVAL_WORLDMATRIX], 1, GL_FALSE, defaultMatrix);
 	
 	return 1;
 }
@@ -142,7 +144,7 @@ void updateOpenGL(){
 	glUniformMatrix4fv(glLocs[GLVAL_VIEWMATRIX], 1, GL_FALSE, currentCamera.transform);
 	glDrawElements(GL_TRIANGLES, playerMesh->faceCount * 3, GL_UNSIGNED_INT, 0); 
 	
-	free(worldMat);
+	//free(worldMat);
 	
 	SDL_GL_SwapWindow(glWindow);
 }

@@ -96,6 +96,7 @@ void drawDepthTriangle(Texture* target, MeshVert vertA, MeshVert vertB, MeshVert
 		colourToInt(newVerts[0].colour)
 	);
 
+	//really bad bottom half of triangle algorithm (very laggy with large triangles)
 	/*int triTop = min(posA.y, min(posB.y, posC.y));
 	int triHeight = max(posA.y, max(posB.y, posC.y)) - triTop;
 	Uint32 triColour = colourToInt((SDL_FColor){

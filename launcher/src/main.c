@@ -71,6 +71,8 @@ extern Page sidePanel;
 extern char** langStrings;
 extern Button* currButtonItem;
 
+extern SDL_Texture* avatarBaseTex;
+
 bool between(float input, float min, float max){return(input >= min && input <= max);}
 
 SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[]){
@@ -193,6 +195,7 @@ SDL_AppResult SDL_AppIterate(void *appstate){
 void SDL_AppQuit(void *appstate, SDL_AppResult result){
 	(void)appstate; (void)result;
 	SDL_DestroyTexture(fontTex);
+	SDL_DestroyTexture(avatarBaseTex);
 }
     
 void HandleKeyInput(){
