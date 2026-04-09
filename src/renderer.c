@@ -101,8 +101,12 @@ Vector3 clipToNearPlane(Vector3 front, Vector3 back, float nearZ){
 	};
 }
 
+extern bool softwareRender;
 bool draw3DTriangle(MeshVert pointA, MeshVert pointB, MeshVert pointC, SDL_Texture* image){
-	drawDepthTriangle(displayTex, pointA, pointB, pointC, NULL); return 0;
+	if(softwareRender){
+		drawDepthTriangle(displayTex, pointA, pointB, pointC, NULL); 
+		return 0;
+	}
 
 	Vector3 camA = worldToCamera(pointA.pos);
 	Vector3 camB = worldToCamera(pointB.pos);

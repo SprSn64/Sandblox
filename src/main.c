@@ -42,6 +42,8 @@ SDL_Window *window = NULL;
 SDL_Renderer *renderer = NULL;
 SDL_Texture *renderTex = NULL;
 
+bool softwareRender = true;
+
 bool glEnabled = false;
 Uint32 glVersion[2] = {0, 0};
 
@@ -249,7 +251,7 @@ SDL_AppResult SDL_AppEvent(void *appstate, SDL_Event *event){
 		return SDL_APP_SUCCESS;
 	}
 
-	if(event->type == SDL_EVENT_WINDOW_RESIZED && !glEnabled){
+	if(event->type == SDL_EVENT_WINDOW_RESIZED && !glEnabled && softwareRender){
 		SDL_Point newScale = {event->display.data1, event->display.data2};
 
 		displayTex->pixels = realloc(displayTex->pixels, newScale.x * newScale.y * sizeof(Uint32));
@@ -389,13 +391,16 @@ SDL_AppResult SDL_AppIterate(void *appstate){
 	doZBuffer = false;
 
 	// skybox temporary disabled (lags the fuck out of the renderer)
-	/*skyboxMatrix = translateMatrix(defaultMatrix, currentCamera.pos);
-	drawMesh(skyboxMesh, skyboxMatrix, (SDL_FColor){1,1,1,1}, skyTex, false);
-	free(skyboxMatrix);
+
+	if(!softwareRender){
+		skyboxMatrix = translateMatrix(defaultMatrix, currentCamera.pos);
+		drawMesh(skyboxMesh, skyboxMatrix, (SDL_FColor){1,1,1,1}, skyTex, false);
+		free(skyboxMatrix);
 	
-	sunMatrix = genMatrix(currentCamera.pos, (Vector3){1, 1, 1}, vec3Add(normToRot3(lightNormal), (Vector3){PI, PI, 0}));
-	drawMesh(sunMesh, sunMatrix, lightColour, sunTex, false);
-	free(sunMatrix);*/
+		sunMatrix = genMatrix(currentCamera.pos, (Vector3){1, 1, 1}, vec3Add(normToRot3(lightNormal), (Vector3){PI, PI, 0}));
+		drawMesh(sunMesh, sunMatrix, lightColour, sunTex, false);
+		free(sunMatrix);
+	}
 	
 	//drawCube((Vector3){(2 + SDL_cos(timer)) / -2, SDL_sin(timer) + 1, (2 + SDL_cos(timer)) / -2}, (Vector3){2 + SDL_cos(timer), SDL_sin(timer) + 1, 2 + SDL_cos(timer)}, (SDL_FColor){0.6, 0.8, 1, 1});
 	//drawCube((Vector3){SDL_sin(timer) * 2 - 0.5, 1, SDL_cos(timer) * 2 - 0.5}, (Vector3){1, 1, 1}, (SDL_FColor){1, 0.2, 0.3, 1});
@@ -435,8 +440,10 @@ SDL_AppResult SDL_AppIterate(void *appstate){
 	if(glEnabled) return SDL_APP_CONTINUE;
 
 	//float scaleFactor = min((float)windowScale.x / displayTex->width, (float)windowScale.y / displayTex->height);
-	SDL_UpdateTexture(renderTex, &(SDL_Rect){0, 0, displayTex->width, displayTex->height}, displayTex->pixels, displayTex->width * 4);
-	SDL_RenderTexture(renderer, renderTex, &(SDL_FRect){0, 0, (float)displayTex->width, (float)displayTex->height}, NULL);
+	if(softwareRender){
+		SDL_UpdateTexture(renderTex, &(SDL_Rect){0, 0, displayTex->width, displayTex->height}, displayTex->pixels, displayTex->width * 4);
+		SDL_RenderTexture(renderer, renderTex, &(SDL_FRect){0, 0, (float)displayTex->width, (float)displayTex->height}, NULL);
+	}
 	
 	SDL_RenderPresent(renderer);
 
