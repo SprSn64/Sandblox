@@ -15,17 +15,25 @@ extern float* depthBuffer;
 bool doZBuffer = true;
 
 extern ClientData client;
+
+bool doFog = true;
+SDL_FColor fogColour = {1, 1, 1, 1};
+float fogStart = 128;
+float fogDist = 64;
+
 MeshVert defaultVertShader(MeshVert inputVert){
 	Camera* currCam = client.gameWorld->currCamera;
 
 	Vector4 newPos = matrixMult(matrixMult(vec3ToVec4(inputVert.pos), currCam->transform), currCam->proj);
 	newPos.x = newPos.x * (1 - 2 * (newPos.z > 0)); newPos.y = newPos.y * (1 - 2 * (newPos.z > 0));
 
+	float fogStrength = doFog ? clamp((-newPos.z - fogStart)/fogDist, 0, 1) : 0;
+
 	MeshVert newVert = {
 		(Vector3){newPos.x / newPos.z, newPos.y / newPos.z, 1-(1/-newPos.z)},
 		inputVert.norm,
 		inputVert.uv,
-		inputVert.colour
+		(SDL_FColor){lerp(inputVert.colour.r, fogColour.r, fogStrength), lerp(inputVert.colour.g, fogColour.g, fogStrength), lerp(inputVert.colour.b, fogColour.b, fogStrength), inputVert.colour.a}
 	};
 
 	return newVert;

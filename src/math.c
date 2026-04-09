@@ -14,6 +14,10 @@ float invLerp(float a, float b, float v){ //gives the t value for getting a spec
 float dotProd2(SDL_FPoint vecA, SDL_FPoint vecB){return vecA.x * vecB.x + vecA.y * vecB.y;}
 float dotProd3(Vector3 vecA, Vector3 vecB){return vecA.x * vecB.x + vecA.y * vecB.y + vecA.z * vecB.z;}
 
+float clamp(float value, float min, float max){
+	return min(max(value, min), max);
+}
+
 SDL_FPoint normalize2(SDL_FPoint vec){
 	float length = sqrt(vec.x * vec.x + vec.y * vec.y);
 	return (SDL_FPoint){vec.x / length, vec.y / length};
