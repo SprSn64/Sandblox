@@ -404,6 +404,8 @@ int saveGameFile(const char* filename){
 	FILE* file = fopen(filename, "w");
 	
 	cJSON* jsonHeader = cJSON_CreateObject();
+	cJSON_AddStringToObject(jsonHeader, "version", client.version);
+
 	cJSON* objectArray = cJSON_AddArrayToObject(jsonHeader, "objects");
 	
 	addObjToJsonArray(objectArray, client.gameWorld->headObj);

@@ -147,7 +147,7 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[]){
 		
 		if(!strcmp("-mapfile", argv[i]))
 			mapToLoad = argv[++i];
-		if(!strcmp("-host", argv[i]))
+		if(!strcmp("-host", argv[i])) printf("cant host server at '%s'... not implemented yet sorry\n", argv[i+1]);
 			//debugServer = serverInit(8080); //argv[i+1]
 		if(!strcmp("-server", argv[i])) printf("cant join server '%s'... not implemented yet sorry\n", argv[i+1]);
 			//connectServer(argv[i++]);
@@ -201,6 +201,8 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[]){
 	keyList[KEYBIND_SPACE].code = SDL_SCANCODE_SPACE; keyList[KEYBIND_SHIFT].code = SDL_SCANCODE_LSHIFT;
 	keyList[KEYBIND_UP].code = SDL_SCANCODE_UP; keyList[KEYBIND_DOWN].code = SDL_SCANCODE_DOWN; keyList[KEYBIND_LEFT].code = SDL_SCANCODE_LEFT; keyList[KEYBIND_RIGHT].code = SDL_SCANCODE_RIGHT;
 	keyList[KEYBIND_I].code = SDL_SCANCODE_I; keyList[KEYBIND_O].code = SDL_SCANCODE_O;
+
+	keyList[KEYBIND_SWAPRENDER].code = SDL_SCANCODE_TAB;
 	
 	mouseButtons[0].code = SDL_BUTTON_LMASK; mouseButtons[1].code = SDL_BUTTON_MMASK; mouseButtons[2].code = SDL_BUTTON_RMASK;
 	
@@ -336,6 +338,14 @@ SDL_AppResult SDL_AppIterate(void *appstate){
 			camMoveMode = 1;
 		}
 	}else camMoveMode = 0;
+
+	if(keyList[KEYBIND_SWAPRENDER].pressed){
+		if(softwareRender)
+			sendPopup("Renderer Mode: SDL Geometry", NULL, NULL, 3);
+		else
+			sendPopup("Renderer Mode: Rasterizer", NULL, NULL, 3);
+		softwareRender = !softwareRender;
+	}
 	
 	currentCamera.rot.x += (keyList[KEYBIND_UP].down - keyList[KEYBIND_DOWN].down) * 1 * deltaTime;
 	currentCamera.rot.y += (keyList[KEYBIND_LEFT].down - keyList[KEYBIND_RIGHT].down) * 1 * deltaTime;
@@ -355,9 +365,11 @@ SDL_AppResult SDL_AppIterate(void *appstate){
 	//if(!mainWindowFocus && !studioFocus)
 	//	goto drawSkip;
 
-	clearTex(displayTex, 0xFFFFD4CC);
-	for(int i=0; i<displayTex->width*displayTex->height; i++){
-		depthBuffer[i] = 1;
+	if(softwareRender){
+		clearTex(displayTex, 0xFFFFD4CC);
+		for(int i=0; i<displayTex->width*displayTex->height; i++){
+			depthBuffer[i] = 1;
+		}
 	}
 
 	//drawTexture(displayTex, testTex, &(SDL_Rect){0, 0, testTex->width, testTex->height}, &(SDL_Rect){0, 0, 320, 240}, WHITE);
@@ -412,7 +424,7 @@ SDL_AppResult SDL_AppIterate(void *appstate){
 
 	//drawSkip:
 
-	drawBone(testRig->rootBone);
+	//drawBone(testRig->rootBone);
 	updateStudio();
 	updatePopups();
 		

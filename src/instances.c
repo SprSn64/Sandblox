@@ -6,6 +6,8 @@
 #include <math.h>
 #include <stdlib.h>
 
+#include "softwarerender/main.h"
+
 #include <structs.h>
 #include "instances.h"
 #include "renderer.h"
@@ -296,11 +298,14 @@ void updatePopup(NotiPopup* item){
 extern SDL_Point windowScale;
 extern Font defaultFont;
 
+extern Texture* displayTex;
 void renderPopup(NotiPopup* item, Uint32 posX, Uint32 posY){
 	if(item->age >= item->life) return;
 	
 	SDL_SetRenderDrawColor(renderer, 0, 0, 0, 128);
 	SDL_RenderFillRect(renderer, &(SDL_FRect){posX, posY, 224, 64});
+
+	drawRect(displayTex, posX, posY, 224, 64, 0x80000000);
 	
 	drawText(renderer, &defaultFont, item->text, posX + 2, posY + 2, 1, (SDL_FColor){1, 1, 1, 1});
 }
