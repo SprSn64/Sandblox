@@ -304,10 +304,10 @@ void renderPopup(NotiPopup* item, Uint32 posX, Uint32 posY){
 	
 	SDL_SetRenderDrawColor(renderer, 0, 0, 0, 128);
 	SDL_RenderFillRect(renderer, &(SDL_FRect){posX, posY, 224, 64});
-
 	drawRect(displayTex, posX, posY, 224, 64, 0x80000000);
 	
 	drawText(renderer, &defaultFont, item->text, posX + 2, posY + 2, 1, (SDL_FColor){1, 1, 1, 1});
+	drawRasterText(displayTex, &defaultFont, item->text, posX + 2, posY + 2, 1, 0xFFFFFFFF);
 }
 
 void updatePopups(){

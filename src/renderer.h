@@ -47,6 +47,7 @@ typedef struct{
 
 typedef struct{
 	SDL_Texture *image;
+	void *rastTex;
 	Uint16 startChar; //32 starts at the space glyth
 	SDL_Point glyphSize;
 	SDL_Point renderSize;

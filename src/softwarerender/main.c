@@ -6,6 +6,7 @@
 #include <stdlib.h>
 #include <math.h>
 #include "../math.h"
+#include "../renderer.h"
 
 Uint32 colourToInt(SDL_FColor colour){
 	return (int)(colour.r * 255) + ((int)(colour.g * 255) << 8) + ((int)(colour.b * 255) << 16) + ((int)(colour.a * 255) << 24); 
@@ -46,7 +47,7 @@ void clearTex(Texture* target, Uint32 colour){
 	}
 }
 
-Texture* newSoftwareTexture(Uint16 width, Uint16 height){
+Texture* newRasterTexture(Uint16 width, Uint16 height){
 	Texture* newTexture = malloc(sizeof(Texture));
 	if(!newTexture){
 		printf("Failed to generate texture of size %dx%d\n", width, height);
@@ -58,15 +59,15 @@ Texture* newSoftwareTexture(Uint16 width, Uint16 height){
 	return newTexture;
 }
 
-bool freeSoftwareTexture(Texture* tex){
+bool freeRasterTexture(Texture* tex){
 	if(!tex) return 1;
 	free(tex->pixels); free(tex);
 	return 0;
 }
 
-Texture* loadSoftwareTexture(char* path){
+Texture* loadRasterTexture(char* path){
 	SDL_Surface* newSurface = IMG_Load(path); if(!newSurface) return NULL;
-	Texture* newTex = newSoftwareTexture(newSurface->w, newSurface->h);
+	Texture* newTex = newRasterTexture(newSurface->w, newSurface->h);
 
 	//printf("Pixel format of image %s is 0x%x\n", path, newSurface->format);
 	memcpy(newTex->pixels, newSurface->pixels, newSurface->w*newSurface->h * sizeof(Uint32)); 
@@ -88,7 +89,7 @@ void drawTexture(Texture* target, Texture* tex, SDL_Rect* source, SDL_Rect* dest
 	}
 }
 
-/*void drawText(Texture* target, Font *textFont, char* text, short posX, short posY, float scale, Uint32 colour){
+void drawRasterText(Texture* target, Font *textFont, char* text, short posX, short posY, float scale, Uint32 colour){
 	if(!target || !textFont) return;
 	for(size_t i=0; i<strlen(text); i++){
 		char charVal = text[i] - textFont->startChar;
@@ -96,9 +97,9 @@ void drawTexture(Texture* target, Texture* tex, SDL_Rect* source, SDL_Rect* dest
 		int yOff = charVal / textFont->columns * textFont->glyphSize.y;
 		SDL_Rect sprRect = {xOff, yOff, textFont->glyphSize.x, textFont->glyphSize.y};
 		SDL_Rect sprPos = {posX + textFont->kerning.x * i * scale, posY + textFont->kerning.y * i * scale, textFont->renderSize.x * scale, textFont->renderSize.y * scale};
-		drawTexture(target, textFont->image, &sprRect, &sprPos, colour);
+		drawTexture(target, textFont->rastTex, &sprRect, &sprPos, colour);
 	}
-}*/
+}
 
 void drawRect(Texture* target, Uint16 posX, Uint16 posY, Uint16 width, Uint16 height, Uint32 colour){
 	if(!target) return;

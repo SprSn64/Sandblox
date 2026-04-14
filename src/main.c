@@ -76,7 +76,8 @@ float timer = 0;
 
 Font defaultFont;
 
-Texture *testTex = NULL;
+Texture *testTex;
+Texture *rastFontTex;
 
 SDL_Texture *fontTex = NULL; SDL_Texture *playerTex = NULL; SDL_Texture *homerTex = NULL;
 SDL_Texture *boneTex = NULL; SDL_Texture *cursorTex = NULL; SDL_Texture *skyTex = NULL; SDL_Texture *sunTex = NULL;
@@ -181,7 +182,8 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[]){
 	skyTex = newTexture("assets/textures/skybox.png", SDL_SCALEMODE_LINEAR);
 	sunTex = newTexture("assets/textures/sunflare.png", SDL_SCALEMODE_LINEAR);
 
-	defaultFont = (Font){fontTex, 32, (SDL_Point){32, 32}, (SDL_Point){8, 8}, (SDL_FPoint){6, 0}, 16};
+	rastFontTex = loadRasterTexture("assets/textures/font.png");
+	defaultFont = (Font){fontTex, rastFontTex, 32, (SDL_Point){32, 32}, (SDL_Point){8, 8}, (SDL_FPoint){6, 0}, 16};
 
 	playerMesh = loadMeshFromObj("assets/models/player.obj"); 
 	boneMesh = loadMeshFromObj("assets/models/bone.obj"); 
@@ -223,12 +225,10 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[]){
 	
 	//if(glEnabled) goto openGlInitSkip;
 
-	displayTex = newSoftwareTexture(640, 480);
+	displayTex = newRasterTexture(640, 480);
 	depthBuffer = malloc(displayTex->width*displayTex->height * sizeof(float));
 	renderTex = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_XBGR8888, SDL_TEXTUREACCESS_TARGET, 1920, 1080); //somehow make it work for resolutions over 1920x1080
 	SDL_SetTextureScaleMode(renderTex, SDL_SCALEMODE_NEAREST);
-
-	testTex = loadSoftwareTexture("assets/textures/homer.png");
 
 //openGlInitSkip:
 
@@ -342,8 +342,14 @@ SDL_AppResult SDL_AppIterate(void *appstate){
 	if(keyList[KEYBIND_SWAPRENDER].pressed){
 		if(softwareRender)
 			sendPopup("Renderer Mode: SDL Geometry", NULL, NULL, 3);
-		else
+		else{
 			sendPopup("Renderer Mode: Rasterizer", NULL, NULL, 3);
+			if(displayTex->width != windowScale.x || displayTex->height != windowScale.y){
+				displayTex->pixels = realloc(displayTex->pixels, windowScale.x * windowScale.y * sizeof(Uint32));
+				displayTex->width = windowScale.x; displayTex->height = windowScale.y; 
+				depthBuffer = realloc(depthBuffer, windowScale.x * windowScale.y * sizeof(float));
+			}
+		}
 		softwareRender = !softwareRender;
 	}
 	
@@ -472,7 +478,7 @@ void SDL_AppQuit(void *appstate, SDL_AppResult result){
 	free(playerMesh); free(skyboxMesh);
 	free(planePrim); free(cubePrim); free(spherePrim);
 
-	free(depthBuffer); freeSoftwareTexture(displayTex);
+	free(depthBuffer); freeRasterTexture(displayTex); freeRasterTexture(rastFontTex);
 }
     
 extern SDL_Window *glWindow;
