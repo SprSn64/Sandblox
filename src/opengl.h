@@ -14,6 +14,8 @@ bool initOpenGL();
 void updateOpenGL();
 void cleanupOpenGL();
 
+float *projMatrixOpenGL(float fov, float aspect, float zNear, float zFar);
+
 void openGlGenBuffers(Mesh* mesh);
 
 void drawMeshOpenGL(Mesh* mesh, mat4 transform, SDL_FColor colour, SDL_Texture* texture);

@@ -28,8 +28,6 @@ extern SDL_FColor skyboxColour;
 
 Uint32 mainShader;
 
-float* viewMat;
-
 const char *vertexShaderSource = NULL;
 const char *fragmentShaderSource = NULL;
 
@@ -40,10 +38,24 @@ Sint32 worldLoc, viewLoc,  projLoc;
 Sint32 glLocs[GLVAL_MAX];
 
 float* worldMat = NULL;
+float* viewMat;
 
 Uint32 VAO, VBO, EBO;
 
 extern void HandleKeyInput();
+
+MeshVert testGlVerts[5] = {
+	(MeshVert){(Vector3){-1, -1, 1}, (Vector3){0, 0, 1}, (SDL_FPoint){0, 0}, (SDL_FColor){1, 0, 0, 1}},
+	(MeshVert){(Vector3){-1, -1, -1}, (Vector3){0, 0, 1}, (SDL_FPoint){0, 0}, (SDL_FColor){0, 1, 0, 1}},
+	(MeshVert){(Vector3){1, -1, -1}, (Vector3){0, 0, 1}, (SDL_FPoint){0, 0}, (SDL_FColor){1, 1, 0, 1}},
+	(MeshVert){(Vector3){1, -1, 1}, (Vector3){0, 0, 1}, (SDL_FPoint){0, 0}, (SDL_FColor){0, 0, 1, 1}},
+	(MeshVert){(Vector3){0, 1, 0}, (Vector3){0, 1, 0}, (SDL_FPoint){0, 0}, (SDL_FColor){1, 0, 1, 1}}
+};
+
+MeshFace testGlFaces[6] = {
+	(MeshFace){0, 1, 4}, (MeshFace){1, 2, 4}, (MeshFace){2, 3, 4}, (MeshFace){3, 0, 4},
+	(MeshFace){1, 0, 2}, (MeshFace){3, 2, 0}
+};
 
 Uint32 loadShader(char* vertPath, char* fragPath){
 	const char* vertSource = loadTextFile(vertPath);
@@ -63,6 +75,21 @@ Uint32 loadShader(char* vertPath, char* fragPath){
 	glDeleteShader(vertShader); glDeleteShader(fragShader);
 	
 	return shaderProg;
+}
+
+float *projMatrixOpenGL(float fov, float aspect, float zNear, float zFar){
+	float *output = calloc(1, sizeof(mat4));
+	
+	float range = zNear - zFar;
+	float fovTan = SDL_tan(fov / 2 * DEG2RAD);
+	
+	output[0] = 1 / (fovTan * aspect);
+	output[5] = 1 / fovTan;
+	output[10] = (-zNear - zFar) / range;
+	output[11] = 2 * zNear * zFar / range;
+	output[14] = 1;
+
+	return output;
 }
 
 bool initOpenGL(){
@@ -87,8 +114,8 @@ bool initOpenGL(){
 	glGenBuffers(1, &VBO); glBindBuffer(GL_ARRAY_BUFFER, VBO);
 	glGenBuffers(1, &EBO); glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
 	
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(MeshFace) * playerMesh->faceCount, playerMesh->faces, GL_STATIC_DRAW); 
-	glBufferData(GL_ARRAY_BUFFER, sizeof(MeshVert) * playerMesh->vertCount, playerMesh->verts, GL_STATIC_DRAW);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(MeshFace) * 6, testGlFaces, GL_STATIC_DRAW); 
+	glBufferData(GL_ARRAY_BUFFER, sizeof(MeshVert) * 5, testGlVerts, GL_STATIC_DRAW);
 	
 	//glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(MeshFace) * playerMesh->faceCount, playerMesh->faces, GL_STATIC_DRAW); 
 	//glBufferData(GL_ARRAY_BUFFER, sizeof(MeshVert) * playerMesh->vertCount, playerMesh->verts, GL_STATIC_DRAW);
@@ -136,15 +163,16 @@ void updateOpenGL(){
 	//projMat = projMatrix(90, (float)glWindowScale.x/glWindowScale.y, 0.1, 100); //world flipped?
 	//float* worldMat = genMatrix(client.gameWorld->currPlayer->pos, client.gameWorld->currPlayer->scale, client.gameWorld->currPlayer->rot);
 	
-	//float* viewMatTranslate = translateMatrix(defaultMatrix, vec3Mult(currentCamera.pos, (Vector3){-1, -1, 1}));
-	//viewMat = rotateMatrix(viewMatTranslate, currentCamera.rot, ROT_YXZ);
-	//free(viewMatTranslate);
+	float* viewMatRotate = rotateMatrix(defaultMatrix, vec3Mult(currentCamera.rot, (Vector3){1, 1, 1}), ROT_YXZ);
+	viewMat = translateMatrix(viewMatRotate, vec3Mult(currentCamera.pos, (Vector3){-1, -1, 1}));
+	free(viewMatRotate);
 	
 	glUniformMatrix4fv(glLocs[GLVAL_PROJMATRIX], 1, GL_FALSE, currentCamera.proj);
-	glUniformMatrix4fv(glLocs[GLVAL_VIEWMATRIX], 1, GL_FALSE, currentCamera.transform);
-	glDrawElements(GL_TRIANGLES, playerMesh->faceCount * 3, GL_UNSIGNED_INT, 0); 
+	glUniformMatrix4fv(glLocs[GLVAL_VIEWMATRIX], 1, GL_FALSE, viewMat);//currentCamera.transform);
+	glDrawElements(GL_TRIANGLES, 6 * 3, GL_UNSIGNED_INT, 0); 
 	
 	//free(worldMat);
+	free(viewMat);
 	
 	SDL_GL_SwapWindow(glWindow);
 }
@@ -160,10 +188,10 @@ void drawMeshOpenGL(Mesh* mesh, mat4 transform, SDL_FColor colour, SDL_Texture* 
 	float colourFloat[4] = {colour.r, colour.g, colour.b, colour.a};
 	glUniform4fv(glLocs[GLVAL_MULTCOLOUR], 1, colourFloat);
 
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(MeshFace) * mesh->faceCount, mesh->faces, GL_STATIC_DRAW); 
-	glBufferData(GL_ARRAY_BUFFER, sizeof(MeshVert) * mesh->vertCount, mesh->verts, GL_STATIC_DRAW);
+	//glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(MeshFace) * mesh->faceCount, mesh->faces, GL_STATIC_DRAW); 
+	//glBufferData(GL_ARRAY_BUFFER, sizeof(MeshVert) * mesh->vertCount, mesh->verts, GL_STATIC_DRAW);
 	
-	glDrawElements(GL_TRIANGLES, mesh->faceCount * 3, GL_UNSIGNED_INT, 0);
+	//glDrawElements(GL_TRIANGLES, mesh->faceCount * 3, GL_UNSIGNED_INT, 0);
 }
 
 float* vertsToArray(Mesh* mesh){

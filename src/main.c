@@ -396,7 +396,10 @@ SDL_AppResult SDL_AppIterate(void *appstate){
 	memcpy(currentCamera.transform, camRotated, sizeof(mat4));
 	free(camTranslated); free(camScaled); free(camRotated); 
 
-	currentCamera.proj = projMatrix(currentCamera.fov, (float)windowScale.x/windowScale.y, 0.1, 100);
+	if(glEnabled)
+		currentCamera.proj = projMatrixOpenGL(currentCamera.fov, (float)windowScale.x/windowScale.y, 0.1, 100);
+	else
+		currentCamera.proj = projMatrix(currentCamera.fov, (float)windowScale.x/windowScale.y, 0.1, 100);
 
 	//currentCamera.transform = genMatrix(vec3Mult(currentCamera.pos, invVec3), (Vector3){currentCamera.zoom, currentCamera.zoom, currentCamera.zoom}, vec3Mult(currentCamera.rot, invVec3));
 

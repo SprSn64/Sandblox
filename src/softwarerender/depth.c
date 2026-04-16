@@ -17,7 +17,7 @@ bool doZBuffer = true;
 extern ClientData client;
 
 bool doFog = true;
-SDL_FColor fogColour = {1, 1, 1, 1};
+SDL_FColor fogColour = {0.8, 0.82, 1, 1};
 float fogStart = 128;
 float fogDist = 64;
 
