@@ -42,7 +42,7 @@ SDL_Window *window = NULL;
 SDL_Renderer *renderer = NULL;
 SDL_Texture *renderTex = NULL;
 
-bool softwareRender = true;
+bool softwareRender = false;
 
 bool glEnabled = false;
 Uint32 glVersion[2] = {0, 0};
@@ -125,18 +125,18 @@ CodeBlock testCodeBlock;
 
 SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[]){
 	(void)appstate;
-	client.version = "0.02 INDEV";
+	client.version = "0.03 INDEV";
 	SDL_SetAppMetadata("SandBlox", client.version, NULL);
 
-	clientPath = SDL_GetCurrentDirectory();
-	basePath = SDL_GetPrefPath("Sandblox", "Sandblox");
-	
 	DIR* assetsDir = opendir("assets");
 	if(!assetsDir){
 		printf("Hey, where'd all my assets go?");
 		return SDL_APP_FAILURE;
 	}
 	closedir(assetsDir);
+
+	clientPath = SDL_GetCurrentDirectory();
+	basePath = SDL_GetPrefPath("Sandblox", "Sandblox");
 
 	char *mapToLoad = "assets/gamefile.json";
 
@@ -234,12 +234,13 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[]){
 
 	if(mapLoaded) return SDL_APP_CONTINUE;
 	
-	if(loadGameFile(mapToLoad) == 0){
+	if(mapToLoad && loadGameFile(mapToLoad) == 0){
 		gameFileLoaded = true;
 	} else {
 		printf("Failed to load gamefile\n");
 		sendPopup("Failed to load gamefile", NULL, NULL, 3);
 		gameFileLoaded = false;
+		client.pause = true;
 	}
 	
 	focusObject = client.gameWorld->currPlayer;

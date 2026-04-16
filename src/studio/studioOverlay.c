@@ -40,8 +40,12 @@ Vector3 projectFlip(Vector3 proj){
 	return (Vector3){proj.x * flipMult, proj.y * flipMult, proj.z};
 }
 
+extern bool softwareRender;
 extern Texture* displayTex;
 Vector3 quickProj(Vector3 pos){
+	if(!softwareRender) 
+		return projToScreen(viewProj(worldToCamera(pos)));
+
 	Camera* currCam = client.gameWorld->currCamera;
 
 	Vector4 newPos = matrixMult(matrixMult(vec3ToVec4(pos), currCam->transform), currCam->proj);

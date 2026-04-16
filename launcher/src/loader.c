@@ -32,6 +32,16 @@ MapEntry* addMapEntry(char* path, char* name){
 	return newEntry;
 }
 
+void sortMapItems(MapEntry* head){
+	MapEntry* currItem = head;
+	while(currItem->next){
+		if(strcmp(currItem->name, currItem->next->name) < 0){
+			//swap the items
+		}
+		currItem = currItem->next;
+	}
+}
+
 bool loadMapDir(char* path){
 	struct dirent* entry;
 
@@ -52,6 +62,8 @@ bool loadMapDir(char* path){
 		if(!strcmp(extChar, ".json"))
 			addMapEntry(fullPath, entry->d_name);
       }
+
+      sortMapItems(mapListHead);
 
 	closedir(dir); 
 	return 0;
