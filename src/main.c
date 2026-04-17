@@ -286,6 +286,7 @@ SDL_AppResult SDL_AppEvent(void *appstate, SDL_Event *event){
 
 extern bool doZBuffer;
 extern bool studioFocus;
+extern SDL_Point glWindowScale;
 SDL_AppResult SDL_AppIterate(void *appstate){
 	(void)appstate;
 	HandleKeyInput();
@@ -397,7 +398,7 @@ SDL_AppResult SDL_AppIterate(void *appstate){
 	free(camTranslated); free(camScaled); free(camRotated); 
 
 	if(glEnabled)
-		currentCamera.proj = projMatrixOpenGL(currentCamera.fov, (float)windowScale.x/windowScale.y, 0.1, 100);
+		currentCamera.proj = projMatrixOpenGL(currentCamera.fov, (float)glWindowScale.x/glWindowScale.y, 0.1, 100);
 	else
 		currentCamera.proj = projMatrix(currentCamera.fov, (float)windowScale.x/windowScale.y, 0.1, 100);
 

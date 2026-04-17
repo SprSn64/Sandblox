@@ -45,17 +45,18 @@ Uint32 VAO, VBO, EBO;
 extern void HandleKeyInput();
 
 MeshVert testGlVerts[5] = {
-	(MeshVert){(Vector3){-1, -1, 1}, (Vector3){0, 0, 1}, (SDL_FPoint){0, 0}, (SDL_FColor){1, 0, 0, 1}},
-	(MeshVert){(Vector3){-1, -1, -1}, (Vector3){0, 0, 1}, (SDL_FPoint){0, 0}, (SDL_FColor){0, 1, 0, 1}},
-	(MeshVert){(Vector3){1, -1, -1}, (Vector3){0, 0, 1}, (SDL_FPoint){0, 0}, (SDL_FColor){1, 1, 0, 1}},
-	(MeshVert){(Vector3){1, -1, 1}, (Vector3){0, 0, 1}, (SDL_FPoint){0, 0}, (SDL_FColor){0, 0, 1, 1}},
+	(MeshVert){(Vector3){-1, -1, 1}, (Vector3){-1, -1, 1}, (SDL_FPoint){0, 0}, (SDL_FColor){1, 0, 0, 1}},
+	(MeshVert){(Vector3){-1, -1, -1}, (Vector3){-1, -1, -1}, (SDL_FPoint){0, 0}, (SDL_FColor){0, 1, 0, 1}},
+	(MeshVert){(Vector3){1, -1, -1}, (Vector3){1, -1, -1}, (SDL_FPoint){0, 0}, (SDL_FColor){1, 1, 0, 1}},
+	(MeshVert){(Vector3){1, -1, 1}, (Vector3){1, -1, 1}, (SDL_FPoint){0, 0}, (SDL_FColor){0, 0, 1, 1}},
 	(MeshVert){(Vector3){0, 1, 0}, (Vector3){0, 1, 0}, (SDL_FPoint){0, 0}, (SDL_FColor){1, 0, 1, 1}}
 };
-
 MeshFace testGlFaces[6] = {
 	(MeshFace){0, 1, 4}, (MeshFace){1, 2, 4}, (MeshFace){2, 3, 4}, (MeshFace){3, 0, 4},
 	(MeshFace){1, 0, 2}, (MeshFace){3, 2, 0}
 };
+Uint32 tempVertCount = 5;
+Uint32 tempTriCount = 6;
 
 Uint32 loadShader(char* vertPath, char* fragPath){
 	const char* vertSource = loadTextFile(vertPath);
@@ -83,7 +84,7 @@ float *projMatrixOpenGL(float fov, float aspect, float zNear, float zFar){
 	float range = zNear - zFar;
 	float fovTan = SDL_tan(fov / 2 * DEG2RAD);
 	
-	output[0] = 1 / (fovTan * aspect);
+	output[0] = -1 / (fovTan * aspect);
 	output[5] = 1 / fovTan;
 	output[10] = (-zNear - zFar) / range;
 	output[11] = 2 * zNear * zFar / range;
@@ -114,8 +115,8 @@ bool initOpenGL(){
 	glGenBuffers(1, &VBO); glBindBuffer(GL_ARRAY_BUFFER, VBO);
 	glGenBuffers(1, &EBO); glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
 	
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(MeshFace) * 6, testGlFaces, GL_STATIC_DRAW); 
-	glBufferData(GL_ARRAY_BUFFER, sizeof(MeshVert) * 5, testGlVerts, GL_STATIC_DRAW);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(MeshFace) * tempTriCount, testGlFaces, GL_STATIC_DRAW); 
+	glBufferData(GL_ARRAY_BUFFER, sizeof(MeshVert) * tempVertCount, testGlVerts, GL_STATIC_DRAW);
 	
 	//glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(MeshFace) * playerMesh->faceCount, playerMesh->faces, GL_STATIC_DRAW); 
 	//glBufferData(GL_ARRAY_BUFFER, sizeof(MeshVert) * playerMesh->vertCount, playerMesh->verts, GL_STATIC_DRAW);
@@ -135,10 +136,18 @@ bool initOpenGL(){
 	glLocs[GLVAL_WORLDMATRIX] = glGetUniformLocation(mainShader, "world");
 	glLocs[GLVAL_VIEWMATRIX] = glGetUniformLocation(mainShader, "view");
 	glLocs[GLVAL_PROJMATRIX] = glGetUniformLocation(mainShader, "proj");
+
+	glLocs[GLVAL_LIGHTNORM] = glGetUniformLocation(mainShader, "lightNorm");
+	glLocs[GLVAL_LIGHTCOLOUR] = glGetUniformLocation(mainShader, "lightColour");
+	glLocs[GLVAL_AMBCOLOUR] = glGetUniformLocation(mainShader, "ambColour");
 	glLocs[GLVAL_MULTCOLOUR] = glGetUniformLocation(mainShader, "multColour");
-	
-	//float multColour[4] = {1, 1, 1, 1};
-	//glUniform4fv(glLocs[GLVAL_MULTCOLOUR], 1, multColour);
+
+	float lightNormFloat[3] = {0.25, 0.42, 0.33};
+	glUniform3fv(glLocs[GLVAL_LIGHTNORM], 1, lightNormFloat);
+	float lightColourFloat[4] = {1, 1, 1, 1};
+	glUniform4fv(glLocs[GLVAL_LIGHTCOLOUR], 1, lightColourFloat);
+	float ambColourFloat[4] = {0.25, 0.25, 0.3, 1};
+	glUniform4fv(glLocs[GLVAL_AMBCOLOUR], 1, ambColourFloat);
 	
 	SDL_GL_SetSwapInterval(1);
 	glEnable(GL_DEPTH_TEST);
@@ -169,7 +178,7 @@ void updateOpenGL(){
 	
 	glUniformMatrix4fv(glLocs[GLVAL_PROJMATRIX], 1, GL_FALSE, currentCamera.proj);
 	glUniformMatrix4fv(glLocs[GLVAL_VIEWMATRIX], 1, GL_FALSE, viewMat);//currentCamera.transform);
-	glDrawElements(GL_TRIANGLES, 6 * 3, GL_UNSIGNED_INT, 0); 
+	glDrawElements(GL_TRIANGLES, tempTriCount * 3, GL_UNSIGNED_INT, 0); 
 	
 	//free(worldMat);
 	free(viewMat);
@@ -188,10 +197,13 @@ void drawMeshOpenGL(Mesh* mesh, mat4 transform, SDL_FColor colour, SDL_Texture* 
 	float colourFloat[4] = {colour.r, colour.g, colour.b, colour.a};
 	glUniform4fv(glLocs[GLVAL_MULTCOLOUR], 1, colourFloat);
 
-	//glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(MeshFace) * mesh->faceCount, mesh->faces, GL_STATIC_DRAW); 
-	//glBufferData(GL_ARRAY_BUFFER, sizeof(MeshVert) * mesh->vertCount, mesh->verts, GL_STATIC_DRAW);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(MeshFace) * mesh->faceCount, mesh->faces, GL_STATIC_DRAW); 
+	glBufferData(GL_ARRAY_BUFFER, sizeof(MeshVert) * mesh->vertCount, mesh->verts, GL_STATIC_DRAW);
+
+	tempTriCount = mesh->faceCount;
+	tempVertCount = mesh->vertCount;
 	
-	//glDrawElements(GL_TRIANGLES, mesh->faceCount * 3, GL_UNSIGNED_INT, 0);
+	glDrawElements(GL_TRIANGLES, mesh->faceCount * 3, GL_UNSIGNED_INT, 0);
 }
 
 float* vertsToArray(Mesh* mesh){
