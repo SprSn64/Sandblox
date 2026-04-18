@@ -205,6 +205,7 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[]){
 	keyList[KEYBIND_I].code = SDL_SCANCODE_I; keyList[KEYBIND_O].code = SDL_SCANCODE_O;
 
 	keyList[KEYBIND_SWAPRENDER].code = SDL_SCANCODE_TAB;
+	keyList[KEYBIND_MENU].code = SDL_SCANCODE_ESCAPE;
 	
 	mouseButtons[0].code = SDL_BUTTON_LMASK; mouseButtons[1].code = SDL_BUTTON_MMASK; mouseButtons[2].code = SDL_BUTTON_RMASK;
 	
@@ -353,6 +354,10 @@ SDL_AppResult SDL_AppIterate(void *appstate){
 			}
 		}
 		softwareRender = !softwareRender;
+	}
+
+	if(keyList[KEYBIND_MENU].pressed){
+		client.pause = !client.pause;
 	}
 	
 	currentCamera.rot.x += (keyList[KEYBIND_UP].down - keyList[KEYBIND_DOWN].down) * 1 * deltaTime;

@@ -178,8 +178,8 @@ void updateOpenGL(){
 	//projMat = projMatrix(90, (float)glWindowScale.x/glWindowScale.y, 0.1, 100); //world flipped?
 	//float* worldMat = genMatrix(client.gameWorld->currPlayer->pos, client.gameWorld->currPlayer->scale, client.gameWorld->currPlayer->rot);
 	
-	float* viewMatRotate = rotateMatrix(defaultMatrix, vec3Mult(currentCamera.rot, (Vector3){1, 1, 1}), ROT_YXZ);
-	viewMat = translateMatrix(viewMatRotate, vec3Mult(currentCamera.pos, (Vector3){-1, -1, 1}));
+	float* viewMatRotate = translateMatrix(defaultMatrix, vec3Mult(currentCamera.pos, (Vector3){-1, -1, 1}));
+	viewMat = rotateMatrix(viewMatRotate, vec3Mult(currentCamera.rot, (Vector3){1, 1, 1}), ROT_YXZ);
 	free(viewMatRotate);
 	
 	glUniformMatrix4fv(glLocs[GLVAL_PROJMATRIX], 1, GL_FALSE, currentCamera.proj);
