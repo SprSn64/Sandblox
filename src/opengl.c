@@ -15,6 +15,8 @@
 #include "renderer.h"
 #include "math.h"
 
+#include "softwarerender/main.h"
+
 extern SDL_Window *window;
 extern SDL_Point windowScale;
 
@@ -30,6 +32,9 @@ Uint32 mainShader;
 
 const char *vertexShaderSource = NULL;
 const char *fragmentShaderSource = NULL;
+
+Texture* glTestTex;
+Uint32 glTestTexID;
 
 SDL_Window *glWindow = NULL;
 SDL_Point glWindowScale = {640, 480};
@@ -143,6 +148,8 @@ bool initOpenGL(){
 	glLocs[GLVAL_MULTCOLOUR] = glGetUniformLocation(mainShader, "multColour");
 
 	glLocs[GLVAL_CAMERANORM] = glGetUniformLocation(mainShader, "cameraNorm");
+	glLocs[GLVAL_TEXTURE0] = glGetUniformLocation(mainShader, "tex0");
+	glUniform1i(glLocs[GLVAL_TEXTURE0], 0);
 	
 	SDL_GL_SetSwapInterval(1);
 	glEnable(GL_DEPTH_TEST);
@@ -150,6 +157,16 @@ bool initOpenGL(){
 	glClearColor(skyboxColour.r, skyboxColour.g, skyboxColour.b, 1);
 
 	glUniformMatrix4fv(glLocs[GLVAL_WORLDMATRIX], 1, GL_FALSE, defaultMatrix);
+
+	glTestTex = loadRasterTexture("assets/textures/cows.png");
+	glGenTextures(1, &glTestTexID);
+	glActiveTexture(GL_TEXTURE0);
+	glBindTexture(GL_TEXTURE_2D, glTestTexID);
+
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, glTestTex->width, glTestTex->height, 0, GL_RGBA, GL_UNSIGNED_BYTE, glTestTex->pixels);
+	glGenerateMipmap(GL_TEXTURE_2D);
+
+	glBindTexture(GL_TEXTURE_2D, 0);
 	
 	return 1;
 }
@@ -174,6 +191,8 @@ void updateOpenGL(){
 	glUniform4fv(glLocs[GLVAL_LIGHTCOLOUR], 1, lightColourFloat);
 	float ambColourFloat[4] = {0.25, 0.25, 0.3, 1};
 	glUniform4fv(glLocs[GLVAL_AMBCOLOUR], 1, ambColourFloat);
+
+	glBindTexture(GL_TEXTURE_2D, glTestTexID);
 	
 	//projMat = projMatrix(90, (float)glWindowScale.x/glWindowScale.y, 0.1, 100); //world flipped?
 	//float* worldMat = genMatrix(client.gameWorld->currPlayer->pos, client.gameWorld->currPlayer->scale, client.gameWorld->currPlayer->rot);
@@ -195,6 +214,7 @@ void updateOpenGL(){
 void cleanupOpenGL(){
 	glDeleteProgram(mainShader);
 	glDeleteBuffers(1, &VAO); glDeleteBuffers(1, &VBO); glDeleteBuffers(1, &EBO);
+	glDeleteTextures(1, &glTestTexID);
 }
 
 void drawMeshOpenGL(Mesh* mesh, mat4 transform, SDL_FColor colour, SDL_Texture* texture){
