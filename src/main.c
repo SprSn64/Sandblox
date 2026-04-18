@@ -403,20 +403,20 @@ SDL_AppResult SDL_AppIterate(void *appstate){
 	free(camTranslated); free(camScaled); free(camRotated); 
 
 	if(glEnabled)
-		currentCamera.proj = projMatrixOpenGL(currentCamera.fov, (float)glWindowScale.x/glWindowScale.y, 0.1, 100);
+		currentCamera.proj = projMatrixOpenGL(currentCamera.fov, (float)glWindowScale.x/glWindowScale.y, 0.1, 1000);
 	else
-		currentCamera.proj = projMatrix(currentCamera.fov, (float)windowScale.x/windowScale.y, 0.1, 100);
+		currentCamera.proj = projMatrix(currentCamera.fov, (float)windowScale.x/windowScale.y, 0.1, 1000);
 
 	//currentCamera.transform = genMatrix(vec3Mult(currentCamera.pos, invVec3), (Vector3){currentCamera.zoom, currentCamera.zoom, currentCamera.zoom}, vec3Mult(currentCamera.rot, invVec3));
-
-	if(glEnabled){
-		updateOpenGL();
-	}
 
 	if(client.studio && focusObject)
 		updateStudioGimbles();
 	
 	doZBuffer = false;
+
+	if(glEnabled){
+		updateOpenGL();
+	}
 
 	// skybox temporary disabled (lags the fuck out of the renderer)
 

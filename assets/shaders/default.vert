@@ -13,12 +13,15 @@ uniform mat4 world;
 uniform mat4 view;
 uniform mat4 proj;
 
+out vec4 pos;
 out vec3 norm;
 out vec2 uv;
 out vec4 colour;
 
 void main(){
 	gl_Position = vec4(aPos, 1.0) * world * view * proj;
+	pos = gl_Position;
+	
 	uv = aUV; 
 	colour = multColour; 
 

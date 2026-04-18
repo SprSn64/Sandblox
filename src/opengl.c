@@ -163,6 +163,8 @@ bool initOpenGL(){
 	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_2D, glTestTexID);
 
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, glTestTex->width, glTestTex->height, 0, GL_RGBA, GL_UNSIGNED_BYTE, glTestTex->pixels);
 	glGenerateMipmap(GL_TEXTURE_2D);
 
@@ -171,11 +173,15 @@ bool initOpenGL(){
 	return 1;
 }
 
+extern void studioCameraUpdate(Camera* cam);
+
 void updateOpenGL(){
 	SDL_GetWindowSize(glWindow, &glWindowScale.x, &glWindowScale.y);
 	glViewport(0, 0, glWindowScale.x, glWindowScale.y);
 
 	HandleKeyInput();
+	if(client.pause)
+		studioCameraUpdate(client.gameWorld->currCamera);
 
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
