@@ -19,7 +19,9 @@ out vec4 colour;
 
 void main(){
 	gl_Position = vec4(aPos, 1.0) * world * view * proj;
-	norm = aNormal; uv = aUV; 
-	
+	uv = aUV; 
 	colour = multColour; 
+
+	mat3 normRot = transpose(inverse(mat3(world)));
+	norm = normalize(aNormal * normRot); 
 }
