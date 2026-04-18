@@ -142,12 +142,7 @@ bool initOpenGL(){
 	glLocs[GLVAL_AMBCOLOUR] = glGetUniformLocation(mainShader, "ambColour");
 	glLocs[GLVAL_MULTCOLOUR] = glGetUniformLocation(mainShader, "multColour");
 
-	float lightNormFloat[3] = {0.25, 0.42, 0.33};
-	glUniform3fv(glLocs[GLVAL_LIGHTNORM], 1, lightNormFloat);
-	float lightColourFloat[4] = {1, 1, 1, 1};
-	glUniform4fv(glLocs[GLVAL_LIGHTCOLOUR], 1, lightColourFloat);
-	float ambColourFloat[4] = {0.25, 0.25, 0.3, 1};
-	glUniform4fv(glLocs[GLVAL_AMBCOLOUR], 1, ambColourFloat);
+	glLocs[GLVAL_CAMERANORM] = glGetUniformLocation(mainShader, "cameraNorm");
 	
 	SDL_GL_SetSwapInterval(1);
 	glEnable(GL_DEPTH_TEST);
@@ -168,6 +163,17 @@ void updateOpenGL(){
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 	glUseProgram(mainShader);
+
+	float lightNormFloat[3] = {0.25, 0.42, 0.33};
+	glUniform3fv(glLocs[GLVAL_LIGHTNORM], 1, lightNormFloat);
+	Vector3 cameraNormal = rotToNorm3(client.gameWorld->currCamera->rot);
+	float cameraNormFloat[3] = {cameraNormal.x, cameraNormal.y, cameraNormal.z};
+	glUniform3fv(glLocs[GLVAL_CAMERANORM], 1, cameraNormFloat);
+
+	float lightColourFloat[4] = {1, 1, 1, 1};
+	glUniform4fv(glLocs[GLVAL_LIGHTCOLOUR], 1, lightColourFloat);
+	float ambColourFloat[4] = {0.25, 0.25, 0.3, 1};
+	glUniform4fv(glLocs[GLVAL_AMBCOLOUR], 1, ambColourFloat);
 	
 	//projMat = projMatrix(90, (float)glWindowScale.x/glWindowScale.y, 0.1, 100); //world flipped?
 	//float* worldMat = genMatrix(client.gameWorld->currPlayer->pos, client.gameWorld->currPlayer->scale, client.gameWorld->currPlayer->rot);
