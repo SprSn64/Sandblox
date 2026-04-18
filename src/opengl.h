@@ -18,6 +18,7 @@ float *projMatrixOpenGL(float fov, float aspect, float zNear, float zFar);
 
 void openGlGenBuffers(Mesh* mesh);
 
+//swap SDL_Texture with Texture from softwarerenderer soon
 void drawMeshOpenGL(Mesh* mesh, mat4 transform, SDL_FColor colour, SDL_Texture* texture);
 
 //void openGlBindMesh(Mesh* mesh);

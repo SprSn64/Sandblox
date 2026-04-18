@@ -192,6 +192,7 @@ void cleanupOpenGL(){
 }
 
 void drawMeshOpenGL(Mesh* mesh, mat4 transform, SDL_FColor colour, SDL_Texture* texture){
+	(void)texture;
 	glUniformMatrix4fv(glLocs[GLVAL_WORLDMATRIX], 1, GL_FALSE, transform);
 
 	float colourFloat[4] = {colour.r, colour.g, colour.b, colour.a};
@@ -200,10 +201,14 @@ void drawMeshOpenGL(Mesh* mesh, mat4 transform, SDL_FColor colour, SDL_Texture* 
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(MeshFace) * mesh->faceCount, mesh->faces, GL_STATIC_DRAW); 
 	glBufferData(GL_ARRAY_BUFFER, sizeof(MeshVert) * mesh->vertCount, mesh->verts, GL_STATIC_DRAW);
 
+	//glBindVertexArray(mesh->vertArray);
+
 	tempTriCount = mesh->faceCount;
 	tempVertCount = mesh->vertCount;
 	
 	glDrawElements(GL_TRIANGLES, mesh->faceCount * 3, GL_UNSIGNED_INT, 0);
+
+	//glBindVertexArray(0);
 }
 
 float* vertsToArray(Mesh* mesh){
@@ -222,29 +227,42 @@ float* vertsToArray(Mesh* mesh){
 	return vertArray;
 }
 
-void openGlGenBuffers(Mesh* mesh){
+void deleteBuffer(Uint32 id){
+	glDeleteBuffers(1, &id);
+}
+
+void genVBO(Mesh* mesh, Uint32 id){
 	float* vertArray = vertsToArray(mesh);
-	mesh->vertArray = (Uint32)(*vertArray);
 
-	//glGenVertexArrays(1, &mesh->vertArray); glBindVertexArray(mesh->vertArray);
+	glGenBuffers(1, &id);
+	glBindBuffer(GL_ARRAY_BUFFER, id);
+	glBufferData(GL_ARRAY_BUFFER, mesh->vertCount * sizeof(MeshVert), vertArray, GL_STATIC_DRAW);
 
-    //glGenBuffers(1, &mesh->vertBuffer); glBindBuffer(GL_ARRAY_BUFFER, mesh->vertBuffer);
-   	//glBufferData(GL_ARRAY_BUFFER, float * mesh->vertCount, vertBuffer, GL_STATIC_DRAW);
+	free(vertArray);
+}
+void bindVBO(Uint32 id){
+	glBindBuffer(GL_ARRAY_BUFFER, id);
+}
+void unbindVBO(){
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
+}
 
-    //glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(MeshFace) * playerMesh->faceCount, playerMesh->faces, GL_STATIC_DRAW); 
-	//glBufferData(GL_ARRAY_BUFFER, sizeof(MeshVert) * playerMesh->vertCount, playerMesh->verts, GL_STATIC_DRAW);
+void genEBO(Mesh* mesh, Uint32 id){
+	glGenBuffers(1, &id);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, id);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, mesh->faceCount * sizeof(MeshFace), mesh->faces, GL_STATIC_DRAW);
+}
+void bindEBO(Uint32 id){
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, id);
+}
+void unbindEBO(){
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+}
 
-    /*glGenBuffers(1, &mesh->eleBuffer);
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, mesh->eleBuffer);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(MeshFace) * mesh->faceCount, mesh->faces, GL_STATIC_DRAW);
-
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 12 * sizeof(float), (void*)0); //pos
-    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 12 * sizeof(float), (void*)(3 * sizeof(float))); //norm
-    glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 12 * sizeof(float), (void*)(6 * sizeof(float))); //uv
-    glVertexAttribPointer(3, 4, GL_FLOAT, GL_FALSE, 12 * sizeof(float), (void*)(8 * sizeof(float))); //colour
-    
-    glEnableVertexAttribArray(0); 
-    glEnableVertexAttribArray(1); 
-    glEnableVertexAttribArray(2); 
-    glEnableVertexAttribArray(3);*/
+void openGlGenBuffers(Mesh* mesh){
+	(void)mesh;
+	//how the fuck do i get it working
+	//mesh->vertArray = 0;
+	//mesh->vertBuffer = genVBO(mesh, 0);
+	//mesh->eleBuffer = genEBO(mesh, 0);
 }
