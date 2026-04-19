@@ -13,7 +13,11 @@ typedef enum glValueLocations{
 
 bool initOpenGL();
 void updateOpenGL();
+void endUpdateOpenGL();
 void cleanupOpenGL();
+
+void setGlValue(Uint32 item, bool value);
+void setGlShader(Uint32 shader);
 
 float *projMatrixOpenGL(float fov, float aspect, float zNear, float zFar);
 

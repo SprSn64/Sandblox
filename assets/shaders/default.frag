@@ -8,6 +8,9 @@ uniform vec3 cameraNorm;
 
 uniform sampler2D tex0;
 
+uniform vec4 fogColour;
+uniform vec2 fogDist;
+
 in vec4 pos;
 in vec3 norm;
 in vec2 uv;
@@ -18,10 +21,10 @@ void main(){
 	if(baseColour.a <= 0.1)
 		discard;
 
-	float fogStrength = min(max(0, (pos.z - 64)/32), 1);
+	float fogStrength = min(max(0, (pos.z - 128)/64), 1);
 
 	vec3 reflectSource = normalize(reflect(-lightNorm, norm));
 	float specular = pow(max(dot(cameraNorm, reflectSource), 0), 16);
 
-	FragColor = mix(baseColour * max(dot(norm, lightNorm), 0) + baseColour * ambColour + specular * lightColour, vec4(1, 1, 1, 1), fogStrength);
+	FragColor = mix(baseColour * max(dot(norm, lightNorm), 0) + baseColour * ambColour + specular * lightColour, fogColour, fogStrength);
 } 

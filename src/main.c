@@ -288,6 +288,8 @@ SDL_AppResult SDL_AppEvent(void *appstate, SDL_Event *event){
 extern bool doZBuffer;
 extern bool studioFocus;
 extern SDL_Point glWindowScale;
+extern Uint32 mainShader; extern Uint32 flatShader;
+extern Uint32 glDepthTest;
 SDL_AppResult SDL_AppIterate(void *appstate){
 	(void)appstate;
 	HandleKeyInput();
@@ -414,13 +416,15 @@ SDL_AppResult SDL_AppIterate(void *appstate){
 	
 	doZBuffer = false;
 
-	if(glEnabled){
+	if(glEnabled)
 		updateOpenGL();
-	}
 
 	// skybox temporary disabled (lags the fuck out of the renderer)
 
-	if(!softwareRender){
+	//setGlValue(glDepthTest, false);
+	if(!softwareRender || glEnabled){
+		if(glEnabled)setGlShader(flatShader);
+
 		skyboxMatrix = translateMatrix(defaultMatrix, currentCamera.pos);
 		drawMesh(skyboxMesh, skyboxMatrix, (SDL_FColor){1,1,1,1}, skyTex, false);
 		free(skyboxMatrix);
@@ -428,12 +432,15 @@ SDL_AppResult SDL_AppIterate(void *appstate){
 		sunMatrix = genMatrix(currentCamera.pos, (Vector3){1, 1, 1}, vec3Add(normToRot3(lightNormal), (Vector3){PI, PI, 0}));
 		drawMesh(sunMesh, sunMatrix, lightColour, sunTex, false);
 		free(sunMatrix);
+
+		if(glEnabled)setGlShader(mainShader);
 	}
 	
 	//drawCube((Vector3){(2 + SDL_cos(timer)) / -2, SDL_sin(timer) + 1, (2 + SDL_cos(timer)) / -2}, (Vector3){2 + SDL_cos(timer), SDL_sin(timer) + 1, 2 + SDL_cos(timer)}, (SDL_FColor){0.6, 0.8, 1, 1});
 	//drawCube((Vector3){SDL_sin(timer) * 2 - 0.5, 1, SDL_cos(timer) * 2 - 0.5}, (Vector3){1, 1, 1}, (SDL_FColor){1, 0.2, 0.3, 1});
 	//SDL_SetRenderDrawColor(renderer, 255, 255, 255, SDL_ALPHA_OPAQUE);
 	
+	//setGlValue(glDepthTest, true);
 	doZBuffer = true;
 	idCounter = 0;
 	drawObjects(client.gameWorld->headObj, 0, &idCounter);
@@ -443,6 +450,9 @@ SDL_AppResult SDL_AppIterate(void *appstate){
 	//drawBone(testRig->rootBone);
 	updateStudio();
 	updatePopups();
+
+	if(glEnabled)
+		endUpdateOpenGL();
 		
 	static char fpsText[256] = "FPS: 0";
 	static char rotText[256] = "Camera Rot: 0, 0";

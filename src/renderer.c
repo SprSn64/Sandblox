@@ -317,6 +317,10 @@ Mesh* genTorusMesh(float outerRad, float innerRad, int ringRes, int ringCount){
 			SDL_sin(angleRes * (i % ringRes)),
 			SDL_cos(angleRes * (i % ringRes)) * SDL_sin(newAngle),
 		};
+		newVerts[i].uv = (SDL_FPoint){
+			newAngle / (2 * PI),
+			angleRes * (i % ringRes) / (2 * PI),
+		};
 	}
 	
 	for(Uint32 i=0; i<faceCount/2; i++){

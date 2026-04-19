@@ -28,7 +28,7 @@ extern Mesh* playerMesh;
 extern Mesh* cubePrim;
 extern SDL_FColor skyboxColour;
 
-Uint32 mainShader;
+Uint32 mainShader; Uint32 flatShader;
 
 const char *vertexShaderSource = NULL;
 const char *fragmentShaderSource = NULL;
@@ -41,6 +41,7 @@ SDL_Point glWindowScale = {640, 480};
 
 Sint32 worldLoc, viewLoc,  projLoc;
 Sint32 glLocs[GLVAL_MAX];
+Uint32 glDepthTest = GL_DEPTH_TEST;
 
 float* worldMat = NULL;
 float* viewMat;
@@ -98,6 +99,17 @@ float *projMatrixOpenGL(float fov, float aspect, float zNear, float zFar){
 	return output;
 }
 
+void setGlValue(Uint32 item, bool value){
+	if(value)
+		glEnable(item);
+	else
+		glDisable(item);
+}
+
+void setGlShader(Uint32 shader){
+	glUseProgram(shader);
+}
+
 bool initOpenGL(){
 	glWindow = SDL_CreateWindow("Sandblox (3D OpenGL)", glWindowScale.x, glWindowScale.y, SDL_WINDOW_RESIZABLE | SDL_WINDOW_OPENGL);
 	SDL_GL_CreateContext(glWindow);
@@ -115,6 +127,7 @@ bool initOpenGL(){
 	SDL_SetWindowMinimumSize(glWindow, 320, 240);
 	
 	mainShader = loadShader("assets/shaders/default.vert", "assets/shaders/default.frag");
+	flatShader = loadShader("assets/shaders/default.vert", "assets/shaders/unshaded.frag");
 	
 	glGenVertexArrays(1, &VAO); glBindVertexArray(VAO);	
 	glGenBuffers(1, &VBO); glBindBuffer(GL_ARRAY_BUFFER, VBO);
@@ -122,6 +135,8 @@ bool initOpenGL(){
 	
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(MeshFace) * tempTriCount, testGlFaces, GL_STATIC_DRAW); 
 	glBufferData(GL_ARRAY_BUFFER, sizeof(MeshVert) * tempVertCount, testGlVerts, GL_STATIC_DRAW);
+
+	//glBindBuffer(GL_ARRAY_BUFFER, 0); glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 	
 	//glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(MeshFace) * playerMesh->faceCount, playerMesh->faces, GL_STATIC_DRAW); 
 	//glBufferData(GL_ARRAY_BUFFER, sizeof(MeshVert) * playerMesh->vertCount, playerMesh->verts, GL_STATIC_DRAW);
@@ -209,11 +224,13 @@ void updateOpenGL(){
 	
 	glUniformMatrix4fv(glLocs[GLVAL_PROJMATRIX], 1, GL_FALSE, currentCamera.proj);
 	glUniformMatrix4fv(glLocs[GLVAL_VIEWMATRIX], 1, GL_FALSE, viewMat);//currentCamera.transform);
-	glDrawElements(GL_TRIANGLES, tempTriCount * 3, GL_UNSIGNED_INT, 0); 
+	//glDrawElements(GL_TRIANGLES, tempTriCount * 3, GL_UNSIGNED_INT, 0); 
 	
 	//free(worldMat);
 	free(viewMat);
-	
+}
+
+void endUpdateOpenGL(){
 	SDL_GL_SwapWindow(glWindow);
 }
 
@@ -233,14 +250,16 @@ void drawMeshOpenGL(Mesh* mesh, mat4 transform, SDL_FColor colour, SDL_Texture* 
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(MeshFace) * mesh->faceCount, mesh->faces, GL_STATIC_DRAW); 
 	glBufferData(GL_ARRAY_BUFFER, sizeof(MeshVert) * mesh->vertCount, mesh->verts, GL_STATIC_DRAW);
 
-	//glBindVertexArray(mesh->vertArray);
+	//glBindBuffer(GL_ARRAY_BUFFER, mesh->vertArray);
+	//glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, mesh->eleBuffer);
 
 	tempTriCount = mesh->faceCount;
 	tempVertCount = mesh->vertCount;
 	
 	glDrawElements(GL_TRIANGLES, mesh->faceCount * 3, GL_UNSIGNED_INT, 0);
 
-	//glBindVertexArray(0);
+	//glBindBuffer(GL_ARRAY_BUFFER, 0);
+	//glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 }
 
 float* vertsToArray(Mesh* mesh){
@@ -263,14 +282,11 @@ void deleteBuffer(Uint32 id){
 	glDeleteBuffers(1, &id);
 }
 
-void genVBO(Mesh* mesh, Uint32 id){
-	float* vertArray = vertsToArray(mesh);
-
+void genVBO(Mesh* mesh, Uint32 id){ //crashes
 	glGenBuffers(1, &id);
 	glBindBuffer(GL_ARRAY_BUFFER, id);
-	glBufferData(GL_ARRAY_BUFFER, mesh->vertCount * sizeof(MeshVert), vertArray, GL_STATIC_DRAW);
-
-	free(vertArray);
+	glBufferData(GL_ARRAY_BUFFER, mesh->vertCount * sizeof(MeshVert), mesh->verts, GL_STATIC_DRAW);
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
 }
 void bindVBO(Uint32 id){
 	glBindBuffer(GL_ARRAY_BUFFER, id);
@@ -294,7 +310,8 @@ void unbindEBO(){
 void openGlGenBuffers(Mesh* mesh){
 	(void)mesh;
 	//how the fuck do i get it working
+
 	//mesh->vertArray = 0;
-	//mesh->vertBuffer = genVBO(mesh, 0);
+	//genVBO(mesh, mesh->vertBuffer);
 	//mesh->eleBuffer = genEBO(mesh, 0);
 }
