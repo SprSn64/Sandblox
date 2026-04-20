@@ -11,14 +11,18 @@ uniform sampler2D tex0;
 uniform vec4 fogColour;
 uniform vec2 fogDist;
 
+uniform vec2 resolution;
+
 in vec4 pos;
 in vec3 norm;
 in vec2 uv;
 in vec4 colour;
 
 void main(){
-	vec4 baseColour = colour * texture(tex0, uv);
-	if(baseColour.a <= 0.1)
+	vec4 baseColour = colour;// * texture(tex0, uv);
+	if(baseColour.a == 0) discard;
+	float alphaDither = baseColour.a == 1 ? 0 : (sin(pos.x/pos.w * resolution.x + pos.w) * sin(pos.y/pos.w * resolution.y + pos.w) + 1) / 2;
+	if(baseColour.a <= alphaDither)
 		discard;
 
 	float fogStrength = min(max(0, (pos.z - 128)/64), 1);
@@ -26,5 +30,5 @@ void main(){
 	vec3 reflectSource = normalize(reflect(-lightNorm, norm));
 	float specular = pow(max(dot(cameraNorm, reflectSource), 0), 16);
 
-	FragColor = mix(baseColour * max(dot(norm, lightNorm), 0) + baseColour * ambColour + specular * lightColour, fogColour, fogStrength);
+	FragColor = mix((baseColour * max(dot(norm, lightNorm), 0) + baseColour * ambColour + specular) * lightColour, fogColour, fogStrength);
 } 

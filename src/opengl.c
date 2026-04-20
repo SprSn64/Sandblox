@@ -90,7 +90,7 @@ float *projMatrixOpenGL(float fov, float aspect, float zNear, float zFar){
 	float range = zNear - zFar;
 	float fovTan = SDL_tan(fov / 2 * DEG2RAD);
 	
-	output[0] = -1 / (fovTan * aspect);
+	output[0] = 1 / (fovTan * aspect);
 	output[5] = 1 / fovTan;
 	output[10] = (-zNear - zFar) / range;
 	output[11] = 2 * zNear * zFar / range;
@@ -163,6 +163,8 @@ bool initOpenGL(){
 	glLocs[GLVAL_MULTCOLOUR] = glGetUniformLocation(mainShader, "multColour");
 
 	glLocs[GLVAL_CAMERANORM] = glGetUniformLocation(mainShader, "cameraNorm");
+	glLocs[GLVAL_RESOLUTION] = glGetUniformLocation(mainShader, "resolution");
+
 	glLocs[GLVAL_TEXTURE0] = glGetUniformLocation(mainShader, "tex0");
 	glUniform1i(glLocs[GLVAL_TEXTURE0], 0);
 	
@@ -201,6 +203,9 @@ void updateOpenGL(){
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 	glUseProgram(mainShader);
+
+	float resFloat[2] = {glWindowScale.x, glWindowScale.y};
+	glUniform2fv(glLocs[GLVAL_RESOLUTION], 1, resFloat);
 
 	float lightNormFloat[3] = {0.25, 0.42, 0.33};
 	glUniform3fv(glLocs[GLVAL_LIGHTNORM], 1, lightNormFloat);
