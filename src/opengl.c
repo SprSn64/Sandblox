@@ -43,9 +43,6 @@ Sint32 worldLoc, viewLoc,  projLoc;
 Sint32 glLocs[GLVAL_MAX];
 Uint32 glDepthTest = GL_DEPTH_TEST;
 
-float* worldMat = NULL;
-float* viewMat;
-
 Uint32 VAO, VBO, EBO;
 
 extern void HandleKeyInput();
@@ -86,15 +83,13 @@ Uint32 loadShader(char* vertPath, char* fragPath){
 
 float *projMatrixOpenGL(float fov, float aspect, float zNear, float zFar){
 	float *output = calloc(1, sizeof(mat4));
-	
-	float range = zNear - zFar;
 	float fovTan = SDL_tan(fov / 2 * DEG2RAD);
-	
-	output[0] = 1 / (fovTan * aspect);
-	output[5] = 1 / fovTan;
-	output[10] = (-zNear - zFar) / range;
-	output[11] = 2 * zNear * zFar / range;
-	output[14] = 1;
+
+	output[0] = 1/(fovTan*aspect);
+	output[5] = 1/fovTan;
+	output[10] = 1 / (zFar - zNear);
+	output[14] = -1;
+	output[11] = -zNear;
 
 	return output;
 }
@@ -128,6 +123,8 @@ bool initOpenGL(){
 	
 	mainShader = loadShader("assets/shaders/default.vert", "assets/shaders/default.frag");
 	flatShader = loadShader("assets/shaders/default.vert", "assets/shaders/unshaded.frag");
+
+	printf("Main Shader: %d, Flat Shader: %d\n", mainShader, flatShader);
 	
 	glGenVertexArrays(1, &VAO); glBindVertexArray(VAO);	
 	glGenBuffers(1, &VBO); glBindBuffer(GL_ARRAY_BUFFER, VBO);
@@ -220,19 +217,9 @@ void updateOpenGL(){
 
 	glBindTexture(GL_TEXTURE_2D, glTestTexID);
 	
-	//projMat = projMatrix(90, (float)glWindowScale.x/glWindowScale.y, 0.1, 100); //world flipped?
-	//float* worldMat = genMatrix(client.gameWorld->currPlayer->pos, client.gameWorld->currPlayer->scale, client.gameWorld->currPlayer->rot);
-	
-	float* viewMatRotate = translateMatrix(defaultMatrix, vec3Mult(currentCamera.pos, (Vector3){-1, -1, 1}));
-	viewMat = rotateMatrix(viewMatRotate, vec3Mult(currentCamera.rot, (Vector3){1, 1, 1}), ROT_YXZ);
-	free(viewMatRotate);
-	
 	glUniformMatrix4fv(glLocs[GLVAL_PROJMATRIX], 1, GL_FALSE, currentCamera.proj);
-	glUniformMatrix4fv(glLocs[GLVAL_VIEWMATRIX], 1, GL_FALSE, viewMat);//currentCamera.transform);
+	glUniformMatrix4fv(glLocs[GLVAL_VIEWMATRIX], 1, GL_FALSE, currentCamera.transform);
 	//glDrawElements(GL_TRIANGLES, tempTriCount * 3, GL_UNSIGNED_INT, 0); 
-	
-	//free(worldMat);
-	free(viewMat);
 }
 
 void endUpdateOpenGL(){

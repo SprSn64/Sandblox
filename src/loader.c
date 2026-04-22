@@ -158,7 +158,10 @@ Mesh *loadMeshFromObj(char *path) {
 
 char* loadTextFile(char* dir){ //code salvaged from first attempt
     FILE *file = fopen(dir, "r");
-    if (!file) return NULL;
+    if (!file){
+        return NULL;
+        printf("Couldn't find %s.\n", dir);
+    }
 
     fseek(file, 0, SEEK_END);
     long size = ftell(file);

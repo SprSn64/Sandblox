@@ -419,11 +419,9 @@ SDL_AppResult SDL_AppIterate(void *appstate){
 	if(glEnabled)
 		updateOpenGL();
 
-	// skybox temporary disabled (lags the fuck out of the renderer)
-
 	if(glEnabled)setGlValue(glDepthTest, false);
 	if(!softwareRender || glEnabled){
-		//if(glEnabled)setGlShader(flatShader);
+		if(glEnabled)setGlShader(flatShader);
 
 		skyboxMatrix = translateMatrix(defaultMatrix, currentCamera.pos);
 		drawMesh(skyboxMesh, skyboxMatrix, (SDL_FColor){1,1,1,1}, skyTex, false);
@@ -433,7 +431,7 @@ SDL_AppResult SDL_AppIterate(void *appstate){
 		drawMesh(sunMesh, sunMatrix, lightColour, sunTex, false);
 		free(sunMatrix);
 
-		//if(glEnabled)setGlShader(mainShader);
+		if(glEnabled)setGlShader(mainShader);
 	}
 	
 	//drawCube((Vector3){(2 + SDL_cos(timer)) / -2, SDL_sin(timer) + 1, (2 + SDL_cos(timer)) / -2}, (Vector3){2 + SDL_cos(timer), SDL_sin(timer) + 1, 2 + SDL_cos(timer)}, (SDL_FColor){0.6, 0.8, 1, 1});
