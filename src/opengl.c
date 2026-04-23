@@ -87,9 +87,12 @@ float *projMatrixOpenGL(float fov, float aspect, float zNear, float zFar){
 
 	output[0] = 1/(fovTan*aspect);
 	output[5] = 1/fovTan;
-	output[10] = 1 / (zFar - zNear);
+	output[10] = -(zFar + zNear) / (zFar - zNear);
 	output[14] = -1;
 	output[11] = -zNear;
+
+	//output[10] = -(zFar + zNear) / range;
+	//output[14] = -(2 * zFar * zNear) / range;
 
 	return output;
 }
@@ -103,6 +106,12 @@ void setGlValue(Uint32 item, bool value){
 
 void setGlShader(Uint32 shader){
 	glUseProgram(shader);
+}
+
+bool setGlTexture(Texture* tex){
+	if(!tex) return 0;
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, tex->width, tex->height, 0, GL_RGBA, GL_UNSIGNED_BYTE, tex->pixels);
+	return 1;
 }
 
 bool initOpenGL(){
@@ -179,7 +188,7 @@ bool initOpenGL(){
 
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, glTestTex->width, glTestTex->height, 0, GL_RGBA, GL_UNSIGNED_BYTE, glTestTex->pixels);
+	setGlTexture(glTestTex);
 	glGenerateMipmap(GL_TEXTURE_2D);
 
 	glBindTexture(GL_TEXTURE_2D, 0);

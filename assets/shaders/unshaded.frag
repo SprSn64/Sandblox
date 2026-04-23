@@ -3,6 +3,8 @@ out vec4 FragColor;
 
 uniform sampler2D tex0;
 
+in vec4 pos;
+in vec3 norm;
 in vec2 uv;
 in vec4 colour;
 

@@ -8,7 +8,7 @@ uniform vec3 cameraNorm;
 
 uniform sampler2D tex0;
 
-uniform vec4 fogColour;
+uniform vec4 fogColour = vec4(1, 1, 1, 1);
 uniform vec2 fogDist;
 
 uniform vec2 resolution;
@@ -30,5 +30,5 @@ void main(){
 	vec3 reflectSource = normalize(reflect(-lightNorm, norm));
 	float specular = pow(max(dot(cameraNorm, reflectSource), 0), 16);
 
-	FragColor = mix((baseColour * max(dot(norm, lightNorm), 0) + baseColour * ambColour + specular) * lightColour, fogColour, fogStrength);
+	FragColor = mix((baseColour * max(dot(norm, normalize(lightNorm)), 0) + baseColour * ambColour + specular) * lightColour, fogColour, fogStrength);
 } 

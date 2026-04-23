@@ -136,16 +136,6 @@ bool draw3DTriangle(MeshVert pointA, MeshVert pointB, MeshVert pointC, SDL_Textu
 		return 0;
 	}
 	
-	/*if(inFront == 2){
-		// 2 verts in front, draw as a quad
-		
-		// i have no idea how to make it into a quad with this current setup
-		// we should probably just get opengl working at this point	
-		
-		return 0;
-	}*/
-	
-	// mixed case: clip vertices behind the near plane to the near plane
 	Vector3 clippedA = aFront ? camA : clipToNearPlane(bFront ? camB : camC, camA, NEAR_PLANE);
 	Vector3 clippedB = bFront ? camB : clipToNearPlane(aFront ? camA : camC, camB, NEAR_PLANE);
 	Vector3 clippedC = cFront ? camC : clipToNearPlane(aFront ? camA : camB, camC, NEAR_PLANE);
@@ -202,11 +192,6 @@ void drawMesh(Mesh* mesh, mat4 transform, SDL_FColor colour, SDL_Texture* textur
 		
 		for(Uint8 index=0; index < 3; index++){
 			Vector3 faceNormal = normalize3((Vector3){multFaceNormal[index].x / matrixScale.x, multFaceNormal[index].y / matrixScale.y, multFaceNormal[index].z / matrixScale.z});
-			
-			/*shadedColour[index] = (SDL_FColor){
-				faceNormal.x, faceNormal.y, faceNormal.z, colour.a
-			};
-			continue;*/
 			
 			float faceDot = max(dotProd3(faceNormal, lightNormal), 0);
 			Vector3 cameraNorm = rotToNorm3(client.gameWorld->currCamera->rot);
@@ -267,16 +252,6 @@ void drawBillboard(SDL_Texture *texture, SDL_FRect rect, Vector3 pos, SDL_FPoint
 	float* transform = genMatrix(pos, (Vector3){scale.x, 1, scale.y}, planeRot);
 	drawMesh(planePrim, transform, (SDL_FColor){1, 1, 1, 1}, texture, false);
 	free(transform);
-	
-	/*Vector3 projLoc[3] = {projToScreen(viewProj(worldToCamera(pos))), projToScreen(viewProj(worldToCamera((Vector3){pos.x--, pos.y, pos.z}))), projToScreen(viewProj(worldToCamera((Vector3){pos.x++, pos.y, pos.z})))};
-	if(projLoc[0].z < 0){
-		double sizeMult = fabs(-(projLoc[2].x - projLoc[1].x) / scale.x);
-		SDL_FRect sprPos = {projLoc[0].x - offset.x * sizeMult, projLoc[0].y - offset.y * sizeMult, scale.x * 3 * sizeMult, scale.y * 3 * sizeMult};
-		//SDL_SetRenderDrawColor(renderer, 0, 0, 255, 255); SDL_RenderFillRect(renderer, &sprPos);
-		//SDL_SetRenderDrawColor(renderer, 255, 0, 0, 255); SDL_RenderFillRect(renderer, &(SDL_FRect){projLoc[0].x - 2, projLoc[0].y - 2, 4, 4});
-		//printf("%f, %f, %f, %f, %f\n", sizeMult, sprPos.x, sprPos.y, sprPos.w, sprPos.h);
-		SDL_RenderTexture(renderer, texture, &rect, &sprPos);
-	}*/
 }
 
 void drawText(SDL_Renderer *renderLoc, Font *textFont, char* text, short posX, short posY, float scale, SDL_FColor colour){

@@ -55,6 +55,11 @@ typedef struct{
 	Uint16 columns;
 } Font;
 
+typedef struct Texture{
+	Uint32* pixels;
+	Uint16 width, height;
+} Texture;
+
 typedef struct TextureRef{
 	SDL_Texture *image;
 	char* filePath;

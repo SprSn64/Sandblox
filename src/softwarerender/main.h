@@ -8,11 +8,6 @@
 
 #define WHITE 0xFFFFFFFF
 
-typedef struct Texture{
-	Uint32* pixels;
-	Uint16 width, height;
-} Texture;
-
 Uint32 colourToInt(SDL_FColor colour);
 SDL_FColor intToColour(Uint32 colour);
 
