@@ -16,6 +16,8 @@ void updateOpenGL();
 void endUpdateOpenGL();
 void cleanupOpenGL();
 
+Uint32 loadShader(char* vertPath, char* fragPath);
+
 void setGlValue(Uint32 item, bool value);
 void setGlShader(Uint32 shader);
 

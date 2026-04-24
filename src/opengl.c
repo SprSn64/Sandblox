@@ -121,11 +121,7 @@ bool initOpenGL(){
 		printf("OpenGL initiation failed!\n");
 		return 0;
 	}
-	if(glewInit() != GLEW_OK){
-		printf("Glew initiation failed!\n");
-		return 0;
-	}
-	printf("Glew initiation successful!\n");
+	glewInit();
 	
 	SDL_SetWindowParent(glWindow, window); //SDL_SetWindowModal(glWindow, true);
 	SDL_SetWindowMinimumSize(glWindow, 320, 240);
@@ -197,6 +193,9 @@ bool initOpenGL(){
 }
 
 extern void studioCameraUpdate(Camera* cam);
+extern Vector3 lightNormal;
+extern SDL_FColor lightColour;
+extern SDL_FColor lightAmbient;
 
 void updateOpenGL(){
 	SDL_GetWindowSize(glWindow, &glWindowScale.x, &glWindowScale.y);
@@ -213,16 +212,12 @@ void updateOpenGL(){
 	float resFloat[2] = {glWindowScale.x, glWindowScale.y};
 	glUniform2fv(glLocs[GLVAL_RESOLUTION], 1, resFloat);
 
-	float lightNormFloat[3] = {0.25, 0.42, 0.33};
-	glUniform3fv(glLocs[GLVAL_LIGHTNORM], 1, lightNormFloat);
+	glUniform3fv(glLocs[GLVAL_LIGHTNORM], 1, (float*)&lightNormal);
 	Vector3 cameraNormal = rotToNorm3(client.gameWorld->currCamera->rot);
-	float cameraNormFloat[3] = {cameraNormal.x, cameraNormal.y, cameraNormal.z};
-	glUniform3fv(glLocs[GLVAL_CAMERANORM], 1, cameraNormFloat);
+	glUniform3fv(glLocs[GLVAL_CAMERANORM], 1, (float*)&cameraNormal);
 
-	float lightColourFloat[4] = {1, 1, 1, 1};
-	glUniform4fv(glLocs[GLVAL_LIGHTCOLOUR], 1, lightColourFloat);
-	float ambColourFloat[4] = {0.25, 0.25, 0.3, 1};
-	glUniform4fv(glLocs[GLVAL_AMBCOLOUR], 1, ambColourFloat);
+	glUniform4fv(glLocs[GLVAL_LIGHTCOLOUR], 1, (float*)&lightColour);
+	glUniform4fv(glLocs[GLVAL_AMBCOLOUR], 1, (float*)&lightAmbient);
 
 	glBindTexture(GL_TEXTURE_2D, glTestTexID);
 	
@@ -261,22 +256,6 @@ void drawMeshOpenGL(Mesh* mesh, mat4 transform, SDL_FColor colour, SDL_Texture* 
 
 	//glBindBuffer(GL_ARRAY_BUFFER, 0);
 	//glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
-}
-
-float* vertsToArray(Mesh* mesh){
-	float* vertArray = malloc(mesh->vertCount * 12 * sizeof(float));
-
-	for(Uint32 i=0; i<mesh->vertCount; i++){
-		Uint32 index = i * 12;
-		MeshVert* currVert = &mesh->verts[index];
-
-		vertArray[index] = currVert->pos.x; vertArray[index+1] = currVert->pos.y; vertArray[index+2] = currVert->pos.z;
-		vertArray[index+3] = currVert->norm.x; vertArray[index+4] = currVert->norm.y; vertArray[index+5] = currVert->norm.z;
-		vertArray[index+6] = currVert->uv.x; vertArray[index+7] = currVert->uv.y;
-		vertArray[index+8] = currVert->colour.r; vertArray[index+9] = currVert->colour.g; vertArray[index+10] = currVert->colour.b; vertArray[index+10] = currVert->colour.a;
-	}
-
-	return vertArray;
 }
 
 void deleteBuffer(Uint32 id){
