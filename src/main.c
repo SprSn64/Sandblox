@@ -2,6 +2,7 @@
 #include <SDL3/SDL.h>
 #include <SDL3/SDL_main.h>
 #include <SDL3_image/SDL_image.h>
+#include <GL/glew.h>
 //#include <iostream>
 
 #include <stdio.h>
@@ -40,11 +41,11 @@ extern SDL_Window *studioWindow;
 
 SDL_Window *window = NULL;
 SDL_Renderer *renderer = NULL;
-SDL_Texture *renderTex = NULL;
 
-bool softwareRender = false;
+Sint32 glLocs[GLVAL_MAX];
+Uint32 VAO, VBO, EBO;
+Uint32 mainShader; Uint32 flatShader;
 
-bool glEnabled = false;
 Uint32 glVersion[2] = {0, 0};
 
 ClientData client;
@@ -84,6 +85,10 @@ SDL_Texture *boneTex = NULL; SDL_Texture *cursorTex = NULL; SDL_Texture *skyTex 
 Mesh *playerMesh = NULL; Mesh *boneMesh = NULL; Mesh *skyboxMesh = NULL; Mesh *sunMesh = NULL;
 Mesh *planePrim = NULL; Mesh *cubePrim = NULL; Mesh *spherePrim = NULL;
 
+Texture* glTestTex;
+Uint32 glTestTexID;
+Texture* skyRastTex;
+
 Skeleton* testRig = NULL;
 
 ButtonMap keyList[KEYBIND_MAX];
@@ -103,6 +108,7 @@ extern DataObj *focusObject;
 
 extern Vector3 lightNormal;
 extern SDL_FColor lightColour;
+extern SDL_FColor lightAmbient;
 
 DataObj* playerObj = NULL;
 float playerRespawn = 5;
@@ -142,9 +148,8 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[]){
 
 	for(int i=0; i < argc; i++){
 		//printf("%s\n", argv[i]); 
-		if(!strcmp("-opengl", argv[i]))glEnabled = true;
 		if(!strcmp("-debug", argv[i]))client.debug = true;
-		if(!strcmp("-studio", argv[i]))client.studio = true;
+		//if(!strcmp("-studio", argv[i]))client.studio = true; //currently broken!!!
 		
 		if(!strcmp("-mapfile", argv[i]))
 			mapToLoad = argv[++i];
@@ -161,19 +166,24 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[]){
 		return SDL_APP_FAILURE;
 	}
 
-	char windowName[64] = "Sandblox vXX.XX (3D Software)";
-	sprintf(windowName, "Sandblox v%s (3D Software)", client.version);
+	char windowName[64] = "Sandblox vXX.XX";
+	sprintf(windowName, "Sandblox v%s", client.version);
 	//why would you need this if youre gonna use opengl anyway?
 	//erm.... debugg'eth stuff?
-	if (!glEnabled) {
-		if(!SDL_CreateWindowAndRenderer(windowName, windowScale.x, windowScale.y, SDL_WINDOW_RESIZABLE | SDL_WINDOW_MAXIMIZED, &window, &renderer)){
-			SDL_Log("Couldn't create window/renderer: %s", SDL_GetError());
-			return SDL_APP_FAILURE;
-		}
+	if(!(window = SDL_CreateWindow(windowName, windowScale.x, windowScale.y, SDL_WINDOW_RESIZABLE | SDL_WINDOW_OPENGL | SDL_WINDOW_MAXIMIZED))){
+		printf("Couldn't create window: %s", SDL_GetError());
+		return SDL_APP_FAILURE;
 	}
-	SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
+	if(!SDL_GL_CreateContext(window)){
+		printf("OpenGL initiation failed!\n");
+	}
+	glewInit();
+	//SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
 	SDL_SetWindowMinimumSize(window, 320, 240);
-	SDL_SetRenderVSync(renderer, 1);
+	//SDL_SetRenderVSync(renderer, 1);
+
+	mainShader = loadShader("assets/shaders/default.vert", "assets/shaders/default.frag");
+	flatShader = loadShader("assets/shaders/default.vert", "assets/shaders/unshaded.frag");
 	
 	fontTex = newTexture("assets/textures/font.png", SDL_SCALEMODE_LINEAR);
 	boneTex = newTexture("assets/textures/bonetex.png", SDL_SCALEMODE_NEAREST);
@@ -194,10 +204,68 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[]){
 	cubePrim = loadMeshFromObj("assets/models/primitives/cube.obj");
 	spherePrim = loadMeshFromObj("assets/models/primitives/sphere.obj");
 
+	skyRastTex = loadRasterTexture("assets/textures/skybox.png");
+
 	testRig = genTestRig();
 	
-	if(glEnabled)
-		glEnabled = initOpenGL();
+	//if(glEnabled)
+	//	glEnabled = initOpenGL();
+
+	glGenVertexArrays(1, &VAO); glBindVertexArray(VAO);	
+	glGenBuffers(1, &VBO); glBindBuffer(GL_ARRAY_BUFFER, VBO);
+	glGenBuffers(1, &EBO); glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
+	
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 12 * sizeof(float), (void*)0); //pos
+	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 12 * sizeof(float), (void*)(3 * sizeof(float))); //norm
+	glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 12 * sizeof(float), (void*)(6 * sizeof(float))); //uv
+	glVertexAttribPointer(3, 4, GL_FLOAT, GL_FALSE, 12 * sizeof(float), (void*)(8 * sizeof(float))); //colour
+	
+	glEnableVertexAttribArray(0); 
+	glEnableVertexAttribArray(1); 
+	glEnableVertexAttribArray(2); 
+	glEnableVertexAttribArray(3);
+	
+	//projMat = projMatrix(90, 4/3, 0.01, 10000);
+	
+	glLocs[GLVAL_WORLDMATRIX] = glGetUniformLocation(mainShader, "world");
+	glLocs[GLVAL_VIEWMATRIX] = glGetUniformLocation(mainShader, "view");
+	glLocs[GLVAL_PROJMATRIX] = glGetUniformLocation(mainShader, "proj");
+
+	glLocs[GLVAL_LIGHTNORM] = glGetUniformLocation(mainShader, "lightNorm");
+	glLocs[GLVAL_LIGHTCOLOUR] = glGetUniformLocation(mainShader, "lightColour");
+	glLocs[GLVAL_AMBCOLOUR] = glGetUniformLocation(mainShader, "ambColour");
+	glLocs[GLVAL_MULTCOLOUR] = glGetUniformLocation(mainShader, "multColour");
+
+	glLocs[GLVAL_CAMERANORM] = glGetUniformLocation(mainShader, "cameraNorm");
+	glLocs[GLVAL_RESOLUTION] = glGetUniformLocation(mainShader, "resolution");
+
+	glLocs[GLVAL_TEXTURE0] = glGetUniformLocation(mainShader, "tex0");
+
+	for(int i=0; i<GLVAL_MAX; i++){
+		printf("%d ", glLocs[i]);
+	}
+	printf("\n");
+
+	//glUniform1i(glLocs[GLVAL_TEXTURE0], 0);
+	
+	SDL_GL_SetSwapInterval(1);
+	glEnable(GL_DEPTH_TEST);
+	glEnable(GL_CULL_FACE); glCullFace(GL_BACK); glFrontFace(GL_CCW);
+	glClearColor(skyboxColour.r, skyboxColour.g, skyboxColour.b, 1);
+
+	glUniformMatrix4fv(glLocs[GLVAL_WORLDMATRIX], 1, GL_FALSE, defaultMatrix);
+
+	glTestTex = loadRasterTexture("assets/textures/cows.png");
+	glGenTextures(1, &glTestTexID);
+	glActiveTexture(GL_TEXTURE0);
+	glBindTexture(GL_TEXTURE_2D, glTestTexID);
+
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	setGlTexture(glTestTex);
+	glGenerateMipmap(GL_TEXTURE_2D);
+
+	glBindTexture(GL_TEXTURE_2D, 0);
 
 	keyList[KEYBIND_W].code = SDL_SCANCODE_W; keyList[KEYBIND_S].code = SDL_SCANCODE_S; keyList[KEYBIND_A].code = SDL_SCANCODE_A; keyList[KEYBIND_D].code = SDL_SCANCODE_D;
 	keyList[KEYBIND_SPACE].code = SDL_SCANCODE_SPACE; keyList[KEYBIND_SHIFT].code = SDL_SCANCODE_LSHIFT;
@@ -226,11 +294,6 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[]){
 	
 	//if(glEnabled) goto openGlInitSkip;
 
-	displayTex = newRasterTexture(640, 480);
-	depthBuffer = malloc(displayTex->width*displayTex->height * sizeof(float));
-	renderTex = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_XBGR8888, SDL_TEXTUREACCESS_TARGET, 1920, 1080); //somehow make it work for resolutions over 1920x1080
-	SDL_SetTextureScaleMode(renderTex, SDL_SCALEMODE_NEAREST);
-
 //openGlInitSkip:
 
 	if(mapLoaded) return SDL_APP_CONTINUE;
@@ -255,14 +318,6 @@ SDL_AppResult SDL_AppEvent(void *appstate, SDL_Event *event){
 		return SDL_APP_SUCCESS;
 	}
 
-	if(event->type == SDL_EVENT_WINDOW_RESIZED && !glEnabled && softwareRender){
-		SDL_Point newScale = {event->display.data1, event->display.data2};
-
-		displayTex->pixels = realloc(displayTex->pixels, newScale.x * newScale.y * sizeof(Uint32));
-		displayTex->width = newScale.x; displayTex->height = newScale.y; 
-		depthBuffer = realloc(depthBuffer, newScale.x * newScale.y * sizeof(float));
-	}
-
 	if(event->type == SDL_EVENT_MOUSE_WHEEL){
 		bool mainFocus = SDL_GetWindowFlags(window) & SDL_WINDOW_INPUT_FOCUS;
 		bool studioFocus = studioWindow && (SDL_GetWindowFlags(studioWindow) & SDL_WINDOW_INPUT_FOCUS);
@@ -285,11 +340,9 @@ SDL_AppResult SDL_AppEvent(void *appstate, SDL_Event *event){
 	return SDL_APP_CONTINUE;
 }
 
-extern bool doZBuffer;
 extern bool studioFocus;
-extern SDL_Point glWindowScale;
-extern Uint32 mainShader; extern Uint32 flatShader;
 extern Uint32 glDepthTest;
+extern SDL_Point studioWindowScale;
 SDL_AppResult SDL_AppIterate(void *appstate){
 	(void)appstate;
 	HandleKeyInput();
@@ -345,17 +398,7 @@ SDL_AppResult SDL_AppIterate(void *appstate){
 	}else camMoveMode = 0;
 
 	if(keyList[KEYBIND_SWAPRENDER].pressed){
-		if(softwareRender)
-			sendPopup("Renderer Mode: SDL Geometry", NULL, NULL, 3);
-		else{
-			sendPopup("Renderer Mode: Rasterizer", NULL, NULL, 3);
-			if(displayTex->width != windowScale.x || displayTex->height != windowScale.y){
-				displayTex->pixels = realloc(displayTex->pixels, windowScale.x * windowScale.y * sizeof(Uint32));
-				displayTex->width = windowScale.x; displayTex->height = windowScale.y; 
-				depthBuffer = realloc(depthBuffer, windowScale.x * windowScale.y * sizeof(float));
-			}
-		}
-		softwareRender = !softwareRender;
+		sendPopup("fuck", NULL, NULL, 3);
 	}
 
 	if(keyList[KEYBIND_MENU].pressed){
@@ -377,15 +420,22 @@ SDL_AppResult SDL_AppIterate(void *appstate){
 		updateObjects(client.gameWorld->headObj, 0, &idCounter);
 	}
 
-	//if(!mainWindowFocus && !studioFocus)
-	//	goto drawSkip;
+	glViewport(0, 0, windowScale.x, windowScale.y);
 
-	if(softwareRender){
-		clearTex(displayTex, 0xFFFFD4CC);
-		for(int i=0; i<displayTex->width*displayTex->height; i++){
-			depthBuffer[i] = 1;
-		}
-	}
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	glUseProgram(mainShader);
+
+	float resFloat[2] = {windowScale.x, windowScale.y};
+	glUniform2fv(glLocs[GLVAL_RESOLUTION], 1, resFloat);
+
+	glUniform3fv(glLocs[GLVAL_LIGHTNORM], 1, (float*)&lightNormal);
+	Vector3 cameraNormal = rotToNorm3(client.gameWorld->currCamera->rot);
+	glUniform3fv(glLocs[GLVAL_CAMERANORM], 1, (float*)&cameraNormal);
+
+	glUniform4fv(glLocs[GLVAL_LIGHTCOLOUR], 1, (float*)&lightColour);
+	glUniform4fv(glLocs[GLVAL_AMBCOLOUR], 1, (float*)&lightAmbient);
+
+	glBindTexture(GL_TEXTURE_2D, glTestTexID);
 
 	//drawTexture(displayTex, testTex, &(SDL_Rect){0, 0, testTex->width, testTex->height}, &(SDL_Rect){0, 0, 320, 240}, WHITE);
 	//drawHamLine(displayTex, (SDL_Point){160, 120}, (SDL_Point){(1 + sin(timer)) * 160, (1 + cos(timer)) * 120}, 0xFF0000FF);
@@ -404,53 +454,41 @@ SDL_AppResult SDL_AppIterate(void *appstate){
 	memcpy(currentCamera.transform, camRotated, sizeof(mat4));
 	free(camTranslated); free(camScaled); free(camRotated); 
 
-	if(glEnabled)
-		currentCamera.proj = projMatrixOpenGL(currentCamera.fov, (float)glWindowScale.x/glWindowScale.y, 0.1, 1000);
-	else
-		currentCamera.proj = projMatrix(currentCamera.fov, (float)windowScale.x/windowScale.y, 0.1, 1000);
+	currentCamera.proj = projMatrix(currentCamera.fov, (float)windowScale.x/windowScale.y, 0.1, 1000);
 
-	//currentCamera.transform = genMatrix(vec3Mult(currentCamera.pos, invVec3), (Vector3){currentCamera.zoom, currentCamera.zoom, currentCamera.zoom}, vec3Mult(currentCamera.rot, invVec3));
+	glUniformMatrix4fv(glLocs[GLVAL_PROJMATRIX], 1, GL_FALSE, currentCamera.proj);
+	glUniformMatrix4fv(glLocs[GLVAL_VIEWMATRIX], 1, GL_FALSE, currentCamera.transform);
 
 	if(client.studio && focusObject)
 		updateStudioGimbles();
+
+	setGlValue(GL_DEPTH_TEST, false);
+	setGlShader(flatShader);
+
+	skyboxMatrix = translateMatrix(defaultMatrix, currentCamera.pos);
+	drawMesh(skyboxMesh, skyboxMatrix, (SDL_FColor){1,1,1,1}, skyTex, false);
+	free(skyboxMatrix);
 	
-	doZBuffer = false;
+	sunMatrix = genMatrix(currentCamera.pos, (Vector3){1, 1, 1}, vec3Add(normToRot3(lightNormal), (Vector3){PI, PI, 0}));
+	drawMesh(sunMesh, sunMatrix, lightColour, sunTex, false);
+	free(sunMatrix);
 
-	if(glEnabled)
-		updateOpenGL();
-
-	if(glEnabled)setGlValue(glDepthTest, false);
-	if(!softwareRender || glEnabled){
-		if(glEnabled)setGlShader(flatShader);
-
-		skyboxMatrix = translateMatrix(defaultMatrix, currentCamera.pos);
-		drawMesh(skyboxMesh, skyboxMatrix, (SDL_FColor){1,1,1,1}, skyTex, false);
-		free(skyboxMatrix);
-	
-		sunMatrix = genMatrix(currentCamera.pos, (Vector3){1, 1, 1}, vec3Add(normToRot3(lightNormal), (Vector3){PI, PI, 0}));
-		drawMesh(sunMesh, sunMatrix, lightColour, sunTex, false);
-		free(sunMatrix);
-
-		if(glEnabled)setGlShader(mainShader);
-	}
+	setGlShader(mainShader);
+	setGlValue(GL_DEPTH_TEST, true);
 	
 	//drawCube((Vector3){(2 + SDL_cos(timer)) / -2, SDL_sin(timer) + 1, (2 + SDL_cos(timer)) / -2}, (Vector3){2 + SDL_cos(timer), SDL_sin(timer) + 1, 2 + SDL_cos(timer)}, (SDL_FColor){0.6, 0.8, 1, 1});
 	//drawCube((Vector3){SDL_sin(timer) * 2 - 0.5, 1, SDL_cos(timer) * 2 - 0.5}, (Vector3){1, 1, 1}, (SDL_FColor){1, 0.2, 0.3, 1});
 	//SDL_SetRenderDrawColor(renderer, 255, 255, 255, SDL_ALPHA_OPAQUE);
 	
-	if(glEnabled)setGlValue(glDepthTest, true);
-	doZBuffer = true;
 	idCounter = 0;
 	drawObjects(client.gameWorld->headObj, 0, &idCounter);
 
 	//drawSkip:
 
 	//drawBone(testRig->rootBone);
+	glViewport(0, 0, studioWindowScale.x, studioWindowScale.y);
 	updateStudio();
 	updatePopups();
-
-	if(glEnabled)
-		endUpdateOpenGL();
 		
 	static char fpsText[256] = "FPS: 0";
 	static char rotText[256] = "Camera Rot: 0, 0";
@@ -473,15 +511,7 @@ SDL_AppResult SDL_AppIterate(void *appstate){
 	free(currentCamera.transform);
 	free(currentCamera.proj);
 
-	if(glEnabled) return SDL_APP_CONTINUE;
-
-	//float scaleFactor = min((float)windowScale.x / displayTex->width, (float)windowScale.y / displayTex->height);
-	if(softwareRender){
-		SDL_UpdateTexture(renderTex, &(SDL_Rect){0, 0, displayTex->width, displayTex->height}, displayTex->pixels, displayTex->width * 4);
-		SDL_RenderTexture(renderer, renderTex, &(SDL_FRect){0, 0, (float)displayTex->width, (float)displayTex->height}, NULL);
-	}
-	
-	SDL_RenderPresent(renderer);
+	SDL_GL_SwapWindow(window);
 
 	return SDL_APP_CONTINUE;
 }
@@ -489,7 +519,7 @@ SDL_AppResult SDL_AppIterate(void *appstate){
 void SDL_AppQuit(void *appstate, SDL_AppResult result){
 	(void)appstate; (void)result;
 	cleanupObjects(client.gameWorld->headObj);
-	studioCleanup(); cleanupOpenGL();
+	studioCleanup();
 	SDL_DestroyTexture(fontTex); SDL_DestroyTexture(playerTex); SDL_DestroyTexture(homerTex); SDL_DestroyTexture(cursorTex); SDL_DestroyTexture(skyTex);
 	
 	free(defaultMatrix);
@@ -497,13 +527,15 @@ void SDL_AppQuit(void *appstate, SDL_AppResult result){
 	free(planePrim); free(cubePrim); free(spherePrim);
 
 	free(depthBuffer); freeRasterTexture(displayTex); freeRasterTexture(rastFontTex);
+
+	glDeleteProgram(mainShader);
+	glDeleteBuffers(1, &VAO); glDeleteBuffers(1, &VBO); glDeleteBuffers(1, &EBO);
+	glDeleteTextures(1, &glTestTexID);
 }
-    
-extern SDL_Window *glWindow;
 
 void HandleKeyInput(){
 	const bool* keyState = SDL_GetKeyboardState(NULL);
-	bool hasFocus = (SDL_GetWindowFlags(window) | SDL_GetWindowFlags(glWindow)) & SDL_WINDOW_INPUT_FOCUS;
+	bool hasFocus = SDL_GetWindowFlags(window) & SDL_WINDOW_INPUT_FOCUS;
 	for(int i = 0; i < KEYBIND_MAX; i++){
 		keyList[i].down = keyState[keyList[i].code] && hasFocus;
 		keyList[i].pressed = false;

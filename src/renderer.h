@@ -76,17 +76,14 @@ Vector3 worldToCamera(Vector3 pos);
 Vector3 viewProj(Vector3 pos);
 Vector3 projToScreen(Vector3 pos);
 
-bool drawTriangle(MeshVert pointA, MeshVert pointB, MeshVert pointC, SDL_Texture* image);
-bool draw3DTriangle(MeshVert pointA, MeshVert pointB, MeshVert pointC, SDL_Texture* image);
-
 SDL_FColor ConvertSDLColour(CharColour colour);
 CharColour ConvertColour(CharColour colour, Uint32 mode);
 
 void drawMesh(Mesh* mesh, mat4 transform, SDL_FColor colour, SDL_Texture* texture, bool shaded);
 void drawBillboard(SDL_Texture *texture, SDL_FRect rect, Vector3 pos, SDL_FPoint offset, SDL_FPoint scale);
 
-Mesh* genTorusMesh(float outerRad, float innerRad, int ringRes, int ringCount);
+Mesh* genTorusMesh(float outerRad, float innerRad, Uint16 ringRes, Uint16 ringCount);
 Mesh* genCylinderMesh(float btmRad, float topRad, float length, int res);
-Mesh* genPlaneMesh(float xScale, float yScale, int xRes, int yRes);
+Mesh* genPlaneMesh(float xScale, float yScale, Uint16 xRes, Uint16 yRes);
 
 #endif

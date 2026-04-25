@@ -149,9 +149,7 @@ Mesh *loadMeshFromObj(char *path) {
     free(uvs);
     free(normals);
 
-    if(glEnabled){
-        openGlGenBuffers(mesh);
-    }
+    openGlGenBuffers(mesh);
 
     return mesh;
 }

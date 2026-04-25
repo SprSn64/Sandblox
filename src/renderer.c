@@ -34,13 +34,7 @@ SDL_FColor lightAmbient = {0.25, 0.25, 0.3, 1};
 //bool matrixOrSlopProject = false;
 extern float* defaultMatrix;
 
-bool debugPersp = false; //glEnabled;
-
 Vector3 worldToCamera(Vector3 pos){
-	if(debugPersp){
-		Vector4 newPos = matrixMult(matrixMult(vec3ToVec4(pos), client.gameWorld->currCamera->transform), client.gameWorld->currCamera->proj);
-		return vec4ToVec3(newPos);
-	}
 	Vector4 firstPos = {pos.x - client.gameWorld->currCamera->pos.x, pos.y - client.gameWorld->currCamera->pos.y, pos.z - client.gameWorld->currCamera->pos.z, 1};
 	Vector3 newPos;
 		newPos.x = firstPos.x * SDL_cos(client.gameWorld->currCamera->rot.y) + firstPos.z * -SDL_sin(client.gameWorld->currCamera->rot.y); newPos.z = firstPos.x * SDL_sin(client.gameWorld->currCamera->rot.y) + firstPos.z * SDL_cos(client.gameWorld->currCamera->rot.y);
@@ -50,9 +44,6 @@ Vector3 worldToCamera(Vector3 pos){
 }
 
 Vector3 viewProj(Vector3 pos){
-	if(debugPersp) 
-		return pos;
-
 	float absZ = fabs(pos.z);
 	if(absZ < 0.001f) absZ = 0.001f;
 	float safeZ = (pos.z < 0) ? -absZ : absZ;
@@ -66,101 +57,14 @@ Vector3 projToScreen(Vector3 pos){
 	return (Vector3){-pos.x * client.gameWorld->currCamera->zoom * renderScale + windowScale.x / 2, pos.y * client.gameWorld->currCamera->zoom * renderScale + windowScale.y / 2, pos.z};
 }
 
-bool drawTriangle(MeshVert pointA, MeshVert pointB, MeshVert pointC, SDL_Texture* image){
-	SDL_Vertex verts[3];
-	verts[0].position = (SDL_FPoint){pointA.pos.x, pointA.pos.y}; verts[0].color = pointA.colour;
-	verts[1].position = (SDL_FPoint){pointB.pos.x, pointB.pos.y}; verts[1].color = pointB.colour;
-	verts[2].position = (SDL_FPoint){pointC.pos.x, pointC.pos.y}; verts[2].color = pointC.colour;
-	
-	verts[0].tex_coord = pointA.uv;
-	verts[1].tex_coord = pointB.uv;
-	verts[2].tex_coord = pointC.uv;
-	
-	float clockwiseAB = (verts[1].position.x - verts[0].position.x) * (verts[1].position.y + verts[0].position.y);
-	float clockwiseBC = (verts[2].position.x - verts[1].position.x) * (verts[2].position.y + verts[1].position.y);
-	float clockwiseCA = (verts[0].position.x - verts[2].position.x) * (verts[0].position.y + verts[2].position.y);
-
-	if(clockwiseAB + clockwiseBC + clockwiseCA >= 0){// && max(pointA.z, max(pointB.z, pointC.z)) >= 0){
-		SDL_RenderGeometry(renderer, image, verts, 3, NULL, 0);
-		/*SDL_SetRenderDrawColor(renderer, 0, 0, 0, SDL_ALPHA_OPAQUE); 
-		SDL_RenderFillRect(renderer, &(SDL_FRect){floor(verts[1].position.x), floor(verts[1].position.y), 2, 2});
-		SDL_RenderFillRect(renderer, &(SDL_FRect){floor(verts[2].position.x), floor(verts[2].position.y), 2, 2});
-		SDL_RenderFillRect(renderer, &(SDL_FRect){floor(verts[0].position.x), floor(verts[0].position.y), 2, 2});*/
-		return 0;
-	}
-	return 1;
-}
-
-Vector3 clipToNearPlane(Vector3 front, Vector3 back, float nearZ){
-	// front.z < nearZ (in front), back.z >= nearZ (behind or at near plane)
-	float t = (nearZ - front.z) / (back.z - front.z); //collect my invLerp(a, b, v) function
-	return (Vector3){
-		front.x + t * (back.x - front.x), //collect my lerp(a, b, t) function
-		front.y + t * (back.y - front.y),
-		nearZ
-	};
-}
-
-extern bool softwareRender;
-bool draw3DTriangle(MeshVert pointA, MeshVert pointB, MeshVert pointC, SDL_Texture* image){
-	if(softwareRender){
-		drawDepthTriangle(displayTex, pointA, pointB, pointC, NULL); 
-		return 0;
-	}
-
-	Vector3 camA = worldToCamera(pointA.pos);
-	Vector3 camB = worldToCamera(pointB.pos);
-	Vector3 camC = worldToCamera(pointC.pos);
-	
-	const float NEAR_PLANE = -0.1f;  // near plane in camera space (negative = in front)
-	
-	bool aFront = camA.z < NEAR_PLANE;
-	bool bFront = camB.z < NEAR_PLANE;
-	bool cFront = camC.z < NEAR_PLANE;
-	int inFront = aFront + bFront + cFront;
-	
-	if(inFront == 0){
-		return 1;  // all behind camera, don't draw
-	}
-	
-	if(inFront == 3){
-		// all in front, draw normally
-		Vector3 projLoc[3] = {projToScreen(viewProj(camA)), projToScreen(viewProj(camB)), projToScreen(viewProj(camC))};
-		if(max(projLoc[0].z, max(projLoc[1].z, projLoc[2].z)) < 0){
-			drawTriangle(
-				(MeshVert){projLoc[0], (Vector3){0,0,0}, pointA.uv, pointA.colour},
-				(MeshVert){projLoc[1], (Vector3){0,0,0}, pointB.uv, pointB.colour},
-				(MeshVert){projLoc[2], (Vector3){0,0,0}, pointC.uv, pointC.colour}, 
-			image);
-		}
-		return 0;
-	}
-	
-	Vector3 clippedA = aFront ? camA : clipToNearPlane(bFront ? camB : camC, camA, NEAR_PLANE);
-	Vector3 clippedB = bFront ? camB : clipToNearPlane(aFront ? camA : camC, camB, NEAR_PLANE);
-	Vector3 clippedC = cFront ? camC : clipToNearPlane(aFront ? camA : camB, camC, NEAR_PLANE);
-	
-	Vector3 projLoc[3] = {projToScreen(viewProj(clippedA)), projToScreen(viewProj(clippedB)), projToScreen(viewProj(clippedC))};
-	if(max(projLoc[0].z, max(projLoc[1].z, projLoc[2].z)) < 0){
-		drawTriangle(
-			(MeshVert){projLoc[0], (Vector3){0,0,0}, pointA.uv, pointA.colour},
-			(MeshVert){projLoc[1], (Vector3){0,0,0}, pointB.uv, pointB.colour},
-			(MeshVert){projLoc[2], (Vector3){0,0,0}, pointC.uv, pointC.colour}, 
-		image);
-	}
-	return 0;
-}
-
 extern bool glEnabled;
 void drawMesh(Mesh* mesh, mat4 transform, SDL_FColor colour, SDL_Texture* texture, bool shaded){
 	if(!mesh || !transform) return;
 
-	if(glEnabled){
-		drawMeshOpenGL(mesh, transform, colour, texture);
-		return;
-	}
+	drawMeshOpenGL(mesh, transform, colour, texture);
+	return;
 	
-	Vector4 pointCalcs[3];
+	/*Vector4 pointCalcs[3];
 	float* rotMatrix = malloc(sizeof(mat4)); 
 	memcpy(rotMatrix, transform, sizeof(mat4));
 	rotMatrix[3] = 0; rotMatrix[7] = 0; rotMatrix[11] = 0;  
@@ -213,7 +117,7 @@ void drawMesh(Mesh* mesh, mat4 transform, SDL_FColor colour, SDL_Texture* textur
 			(MeshVert){vec4ToVec3(pointCalcs[2]), (Vector3){0,0,0}, currVerts[2]->uv, clampColour(shadedColour[2])}, 
 		texture);
 	}
-	free(rotMatrix);
+	free(rotMatrix);*/
 }
 
 SDL_Texture *newTexture(char* path, SDL_ScaleMode scaleMode){
@@ -270,7 +174,7 @@ void drawText(SDL_Renderer *renderLoc, Font *textFont, char* text, short posX, s
 	}
 }
 
-Mesh* genTorusMesh(float outerRad, float innerRad, int ringRes, int ringCount){
+Mesh* genTorusMesh(float outerRad, float innerRad, Uint16 ringRes, Uint16 ringCount){
 	if(ringRes < 3 || ringCount < 3) return NULL;
 	Uint32 vertCount = ringRes * ringCount;
 	Uint32 faceCount = vertCount * 2;
@@ -355,8 +259,8 @@ Mesh* genCylinderMesh(float btmRad, float topRad, float length, int res){
 	return newMesh;
 }
 
-Mesh* genPlaneMesh(float xScale, float yScale, int xRes, int yRes){
-	if(fabs(xScale) + fabs(yScale) == 0 || abs(xRes) + abs(yRes) == 0) return NULL;
+Mesh* genPlaneMesh(float xScale, float yScale, Uint16 xRes, Uint16 yRes){
+	if(fabs(xScale) + fabs(yScale) == 0 || xRes + yRes == 0) return NULL;
 	
 	Uint32 vertCount = (xRes + 1) * (yRes + 1);
 	Uint32 faceCount = xRes * yRes * 2;
@@ -375,10 +279,9 @@ Mesh* genPlaneMesh(float xScale, float yScale, int xRes, int yRes){
 	}
 	for(Uint32 i=0; i<faceCount/2; i++){
 		Uint32 newI = i * 2;
-		//MeshVert *quadVerts[4] = {&newVerts[i], &newVerts[i+1], &newVerts[i + (xRes + 1)], &newVerts[i + 2 + xRes]};
 		
-		newFaces[newI] = (MeshFace){i, i+1, i + (xRes + 1)};
-		newFaces[(newI + 1)] = (MeshFace){i + (xRes + 1), i+1, i + 2 + xRes};
+		newFaces[newI] = (MeshFace){i, i+1, i + xRes + 1};
+		newFaces[(newI + 1)] = (MeshFace){i + xRes + 1, i+1, i + 2 + xRes};
 	}
 	
 	Mesh* newMesh = malloc(sizeof(Mesh));

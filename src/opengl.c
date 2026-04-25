@@ -28,22 +28,23 @@ extern Mesh* playerMesh;
 extern Mesh* cubePrim;
 extern SDL_FColor skyboxColour;
 
-Uint32 mainShader; Uint32 flatShader;
+extern Uint32 mainShader; extern Uint32 flatShader;
 
 const char *vertexShaderSource = NULL;
 const char *fragmentShaderSource = NULL;
 
-Texture* glTestTex;
-Uint32 glTestTexID;
+extern Texture* glTestTex;
+extern Uint32 glTestTexID;
+
+extern Texture* skyRastTex;
 
 SDL_Window *glWindow = NULL;
 SDL_Point glWindowScale = {640, 480};
 
-Sint32 worldLoc, viewLoc,  projLoc;
-Sint32 glLocs[GLVAL_MAX];
+extern Sint32 glLocs[GLVAL_MAX];
 Uint32 glDepthTest = GL_DEPTH_TEST;
 
-Uint32 VAO, VBO, EBO;
+extern Uint32 VAO, VBO, EBO;
 
 extern void HandleKeyInput();
 
@@ -79,22 +80,6 @@ Uint32 loadShader(char* vertPath, char* fragPath){
 	glDeleteShader(vertShader); glDeleteShader(fragShader);
 	
 	return shaderProg;
-}
-
-float *projMatrixOpenGL(float fov, float aspect, float zNear, float zFar){
-	float *output = calloc(1, sizeof(mat4));
-	float fovTan = SDL_tan(fov / 2 * DEG2RAD);
-
-	output[0] = 1/(fovTan*aspect);
-	output[5] = 1/fovTan;
-	output[10] = -(zFar + zNear) / (zFar - zNear);
-	output[14] = -1;
-	output[11] = -zNear;
-
-	//output[10] = -(zFar + zNear) / range;
-	//output[14] = -(2 * zFar * zNear) / range;
-
-	return output;
 }
 
 void setGlValue(Uint32 item, bool value){
@@ -248,9 +233,6 @@ void drawMeshOpenGL(Mesh* mesh, mat4 transform, SDL_FColor colour, SDL_Texture* 
 
 	//glBindBuffer(GL_ARRAY_BUFFER, mesh->vertArray);
 	//glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, mesh->eleBuffer);
-
-	tempTriCount = mesh->faceCount;
-	tempVertCount = mesh->vertCount;
 	
 	glDrawElements(GL_TRIANGLES, mesh->faceCount * 3, GL_UNSIGNED_INT, 0);
 

@@ -17,11 +17,10 @@ void endUpdateOpenGL();
 void cleanupOpenGL();
 
 Uint32 loadShader(char* vertPath, char* fragPath);
+bool setGlTexture(Texture* tex);
 
 void setGlValue(Uint32 item, bool value);
 void setGlShader(Uint32 shader);
-
-float *projMatrixOpenGL(float fov, float aspect, float zNear, float zFar);
 
 void openGlGenBuffers(Mesh* mesh);
 

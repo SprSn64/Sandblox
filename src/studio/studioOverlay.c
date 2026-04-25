@@ -43,13 +43,10 @@ Vector3 projectFlip(Vector3 proj){
 extern bool softwareRender;
 extern Texture* displayTex;
 Vector3 quickProj(Vector3 pos){
-	if(!softwareRender) 
-		return projToScreen(viewProj(worldToCamera(pos)));
-
 	Camera* currCam = client.gameWorld->currCamera;
 
 	Vector4 newPos = matrixMult(matrixMult(vec3ToVec4(pos), currCam->transform), currCam->proj);
-	return (Vector3){(newPos.x / newPos.z + 1) * (displayTex->width >> 1), (newPos.y / newPos.z + 1) * (displayTex->height >> 1), newPos.z};
+	return (Vector3){(newPos.x / newPos.w) * (displayTex->width >> 1), (newPos.y / newPos.w) * (displayTex->height >> 1), newPos.z};
 }
 
 Vector3 ogPos;

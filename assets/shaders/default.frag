@@ -6,6 +6,10 @@ uniform vec4 lightColour;
 uniform vec4 ambColour;
 uniform vec3 cameraNorm;
 
+uniform mat4 world;
+uniform mat4 view;
+uniform mat4 proj;
+
 uniform sampler2D tex0;
 
 uniform vec4 fogColour = vec4(1, 1, 1, 1);
@@ -27,7 +31,7 @@ void main(){
 
 	float fogStrength = min(max(0, (pos.z - 128)/64), 1);
 
-	vec3 reflectSource = normalize(reflect(-lightNorm, norm));
+	vec3 reflectSource = normalize(reflect(-normalize(lightNorm), norm));
 	float specular = pow(max(dot(cameraNorm, reflectSource), 0), 16);
 
 	FragColor = mix((baseColour * max(dot(norm, normalize(lightNorm)), 0) + baseColour * ambColour + specular) * lightColour, fogColour, fogStrength);
