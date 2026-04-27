@@ -25,7 +25,7 @@ void setGlShader(Uint32 shader);
 void openGlGenBuffers(Mesh* mesh);
 
 //swap SDL_Texture with Texture from softwarerenderer soon
-void drawMeshOpenGL(Mesh* mesh, mat4 transform, SDL_FColor colour, SDL_Texture* texture);
+void drawMeshOpenGL(Mesh* mesh, mat4 transform, SDL_FColor colour, TextureRef* texture);
 
 //void openGlBindMesh(Mesh* mesh);
 

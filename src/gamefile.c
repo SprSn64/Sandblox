@@ -171,24 +171,20 @@ DataObj* createObjectFromJSON(cJSON* obj, DataObj* parent) {
     if(mesh)
         newObj->asVoidptr[OBJVAL_MESH] = mesh;
     
-    TextureRef* texItem = NULL;
-    SDL_Texture* tex = NULL;
+    TextureRef* tex = NULL;
     if(texture && cJSON_IsString(texture)) {
         if(texture->valuestring[0] == '.' && texture->valuestring[1] == '/'){
             char* texString = joinDirectories(currPath, texture->valuestring);
-            tex = newTexture(texString, SDL_SCALEMODE_LINEAR);
+            tex = loadTexture(texString);
             free(texString);
         }else 
-            tex = newTexture(texture->valuestring, SDL_SCALEMODE_LINEAR);
+            tex = loadTexture(texture->valuestring);
 	  
         if(!tex)
             printf("Failed to load texture from file: %s\n", texture->valuestring);
     }
     if(tex) {
-	    texItem = malloc(sizeof(TextureRef));
-	    texItem->filePath = malloc(sizeof(char) * (strlen(texture->valuestring) + 1)); sprintf(texItem->filePath, "%s",texture->valuestring);
-	    texItem->image = tex;
-        newObj->asVoidptr[OBJVAL_TEXTURE] = texItem;
+        	newObj->asVoidptr[OBJVAL_TEXTURE] = tex;
     }
     
     //CollisionHull *block->asVoidptr[OBJVAL_COLLIDER]

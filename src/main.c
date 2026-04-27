@@ -45,8 +45,8 @@ SDL_Renderer *renderer = NULL;
 Sint32 glLocs[GLVAL_MAX];
 Uint32 VAO, VBO, EBO;
 Uint32 mainShader; Uint32 flatShader;
-
 Uint32 glVersion[2] = {0, 0};
+Uint32 glBlankTex; Uint32 blankColour = 0xFFFFFFFF;
 
 ClientData client;
 GameWorld game;
@@ -80,8 +80,8 @@ Font defaultFont;
 Texture *testTex;
 Texture *rastFontTex;
 
-SDL_Texture *fontTex = NULL; SDL_Texture *playerTex = NULL; SDL_Texture *homerTex = NULL;
-SDL_Texture *boneTex = NULL; SDL_Texture *cursorTex = NULL; SDL_Texture *skyTex = NULL; SDL_Texture *sunTex = NULL;
+TextureRef *fontTex = NULL; TextureRef *playerTex = NULL; TextureRef *homerTex = NULL;
+TextureRef *boneTex = NULL; TextureRef *cursorTex = NULL; TextureRef *skyTex = NULL; TextureRef *sunTex = NULL;
 Mesh *playerMesh = NULL; Mesh *boneMesh = NULL; Mesh *skyboxMesh = NULL; Mesh *sunMesh = NULL;
 Mesh *planePrim = NULL; Mesh *cubePrim = NULL; Mesh *spherePrim = NULL;
 
@@ -100,8 +100,6 @@ ButtonMap mouseButtons[3];
 Uint8 camResetTimer = 0;
 
 void HandleKeyInput();
-
-extern float renderScale;
 
 extern DataObj gameHeader;
 extern DataObj *focusObject;
@@ -185,12 +183,19 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[]){
 	mainShader = loadShader("assets/shaders/default.vert", "assets/shaders/default.frag");
 	flatShader = loadShader("assets/shaders/default.vert", "assets/shaders/unshaded.frag");
 	
-	fontTex = newTexture("assets/textures/font.png", SDL_SCALEMODE_LINEAR);
-	boneTex = newTexture("assets/textures/bonetex.png", SDL_SCALEMODE_NEAREST);
-	homerTex = newTexture("assets/textures/homer.png", SDL_SCALEMODE_NEAREST);
-	cursorTex = newTexture("assets/textures/cursor.png", SDL_SCALEMODE_NEAREST);
-	skyTex = newTexture("assets/textures/skybox.png", SDL_SCALEMODE_LINEAR);
-	sunTex = newTexture("assets/textures/sunflare.png", SDL_SCALEMODE_LINEAR);
+	glGenTextures(1, &glBlankTex);
+	glActiveTexture(GL_TEXTURE0);
+	glBindTexture(GL_TEXTURE_2D, glBlankTex);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, 1, 1, 0, GL_RGBA, GL_UNSIGNED_BYTE, &blankColour);
+	glGenerateMipmap(GL_TEXTURE_2D);
+	glBindTexture(GL_TEXTURE_2D, 0);
+
+	fontTex = loadTexture("assets/textures/font.png");
+	boneTex = loadTexture("assets/textures/bonetex.png");
+	homerTex = loadTexture("assets/textures/homer.png");
+	cursorTex = loadTexture("assets/textures/cursor.png");
+	skyTex = loadTexture("assets/textures/skybox.png");
+	sunTex = loadTexture("assets/textures/sunflare.png");
 
 	rastFontTex = loadRasterTexture("assets/textures/font.png");
 	defaultFont = (Font){fontTex, rastFontTex, 32, (SDL_Point){32, 32}, (SDL_Point){8, 8}, (SDL_FPoint){6, 0}, 16};
@@ -262,6 +267,7 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[]){
 
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
 	setGlTexture(glTestTex);
 	glGenerateMipmap(GL_TEXTURE_2D);
 
@@ -341,8 +347,9 @@ SDL_AppResult SDL_AppEvent(void *appstate, SDL_Event *event){
 }
 
 extern bool studioFocus;
-extern Uint32 glDepthTest;
 extern SDL_Point studioWindowScale;
+extern void studioCameraUpdate(Camera* cam);
+
 SDL_AppResult SDL_AppIterate(void *appstate){
 	(void)appstate;
 	HandleKeyInput();
@@ -365,7 +372,6 @@ SDL_AppResult SDL_AppIterate(void *appstate){
 	timer += deltaTime;
 	
 	SDL_GetWindowSize(window, &windowScale.x, &windowScale.y);
-	renderScale = min(windowScale.x, windowScale.y);
 
 	if(debugServer)
 		serverUpdate();
@@ -444,6 +450,9 @@ SDL_AppResult SDL_AppIterate(void *appstate){
 	//SDL_SetRenderDrawColor(renderer, skyboxColour.r * 255, skyboxColour.g * 255, skyboxColour.b * 255, SDL_ALPHA_OPAQUE);
 	//SDL_RenderClear(renderer);
 
+	if(client.pause)
+		studioCameraUpdate(client.gameWorld->currCamera);
+
 	Vector3 invVec3 = {-1, -1, -1};
 	currentCamera.transform = malloc(sizeof(mat4));
 	
@@ -454,7 +463,7 @@ SDL_AppResult SDL_AppIterate(void *appstate){
 	memcpy(currentCamera.transform, camRotated, sizeof(mat4));
 	free(camTranslated); free(camScaled); free(camRotated); 
 
-	currentCamera.proj = projMatrix(currentCamera.fov, (float)windowScale.x/windowScale.y, 0.1, 1000);
+	currentCamera.proj = projMatrix(currentCamera.fov, (float)windowScale.x/windowScale.y, 0.1, 2048);
 
 	glUniformMatrix4fv(glLocs[GLVAL_PROJMATRIX], 1, GL_FALSE, currentCamera.proj);
 	glUniformMatrix4fv(glLocs[GLVAL_VIEWMATRIX], 1, GL_FALSE, currentCamera.transform);
@@ -463,17 +472,17 @@ SDL_AppResult SDL_AppIterate(void *appstate){
 		updateStudioGimbles();
 
 	setGlValue(GL_DEPTH_TEST, false);
-	setGlShader(flatShader);
+	//setGlShader(flatShader);
 
-	skyboxMatrix = translateMatrix(defaultMatrix, currentCamera.pos);
-	drawMesh(skyboxMesh, skyboxMatrix, (SDL_FColor){1,1,1,1}, skyTex, false);
-	free(skyboxMatrix);
+		skyboxMatrix = translateMatrix(defaultMatrix, currentCamera.pos);
+		drawMeshOpenGL(skyboxMesh, skyboxMatrix, (SDL_FColor){1,1,1,1}, skyTex);
+		free(skyboxMatrix);
 	
-	sunMatrix = genMatrix(currentCamera.pos, (Vector3){1, 1, 1}, vec3Add(normToRot3(lightNormal), (Vector3){PI, PI, 0}));
-	drawMesh(sunMesh, sunMatrix, lightColour, sunTex, false);
-	free(sunMatrix);
+		sunMatrix = genMatrix(currentCamera.pos, (Vector3){1, 1, 1}, vec3Add(normToRot3(lightNormal), (Vector3){PI, PI, 0}));
+		drawMeshOpenGL(sunMesh, sunMatrix, lightColour, sunTex);
+		free(sunMatrix);
 
-	setGlShader(mainShader);
+	//setGlShader(mainShader);
 	setGlValue(GL_DEPTH_TEST, true);
 	
 	//drawCube((Vector3){(2 + SDL_cos(timer)) / -2, SDL_sin(timer) + 1, (2 + SDL_cos(timer)) / -2}, (Vector3){2 + SDL_cos(timer), SDL_sin(timer) + 1, 2 + SDL_cos(timer)}, (SDL_FColor){0.6, 0.8, 1, 1});
@@ -520,7 +529,7 @@ void SDL_AppQuit(void *appstate, SDL_AppResult result){
 	(void)appstate; (void)result;
 	cleanupObjects(client.gameWorld->headObj);
 	studioCleanup();
-	SDL_DestroyTexture(fontTex); SDL_DestroyTexture(playerTex); SDL_DestroyTexture(homerTex); SDL_DestroyTexture(cursorTex); SDL_DestroyTexture(skyTex);
+	freeTexture(fontTex); freeTexture(playerTex); freeTexture(homerTex); freeTexture(cursorTex); freeTexture(skyTex);
 	
 	free(defaultMatrix);
 	free(playerMesh); free(skyboxMesh);
@@ -531,6 +540,7 @@ void SDL_AppQuit(void *appstate, SDL_AppResult result){
 	glDeleteProgram(mainShader);
 	glDeleteBuffers(1, &VAO); glDeleteBuffers(1, &VBO); glDeleteBuffers(1, &EBO);
 	glDeleteTextures(1, &glTestTexID);
+	glDeleteTextures(1, &glBlankTex);
 }
 
 void HandleKeyInput(){

@@ -13,10 +13,6 @@ SDL_FColor intToColour(Uint32 colour);
 
 Uint32 colourLerp(Uint32 colA, Uint32 colB, float t);
 
-Texture* newRasterTexture(Uint16 width, Uint16 height);
-Texture* loadRasterTexture(char* path);
-bool freeRasterTexture(Texture* tex);
-
 void setPixel(Texture* target, Uint16 x, Uint16 y, Uint32 colour);
 Uint32 getPixel(Texture* target, Uint16 x, Uint16 y);
 void clearTex(Texture* target, Uint32 colour);

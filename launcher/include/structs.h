@@ -29,4 +29,10 @@ typedef struct MapEntry{
 	//struct MapEntry* child;
 } MapEntry;
 
+typedef struct ServerEntry{
+	Uint8 hostIP[4];
+	char* serverName; char* hostName;
+	Uint8 playerCount, playerMax;
+} ServerEntry;
+
 #endif

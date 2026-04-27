@@ -27,7 +27,7 @@ void knightHoverFunc(DataObj* object){
 void soulControlFunc(DataObj* object){
 	DataObj* item = object->parent;
 	float speed = 4;
-	game.currCamera->pos = (Vector3){0, 6, -28};
+	game.currCamera->pos = (Vector3){0, 6, -16};
 	game.currCamera->rot = (Vector3){(-8 + SDL_sin(timer / 4)) * DEG2RAD, PI + SDL_cos(timer / 6.28) * DEG2RAD, 0};
 	item->pos = vec3Add(item->pos, (Vector3){
 		(keyList[KEYBIND_LEFT].down - keyList[KEYBIND_RIGHT].down) * speed * deltaTime, 

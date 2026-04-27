@@ -47,35 +47,6 @@ void clearTex(Texture* target, Uint32 colour){
 	}
 }
 
-Texture* newRasterTexture(Uint16 width, Uint16 height){
-	Texture* newTexture = malloc(sizeof(Texture));
-	if(!newTexture){
-		printf("Failed to generate texture of size %dx%d\n", width, height);
-		return NULL;
-	}
-	newTexture->width = width; newTexture->height = height;
-	newTexture->pixels = malloc(width * height * sizeof(Uint32));
-	printf("Succesfully made texture of size %dx%d\n", width, height);
-	return newTexture;
-}
-
-bool freeRasterTexture(Texture* tex){
-	if(!tex) return 1;
-	free(tex->pixels); free(tex);
-	return 0;
-}
-
-Texture* loadRasterTexture(char* path){
-	SDL_Surface* newSurface = IMG_Load(path); if(!newSurface) return NULL;
-	Texture* newTex = newRasterTexture(newSurface->w, newSurface->h);
-
-	//printf("Pixel format of image %s is 0x%x\n", path, newSurface->format);
-	memcpy(newTex->pixels, newSurface->pixels, newSurface->w*newSurface->h * sizeof(Uint32)); 
-
-	SDL_DestroySurface(newSurface);
-	return newTex;
-}
-
 void drawTexture(Texture* target, Texture* tex, SDL_Rect* source, SDL_Rect* dest, Uint32 colour){
 	(void)colour;
 	if(!tex || !target) return;

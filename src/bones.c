@@ -11,9 +11,10 @@
 #include "renderer.h"
 #include "math.h"
 #include "loader.h"
+#include "opengl.h"
 
 extern Mesh* boneMesh;
-extern SDL_Texture *boneTex;
+extern TextureRef *boneTex;
 
 BoneItem* newBone(BoneItem* parent, Vector3 pos, Vector3 rot){
 	BoneItem* newBone = calloc(1, sizeof(BoneItem)); 
@@ -57,7 +58,7 @@ void drawBone(BoneItem* bone){
 	BoneItem* currBone = bone;
 	while (currBone) {
 		float* boneMatrix = genMatrix(currBone->pos, (Vector3){1, 1, 1}, currBone->rot);
-		drawMesh(boneMesh, boneMatrix, (SDL_FColor){1, 1, 1, 1}, boneTex, true);
+		drawMeshOpenGL(boneMesh, boneMatrix, (SDL_FColor){1, 1, 1, 1}, boneTex);
 		free(boneMatrix);
 		if(currBone->child)
 			drawBone(currBone->child);

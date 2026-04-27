@@ -57,79 +57,6 @@ Vector3 projToScreen(Vector3 pos){
 	return (Vector3){-pos.x * client.gameWorld->currCamera->zoom * renderScale + windowScale.x / 2, pos.y * client.gameWorld->currCamera->zoom * renderScale + windowScale.y / 2, pos.z};
 }
 
-extern bool glEnabled;
-void drawMesh(Mesh* mesh, mat4 transform, SDL_FColor colour, SDL_Texture* texture, bool shaded){
-	if(!mesh || !transform) return;
-
-	drawMeshOpenGL(mesh, transform, colour, texture);
-	return;
-	
-	/*Vector4 pointCalcs[3];
-	float* rotMatrix = malloc(sizeof(mat4)); 
-	memcpy(rotMatrix, transform, sizeof(mat4));
-	rotMatrix[3] = 0; rotMatrix[7] = 0; rotMatrix[11] = 0;  
-	Vector3 matrixScale = extractScale(transform);
-	rotMatrix[0] = rotMatrix[0] / matrixScale.x; rotMatrix[4] = rotMatrix[4] / matrixScale.x; rotMatrix[8] = rotMatrix[8] / matrixScale.x; 
-	rotMatrix[1] = rotMatrix[1] / matrixScale.y; rotMatrix[5] = rotMatrix[5] / matrixScale.y; rotMatrix[9] = rotMatrix[9] / matrixScale.y; 
-	rotMatrix[2] = rotMatrix[2] / matrixScale.z; rotMatrix[6] = rotMatrix[6] / matrixScale.z; rotMatrix[10] = rotMatrix[10] / matrixScale.z; 
-	
-	for(Uint32 i=0; i < mesh->faceCount; i++){
-		MeshVert* currVerts[3] = {
-			&mesh->verts[mesh->faces[i].vertA % mesh->vertCount], 
-			&mesh->verts[mesh->faces[i].vertB % mesh->vertCount], 
-			&mesh->verts[mesh->faces[i].vertC % mesh->vertCount]
-		};
-		if (!(currVerts[0] && currVerts[1] && currVerts[2])) continue;
-		
-		pointCalcs[0] = matrixMult(vec3ToVec4(currVerts[0]->pos), transform);
-		pointCalcs[1] = matrixMult(vec3ToVec4(currVerts[1]->pos), transform);
-		pointCalcs[2] = matrixMult(vec3ToVec4(currVerts[2]->pos), transform);
-		
-		SDL_FColor shadedColour[3] = {colour, colour, colour};
-		if(!shaded) goto unshadedSkip;
-		
-		Vector4 multFaceNormal[3] = {
-			matrixMult(vec3ToVec4(currVerts[0]->norm), rotMatrix),
-			matrixMult(vec3ToVec4(currVerts[1]->norm), rotMatrix),
-			matrixMult(vec3ToVec4(currVerts[2]->norm), rotMatrix)
-		};
-		
-		for(Uint8 index=0; index < 3; index++){
-			Vector3 faceNormal = normalize3((Vector3){multFaceNormal[index].x / matrixScale.x, multFaceNormal[index].y / matrixScale.y, multFaceNormal[index].z / matrixScale.z});
-			
-			float faceDot = max(dotProd3(faceNormal, lightNormal), 0);
-			Vector3 cameraNorm = rotToNorm3(client.gameWorld->currCamera->rot);
-			Vector3 reflectSource = normalize3(reflect((Vector3){-lightNormal.x, -lightNormal.y, -lightNormal.z}, faceNormal));
-			float specular = pow(max(dotProd3(cameraNorm, reflectSource), 0), 16);
-			shadedColour[index] = (SDL_FColor){
-				(colour.r * lightAmbient.r * lightColour.r) + (colour.r * lightColour.r * faceDot) + (specular * lightColour.r),
-				(colour.g * lightAmbient.g * lightColour.g) + (colour.g * lightColour.g * faceDot) + (specular * lightColour.g),
-				(colour.b * lightAmbient.b * lightColour.b) + (colour.b * lightColour.b * faceDot) + (specular * lightColour.b),
-				colour.a
-			};
-		}
-		
-		unshadedSkip:
-		
-		draw3DTriangle(
-			(MeshVert){vec4ToVec3(pointCalcs[0]), (Vector3){0,0,0}, currVerts[0]->uv, clampColour(shadedColour[0])}, 
-			(MeshVert){vec4ToVec3(pointCalcs[1]), (Vector3){0,0,0}, currVerts[1]->uv, clampColour(shadedColour[1])}, 
-			(MeshVert){vec4ToVec3(pointCalcs[2]), (Vector3){0,0,0}, currVerts[2]->uv, clampColour(shadedColour[2])}, 
-		texture);
-	}
-	free(rotMatrix);*/
-}
-
-SDL_Texture *newTexture(char* path, SDL_ScaleMode scaleMode){
-	SDL_Texture *texture = IMG_LoadTexture(renderer, path);
-	if(texture == NULL){
-		printf("Issue with loading texture %s!\n", path);
-		return NULL;
-	}
-	SDL_SetTextureScaleMode(texture, scaleMode);
-	return texture;
-}
-
 SDL_FColor clampColour(SDL_FColor colour){
 	return (SDL_FColor){min(max(colour.r, 0), 1), min(max(colour.g, 0), 1), min(max(colour.b, 0), 1), min(max(colour.a, 0), 1)};
 }
@@ -145,7 +72,7 @@ CharColour ConvertColour(CharColour colour, Uint32 mode){
 
 extern Mesh* planePrim;
 //fix soon
-void drawBillboard(SDL_Texture *texture, SDL_FRect rect, Vector3 pos, SDL_FPoint offset, SDL_FPoint scale){
+void drawBillboard(TextureRef *texture, SDL_FRect rect, Vector3 pos, SDL_FPoint offset, SDL_FPoint scale){
 	(void)rect; (void)offset;
 	
 	Vector3 planeRot = (Vector3){
@@ -154,12 +81,12 @@ void drawBillboard(SDL_Texture *texture, SDL_FRect rect, Vector3 pos, SDL_FPoint
 		0,
 	};
 	float* transform = genMatrix(pos, (Vector3){scale.x, 1, scale.y}, planeRot);
-	drawMesh(planePrim, transform, (SDL_FColor){1, 1, 1, 1}, texture, false);
+	drawMeshOpenGL(planePrim, transform, (SDL_FColor){1, 1, 1, 1}, texture);
 	free(transform);
 }
 
 void drawText(SDL_Renderer *renderLoc, Font *textFont, char* text, short posX, short posY, float scale, SDL_FColor colour){
-	SDL_SetTextureColorMod(textFont->image, (Uint8)(colour.r * 255), (Uint8)(colour.g * 255), (Uint8)(colour.b * 255));
+	SDL_SetTextureColorMod(textFont->texture->image, (Uint8)(colour.r * 255), (Uint8)(colour.g * 255), (Uint8)(colour.b * 255));
 	if(!renderLoc){
 		//printf("cant draw text '%s'\n", text);
 		return;
@@ -170,7 +97,7 @@ void drawText(SDL_Renderer *renderLoc, Font *textFont, char* text, short posX, s
 		int yOff = floor((float)charVal / textFont->columns) * textFont->glyphSize.y;
 		SDL_FRect sprRect = {xOff, yOff, textFont->glyphSize.x, textFont->glyphSize.y};
 		SDL_FRect sprPos = {posX + textFont->kerning.x * i * scale, posY + textFont->kerning.y * i * scale, textFont->renderSize.x * scale, textFont->renderSize.y * scale};
-		SDL_RenderTexture(renderLoc, textFont->image, &sprRect, &sprPos);
+		SDL_RenderTexture(renderLoc, textFont->texture->image, &sprRect, &sprPos);
 	}
 }
 

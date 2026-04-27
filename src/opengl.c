@@ -221,8 +221,13 @@ void cleanupOpenGL(){
 	glDeleteTextures(1, &glTestTexID);
 }
 
-void drawMeshOpenGL(Mesh* mesh, mat4 transform, SDL_FColor colour, SDL_Texture* texture){
-	(void)texture;
+extern Uint32 glBlankTex;
+void drawMeshOpenGL(Mesh* mesh, mat4 transform, SDL_FColor colour, TextureRef* texture){
+	if(texture && texture->glLoc)
+		glBindTexture(GL_TEXTURE_2D, texture->glLoc);
+	else
+		glBindTexture(GL_TEXTURE_2D, glBlankTex);
+
 	glUniformMatrix4fv(glLocs[GLVAL_WORLDMATRIX], 1, GL_FALSE, transform);
 
 	float colourFloat[4] = {colour.r, colour.g, colour.b, colour.a};
@@ -235,6 +240,7 @@ void drawMeshOpenGL(Mesh* mesh, mat4 transform, SDL_FColor colour, SDL_Texture* 
 	//glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, mesh->eleBuffer);
 	
 	glDrawElements(GL_TRIANGLES, mesh->faceCount * 3, GL_UNSIGNED_INT, 0);
+	glBindTexture(GL_TEXTURE_2D, 0);
 
 	//glBindBuffer(GL_ARRAY_BUFFER, 0);
 	//glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);

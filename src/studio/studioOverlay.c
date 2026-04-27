@@ -14,6 +14,7 @@
 #include "../renderer.h"
 
 #include "../softwarerender/main.h"
+#include "../opengl.h"
 
 extern SDL_Window *window;
 extern SDL_Renderer *renderer;
@@ -46,7 +47,7 @@ Vector3 quickProj(Vector3 pos){
 	Camera* currCam = client.gameWorld->currCamera;
 
 	Vector4 newPos = matrixMult(matrixMult(vec3ToVec4(pos), currCam->transform), currCam->proj);
-	return (Vector3){(newPos.x / newPos.w) * (displayTex->width >> 1), (newPos.y / newPos.w) * (displayTex->height >> 1), newPos.z};
+	return (Vector3){(newPos.x / newPos.w) * (displayTex->width >> 1), (newPos.y / newPos.w) * (displayTex->height >> 1), newPos.z / newPos.w};
 }
 
 Vector3 ogPos;
@@ -134,17 +135,17 @@ void drawTranslateGimble(DataObj* item){
 	
 	float* xMatrixA = genMatrix(vec3Add(itemCenter, (Vector3){-item->scale.x / 2, 0, 0}), (Vector3){1, 1, 1}, (Vector3){0, 0, HALFPI});
 	float* xMatrixB = genMatrix(vec3Add(itemCenter, (Vector3){item->scale.x / 2, 0, 0}), (Vector3){1, 1, 1}, (Vector3){0, 0, -HALFPI});
-	drawMesh(translateGimbleMesh, xMatrixA, (SDL_FColor){1, 0, 0, 0.5}, NULL, true); drawMesh(translateGimbleMesh, xMatrixB, (SDL_FColor){1, 0, 0, 0.5}, NULL, true);
+	drawMeshOpenGL(translateGimbleMesh, xMatrixA, (SDL_FColor){1, 0, 0, 0.5}, NULL); drawMeshOpenGL(translateGimbleMesh, xMatrixB, (SDL_FColor){1, 0, 0, 0.5}, NULL);
 	free(xMatrixA); free(xMatrixB);
 	
 	float* yMatrixA = genMatrix(vec3Add(itemCenter, (Vector3){0, -item->scale.y / 2, 0}), (Vector3){1, -1, 1}, (Vector3){0, 0, 0});
 	float* yMatrixB = genMatrix(vec3Add(itemCenter, (Vector3){0, item->scale.y / 2, 0}), (Vector3){1, 1, 1}, (Vector3){0, 0, 0});
-	drawMesh(translateGimbleMesh, yMatrixA, (SDL_FColor){0, 1, 0, 0.5}, NULL, true); drawMesh(translateGimbleMesh, yMatrixB, (SDL_FColor){0, 1, 0, 0.5}, NULL, true);
+	drawMeshOpenGL(translateGimbleMesh, yMatrixA, (SDL_FColor){0, 1, 0, 0.5}, NULL); drawMeshOpenGL(translateGimbleMesh, yMatrixB, (SDL_FColor){0, 1, 0, 0.5}, NULL);
 	free(yMatrixA); free(yMatrixB);
 	
 	float* zMatrixA = genMatrix(vec3Add(itemCenter, (Vector3){0, 0, -item->scale.z / 2}), (Vector3){1, 1, 1}, (Vector3){-HALFPI, 0, 0});
 	float* zMatrixB = genMatrix(vec3Add(itemCenter, (Vector3){0, 0, item->scale.z / 2}), (Vector3){1, 1, 1}, (Vector3){HALFPI, 0, 0});
-	drawMesh(translateGimbleMesh, zMatrixA, (SDL_FColor){0, 0, 1, 0.5}, NULL, true); drawMesh(translateGimbleMesh, zMatrixB, (SDL_FColor){0, 0, 1, 0.5}, NULL, true);
+	drawMeshOpenGL(translateGimbleMesh, zMatrixA, (SDL_FColor){0, 0, 1, 0.5}, NULL); drawMeshOpenGL(translateGimbleMesh, zMatrixB, (SDL_FColor){0, 0, 1, 0.5}, NULL);
 	free(zMatrixA); free(zMatrixB);
 }
 
@@ -233,9 +234,9 @@ void drawScaleGimble(DataObj* item){
 	float* yMatrixA = translateMatrix(objLoc, (Vector3){item->scale.x / 2, 1.5, item->scale.z / 2}); float* yMatrixB = translateMatrix(objLoc, (Vector3){item->scale.x / 2, -item->scale.y - 1.5, item->scale.z / 2});
 	float* zMatrixA = translateMatrix(objLoc, (Vector3){item->scale.x / 2, -item->scale.y / 2, -1.5}); float* zMatrixB = translateMatrix(objLoc, (Vector3){item->scale.x / 2, -item->scale.y / 2, item->scale.z + 1.5});
 	
-	drawMesh(spherePrim, xMatrixA, (SDL_FColor){1, 0, 0, 0.5}, NULL, true); drawMesh(spherePrim, xMatrixB, (SDL_FColor){1, 0, 0, 0.5}, NULL, true);
-	drawMesh(spherePrim, yMatrixA, (SDL_FColor){0, 1, 0, 0.5}, NULL, true); drawMesh(spherePrim, yMatrixB, (SDL_FColor){0, 1, 0, 0.5}, NULL, true);
-	drawMesh(spherePrim, zMatrixA, (SDL_FColor){0, 0, 1, 0.5}, NULL, true); drawMesh(spherePrim, zMatrixB, (SDL_FColor){0, 0, 1, 0.5}, NULL, true);
+	drawMeshOpenGL(spherePrim, xMatrixA, (SDL_FColor){1, 0, 0, 0.5}, NULL); drawMeshOpenGL(spherePrim, xMatrixB, (SDL_FColor){1, 0, 0, 0.5}, NULL);
+	drawMeshOpenGL(spherePrim, yMatrixA, (SDL_FColor){0, 1, 0, 0.5}, NULL); drawMeshOpenGL(spherePrim, yMatrixB, (SDL_FColor){0, 1, 0, 0.5}, NULL);
+	drawMeshOpenGL(spherePrim, zMatrixA, (SDL_FColor){0, 0, 1, 0.5}, NULL); drawMeshOpenGL(spherePrim, zMatrixB, (SDL_FColor){0, 0, 1, 0.5}, NULL);
 	
 	free(objLoc);
 	free(xMatrixA); free(xMatrixB); 
@@ -261,9 +262,9 @@ void drawRotateGimble(DataObj* item){
 	
 	free(xMatrix); free(yMatrix); free(zMatrix);
 	
-	drawMesh(rotateGimbleMesh, xPosMatrix, (SDL_FColor){1, 0, 0, 0.5}, NULL, true);
-	drawMesh(rotateGimbleMesh, yPosMatrix, (SDL_FColor){0, 1, 0, 0.5}, NULL, true);
-	drawMesh(rotateGimbleMesh, zPosMatrix, (SDL_FColor){0, 0, 1, 0.5}, NULL, true);
+	drawMeshOpenGL(rotateGimbleMesh, xPosMatrix, (SDL_FColor){1, 0, 0, 0.5}, NULL);
+	drawMeshOpenGL(rotateGimbleMesh, yPosMatrix, (SDL_FColor){0, 1, 0, 0.5}, NULL);
+	drawMeshOpenGL(rotateGimbleMesh, zPosMatrix, (SDL_FColor){0, 0, 1, 0.5}, NULL);
 	
 	free(xPosMatrix); free(yPosMatrix); free(zPosMatrix);
 }

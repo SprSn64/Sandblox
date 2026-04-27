@@ -10,6 +10,7 @@
 #include "renderer.h"
 #include "math.h"
 #include "physics.h"
+#include "opengl.h"
 
 extern ClientData client;
 extern GameWorld game;
@@ -17,7 +18,7 @@ extern double deltaTime;
 extern ButtonMap keyList[KEYBIND_MAX];
 extern Mesh *playerMesh;
 extern Mesh *cubePrim;
-extern SDL_Texture *homerTex;
+extern TextureRef *homerTex;
 
 DataType playerClass;
 
@@ -36,10 +37,8 @@ void accessoryDraw(DataObj* object){
 	if(object->parent->classData == &playerClass)
 		return;
 
-	SDL_Texture *itemTex = NULL;
-	TextureRef *itemTexRef = object->asVoidptr[OBJVAL_TEXTURE];
-	if(itemTexRef)itemTex = itemTexRef->image;
-	drawMesh(object->asVoidptr[OBJVAL_MESH], object->transform, ConvertSDLColour(object->colour), itemTex, true);
+	TextureRef *itemTex = object->asVoidptr[OBJVAL_TEXTURE];
+	drawMeshOpenGL(object->asVoidptr[OBJVAL_MESH], object->transform, ConvertSDLColour(object->colour), itemTex);
 }
 
 DataType accessoryClass = {"Accessory\0", 10, 0, NULL, accessoryUpdate, accessoryDraw};
@@ -102,26 +101,25 @@ extern SDL_Renderer* renderer;
 extern Font defaultFont;
 void playerDraw(DataObj* object){
 	SDL_FColor plrColour = ConvertSDLColour(object->colour);
-	drawMesh(playerMesh, object->transform, plrColour, NULL, true);
+	drawMeshOpenGL(playerMesh, object->transform, plrColour, NULL);
 	
 	DataObj *hatItem = object->child;
 	while(hatItem){
 		if(hatItem->classData->id == accessoryClass.id){
 			SDL_FColor hatCol = ConvertSDLColour(hatItem->colour); hatCol.a = plrColour.a;
-			SDL_Texture *itemTex = NULL;
-			TextureRef *itemTexRef = hatItem->asVoidptr[OBJVAL_TEXTURE];
-			if(itemTexRef)itemTex = itemTexRef->image;
-			drawMesh(hatItem->asVoidptr[OBJVAL_MESH], object->transform, hatCol, itemTex, true);
+			TextureRef *itemTex = hatItem->asVoidptr[OBJVAL_TEXTURE];
+			drawMeshOpenGL(hatItem->asVoidptr[OBJVAL_MESH], object->transform, hatCol, itemTex);
 		}
 		hatItem = hatItem->next;
 	}
 
-	if(object == game.currPlayer && !client.pause) return;
+	/*if(object == game.currPlayer && !client.pause) return;
 	Vector3 textPos = vec3Add(object->pos, (Vector3){0, 5, 0});
 	Vector3 textProj = projToScreen(viewProj(worldToCamera(textPos)));
 	if(textProj.z >= 0) return;
 	float nameScale = 2;
 	drawText(renderer, &defaultFont, object->name, textProj.x - strlen(object->name) / 2 * defaultFont.kerning.x * nameScale, textProj.y - defaultFont.renderSize.y * nameScale, nameScale, (SDL_FColor){1, 1, 1, 1});
+	*/
 }
 
 DataType meshClass = (DataType){"Mesh\0", 4, 0, NULL, NULL, NULL};
@@ -132,20 +130,19 @@ void blockInit(DataObj* object){
 
 void blockDraw(DataObj* object){
 	Mesh *itemMesh = cubePrim;
-	SDL_Texture *itemTex = NULL;
+	TextureRef *itemTex = NULL;
 	DataObj *meshItem = firstChildOfType(object, meshClass);
 	float *meshTransform = object->transform;
 	float *meshMatrix;
 	if(meshItem){
 		if(meshItem->asVoidptr[OBJVAL_MESH])itemMesh = meshItem->asVoidptr[OBJVAL_MESH];
 		if(meshItem->asVoidptr[OBJVAL_TEXTURE]){
-			TextureRef *itemTexRef = meshItem->asVoidptr[OBJVAL_TEXTURE];
-			itemTex = itemTexRef->image;
+			itemTex = meshItem->asVoidptr[OBJVAL_TEXTURE];;
 		}
 		meshMatrix = genMatrix(meshItem->pos, meshItem->scale, meshItem->rot);
 		meshTransform = multMatrix(meshMatrix, object->transform);
 	}
-	drawMesh(itemMesh, meshTransform, ConvertSDLColour(object->colour), itemTex, true);
+	drawMeshOpenGL(itemMesh, meshTransform, ConvertSDLColour(object->colour), itemTex);
 	if(meshItem){ 
 		free(meshTransform); 
 		free(meshMatrix);
@@ -182,7 +179,7 @@ extern Mesh* planePrim;
 void imageDraw(DataObj* object){
 	TextureRef *itemTex = object->asVoidptr[OBJVAL_TEXTURE];
 	if(!itemTex) return;
-	drawMesh(planePrim, object->transform, ConvertSDLColour(object->colour), itemTex->image, true);
+	drawMeshOpenGL(planePrim, object->transform, ConvertSDLColour(object->colour), itemTex);
 }
 
 DataType imageClass = {"Image\0", 8, 0, NULL, NULL, imageDraw};

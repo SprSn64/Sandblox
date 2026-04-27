@@ -34,6 +34,20 @@ typedef struct{
 	char* filePath;
 } Mesh;
 
+typedef struct Texture{
+	Uint32* pixels;
+	Uint16 width, height;
+} Texture;
+
+typedef struct TextureRef{
+	SDL_Texture *image;
+	Texture* texture;
+	char* filePath;
+
+	Uint32 glLoc;
+	struct TextureRef *next; //for cleaning up and checking if texture already exists
+} TextureRef;
+
 typedef enum lightTypes{
 	LIGHTSOURCE_SUN, LIGHTSOURCE_POINT
 } lightTypes;
@@ -46,7 +60,7 @@ typedef struct{
 } LightSource;
 
 typedef struct{
-	SDL_Texture *image;
+	TextureRef *texture;
 	void *rastTex;
 	Uint16 startChar; //32 starts at the space glyth
 	SDL_Point glyphSize;
@@ -55,19 +69,6 @@ typedef struct{
 	Uint16 columns;
 } Font;
 
-typedef struct Texture{
-	Uint32* pixels;
-	Uint16 width, height;
-} Texture;
-
-typedef struct TextureRef{
-	SDL_Texture *image;
-	char* filePath;
-	
-	struct TextureRef *next; //for cleaning up and checking if texture already exists
-} TextureRef;
-
-SDL_Texture *newTexture(char* path, SDL_ScaleMode scaleMode);
 void drawText(SDL_Renderer *renderLoc, Font *textFont, char* text, short posX, short posY, float size, SDL_FColor colour);
 void setDrawColour(SDL_Renderer *render, CharColour colour);
 SDL_FColor clampColour(SDL_FColor colour);
@@ -79,8 +80,7 @@ Vector3 projToScreen(Vector3 pos);
 SDL_FColor ConvertSDLColour(CharColour colour);
 CharColour ConvertColour(CharColour colour, Uint32 mode);
 
-void drawMesh(Mesh* mesh, mat4 transform, SDL_FColor colour, SDL_Texture* texture, bool shaded);
-void drawBillboard(SDL_Texture *texture, SDL_FRect rect, Vector3 pos, SDL_FPoint offset, SDL_FPoint scale);
+void drawBillboard(TextureRef *texture, SDL_FRect rect, Vector3 pos, SDL_FPoint offset, SDL_FPoint scale);
 
 Mesh* genTorusMesh(float outerRad, float innerRad, Uint16 ringRes, Uint16 ringCount);
 Mesh* genCylinderMesh(float btmRad, float topRad, float length, int res);

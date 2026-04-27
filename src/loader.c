@@ -9,10 +9,82 @@
 #include "opengl.h"
 
 typedef struct {
-    int v;
-    int vt;
-    int vn;
+	int v;
+	int vt;
+	int vn;
 } FaceIndex;
+
+extern SDL_Renderer* renderer;
+SDL_Texture *newTexture(char* path, SDL_ScaleMode scaleMode){
+	SDL_Texture *texture = IMG_LoadTexture(renderer, path);
+	if(texture == NULL){
+		printf("Issue with loading texture %s!\n", path);
+		return NULL;
+	}
+	SDL_SetTextureScaleMode(texture, scaleMode);
+	return texture;
+}
+
+Texture* newRasterTexture(Uint16 width, Uint16 height){
+	Texture* newTexture = malloc(sizeof(Texture));
+	if(!newTexture){
+		printf("Failed to generate texture of size %dx%d\n", width, height);
+		return NULL;
+	}
+	newTexture->width = width; newTexture->height = height;
+	newTexture->pixels = malloc(width * height * sizeof(Uint32));
+	printf("Succesfully made texture of size %dx%d\n", width, height);
+	return newTexture;
+}
+
+bool freeRasterTexture(Texture* tex){
+	if(!tex) return 1;
+	free(tex->pixels); free(tex);
+	return 0;
+}
+
+Texture* loadRasterTexture(char* path){
+	SDL_Surface* newSurface = IMG_Load(path); if(!newSurface) return NULL;
+	Texture* newTex = newRasterTexture(newSurface->w, newSurface->h);
+
+	//printf("Pixel format of image %s is 0x%x\n", path, newSurface->format);
+	memcpy(newTex->pixels, newSurface->pixels, newSurface->w*newSurface->h * sizeof(Uint32)); 
+
+	SDL_DestroySurface(newSurface);
+	return newTex;
+}
+
+TextureRef* loadTexture(char* path){
+	TextureRef* texItem = malloc(sizeof(TextureRef));
+	texItem->filePath = strdup(path);
+
+	SDL_Texture* image = newTexture(path, SDL_SCALEMODE_LINEAR);
+	if(image)texItem->image = image;
+
+	Texture* texture = loadRasterTexture(path);
+	if(!texture) return texItem;
+	texItem->texture = texture;
+
+	glGenTextures(1, &texItem->glLoc);
+	glActiveTexture(GL_TEXTURE0);
+	glBindTexture(GL_TEXTURE_2D, texItem->glLoc);
+
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, texture->width, texture->height, 0, GL_RGBA, GL_UNSIGNED_BYTE, texture->pixels);
+	glGenerateMipmap(GL_TEXTURE_2D);
+
+	glBindTexture(GL_TEXTURE_2D, 0);
+
+	return texItem;
+}
+
+void freeTexture(TextureRef* tex){
+	if(tex->image)SDL_DestroyTexture(tex->image);
+	if(tex->texture)freeRasterTexture(tex->texture);
+	if(tex->glLoc)glDeleteTextures(1, &tex->glLoc);
+}
 
 static void objCount(const char *path, Uint32 *out_v, Uint32 *out_vt, Uint32 *out_vn, Uint32 *out_faces) {
     FILE *f = fopen(path, "r");

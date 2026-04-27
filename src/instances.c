@@ -15,6 +15,7 @@
 #include "loader.h"
 #include "entities.h"
 #include "physics.h"
+#include "opengl.h"
 
 extern SDL_Renderer *renderer;
 extern SDL_Texture *fontTex;
@@ -65,7 +66,7 @@ void drawObjects(DataObj* item, int nodeDepth, int *idCount){
 	item->classData->draw(item);
 	if(item == focusObject && client.studio){
 		doZBuffer = false;
-		drawMesh(cubePrim, item->transform, (SDL_FColor){1, 1, 1, fabs(SDL_sin(timer * 2)) * 0.25}, NULL, false);
+		drawMeshOpenGL(cubePrim, item->transform, (SDL_FColor){1, 1, 1, fabs(SDL_sin(timer * 2)) * 0.25}, NULL);
 		doZBuffer = true;
 	}
 	free(item->transform);
