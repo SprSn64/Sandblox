@@ -85,10 +85,6 @@ TextureRef *boneTex = NULL; TextureRef *cursorTex = NULL; TextureRef *skyTex = N
 Mesh *playerMesh = NULL; Mesh *boneMesh = NULL; Mesh *skyboxMesh = NULL; Mesh *sunMesh = NULL;
 Mesh *planePrim = NULL; Mesh *cubePrim = NULL; Mesh *spherePrim = NULL;
 
-Texture* glTestTex;
-Uint32 glTestTexID;
-Texture* skyRastTex;
-
 Skeleton* testRig = NULL;
 
 ButtonMap keyList[KEYBIND_MAX];
@@ -209,8 +205,6 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[]){
 	cubePrim = loadMeshFromObj("assets/models/primitives/cube.obj");
 	spherePrim = loadMeshFromObj("assets/models/primitives/sphere.obj");
 
-	skyRastTex = loadRasterTexture("assets/textures/skybox.png");
-
 	testRig = genTestRig();
 	
 	//if(glEnabled)
@@ -254,24 +248,12 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[]){
 	//glUniform1i(glLocs[GLVAL_TEXTURE0], 0);
 	
 	SDL_GL_SetSwapInterval(1);
-	glEnable(GL_DEPTH_TEST);
+	glEnable(GL_DEPTH_TEST); 
 	glEnable(GL_CULL_FACE); glCullFace(GL_BACK); glFrontFace(GL_CCW);
 	glClearColor(skyboxColour.r, skyboxColour.g, skyboxColour.b, 1);
+	//glEnable(GL_BLEND); glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
 	glUniformMatrix4fv(glLocs[GLVAL_WORLDMATRIX], 1, GL_FALSE, defaultMatrix);
-
-	glTestTex = loadRasterTexture("assets/textures/cows.png");
-	glGenTextures(1, &glTestTexID);
-	glActiveTexture(GL_TEXTURE0);
-	glBindTexture(GL_TEXTURE_2D, glTestTexID);
-
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-
-	setGlTexture(glTestTex);
-	glGenerateMipmap(GL_TEXTURE_2D);
-
-	glBindTexture(GL_TEXTURE_2D, 0);
 
 	keyList[KEYBIND_W].code = SDL_SCANCODE_W; keyList[KEYBIND_S].code = SDL_SCANCODE_S; keyList[KEYBIND_A].code = SDL_SCANCODE_A; keyList[KEYBIND_D].code = SDL_SCANCODE_D;
 	keyList[KEYBIND_SPACE].code = SDL_SCANCODE_SPACE; keyList[KEYBIND_SHIFT].code = SDL_SCANCODE_LSHIFT;
@@ -349,6 +331,7 @@ SDL_AppResult SDL_AppEvent(void *appstate, SDL_Event *event){
 extern bool studioFocus;
 extern SDL_Point studioWindowScale;
 extern void studioCameraUpdate(Camera* cam);
+void setupGlUniforms();
 
 SDL_AppResult SDL_AppIterate(void *appstate){
 	(void)appstate;
@@ -429,19 +412,7 @@ SDL_AppResult SDL_AppIterate(void *appstate){
 	glViewport(0, 0, windowScale.x, windowScale.y);
 
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	glUseProgram(mainShader);
-
-	float resFloat[2] = {windowScale.x, windowScale.y};
-	glUniform2fv(glLocs[GLVAL_RESOLUTION], 1, resFloat);
-
-	glUniform3fv(glLocs[GLVAL_LIGHTNORM], 1, (float*)&lightNormal);
-	Vector3 cameraNormal = rotToNorm3(client.gameWorld->currCamera->rot);
-	glUniform3fv(glLocs[GLVAL_CAMERANORM], 1, (float*)&cameraNormal);
-
-	glUniform4fv(glLocs[GLVAL_LIGHTCOLOUR], 1, (float*)&lightColour);
-	glUniform4fv(glLocs[GLVAL_AMBCOLOUR], 1, (float*)&lightAmbient);
-
-	glBindTexture(GL_TEXTURE_2D, glTestTexID);
+	//glUseProgram(mainShader);
 
 	//drawTexture(displayTex, testTex, &(SDL_Rect){0, 0, testTex->width, testTex->height}, &(SDL_Rect){0, 0, 320, 240}, WHITE);
 	//drawHamLine(displayTex, (SDL_Point){160, 120}, (SDL_Point){(1 + sin(timer)) * 160, (1 + cos(timer)) * 120}, 0xFF0000FF);
@@ -465,14 +436,11 @@ SDL_AppResult SDL_AppIterate(void *appstate){
 
 	currentCamera.proj = projMatrix(currentCamera.fov, (float)windowScale.x/windowScale.y, 0.1, 2048);
 
-	glUniformMatrix4fv(glLocs[GLVAL_PROJMATRIX], 1, GL_FALSE, currentCamera.proj);
-	glUniformMatrix4fv(glLocs[GLVAL_VIEWMATRIX], 1, GL_FALSE, currentCamera.transform);
-
 	if(client.studio && focusObject)
 		updateStudioGimbles();
 
 	setGlValue(GL_DEPTH_TEST, false);
-	//setGlShader(flatShader);
+	setGlShader(flatShader); setupGlUniforms();
 
 		skyboxMatrix = translateMatrix(defaultMatrix, currentCamera.pos);
 		drawMeshOpenGL(skyboxMesh, skyboxMatrix, (SDL_FColor){1,1,1,1}, skyTex);
@@ -482,8 +450,12 @@ SDL_AppResult SDL_AppIterate(void *appstate){
 		drawMeshOpenGL(sunMesh, sunMatrix, lightColour, sunTex);
 		free(sunMatrix);
 
-	//setGlShader(mainShader);
+	setGlShader(mainShader); setupGlUniforms();
 	setGlValue(GL_DEPTH_TEST, true);
+
+	Uint32 glError = glGetError();
+	if(glError)
+		printf("GL ERROR: %d\n", glError);
 	
 	//drawCube((Vector3){(2 + SDL_cos(timer)) / -2, SDL_sin(timer) + 1, (2 + SDL_cos(timer)) / -2}, (Vector3){2 + SDL_cos(timer), SDL_sin(timer) + 1, 2 + SDL_cos(timer)}, (SDL_FColor){0.6, 0.8, 1, 1});
 	//drawCube((Vector3){SDL_sin(timer) * 2 - 0.5, 1, SDL_cos(timer) * 2 - 0.5}, (Vector3){1, 1, 1}, (SDL_FColor){1, 0.2, 0.3, 1});
@@ -537,9 +509,8 @@ void SDL_AppQuit(void *appstate, SDL_AppResult result){
 
 	free(depthBuffer); freeRasterTexture(displayTex); freeRasterTexture(rastFontTex);
 
-	glDeleteProgram(mainShader);
+	glDeleteProgram(mainShader); glDeleteProgram(flatShader);
 	glDeleteBuffers(1, &VAO); glDeleteBuffers(1, &VBO); glDeleteBuffers(1, &EBO);
-	glDeleteTextures(1, &glTestTexID);
 	glDeleteTextures(1, &glBlankTex);
 }
 
@@ -556,4 +527,18 @@ void HandleKeyInput(){
 			}
 		}else keyList[i].pressCheck = false;
 	}
+}
+
+void setupGlUniforms(){
+	glUniformMatrix4fv(glLocs[GLVAL_PROJMATRIX], 1, GL_FALSE, currentCamera.proj);
+	glUniformMatrix4fv(glLocs[GLVAL_VIEWMATRIX], 1, GL_FALSE, currentCamera.transform);
+	float resFloat[2] = {windowScale.x, windowScale.y};
+	glUniform2fv(glLocs[GLVAL_RESOLUTION], 1, resFloat);
+
+	glUniform3fv(glLocs[GLVAL_LIGHTNORM], 1, (float*)&lightNormal);
+	Vector3 cameraNormal = rotToNorm3(client.gameWorld->currCamera->rot);
+	glUniform3fv(glLocs[GLVAL_CAMERANORM], 1, (float*)&cameraNormal);
+
+	glUniform4fv(glLocs[GLVAL_LIGHTCOLOUR], 1, (float*)&lightColour);
+	glUniform4fv(glLocs[GLVAL_AMBCOLOUR], 1, (float*)&lightAmbient);
 }

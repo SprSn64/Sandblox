@@ -35,9 +35,12 @@ MapEntry* addMapEntry(char* path, char* name){
 void sortMapItems(MapEntry* head){
 	MapEntry* currItem = head;
 	while(currItem->next){
-		if(strcmp(currItem->name, currItem->next->name) < 0){
-			//swap the items
-		}
+		/*MapEntry* itemA = currItem;
+		MapEntry* itemB = currItem->next;
+		if(strcmp(itemA->name, itemB->name) > 0){
+			itemA->next = itemB->next;
+			itemB->next = itemA;
+		}*/
 		currItem = currItem->next;
 	}
 }

@@ -73,10 +73,6 @@ void drawText(SDL_Renderer *renderLoc, Font *textFont, char* text, short posX, s
 void setDrawColour(SDL_Renderer *render, CharColour colour);
 SDL_FColor clampColour(SDL_FColor colour);
 
-Vector3 worldToCamera(Vector3 pos);
-Vector3 viewProj(Vector3 pos);
-Vector3 projToScreen(Vector3 pos);
-
 SDL_FColor ConvertSDLColour(CharColour colour);
 CharColour ConvertColour(CharColour colour, Uint32 mode);
 

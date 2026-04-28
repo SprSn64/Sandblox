@@ -32,9 +32,9 @@ extern Mesh *translateGimbleMesh;
 extern Uint32 toolMode;
 extern DataObj *focusObject;
 
+extern SDL_FPoint windowScale;
 extern SDL_FPoint mousePos;
 extern ButtonMap mouseButtons[];
-extern float renderScale;
 
 Vector3 projectFlip(Vector3 proj){
 	float flipMult = 1 - 2 * (proj.z >= 0);
@@ -58,6 +58,7 @@ float ogLerp = 0;
 bool lerpSet = false;
 float snapUnit = 1;
 void translateGimbleUpdate(DataObj* item){
+	float renderScale = windowScale.x / windowScale.y;
 	//code spaghetti.... yum!
 	Vector3 xPos[2] = {vec3Add(item->pos, (Vector3){-1.5, -item->scale.y / 2, item->scale.z / 2}), vec3Add(item->pos, (Vector3){item->scale.x + 1.5, -item->scale.y / 2, item->scale.z / 2})};
 	Vector3 xProj[2] = {quickProj(xPos[0]), quickProj(xPos[1])};
@@ -152,6 +153,7 @@ void drawTranslateGimble(DataObj* item){
 bool scaleFlip = false;
 Vector3 ogScale;
 void scaleGimbleUpdate(DataObj* item){
+	float renderScale = windowScale.x / windowScale.y;
 	//code spaghetti.... yum! 2
 	Vector3 xPos[2] = {vec3Add(item->pos, (Vector3){-1.5, -item->scale.y / 2, item->scale.z / 2}), vec3Add(item->pos, (Vector3){item->scale.x + 1.5, -item->scale.y / 2, item->scale.z / 2})};
 	Vector3 xProj[2] = {quickProj(xPos[0]), quickProj(xPos[1])};

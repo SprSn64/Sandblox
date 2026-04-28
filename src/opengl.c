@@ -33,11 +33,6 @@ extern Uint32 mainShader; extern Uint32 flatShader;
 const char *vertexShaderSource = NULL;
 const char *fragmentShaderSource = NULL;
 
-extern Texture* glTestTex;
-extern Uint32 glTestTexID;
-
-extern Texture* skyRastTex;
-
 SDL_Window *glWindow = NULL;
 SDL_Point glWindowScale = {640, 480};
 
@@ -78,6 +73,11 @@ Uint32 loadShader(char* vertPath, char* fragPath){
 	glLinkProgram(shaderProg);
 
 	glDeleteShader(vertShader); glDeleteShader(fragShader);
+
+	glValidateProgram(shaderProg);
+	int validated; glGetProgramiv(shaderProg,  GL_VALIDATE_STATUS, &validated);
+	if(!validated)
+		printf("Shader %d failed to compile...\n", shaderProg);
 	
 	return shaderProg;
 }
@@ -162,17 +162,7 @@ bool initOpenGL(){
 
 	glUniformMatrix4fv(glLocs[GLVAL_WORLDMATRIX], 1, GL_FALSE, defaultMatrix);
 
-	glTestTex = loadRasterTexture("assets/textures/cows.png");
-	glGenTextures(1, &glTestTexID);
 	glActiveTexture(GL_TEXTURE0);
-	glBindTexture(GL_TEXTURE_2D, glTestTexID);
-
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-	setGlTexture(glTestTex);
-	glGenerateMipmap(GL_TEXTURE_2D);
-
-	glBindTexture(GL_TEXTURE_2D, 0);
 	
 	return 1;
 }
@@ -203,8 +193,6 @@ void updateOpenGL(){
 
 	glUniform4fv(glLocs[GLVAL_LIGHTCOLOUR], 1, (float*)&lightColour);
 	glUniform4fv(glLocs[GLVAL_AMBCOLOUR], 1, (float*)&lightAmbient);
-
-	glBindTexture(GL_TEXTURE_2D, glTestTexID);
 	
 	glUniformMatrix4fv(glLocs[GLVAL_PROJMATRIX], 1, GL_FALSE, currentCamera.proj);
 	glUniformMatrix4fv(glLocs[GLVAL_VIEWMATRIX], 1, GL_FALSE, currentCamera.transform);
@@ -218,7 +206,6 @@ void endUpdateOpenGL(){
 void cleanupOpenGL(){
 	glDeleteProgram(mainShader);
 	glDeleteBuffers(1, &VAO); glDeleteBuffers(1, &VBO); glDeleteBuffers(1, &EBO);
-	glDeleteTextures(1, &glTestTexID);
 }
 
 extern Uint32 glBlankTex;
