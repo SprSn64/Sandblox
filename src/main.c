@@ -499,15 +499,10 @@ void SDL_AppQuit(void *appstate, SDL_AppResult result){
 	(void)appstate; (void)result;
 	cleanupObjects(client.gameWorld->headObj);
 	studioCleanup();
-	freeTexture(fontTex); freeTexture(playerTex); freeTexture(homerTex); freeTexture(cursorTex); freeTexture(skyTex);
-	
-	free(defaultMatrix);
-	free(playerMesh); free(skyboxMesh);
-	free(planePrim); free(cubePrim); free(spherePrim);
-
-	free(depthBuffer); freeRasterTexture(displayTex); freeRasterTexture(rastFontTex);
-
 	cleanupTextures(false); cleanupMeshes(false);
+
+	free(defaultMatrix);
+	//free(depthBuffer); freeRasterTexture(displayTex); freeRasterTexture(rastFontTex);
 
 	glDeleteProgram(mainShader); glDeleteProgram(flatShader);
 	glDeleteBuffers(1, &VAO); glDeleteBuffers(1, &VBO); glDeleteBuffers(1, &EBO);
