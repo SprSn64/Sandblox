@@ -155,11 +155,11 @@ DataObj* createObjectFromJSON(cJSON* obj, DataObj* parent) {
     if(meshFile && cJSON_IsString(meshFile)) {
         if(meshFile->valuestring[0] == '.' && meshFile->valuestring[1] == '/'){
             char* meshString = joinDirectories(currPath, meshFile->valuestring);
-            mesh = loadMeshFromObj(meshString);
+            mesh = loadMeshFromObj(meshString, false);
             free(meshString);
             sprintf(mesh->filePath, "%s", meshFile->valuestring);
         }else
-            mesh = loadMeshFromObj(meshFile->valuestring);
+            mesh = loadMeshFromObj(meshFile->valuestring, false);
         if(!mesh)
             printf("Failed to load mesh from file: %s\n", meshFile->valuestring);
     } else if(meshType && meshParams && cJSON_IsString(meshType)) {
@@ -296,7 +296,7 @@ int loadGameFile(const char* filename) {
     loadedPlayer = NULL;
     
     client.pause = true;
-    softCleanupTextures();
+    cleanupTextures(true); cleanupMeshes(true);
     lesserCleanupObjects(client.gameWorld->headObj);
     
     int objectCount = cJSON_GetArraySize(objects);

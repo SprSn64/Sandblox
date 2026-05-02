@@ -97,8 +97,8 @@ void initStudio(){
 	classIconTex = IMG_LoadTexture(studioRenderer, "assets/textures/studio/classicons.png");
 	stuButtonTex = IMG_LoadTexture(studioRenderer, "assets/textures/studio/studiobuttons.png");
 	colourPickTex = IMG_LoadTexture(studioRenderer, "assets/textures/studio/colourpicker.png");
-	rotateGimbleMesh = genTorusMesh(2, 0.1, 3, 24);
-	translateGimbleMesh = loadMeshFromObj("assets/models/arrowwidget.obj");
+	rotateGimbleMesh = genTorusMesh(2, 0.1, 3, 24); rotateGimbleMesh->persistent = true;
+	translateGimbleMesh = loadMeshFromObj("assets/models/arrowwidget.obj", true);
 
 	studioFontTex = IMG_LoadTexture(studioRenderer, "assets/textures/font.png");
 	studioFont = (Font){studioFontTex, NULL, 32, (SDL_Point){32, 32}, (SDL_Point){8, 8}, (SDL_FPoint){6, 0}, 16};

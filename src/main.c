@@ -201,14 +201,14 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[]){
 	rastFontTex = loadRasterTexture("assets/textures/font.png");
 	defaultFont = (Font){fontTex, rastFontTex, 32, (SDL_Point){32, 32}, (SDL_Point){8, 8}, (SDL_FPoint){6, 0}, 16};
 
-	playerMesh = loadMeshFromObj("assets/models/player.obj"); 
-	boneMesh = loadMeshFromObj("assets/models/bone.obj"); 
-	skyboxMesh = loadMeshFromObj("assets/models/advskybox.obj");
-	sunMesh = loadMeshFromObj("assets/models/skyboxsun.obj");
+	playerMesh = loadMeshFromObj("assets/models/player.obj", true); 
+	boneMesh = loadMeshFromObj("assets/models/bone.obj", true); 
+	skyboxMesh = loadMeshFromObj("assets/models/advskybox.obj", true);
+	sunMesh = loadMeshFromObj("assets/models/skyboxsun.obj", true);
 	
 	planePrim = genPlaneMesh(1, 1, 1, 1);
-	cubePrim = loadMeshFromObj("assets/models/primitives/cube.obj");
-	spherePrim = loadMeshFromObj("assets/models/primitives/sphere.obj");
+	cubePrim = loadMeshFromObj("assets/models/primitives/cube.obj", true);
+	spherePrim = loadMeshFromObj("assets/models/primitives/sphere.obj", true);
 
 	testRig = genTestRig();
 	
@@ -507,7 +507,7 @@ void SDL_AppQuit(void *appstate, SDL_AppResult result){
 
 	free(depthBuffer); freeRasterTexture(displayTex); freeRasterTexture(rastFontTex);
 
-	cleanupTextures();
+	cleanupTextures(false); cleanupMeshes(false);
 
 	glDeleteProgram(mainShader); glDeleteProgram(flatShader);
 	glDeleteBuffers(1, &VAO); glDeleteBuffers(1, &VBO); glDeleteBuffers(1, &EBO);

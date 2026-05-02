@@ -111,7 +111,7 @@ Mesh* genTorusMesh(float outerRad, float innerRad, Uint16 ringRes, Uint16 ringCo
 		newFaces[(newI + 1)] = (MeshFace){(i + ringRes) % vertCount, (i+1) % vertCount, (i+1 + ringRes) % vertCount};
 	}
 	
-	Mesh* newMesh = malloc(sizeof(Mesh));
+	Mesh* newMesh = malloc(sizeof(Mesh)); newMesh->persistent = false;
 	newMesh->vertCount = vertCount; newMesh->verts = newVerts; newMesh->faceCount = faceCount; newMesh->faces = newFaces; 
 	newMesh->meshType = MESHTYPE_TORUS;
 	return newMesh;
@@ -154,7 +154,7 @@ Mesh* genCylinderMesh(float btmRad, float topRad, float length, int res){
 		newFaces[newI + res - 2] = (MeshFace){res, i + res, res + (i+1) % res};
 	}
 	
-	Mesh* newMesh = malloc(sizeof(Mesh));
+	Mesh* newMesh = malloc(sizeof(Mesh)); newMesh->persistent = false;
 	newMesh->vertCount = vertCount; newMesh->verts = newVerts; newMesh->faceCount = faceCount; newMesh->faces = newFaces; 
 	newMesh->meshType = MESHTYPE_CYLINDER;
 	return newMesh;
@@ -185,7 +185,7 @@ Mesh* genPlaneMesh(float xScale, float yScale, Uint16 xRes, Uint16 yRes){
 		newFaces[(newI + 1)] = (MeshFace){i + xRes + 1, i+1, i + 2 + xRes};
 	}
 	
-	Mesh* newMesh = malloc(sizeof(Mesh));
+	Mesh* newMesh = malloc(sizeof(Mesh)); newMesh->persistent = false;
 	newMesh->vertCount = vertCount; newMesh->verts = newVerts; newMesh->faceCount = faceCount; newMesh->faces = newFaces; 
 	newMesh->meshType = MESHTYPE_PLANE;
 	return newMesh;

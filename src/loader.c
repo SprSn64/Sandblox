@@ -15,6 +15,7 @@ typedef struct {
 } FaceIndex;
 
 TextureRef* headTexture = NULL;
+Mesh* headMesh = NULL;
 
 extern SDL_Renderer* renderer;
 SDL_Texture *newTexture(char* path, SDL_ScaleMode scaleMode){
@@ -56,7 +57,20 @@ Texture* loadRasterTexture(char* path){
 	return newTex;
 }
 
+TextureRef* textureExists(char* path){
+	TextureRef *loopItem = headTexture;
+	while(loopItem){
+		if(loopItem->filePath == path)
+			return loopItem;
+		loopItem = loopItem->next;
+	}
+	return NULL;
+}
+
 TextureRef* loadTexture(char* path, bool persistent){
+	TextureRef* texCheck = textureExists(path);
+	if(texCheck) return texCheck;
+
 	TextureRef* texItem = malloc(sizeof(TextureRef));
 	if(!texItem)
 		return NULL;
@@ -108,29 +122,33 @@ void freeTexture(TextureRef* tex){
 	if(tex->image)SDL_DestroyTexture(tex->image);
 	if(tex->texture)freeRasterTexture(tex->texture);
 	if(tex->glLoc)glDeleteTextures(1, &tex->glLoc);
+	if(tex->filePath)free(tex->filePath);
+
+	free(tex);
 }
 
-void cleanupTextures(){
+void cleanupTextures(bool soft){
 	TextureRef* currItem = headTexture;
 	while (currItem) {
+		if(soft && currItem->persistent){
+			currItem = currItem->next;
+			continue;
+		}
+
 		TextureRef *next = currItem->next;
 		//freeTexture(currItem); //double free? what?
 		currItem = next;
 	}
 }
 
-void softCleanupTextures(){
-	TextureRef* currItem = headTexture;
-	while (currItem) {
-		if(currItem->persistent){
-			currItem = currItem->next;
-			continue;
-		}
-
-		TextureRef *next = currItem->next;
-		freeTexture(currItem);
-		currItem = next;
+Mesh* meshExists(char* path){
+	Mesh *loopItem = headMesh;
+	while(loopItem){
+		if(loopItem->filePath == path)
+			return loopItem;
+		loopItem = loopItem->next;
 	}
+	return NULL;
 }
 
 static void objCount(const char *path, Uint32 *out_v, Uint32 *out_vt, Uint32 *out_vn, Uint32 *out_faces) {
@@ -188,7 +206,10 @@ static FaceIndex parseFaceToken(const char *tok) {
     return fi;
 }
 
-Mesh *loadMeshFromObj(char *path) {
+Mesh* loadMeshFromObj(char *path, bool persistent) {
+    Mesh* checkMesh = meshExists(path);
+    if(checkMesh) return checkMesh;
+
     Uint32 vcount = 0, vtcount = 0, vncount = 0, tricount = 0;
     objCount(path, &vcount, &vtcount, &vncount, &tricount);
 
@@ -268,8 +289,41 @@ Mesh *loadMeshFromObj(char *path) {
     free(normals);
 
     openGlGenBuffers(mesh);
+    mesh->persistent = persistent;
+
+    if(!headMesh){
+        headMesh = mesh;
+        return mesh;
+    }
+
+    Mesh *loopItem = headMesh;
+    while(loopItem->next){
+        loopItem = loopItem->next;
+    }
+    loopItem->next = mesh;
 
     return mesh;
+}
+
+void freeMesh(Mesh* mesh){
+	if(!mesh) return;
+	free(mesh->verts); free(mesh->faces);
+	if(mesh->filePath) free(mesh->filePath);
+
+	free(mesh);
+}
+
+void cleanupMeshes(bool soft){
+	Mesh* currItem = headMesh;
+	while (currItem) {
+		if(soft && currItem->persistent){
+			currItem = currItem->next;
+			continue;
+		}
+		Mesh *next = currItem->next;
+		//freeMesh(currItem); still a double free?
+		currItem = next;
+	}
 }
 
 char* loadTextFile(char* dir){ //code salvaged from first attempt

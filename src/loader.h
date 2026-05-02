@@ -12,10 +12,11 @@ bool freeRasterTexture(Texture* tex);
 TextureRef* loadTexture(char* path, bool persistent);
 void freeTexture(TextureRef* tex);
 void updateGlTexture(TextureRef* tex);
-void cleanupTextures();
-void softCleanupTextures();
+void cleanupTextures(bool soft);
 
-Mesh *loadMeshFromObj(char* path);
+Mesh *loadMeshFromObj(char* path, bool persistent);
+void cleanupMeshes(bool soft);
+
 char* loadTextFile(char* dir);
 
 char* joinDirectories(char* dirA, char* dirB);

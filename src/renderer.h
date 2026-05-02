@@ -22,7 +22,7 @@ typedef enum meshTypes{
 	MESHTYPE_PLANE, MESHTYPE_SPHERE, MESHTYPE_TORUS, MESHTYPE_CYLINDER 
 } meshTypes;
 
-typedef struct{
+typedef struct Mesh{
 	Uint32 vertCount;
 	MeshVert *verts;
 	Uint32 faceCount;
@@ -32,6 +32,8 @@ typedef struct{
 
 	Uint32 meshType;
 	char* filePath;
+	struct Mesh *next;
+	bool persistent;
 } Mesh;
 
 typedef struct Texture{
