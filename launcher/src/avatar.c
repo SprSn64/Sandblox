@@ -43,7 +43,7 @@ AvatarItem* loadHatJson(cJSON* obj){
 
 	SDL_Texture* tex;
 	if(graphic && cJSON_IsString(graphic)){
-		tex = newTexture(graphic->valuestring, SDL_SCALEMODE_LINEAR); //segment fault?
+		tex = newTexture(graphic->valuestring, SDL_SCALEMODE_LINEAR);
 		if(!tex)
 			printf("Failed to load texture from file: %s\n", graphic->valuestring);
 	}

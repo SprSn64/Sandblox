@@ -175,10 +175,10 @@ DataObj* createObjectFromJSON(cJSON* obj, DataObj* parent) {
     if(texture && cJSON_IsString(texture)) {
         if(texture->valuestring[0] == '.' && texture->valuestring[1] == '/'){
             char* texString = joinDirectories(currPath, texture->valuestring);
-            tex = loadTexture(texString);
+            tex = loadTexture(texString, false);
             free(texString);
         }else 
-            tex = loadTexture(texture->valuestring);
+            tex = loadTexture(texture->valuestring, false);
 	  
         if(!tex)
             printf("Failed to load texture from file: %s\n", texture->valuestring);
@@ -296,6 +296,7 @@ int loadGameFile(const char* filename) {
     loadedPlayer = NULL;
     
     client.pause = true;
+    softCleanupTextures();
     lesserCleanupObjects(client.gameWorld->headObj);
     
     int objectCount = cJSON_GetArraySize(objects);

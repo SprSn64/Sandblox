@@ -14,11 +14,13 @@ typedef struct {
 	int vn;
 } FaceIndex;
 
+TextureRef* headTexture = NULL;
+
 extern SDL_Renderer* renderer;
 SDL_Texture *newTexture(char* path, SDL_ScaleMode scaleMode){
 	SDL_Texture *texture = IMG_LoadTexture(renderer, path);
 	if(texture == NULL){
-		printf("Issue with loading texture %s!\n", path);
+		printf("Issue with loading SDL texture %s!\n", path);
 		return NULL;
 	}
 	SDL_SetTextureScaleMode(texture, scaleMode);
@@ -54,9 +56,13 @@ Texture* loadRasterTexture(char* path){
 	return newTex;
 }
 
-TextureRef* loadTexture(char* path){
+TextureRef* loadTexture(char* path, bool persistent){
 	TextureRef* texItem = malloc(sizeof(TextureRef));
+	if(!texItem)
+		return NULL;
 	texItem->filePath = strdup(path);
+	texItem->next = NULL;
+	texItem->persistent = persistent;
 
 	SDL_Texture* image = newTexture(path, SDL_SCALEMODE_LINEAR);
 	if(image)texItem->image = image;
@@ -77,14 +83,54 @@ TextureRef* loadTexture(char* path){
 
 	glBindTexture(GL_TEXTURE_2D, 0);
 
+	if(!headTexture){
+		headTexture = texItem;
+		return texItem;
+	}
+
+	TextureRef *loopItem = headTexture;
+	while(loopItem->next){
+		loopItem = loopItem->next;
+	}
+	loopItem->next = texItem;
+
 	return texItem;
 }
 
+void updateGlTexture(TextureRef* tex){
+	glBindTexture(GL_TEXTURE_2D, tex->glLoc);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, tex->texture->width, tex->texture->height, 0, GL_RGBA, GL_UNSIGNED_BYTE, tex->texture->pixels);
+	glBindTexture(GL_TEXTURE_2D, 0);
+}
+
 void freeTexture(TextureRef* tex){
-    if (tex == NULL) return;
+	if(!tex) return;
 	if(tex->image)SDL_DestroyTexture(tex->image);
 	if(tex->texture)freeRasterTexture(tex->texture);
 	if(tex->glLoc)glDeleteTextures(1, &tex->glLoc);
+}
+
+void cleanupTextures(){
+	TextureRef* currItem = headTexture;
+	while (currItem) {
+		TextureRef *next = currItem->next;
+		//freeTexture(currItem); //double free? what?
+		currItem = next;
+	}
+}
+
+void softCleanupTextures(){
+	TextureRef* currItem = headTexture;
+	while (currItem) {
+		if(currItem->persistent){
+			currItem = currItem->next;
+			continue;
+		}
+
+		TextureRef *next = currItem->next;
+		freeTexture(currItem);
+		currItem = next;
+	}
 }
 
 static void objCount(const char *path, Uint32 *out_v, Uint32 *out_vt, Uint32 *out_vn, Uint32 *out_faces) {
@@ -142,7 +188,6 @@ static FaceIndex parseFaceToken(const char *tok) {
     return fi;
 }
 
-extern bool glEnabled;
 Mesh *loadMeshFromObj(char *path) {
     Uint32 vcount = 0, vtcount = 0, vncount = 0, tricount = 0;
     objCount(path, &vcount, &vtcount, &vncount, &tricount);
@@ -262,6 +307,7 @@ char* joinDirectories(char* dirA, char* dirB){
     return output;
 }
 
+//Stupid useless code because i was foolish! and fool was i!
 extern char* clientPath;
 char* formatDirectory(char* dir){
     // "$CLIENT/assets/models/primitives/sphere.obj" -> "home/jerma985/epiccoolgames/Sandblox/assets/models/primitives/sphere.obj"

@@ -46,6 +46,7 @@ typedef struct TextureRef{
 
 	Uint32 glLoc;
 	struct TextureRef *next; //for cleaning up and checking if texture already exists
+	bool persistent;
 } TextureRef;
 
 typedef enum lightTypes{

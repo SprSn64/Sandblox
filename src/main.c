@@ -191,12 +191,12 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[]){
 	glGenerateMipmap(GL_TEXTURE_2D);
 	glBindTexture(GL_TEXTURE_2D, 0);
 
-	fontTex = loadTexture("assets/textures/font.png");
-	boneTex = loadTexture("assets/textures/bonetex.png");
-	homerTex = loadTexture("assets/textures/homer.png");
-	cursorTex = loadTexture("assets/textures/cursor.png");
-	skyTex = loadTexture("assets/textures/skybox.png");
-	sunTex = loadTexture("assets/textures/sunflare.png");
+	fontTex = loadTexture("assets/textures/font.png", true);
+	boneTex = loadTexture("assets/textures/bonetex.png", true);
+	homerTex = loadTexture("assets/textures/homer.png", true);
+	cursorTex = loadTexture("assets/textures/cursor.png", true);
+	skyTex = loadTexture("assets/textures/skybox.png", true);
+	sunTex = loadTexture("assets/textures/sunflare.png", true);
 
 	rastFontTex = loadRasterTexture("assets/textures/font.png");
 	defaultFont = (Font){fontTex, rastFontTex, 32, (SDL_Point){32, 32}, (SDL_Point){8, 8}, (SDL_FPoint){6, 0}, 16};
@@ -506,6 +506,8 @@ void SDL_AppQuit(void *appstate, SDL_AppResult result){
 	free(planePrim); free(cubePrim); free(spherePrim);
 
 	free(depthBuffer); freeRasterTexture(displayTex); freeRasterTexture(rastFontTex);
+
+	cleanupTextures();
 
 	glDeleteProgram(mainShader); glDeleteProgram(flatShader);
 	glDeleteBuffers(1, &VAO); glDeleteBuffers(1, &VBO); glDeleteBuffers(1, &EBO);
