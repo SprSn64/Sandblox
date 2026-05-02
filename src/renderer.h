@@ -32,6 +32,7 @@ typedef struct Mesh{
 
 	Uint32 meshType;
 	char* filePath;
+	struct Mesh *prev;
 	struct Mesh *next;
 	bool persistent;
 } Mesh;
@@ -47,6 +48,7 @@ typedef struct TextureRef{
 	char* filePath;
 
 	Uint32 glLoc;
+	struct TextureRef *prev;
 	struct TextureRef *next; //for cleaning up and checking if texture already exists
 	bool persistent;
 } TextureRef;

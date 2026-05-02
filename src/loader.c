@@ -75,7 +75,7 @@ TextureRef* loadTexture(char* path, bool persistent){
 	if(!texItem)
 		return NULL;
 	texItem->filePath = strdup(path);
-	texItem->next = NULL;
+	texItem->prev = NULL; texItem->next = NULL;
 	texItem->persistent = persistent;
 
 	SDL_Texture* image = newTexture(path, SDL_SCALEMODE_LINEAR);
@@ -106,6 +106,7 @@ TextureRef* loadTexture(char* path, bool persistent){
 	while(loopItem->next){
 		loopItem = loopItem->next;
 	}
+	texItem->prev = loopItem;
 	loopItem->next = texItem;
 
 	return texItem;
@@ -124,6 +125,8 @@ void freeTexture(TextureRef* tex){
 	if(tex->glLoc)glDeleteTextures(1, &tex->glLoc);
 	if(tex->filePath)free(tex->filePath);
 
+	tex->next->prev = tex->prev;
+	tex->prev->next = tex->next;
 	free(tex);
 }
 
@@ -216,9 +219,8 @@ Mesh* loadMeshFromObj(char *path, bool persistent) {
     FILE *f = fopen(path, "r");
     if (!f) return NULL;
 
-    Mesh *mesh = calloc(1, sizeof(Mesh));
-    mesh->vertCount = vcount;
-    mesh->faceCount = tricount;
+    Mesh *mesh = calloc(1, sizeof(Mesh)); mesh->prev = NULL; mesh->next = NULL;
+    mesh->vertCount = vcount; mesh->faceCount = tricount;
     mesh->verts = calloc(vcount, sizeof(MeshVert));
     mesh->faces = calloc(tricount, sizeof(MeshFace));
     
@@ -300,6 +302,7 @@ Mesh* loadMeshFromObj(char *path, bool persistent) {
     while(loopItem->next){
         loopItem = loopItem->next;
     }
+    mesh->prev = loopItem;
     loopItem->next = mesh;
 
     return mesh;
@@ -310,6 +313,8 @@ void freeMesh(Mesh* mesh){
 	free(mesh->verts); free(mesh->faces);
 	if(mesh->filePath) free(mesh->filePath);
 
+	mesh->next->prev = mesh->prev;
+	mesh->prev->next = mesh->next;
 	free(mesh);
 }
 
@@ -321,7 +326,7 @@ void cleanupMeshes(bool soft){
 			continue;
 		}
 		Mesh *next = currItem->next;
-		//freeMesh(currItem); still a double free?
+		//freeMesh(currItem); //still a double free?
 		currItem = next;
 	}
 }
