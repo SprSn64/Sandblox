@@ -87,7 +87,7 @@ void cleanupObjects(DataObj* item){
 		cleanupObjects(child);
 		child = next;
 	}
-	free(item);
+	if (&gameHeader != item) free(item);
 }
 
 void lesserCleanupObjects(DataObj* item){

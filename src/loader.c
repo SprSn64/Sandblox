@@ -81,6 +81,7 @@ TextureRef* loadTexture(char* path){
 }
 
 void freeTexture(TextureRef* tex){
+    if (tex == NULL) return;
 	if(tex->image)SDL_DestroyTexture(tex->image);
 	if(tex->texture)freeRasterTexture(tex->texture);
 	if(tex->glLoc)glDeleteTextures(1, &tex->glLoc);

@@ -51,7 +51,6 @@ typedef struct{
 	
 	void (*init)(DataObj*);
 	void (*update)(DataObj*);
-	// virgin sm64 geo asm vs chad sandblox per-actor draw function
 	void (*draw)(DataObj*);
 } DataType;
 
