@@ -32,5 +32,6 @@ void main(){
 	vec3 reflectSource = normalize(reflect(-normalize(lightNorm), norm));
 	float specular = pow(max(dot(cameraNorm, reflectSource), 0), 16);
 
-	FragColor = (baseColour + baseColour * ambColour + specular - specular) * lightColour;
+	//opengl wont let me remove the ambient and specular variables for some reason
+	FragColor = (baseColour + (baseColour * ambColour) * vec4(0, 0, 0, 1) + specular - specular) * lightColour;
 } 

@@ -27,6 +27,16 @@ typedef struct HistoryItem{
 	struct HistoryItem* prev;
 } HistoryItem;
 
+typedef struct StudioPanel{
+	//something defining the type or info or something idk
+	//add something else for multiple tabs on a single panel maybe
+	struct StudioPanel* childA;
+	struct StudioPanel* childB;
+
+	float split; //weight of scale ratio between childA and childB, 0.5 for right in the center
+	bool vert; //if the split is verticle (childA above childB)
+} StudioPanel;
+
 HistoryItem* addHistoryItem(Uint32 type, void** items);
 bool undoHistory(HistoryItem* item);
 

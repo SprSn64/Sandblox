@@ -48,6 +48,8 @@ Uint32 mainShader; Uint32 flatShader;
 Uint32 glVersion[2] = {0, 0};
 Uint32 glBlankTex; Uint32 blankColour = 0xFFFFFFFF;
 
+Uint32 gameBuffer; Uint32 gameBufferTex;
+
 ClientData client;
 GameWorld game;
 
@@ -178,6 +180,9 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[]){
 
 	mainShader = loadShader("assets/shaders/default.vert", "assets/shaders/default.frag");
 	flatShader = loadShader("assets/shaders/default.vert", "assets/shaders/unshaded.frag");
+
+	glGenFramebuffers(1, &gameBuffer);
+	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 	
 	glGenTextures(1, &glBlankTex);
 	glActiveTexture(GL_TEXTURE0);
@@ -246,7 +251,7 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[]){
 	printf("\n");
 
 	//glUniform1i(glLocs[GLVAL_TEXTURE0], 0);
-	
+
 	SDL_GL_SetSwapInterval(1);
 	glEnable(GL_DEPTH_TEST); 
 	glEnable(GL_CULL_FACE); glCullFace(GL_BACK); glFrontFace(GL_CCW);
@@ -411,15 +416,8 @@ SDL_AppResult SDL_AppIterate(void *appstate){
 
 	glViewport(0, 0, windowScale.x, windowScale.y);
 
+	//glBindFramebuffer(GL_FRAMEBUFFER, gameBuffer);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	//glUseProgram(mainShader);
-
-	//drawTexture(displayTex, testTex, &(SDL_Rect){0, 0, testTex->width, testTex->height}, &(SDL_Rect){0, 0, 320, 240}, WHITE);
-	//drawHamLine(displayTex, (SDL_Point){160, 120}, (SDL_Point){(1 + sin(timer)) * 160, (1 + cos(timer)) * 120}, 0xFF0000FF);
-
-	//setDrawColour(renderer, skyboxColour);
-	//SDL_SetRenderDrawColor(renderer, skyboxColour.r * 255, skyboxColour.g * 255, skyboxColour.b * 255, SDL_ALPHA_OPAQUE);
-	//SDL_RenderClear(renderer);
 
 	if(client.pause)
 		studioCameraUpdate(client.gameWorld->currCamera);
@@ -434,7 +432,7 @@ SDL_AppResult SDL_AppIterate(void *appstate){
 	memcpy(currentCamera.transform, camRotated, sizeof(mat4));
 	free(camTranslated); free(camScaled); free(camRotated); 
 
-	currentCamera.proj = projMatrix(currentCamera.fov, (float)windowScale.x/windowScale.y, 0.1, 2048);
+	currentCamera.proj = projMatrix(currentCamera.fov, (float)windowScale.x/windowScale.y, 0.1, 1000000);
 
 	if(client.studio && focusObject)
 		updateStudioGimbles();
@@ -467,7 +465,6 @@ SDL_AppResult SDL_AppIterate(void *appstate){
 	//drawSkip:
 
 	//drawBone(testRig->rootBone);
-	glViewport(0, 0, studioWindowScale.x, studioWindowScale.y);
 	updateStudio();
 	updatePopups();
 		
@@ -492,6 +489,7 @@ SDL_AppResult SDL_AppIterate(void *appstate){
 	free(currentCamera.transform);
 	free(currentCamera.proj);
 
+	//glBindFramebuffer(GL_FRAMEBUFFER, 0);
 	SDL_GL_SwapWindow(window);
 
 	return SDL_APP_CONTINUE;
@@ -512,6 +510,7 @@ void SDL_AppQuit(void *appstate, SDL_AppResult result){
 	glDeleteProgram(mainShader); glDeleteProgram(flatShader);
 	glDeleteBuffers(1, &VAO); glDeleteBuffers(1, &VBO); glDeleteBuffers(1, &EBO);
 	glDeleteTextures(1, &glBlankTex);
+	glDeleteFramebuffers(1, &gameBuffer);
 }
 
 void HandleKeyInput(){
