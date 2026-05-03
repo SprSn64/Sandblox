@@ -201,7 +201,7 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[]){
 	rastFontTex = loadRasterTexture("assets/textures/font.png");
 	defaultFont = (Font){fontTex, rastFontTex, 32, (SDL_Point){32, 32}, (SDL_Point){8, 8}, (SDL_FPoint){6, 0}, 16};
 
-	playerMesh = loadMeshFromObj("assets/models/player.obj", true); 
+	playerMesh = loadMeshFromObj("assets/models/testtex.obj", true); 
 	boneMesh = loadMeshFromObj("assets/models/bone.obj", true); 
 	skyboxMesh = loadMeshFromObj("assets/models/advskybox.obj", true);
 	sunMesh = loadMeshFromObj("assets/models/skyboxsun.obj", true);

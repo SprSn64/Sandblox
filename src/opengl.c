@@ -209,28 +209,59 @@ void cleanupOpenGL(){
 }
 
 extern Uint32 glBlankTex;
-void drawMeshOpenGL(Mesh* mesh, mat4 transform, SDL_FColor colour, TextureRef* texture){
-	if(texture && texture->glLoc)
-		glBindTexture(GL_TEXTURE_2D, texture->glLoc);
-	else
-		glBindTexture(GL_TEXTURE_2D, glBlankTex);
+//todo: uvs are somewhat broken on meshes with more than 1 tex
+void drawMeshOpenGL(Mesh* mesh, mat4 transform, SDL_FColor colour, TextureRef* overrideTexture) {
+    glUniformMatrix4fv(glLocs[GLVAL_WORLDMATRIX], 1, GL_FALSE, transform);
 
-	glUniformMatrix4fv(glLocs[GLVAL_WORLDMATRIX], 1, GL_FALSE, transform);
+    float colourFloat[4] = { colour.r, colour.g, colour.b, colour.a };
+    glUniform4fv(glLocs[GLVAL_MULTCOLOUR], 1, colourFloat);
 
-	float colourFloat[4] = {colour.r, colour.g, colour.b, colour.a};
-	glUniform4fv(glLocs[GLVAL_MULTCOLOUR], 1, colourFloat);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(MeshVert) * mesh->vertCount, mesh->verts, GL_STATIC_DRAW);
+    
+    if (overrideTexture && overrideTexture->glLoc)
+        glBindTexture(GL_TEXTURE_2D, overrideTexture->glLoc);
+    else
+        glBindTexture(GL_TEXTURE_2D, glBlankTex);
 
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(MeshFace) * mesh->faceCount, mesh->faces, GL_STATIC_DRAW); 
-	glBufferData(GL_ARRAY_BUFFER, sizeof(MeshVert) * mesh->vertCount, mesh->verts, GL_STATIC_DRAW);
+    char lastTex[256] = "";
+    GLuint currentTex = glBlankTex;
 
-	//glBindBuffer(GL_ARRAY_BUFFER, mesh->vertArray);
-	//glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, mesh->eleBuffer);
-	
-	glDrawElements(GL_TRIANGLES, mesh->faceCount * 3, GL_UNSIGNED_INT, 0);
-	glBindTexture(GL_TEXTURE_2D, 0);
+    GLuint *indices = malloc(sizeof(GLuint) * mesh->faceCount * 3);
+    Uint32 idxCount = 0;
 
-	//glBindBuffer(GL_ARRAY_BUFFER, 0);
-	//glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+    for (Uint32 i = 0; i < mesh->faceCount; ++i) {
+        MeshFace *face = &mesh->faces[i];
+        const char *texPath = face->material.tex;
+
+        bool newTexture = strcmp(lastTex, texPath) != 0;
+
+        if (newTexture && idxCount > 0) {
+            glBindTexture(GL_TEXTURE_2D, overrideTexture ? overrideTexture->glLoc : currentTex );
+            glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(GLuint) * idxCount, indices, GL_STATIC_DRAW);
+            glDrawElements(GL_TRIANGLES, idxCount, GL_UNSIGNED_INT, 0);
+            idxCount = 0;
+        }
+
+        if (newTexture) {
+            TextureRef *tref = loadTexture(texPath, false);
+            currentTex = tref && tref->glLoc ? tref->glLoc : glBlankTex;
+            strcpy(lastTex, texPath);
+        }
+
+        indices[idxCount++] = face->vertA;
+        indices[idxCount++] = face->vertB;
+        indices[idxCount++] = face->vertC;
+    }
+
+    if (idxCount > 0) {
+        glBindTexture(GL_TEXTURE_2D, overrideTexture ? overrideTexture->glLoc : currentTex);
+        glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(GLuint) * idxCount, indices, GL_STATIC_DRAW);
+        glDrawElements(GL_TRIANGLES, idxCount, GL_UNSIGNED_INT, 0);
+    }
+
+    free(indices);
+
+    glBindTexture(GL_TEXTURE_2D, 0);
 }
 
 void deleteBuffer(Uint32 id){

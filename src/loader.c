@@ -209,9 +209,55 @@ static FaceIndex parseFaceToken(const char *tok) {
     return fi;
 }
 
+int loadMtlFile(const char *objPath, const char *mtlName, MeshMtlEntry *materials, int maxCount) {
+    char mtlPath[512];
+
+    strcpy(mtlPath, objPath);
+    char *slash = strrchr(mtlPath, '/');
+    if (slash) {
+        *(slash + 1) = '\0';
+        strcat(mtlPath, mtlName);
+    } else {
+        strcpy(mtlPath, mtlName);
+    }
+
+
+    FILE *f = fopen(mtlPath, "r");
+    if (!f) {
+        //printf("dihhhhhhh\n");
+        return 0;
+    }
+
+    char line[512];
+    int count = 0;
+    MeshMtlEntry *current = NULL;
+
+    while (fgets(line, sizeof(line), f)) {
+        if (strncmp(line, "newmtl ", 7) == 0) {
+            if (count >= maxCount) break;
+
+            current = &materials[count++];
+            sscanf(line, "newmtl %127s", current->name);
+            current->tex[0] = '\0';
+        }
+        else if (strncmp(line, "map_Kd ", 7) == 0 && current) {
+            sscanf(line, "map_Kd %255s", current->tex);
+            printf("mtl tex %s\n", current->tex);
+        }
+    }
+
+    fclose(f);
+    return count;
+}
+
+
 Mesh* loadMeshFromObj(char *path, bool persistent) {
     Mesh* checkMesh = meshExists(path);
     if(checkMesh) return checkMesh;
+
+    MeshMtlEntry materials[64];
+    int materialCount = 0;
+    char currentMaterial[128] = "";
 
     Uint32 vcount = 0, vtcount = 0, vncount = 0, tricount = 0;
     objCount(path, &vcount, &vtcount, &vncount, &tricount);
@@ -282,7 +328,22 @@ Mesh* loadMeshFromObj(char *path, bool persistent) {
                 face->vertA = idx[0].v;
                 face->vertB = idx[i].v;
                 face->vertC = idx[i + 1].v;
+
+                face->material.tex[0] = '\0';
+
+                for (int mtrl = 0; mtrl < materialCount; mtrl++) {
+                    if (strcmp(materials[mtrl].name, currentMaterial) == 0) {
+                        strcpy(face->material.tex, materials[mtrl].tex);
+                        break;
+                    }
+                }
             }
+        } else if (strncmp(line, "mtllib ", 7) == 0) {
+            char mtlName[256];
+            sscanf(line, "mtllib %255s", mtlName);
+            materialCount = loadMtlFile(path, mtlName, materials, 64);
+        } else if (strncmp(line, "usemtl ", 7) == 0) {
+            sscanf(line, "usemtl %127s", currentMaterial);
         }
     }
 

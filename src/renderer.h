@@ -12,9 +12,19 @@ typedef struct{
 	SDL_FColor colour;
 } MeshVert;
 
+typedef struct {
+    char name[128];
+    char tex[256];
+} MeshMtlEntry;
+
+typedef struct {
+	//todo add colors?
+	char tex[256];
+} MeshMaterial;
+
 typedef struct{
 	Uint32 vertA, vertB, vertC;
-	//Material material; or something
+	MeshMaterial material;
 } MeshFace;
 
 typedef enum meshTypes{

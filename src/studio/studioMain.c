@@ -101,7 +101,7 @@ void initStudio(){
 	translateGimbleMesh = loadMeshFromObj("assets/models/arrowwidget.obj", true);
 
 	studioFontTex = IMG_LoadTexture(studioRenderer, "assets/textures/font.png");
-	studioFont = (Font){studioFontTex, NULL, 32, (SDL_Point){32, 32}, (SDL_Point){8, 8}, (SDL_FPoint){6, 0}, 16};
+	studioFont = (Font){(TextureRef*)studioFontTex, NULL, 32, (SDL_Point){32, 32}, (SDL_Point){8, 8}, (SDL_FPoint){6, 0}, 16};
 	
 	addObjButton = newImageButton(buttonAddObject, stuButtonTex, (SDL_FRect){224, 304, 16, 16}, (SDL_FRect){16, 0, 16, 16});
 	removeObjButton = newImageButton(buttonRemoveObject, stuButtonTex, (SDL_FRect){206, 304, 16, 16}, (SDL_FRect){32, 0, 16, 16});
