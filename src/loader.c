@@ -250,7 +250,7 @@ int loadMtlFile(const char *objPath, const char *mtlName, MeshMtlEntry *material
     return count;
 }
 
-
+//todo: some uvs are broken?
 Mesh* loadMeshFromObj(char *path, bool persistent) {
     Mesh* checkMesh = meshExists(path);
     if(checkMesh) return checkMesh;

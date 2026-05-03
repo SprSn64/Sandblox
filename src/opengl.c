@@ -209,7 +209,6 @@ void cleanupOpenGL(){
 }
 
 extern Uint32 glBlankTex;
-//todo: uvs are somewhat broken on meshes with more than 1 tex
 void drawMeshOpenGL(Mesh* mesh, mat4 transform, SDL_FColor colour, TextureRef* overrideTexture) {
     glUniformMatrix4fv(glLocs[GLVAL_WORLDMATRIX], 1, GL_FALSE, transform);
 
