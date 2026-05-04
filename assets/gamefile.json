@@ -113,10 +113,6 @@
 			"rot": [0, 0, 0],
 			"colour": [255, 255, 255, 255],
 			"isPlayer": false,
-			"collision": {
-				"enabled": false,
-				"type": "none"
-			},
 			"children": [
 				{
 					"name": "Face",
@@ -130,6 +126,25 @@
 					"class": "Accessory",
 					"colour": [255, 51, 76, 255],
 					"mesh": "assets/models/avatarItems/antennahat.obj"
+				}
+			]
+		},
+		{
+			"name": "Test Mesh",
+			"class": "Block",
+			"pos": [4, 2, -4],
+			"scale": [1, 1, 1],
+			"rot": [0, 0, 0],
+			"colour": [255, 255, 255, 255],
+			"children": [
+				{
+					"name": "Material Mesh",
+					"class": "Mesh",
+					"pos": [0, 0, 0],
+					"scale": [1, 1, 1],
+					"rot": [0, 0, 0],
+					"colour": [255, 255, 255, 255],
+					"mesh": "assets/models/testtex.obj"
 				}
 			]
 		}

@@ -138,14 +138,20 @@ typedef enum CollisionHullShapes{
 	COLLHULL_FUNCTION,
 } CollisionHullShapes;
 
-typedef struct{
+typedef struct CollisionHull{
+	DataObj* parent;
 	Uint32 shape;
 	Vector3 pos, rot, scale;
+
+	bool active; //no physics
+	float mass; //either this or density
 	
 	void (*funkyCollision)(void); //custom collision function for COLLHULL_FUNCTION
 } CollisionHull;
 
 typedef struct{
+	CollisionHull* hullA;
+	CollisionHull* hullB;
 	Vector3 outNorm;
 } CollsionReturn;
 

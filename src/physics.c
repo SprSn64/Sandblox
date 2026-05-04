@@ -68,6 +68,7 @@ CollsionReturn* getCollision(CollisionHull* itemA, CollisionHull* itemB){
 		if(!(between(itemA->pos.x, itemB->pos.x, itemB->pos.x + itemB->scale.x) && between(itemA->pos.y, itemB->pos.y, itemB->pos.y + itemB->scale.y) && between(itemA->pos.z, itemB->pos.z, itemB->pos.z + itemB->scale.z))) return NULL;
 		output = malloc(sizeof(CollsionReturn));
 		output->outNorm = (Vector3){0, itemA->pos.y - itemB->pos.y, 0};
+		output->hullA = itemA; output->hullB = itemB;
 	}
 	
 	/*if(collide is yes) then do'eth
@@ -75,4 +76,11 @@ CollsionReturn* getCollision(CollisionHull* itemA, CollisionHull* itemB){
 	  else*/
 	return output;
 	//end
+}
+
+void resolveCollision(CollsionReturn* coll){
+	if(coll->hullA->active && coll->hullB->active) return;
+
+	bool bothFix = (!coll->hullA->active && !coll->hullB->active) && (coll->hullA->active != coll->hullB->active);
+	(void)bothFix;
 }
