@@ -19,6 +19,7 @@ typedef struct {
 
 typedef struct {
 	//todo add colors?
+	float specular;
 	char tex[256];
 } MeshMaterial;
 

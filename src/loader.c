@@ -125,6 +125,9 @@ void freeTexture(TextureRef* tex){
 	if(tex->glLoc)glDeleteTextures(1, &tex->glLoc);
 	if(tex->filePath)free(tex->filePath);
 
+	if(headTexture == tex)
+		headTexture = tex->next;
+
 	tex->next->prev = tex->prev;
 	tex->prev->next = tex->next;
 	free(tex);
@@ -373,6 +376,9 @@ void freeMesh(Mesh* mesh){
 	if(!mesh) return;
 	free(mesh->verts); free(mesh->faces);
 	if(mesh->filePath) free(mesh->filePath);
+
+	if(headMesh == mesh)
+		headMesh = mesh->next;
 
 	mesh->next->prev = mesh->prev;
 	mesh->prev->next = mesh->next;
