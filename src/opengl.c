@@ -43,20 +43,6 @@ extern Uint32 VAO, VBO, EBO;
 
 extern void HandleKeyInput();
 
-MeshVert testGlVerts[5] = {
-	(MeshVert){(Vector3){-1, -1, 1}, (Vector3){-1, -1, 1}, (SDL_FPoint){0, 0}, (SDL_FColor){1, 0, 0, 1}},
-	(MeshVert){(Vector3){-1, -1, -1}, (Vector3){-1, -1, -1}, (SDL_FPoint){0, 0}, (SDL_FColor){0, 1, 0, 1}},
-	(MeshVert){(Vector3){1, -1, -1}, (Vector3){1, -1, -1}, (SDL_FPoint){0, 0}, (SDL_FColor){1, 1, 0, 1}},
-	(MeshVert){(Vector3){1, -1, 1}, (Vector3){1, -1, 1}, (SDL_FPoint){0, 0}, (SDL_FColor){0, 0, 1, 1}},
-	(MeshVert){(Vector3){0, 1, 0}, (Vector3){0, 1, 0}, (SDL_FPoint){0, 0}, (SDL_FColor){1, 0, 1, 1}}
-};
-MeshFace testGlFaces[6] = {
-	(MeshFace){0, 1, 4}, (MeshFace){1, 2, 4}, (MeshFace){2, 3, 4}, (MeshFace){3, 0, 4},
-	(MeshFace){1, 0, 2}, (MeshFace){3, 2, 0}
-};
-Uint32 tempVertCount = 5;
-Uint32 tempTriCount = 6;
-
 Uint32 loadShader(char* vertPath, char* fragPath){
 	const char* vertSource = loadTextFile(vertPath);
 	Uint32 vertShader = glCreateShader(GL_VERTEX_SHADER);
@@ -119,9 +105,6 @@ bool initOpenGL(){
 	glGenVertexArrays(1, &VAO); glBindVertexArray(VAO);	
 	glGenBuffers(1, &VBO); glBindBuffer(GL_ARRAY_BUFFER, VBO);
 	glGenBuffers(1, &EBO); glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
-	
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(MeshFace) * tempTriCount, testGlFaces, GL_STATIC_DRAW); 
-	glBufferData(GL_ARRAY_BUFFER, sizeof(MeshVert) * tempVertCount, testGlVerts, GL_STATIC_DRAW);
 
 	//glBindBuffer(GL_ARRAY_BUFFER, 0); glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 	
@@ -230,7 +213,7 @@ void drawMeshOpenGL(Mesh* mesh, mat4 transform, SDL_FColor colour, TextureRef* o
 
     for (Uint32 i = 0; i < mesh->faceCount; ++i) {
         MeshFace *face = &mesh->faces[i];
-        const char *texPath = face->material.tex;
+        char *texPath = face->material.tex;
 
         bool newTexture = strcmp(lastTex, texPath) != 0;
 

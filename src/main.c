@@ -30,7 +30,6 @@
 #include "softwarerender/main.h"
 
 /* TODO:
-	Get OpenGL GLEW working
 	Make studio widgets work properly (2/3 complete) and probably optimize them
 	Add multiplayer server shit
 	Implement simple physics
@@ -114,6 +113,8 @@ float* defaultMatrix = NULL;
 float* skyboxMatrix = NULL; float* sunMatrix = NULL;
 SDL_FColor skyboxColour = {0.8, 0.82, 1, 1};
 Vector3 sunAngle = {0, 0, 0};
+
+float* guiMatrix = NULL;
 
 char* clientPath;
 char* basePath;
@@ -206,7 +207,7 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[]){
 	skyboxMesh = loadMeshFromObj("assets/models/advskybox.obj", true);
 	sunMesh = loadMeshFromObj("assets/models/skyboxsun.obj", true);
 	
-	planePrim = genPlaneMesh(1, 1, 1, 1);
+	planePrim = genPlaneMesh(1, 1, 1, 1); planePrim->persistent = true;
 	cubePrim = loadMeshFromObj("assets/models/primitives/cube.obj", true);
 	spherePrim = loadMeshFromObj("assets/models/primitives/sphere.obj", true);
 
@@ -361,6 +362,8 @@ SDL_AppResult SDL_AppIterate(void *appstate){
 	
 	SDL_GetWindowSize(window, &windowScale.x, &windowScale.y);
 
+	guiMatrix = isoProjMatrix(1, (float)windowScale.x/windowScale.y, 0.01, 1000);
+
 	if(debugServer)
 		serverUpdate();
 	
@@ -482,6 +485,18 @@ SDL_AppResult SDL_AppIterate(void *appstate){
 	drawText(renderer, &defaultFont, rotText, 0, 16, 2, (SDL_FColor){1, 1, 1, 1});
 	
 	if(client.pause)drawText(renderer, &defaultFont, "Game Paused", 0, windowScale.y - 16, 2, (SDL_FColor){1, 1, 1, 1});
+
+	setGlValue(GL_DEPTH_TEST, false); setGlShader(flatShader);
+	glUniformMatrix4fv(glLocs[GLVAL_PROJMATRIX], 1, GL_FALSE, guiMatrix);
+	glUniformMatrix4fv(glLocs[GLVAL_VIEWMATRIX], 1, GL_FALSE, defaultMatrix);
+	float resFloat[2] = {windowScale.x, windowScale.y};
+	glUniform2fv(glLocs[GLVAL_RESOLUTION], 1, resFloat);
+
+	float* guiTestMatrix = genMatrix((Vector3){cos(timer) - 0.25, sin(timer) + 0.25, 0}, (Vector3){0.5, 0.5, 0.5}, (Vector3){HALFPI, 0, 0});
+	drawMeshOpenGL(planePrim, guiTestMatrix, (SDL_FColor){0, 1, 0, 0.5}, homerTex);
+	free(guiTestMatrix);
+
+	free(guiMatrix);
 
 	//SDL_FPoint drawCursorPos = mousePos;
 	//SDL_RenderTexture(renderer, cursorTex, &(SDL_FRect){0, 0, 32, 32}, &(SDL_FRect){drawCursorPos.x, drawCursorPos.y, 32, 32});

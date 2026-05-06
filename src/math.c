@@ -202,6 +202,18 @@ float *projMatrix(float fov, float aspect, float zNear, float zFar){
 	return output;
 }
 
+float *isoProjMatrix(float scale, float aspect, float zNear, float zFar){
+	float *output = calloc(1, sizeof(mat4));
+
+	output[0] = 1/(scale*aspect);
+	output[5] = 1/scale;
+	output[10] = -(zFar + zNear) / (zFar - zNear);
+	output[11] = -zNear;
+	output[15] = 1;
+
+	return output;
+}
+
 Vector3 extractTranslation(mat4 matrix){
 	return (Vector3){matrix[3], matrix[7], matrix[11]};
 }

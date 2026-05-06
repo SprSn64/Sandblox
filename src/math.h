@@ -37,6 +37,7 @@ void scaleMatrix2(mat4 matrix, Vector3 scale);
 void rotateMatrix2(mat4 matrix, Vector3 angle);
 
 float *projMatrix(float fov, float aspect, float zNear, float zFar);
+float *isoProjMatrix(float scale, float aspect, float zNear, float zFar);
 
 Vector3 extractTranslation(mat4 matrix);
 Vector3 extractScale(mat4 matrix);
