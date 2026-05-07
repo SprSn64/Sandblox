@@ -4,6 +4,8 @@
 #include <SDL3/SDL.h>
 #include <structs.h>
 
+#include "../renderer.h"
+
 typedef enum studioKeybinds{
 	STUDIOKEYBIND_DELETE, STUDIOKEYBIND_CTRL,
 	STUDIOKEYBIND_UNDO, STUDIOKEYBIND_REDO,
@@ -35,12 +37,12 @@ typedef struct Button{
 	void (*pressed)(struct Button*);
 	void *target;
 	bool enabled, visible, hover, down;
-	SDL_Texture* image;
+	Texture* image;
 	SDL_FRect* imageSrc;
 } Button;
 
 Button newLableButton(void* func, char* text, SDL_FRect rect);
-Button newImageButton(void* func, SDL_Texture* image, SDL_FRect dest, SDL_FRect source);
+Button newImageButton(void* func, Texture* image, SDL_FRect dest, SDL_FRect source);
 Button newColourButton(CharColour* target, SDL_FRect rect);
 
 bool updateButton(Button* item);

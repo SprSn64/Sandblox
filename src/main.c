@@ -47,6 +47,8 @@ Uint32 mainShader; Uint32 flatShader;
 Uint32 glVersion[2] = {0, 0};
 Uint32 glBlankTex; Uint32 blankColour = 0xFFFFFFFF;
 
+extern TextureRef* studioTexRef;
+
 Uint32 gameBuffer; Uint32 gameBufferTex;
 
 ClientData client;
@@ -55,6 +57,7 @@ GameWorld game;
 //SDL_Point windowScaleIntent = {320, 240};
 //double scaleFactor;
 SDL_Point windowScale = {640, 480};
+float aspectRatio = 1;
 Texture* displayTex;
 float* depthBuffer;
 
@@ -146,7 +149,7 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[]){
 	for(int i=0; i < argc; i++){
 		//printf("%s\n", argv[i]); 
 		if(!strcmp("-debug", argv[i]))client.debug = true;
-		//if(!strcmp("-studio", argv[i]))client.studio = true; //currently broken!!!
+		if(!strcmp("-studio", argv[i]))client.studio = true; //currently broken!!!
 		
 		if(!strcmp("-mapfile", argv[i]))
 			mapToLoad = argv[++i];
@@ -314,7 +317,7 @@ SDL_AppResult SDL_AppEvent(void *appstate, SDL_Event *event){
 
 	if(event->type == SDL_EVENT_MOUSE_WHEEL){
 		bool mainFocus = SDL_GetWindowFlags(window) & SDL_WINDOW_INPUT_FOCUS;
-		bool studioFocus = studioWindow && (SDL_GetWindowFlags(studioWindow) & SDL_WINDOW_INPUT_FOCUS);
+		bool studioFocus = false;//studioWindow && (SDL_GetWindowFlags(studioWindow) & SDL_WINDOW_INPUT_FOCUS);
 		
 		if(mainFocus && !client.pause){
 			float zoomSpeed = max(1, sqrt(currentCamera.focusDist));
@@ -361,8 +364,9 @@ SDL_AppResult SDL_AppIterate(void *appstate){
 	timer += deltaTime;
 	
 	SDL_GetWindowSize(window, &windowScale.x, &windowScale.y);
+	aspectRatio = (float)windowScale.x/windowScale.y;
 
-	guiMatrix = isoProjMatrix(1, (float)windowScale.x/windowScale.y, 0.01, 1000);
+	guiMatrix = isoProjMatrix(1, aspectRatio, 0.01, 1000);
 
 	if(debugServer)
 		serverUpdate();
@@ -412,6 +416,7 @@ SDL_AppResult SDL_AppIterate(void *appstate){
 	if(!client.pause){
 		if(playerEnabled && !client.gameWorld->currPlayer){
 			if(playerRespawn >= 3) loadPlayerAvatar();
+			focusObject = client.gameWorld->currPlayer;
 			playerRespawn += deltaTime;
 		}
 		updateObjects(client.gameWorld->headObj, 0, &idCounter);
@@ -435,7 +440,7 @@ SDL_AppResult SDL_AppIterate(void *appstate){
 	memcpy(currentCamera.transform, camRotated, sizeof(mat4));
 	free(camTranslated); free(camScaled); free(camRotated); 
 
-	currentCamera.proj = projMatrix(currentCamera.fov, (float)windowScale.x/windowScale.y, 0.1, 1000000);
+	currentCamera.proj = projMatrix(currentCamera.fov, aspectRatio, 0.1, 1000000);
 
 	if(client.studio && focusObject)
 		updateStudioGimbles();
@@ -492,9 +497,11 @@ SDL_AppResult SDL_AppIterate(void *appstate){
 	float resFloat[2] = {windowScale.x, windowScale.y};
 	glUniform2fv(glLocs[GLVAL_RESOLUTION], 1, resFloat);
 
-	float* guiTestMatrix = genMatrix((Vector3){cos(timer) - 0.25, sin(timer) + 0.25, 0}, (Vector3){0.5, 0.5, 0.5}, (Vector3){HALFPI, 0, 0});
-	drawMeshOpenGL(planePrim, guiTestMatrix, (SDL_FColor){0, 1, 0, 0.5}, homerTex);
-	free(guiTestMatrix);
+	if(client.studio){
+		float* guiTestMatrix = genMatrix((Vector3){-aspectRatio, 1, 0}, (Vector3){0.75, 1, 1}, (Vector3){HALFPI, 0, 0});
+		drawMeshOpenGL(planePrim, guiTestMatrix, (SDL_FColor){1, 1, 1, 1}, studioTexRef);
+		free(guiTestMatrix);
+	}
 
 	free(guiMatrix);
 

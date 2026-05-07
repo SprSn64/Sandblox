@@ -31,6 +31,7 @@ void setPixel(Texture* target, Uint16 x, Uint16 y, Uint32 colour){
 	if((colour & 0xFF000000) >> 24 != 0xFF){
 		float alpha = (float)((colour & 0xFF000000) >> 24) / 255;
 		target->pixels[x + y * target->width] = colourLerp(target->pixels[x + y * target->width], colour, alpha);
+		//newColour.a = min(colourGot.a + colour.a, 1);
 		return;
 	}
 	target->pixels[x + y * target->width] = colour;

@@ -39,7 +39,7 @@ Button* currColButton = NULL;
 Button newLableButton(void* func, char* text, SDL_FRect rect){
 	return (Button){text, rect, INPUTTYPE_BUTTON, func, NULL, true, true, false, false, NULL, NULL};
 }
-Button newImageButton(void* func, SDL_Texture* image, SDL_FRect dest, SDL_FRect source){
+Button newImageButton(void* func, Texture* image, SDL_FRect dest, SDL_FRect source){
 	SDL_FRect* sourceRect = malloc(sizeof(SDL_FRect)); memcpy(sourceRect, &source, sizeof(SDL_FRect));
 	return (Button){NULL, dest, INPUTTYPE_BUTTON, func, NULL, true, true, false, false, image, sourceRect};
 }
@@ -50,7 +50,7 @@ Button newColourButton(CharColour* target, SDL_FRect rect){
 bool updateButton(Button* item){
 	if(!item->enabled || (item->buttonType == INPUTTYPE_BUTTON && !item->pressed)) return 1;
 	
-	item->hover = (SDL_GetWindowFlags(studioWindow) & SDL_WINDOW_INPUT_FOCUS) && (between(mousePos.x - item->rect.x, 0, item->rect.w) && between(mousePos.y - item->rect.y, 0, item->rect.h));
+	item->hover = false;//(SDL_GetWindowFlags(studioWindow) & SDL_WINDOW_INPUT_FOCUS) && (between(mousePos.x - item->rect.x, 0, item->rect.w) && between(mousePos.y - item->rect.y, 0, item->rect.h));
 	if(item->hover){
 		SDL_SetCursor(SDL_CreateSystemCursor(SDL_SYSTEM_CURSOR_POINTER));
 		if(!stuMouseButtons[0].down){item->down = false; return 1;}
@@ -77,9 +77,9 @@ void drawColourPicker(SDL_Renderer* render, Button* item, CharColour* target){
 
 void drawButton(SDL_Renderer* render, Button* item){
 	if(item->image){
-		SDL_FRect* rect = &(SDL_FRect){0, 0, item->image->w, item->image->h};
+		SDL_FRect* rect = &(SDL_FRect){0, 0, item->image->width, item->image->height};
 		if(item->imageSrc) rect = item->imageSrc;
-		SDL_RenderTexture(render, item->image, rect, &item->rect);
+		//SDL_RenderTexture(render, item->image, rect, &item->rect);
 		return;
 	}
 
@@ -217,12 +217,12 @@ static void SDLCALL saveMapDialogue(void* userdata, const char* const* filelist,
 
 void buttonLoadMap(Button* item){
 	(void)item;
-	SDL_ShowOpenFileDialog(loadMapDialogue, NULL, studioWindow, mapLoadFilter, SDL_arraysize(mapLoadFilter), SDL_GetCurrentDirectory(), false);
+	//SDL_ShowOpenFileDialog(loadMapDialogue, NULL, studioWindow, mapLoadFilter, SDL_arraysize(mapLoadFilter), SDL_GetCurrentDirectory(), false);
 }
 
 void buttonSaveMap(Button* item){
 	(void)item;
-	SDL_ShowSaveFileDialog(saveMapDialogue, NULL, studioWindow, mapLoadFilter, SDL_arraysize(mapLoadFilter), SDL_GetCurrentDirectory());
+	//SDL_ShowSaveFileDialog(saveMapDialogue, NULL, studioWindow, mapLoadFilter, SDL_arraysize(mapLoadFilter), SDL_GetCurrentDirectory());
 }
 
 void buttonPauseGame(Button* item){
@@ -237,7 +237,7 @@ void buttonSetTool(Button* item){
 
 extern SDL_Window* window;
 void StudioHandleKeys(){
-	const bool* stuKeyState = SDL_GetKeyboardState(NULL);
+	/*const bool* stuKeyState = SDL_GetKeyboardState(NULL);
 	bool hasFocus = (SDL_GetWindowFlags(studioWindow) | SDL_GetWindowFlags(window)) & SDL_WINDOW_INPUT_FOCUS;
 	for(int i = 0; i < STUDIOKEYBIND_MAX; i++){
 		bool oldHeld = stuKeyList[i].down;
@@ -250,5 +250,5 @@ void StudioHandleKeys(){
 				stuKeyList[i].pressed = true;
 			}
 		}else stuKeyList[i].pressCheck = false;
-	}
+	}*/
 }

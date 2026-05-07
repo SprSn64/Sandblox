@@ -3,6 +3,7 @@
 
 #include <SDL3/SDL.h>
 #include <SDL3_image/SDL_image.h>
+#include <GL/glew.h>
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -273,16 +274,17 @@ void drawRotateGimble(DataObj* item){
 
 extern bool doZBuffer;
 void drawStudioOverlay(){
-	doZBuffer = false;
+	setGlValue(GL_DEPTH_TEST, false);
 	switch(toolMode){
 		case STUDIOTOOL_MOVE: drawTranslateGimble(focusObject); break;
 		case STUDIOTOOL_SCALE: drawScaleGimble(focusObject); break;
 		case STUDIOTOOL_ROTATE: drawRotateGimble(focusObject); break;
 	}
-	doZBuffer = true;
+	setGlValue(GL_DEPTH_TEST, true);
 }
 
 void updateStudioGimbles(){
+	return;
 	if(!(SDL_GetWindowFlags(window) & SDL_WINDOW_INPUT_FOCUS)) return;
 	switch(toolMode){
 		case STUDIOTOOL_MOVE: translateGimbleUpdate(focusObject); break;

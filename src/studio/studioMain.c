@@ -3,6 +3,7 @@
 
 #include <SDL3/SDL.h>
 #include <SDL3_image/SDL_image.h>
+#include <GL/glew.h>
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -14,12 +15,13 @@
 #include "../renderer.h"
 #include "../loader.h"
 
-extern SDL_Window *window;
-extern SDL_Renderer *renderer;
+#include "../softwarerender/main.h"
+
+TextureRef* studioTexRef = NULL;
+Texture* studioTex = NULL;
+
 extern ClientData client;
 
-SDL_Window *studioWindow = NULL;
-SDL_Renderer *studioRenderer = NULL;
 bool studioActive = false;
 
 extern double deltaTime;
@@ -30,9 +32,9 @@ extern Font defaultFont;
 
 Font studioFont;
 SDL_Texture *studioFontTex = NULL;
-SDL_Texture *classIconTex = NULL;
-SDL_Texture *stuButtonTex = NULL;
-SDL_Texture *colourPickTex = NULL;
+TextureRef *classIconTex = NULL;
+TextureRef *stuButtonTex = NULL;
+TextureRef *colourPickTex = NULL;
 Mesh *rotateGimbleMesh = NULL;
 Mesh *translateGimbleMesh = NULL;
 
@@ -44,7 +46,7 @@ float objListScroll = 0;
 Uint32 objListLength = 0;
 SDL_Rect objListRect = {32, 16, 208, 240};
 
-Uint32 toolMode = STUDIOTOOL_NONE;
+Uint32 toolMode = STUDIOTOOL_MOVE;
 HistoryItem* historyHead = NULL;
 
 DataObj *focusObject = NULL;
@@ -75,14 +77,20 @@ void initStudio(){
 	//printf("Studio Initiated\n");
 	if(!client.studio){printf("Studio not enabled!\n"); return;}
 	
-	if(!SDL_CreateWindowAndRenderer("Studio", studioWindowScale.x, studioWindowScale.y, SDL_WINDOW_UTILITY, &studioWindow, &studioRenderer)){
-		printf("Error loading studio window - %s\n", SDL_GetError()); 
-		return;
-	}
+	studioTexRef = malloc(sizeof(TextureRef));
+	studioTexRef->texture = newRasterTexture(studioWindowScale.x, studioWindowScale.y);
+	studioTex = studioTexRef->texture;
+
+	glGenTextures(1, &studioTexRef->glLoc);
+	glActiveTexture(GL_TEXTURE0);
+	glBindTexture(GL_TEXTURE_2D, studioTexRef->glLoc);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, studioTexRef->texture->width, studioTexRef->texture->height, 0, GL_RGBA, GL_UNSIGNED_BYTE, studioTexRef->texture->pixels);
+	glGenerateMipmap(GL_TEXTURE_2D);
+	glBindTexture(GL_TEXTURE_2D, 0);
+
 	studioActive = true;
-	SDL_SetWindowParent(studioWindow, window);
-	//SDL_SetWindowMinimumSize(studioWindow, 320, 240);
-	SDL_SetRenderVSync(studioRenderer, 1);
 	
 	stuKeyList[STUDIOKEYBIND_DELETE].code = SDL_SCANCODE_DELETE;
 	//shitty widget keys
@@ -94,26 +102,26 @@ void initStudio(){
 	
 	stuMouseButtons[0].code = SDL_BUTTON_LMASK; stuMouseButtons[1].code = SDL_BUTTON_MMASK; stuMouseButtons[2].code = SDL_BUTTON_RMASK;
 	
-	classIconTex = IMG_LoadTexture(studioRenderer, "assets/textures/studio/classicons.png");
-	stuButtonTex = IMG_LoadTexture(studioRenderer, "assets/textures/studio/studiobuttons.png");
-	colourPickTex = IMG_LoadTexture(studioRenderer, "assets/textures/studio/colourpicker.png");
+	classIconTex = loadTexture("assets/textures/studio/classicons.png", true);
+	stuButtonTex = loadTexture("assets/textures/studio/studiobuttons.png", true);
+	colourPickTex = loadTexture("assets/textures/studio/colourpicker.png", true);
 	rotateGimbleMesh = genTorusMesh(2, 0.1, 3, 24); rotateGimbleMesh->persistent = true;
 	translateGimbleMesh = loadMeshFromObj("assets/models/arrowwidget.obj", true);
 
-	studioFontTex = IMG_LoadTexture(studioRenderer, "assets/textures/font.png");
+	//studioFontTex = IMG_LoadTexture(studioRenderer, "assets/textures/font.png");
 	studioFont = (Font){(TextureRef*)studioFontTex, NULL, 32, (SDL_Point){32, 32}, (SDL_Point){8, 8}, (SDL_FPoint){6, 0}, 16};
 	
-	addObjButton = newImageButton(buttonAddObject, stuButtonTex, (SDL_FRect){224, 304, 16, 16}, (SDL_FRect){16, 0, 16, 16});
-	removeObjButton = newImageButton(buttonRemoveObject, stuButtonTex, (SDL_FRect){206, 304, 16, 16}, (SDL_FRect){32, 0, 16, 16});
-	pauseButton = newImageButton(buttonPauseGame, stuButtonTex, (SDL_FRect){0, 304, 16, 16}, (SDL_FRect){16, 32, 16, 16});
+	addObjButton = newImageButton(buttonAddObject, stuButtonTex->texture, (SDL_FRect){224, 304, 16, 16}, (SDL_FRect){16, 0, 16, 16});
+	removeObjButton = newImageButton(buttonRemoveObject, stuButtonTex->texture, (SDL_FRect){206, 304, 16, 16}, (SDL_FRect){32, 0, 16, 16});
+	pauseButton = newImageButton(buttonPauseGame, stuButtonTex->texture, (SDL_FRect){0, 304, 16, 16}, (SDL_FRect){16, 32, 16, 16});
 
 	saveFileButton = newLableButton(buttonSaveMap, "Save", (SDL_FRect){0, 0, 40, 16});
 	loadFileButton = newLableButton(buttonLoadMap, "Load", (SDL_FRect){40, 0, 40, 16});
 
-	selectWidgetButton.image = stuButtonTex;
-	moveWidgetButton.image = stuButtonTex;
-	scaleWidgetButton.image = stuButtonTex;
-	rotateWidgetButton.image = stuButtonTex;
+	selectWidgetButton.image = stuButtonTex->texture;
+	moveWidgetButton.image = stuButtonTex->texture;
+	scaleWidgetButton.image = stuButtonTex->texture;
+	rotateWidgetButton.image = stuButtonTex->texture;
 
 	propColourButton = newColourButton(&focusObject->colour, (SDL_FRect){96, 300, 48, 12});
 }
@@ -122,14 +130,14 @@ void studioCameraUpdate(Camera* cam);
 
 void updateStudio(){
 	if(!studioActive) return;
-	SDL_GetWindowSize(studioWindow, &studioWindowScale.x, &studioWindowScale.y);
 	
 	StudioHandleKeys();
 	
-	SDL_SetRenderDrawColor(studioRenderer, 148, 150, 152, 255);
-	SDL_RenderClear(studioRenderer);
+	//SDL_SetRenderDrawColor(studioRenderer, 148, 150, 152, 255);
+	//SDL_RenderClear(studioRenderer);
+	clearTex(studioTex, 0xFF989694);
 	
-	studioFocus = SDL_GetWindowFlags(studioWindow) & SDL_WINDOW_INPUT_FOCUS;
+	/*studioFocus = SDL_GetWindowFlags(studioWindow) & SDL_WINDOW_INPUT_FOCUS;
 	for(int i=0; i<3; i++){
 		stuMouseButtons[i].down = studioFocus && (mouseState & stuMouseButtons[i].code);
 		if(stuMouseButtons[i].down){
@@ -140,12 +148,13 @@ void updateStudio(){
 				stuMouseButtons[i].pressed = false;
 			}
 		}else stuMouseButtons[i].pressCheck = false;
-	}
+	}*/
 	SDL_SetCursor(SDL_CreateSystemCursor(SDL_SYSTEM_CURSOR_DEFAULT));
 	
-	if(client.pause)
+	/*if(client.pause)
 		studioCameraUpdate(client.gameWorld->currCamera);
-	
+	*/
+
 	if(stuKeyList[0].pressed && focusObject){
 		if(focusObject == client.gameWorld->currPlayer)
 			client.gameWorld->currPlayer = NULL;
@@ -185,28 +194,33 @@ ctrlSkip:
 	drawObjectList(client.gameWorld->headObj, 0, &idCounter);
 	
 	if(objListLength > floor(objListRect.h / 16) + 2){
-		SDL_SetRenderDrawColor(studioRenderer, 192, 193, 196, SDL_ALPHA_OPAQUE);
+		//SDL_SetRenderDrawColor(studioRenderer, 192, 193, 196, SDL_ALPHA_OPAQUE);
 		float scrollHeight = objListRect.h / max(1, (objListLength - floor(objListRect.h / 16)));
 		float scrollT = min(1, max(0, objListScroll / (objListLength - objListRect.h / 16)));
-		SDL_RenderFillRect(studioRenderer, &(SDL_FRect){objListRect.x + objListRect.w - 8, objListRect.y + (objListRect.h - scrollHeight) * scrollT, 8, scrollHeight});
+		//SDL_RenderFillRect(studioRenderer, &(SDL_FRect){objListRect.x + objListRect.w - 8, objListRect.y + (objListRect.h - scrollHeight) * scrollT, 8, scrollHeight});
+		drawRect(studioTex, objListRect.x + objListRect.w - 8, objListRect.y + (objListRect.h - scrollHeight) * scrollT, 8, scrollHeight, 0xFFC4C1C0);
 	}
 	
 	if(focusObject)drawStudioOverlay();
 	
 	//make this less shitty soon
-	updateAndDrawButton(studioRenderer, &addObjButton); updateAndDrawButton(studioRenderer, &removeObjButton); updateAndDrawButton(studioRenderer, &pauseButton);
-	updateAndDrawButton(studioRenderer, &loadFileButton); updateAndDrawButton(studioRenderer, &saveFileButton);
-	updateAndDrawButton(studioRenderer, &selectWidgetButton); updateAndDrawButton(studioRenderer, &moveWidgetButton); updateAndDrawButton(studioRenderer, &scaleWidgetButton); updateAndDrawButton(studioRenderer, &rotateWidgetButton);
+	//updateAndDrawButton(studioRenderer, &addObjButton); updateAndDrawButton(studioRenderer, &removeObjButton); updateAndDrawButton(studioRenderer, &pauseButton);
+	//updateAndDrawButton(studioRenderer, &loadFileButton); updateAndDrawButton(studioRenderer, &saveFileButton);
+	//updateAndDrawButton(studioRenderer, &selectWidgetButton); updateAndDrawButton(studioRenderer, &moveWidgetButton); updateAndDrawButton(studioRenderer, &scaleWidgetButton); updateAndDrawButton(studioRenderer, &rotateWidgetButton);
 	
 	drawObjectProperties(focusObject, 240);
+
+	updateGlTexture(studioTexRef);
 	
-	SDL_RenderPresent(studioRenderer);
+	//SDL_RenderPresent(studioRenderer);
 }
 
 void studioCleanup(){
 	if(!studioActive) return;
-	SDL_DestroyTexture(classIconTex); SDL_DestroyTexture(stuButtonTex); 
+	freeTexture(classIconTex); freeTexture(stuButtonTex); 
 	free(rotateGimbleMesh); free(translateGimbleMesh);
+
+	freeTexture(studioTexRef);
 }
 
 void drawObjectList(DataObj* item, int nodeDepth, int *idCount){	
@@ -227,19 +241,20 @@ void drawObjectList(DataObj* item, int nodeDepth, int *idCount){
 	}
 	if(focusObject == item){
 		focusSkip:
-		SDL_SetRenderDrawColor(studioRenderer, 64, 192, 24, SDL_ALPHA_OPAQUE);
+		//SDL_SetRenderDrawColor(studioRenderer, 64, 192, 24, SDL_ALPHA_OPAQUE);
 		
-		SDL_RenderFillRect(studioRenderer, &(SDL_FRect){objListRect.x, objListRect.y + itemYOffset, objListRect.w, 16});
+		//SDL_RenderFillRect(studioRenderer, &(SDL_FRect){objListRect.x, objListRect.y + itemYOffset, objListRect.w, 16});
 	}
 	
-	drawText(studioRenderer, &studioFont, item->name, objListRect.x + 18/**/ + (nodeDepth * 24), 18/**/ + itemYOffset, 1.5, (SDL_FColor){1, 1, 1, 1});
+	//drawText(studioRenderer, &studioFont, item->name, objListRect.x + 18/**/ + (nodeDepth * 24), 18/**/ + itemYOffset, 1.5, (SDL_FColor){1, 1, 1, 1});
 	
-	SDL_FRect iconRect = {(item->classData->id % 16) * 16, (int)floor((float)item->classData->id / 16) * 16 % 256, 16, 16};
-	SDL_FRect iconPos = {objListRect.x + nodeDepth * 24, objListRect.y/**/ + itemYOffset, 16, 16};
-	SDL_RenderTexture(studioRenderer, classIconTex, &iconRect, &iconPos);
+	SDL_Rect iconRect = {(item->classData->id % 16) * 16, (int)floor((float)item->classData->id / 16) * 16 % 256, 16, 16};
+	SDL_Rect iconPos = {objListRect.x + nodeDepth * 24, objListRect.y/**/ + itemYOffset, 16, 16};
+	//SDL_RenderTexture(studioRenderer, classIconTex, &iconRect, &iconPos);
+	drawTexture(studioTex, classIconTex->texture, &iconRect, &iconPos, 0xFFFFFFFF);
 	
-	if(!item->studioOpen && item->child)
-		SDL_RenderTexture(studioRenderer, classIconTex, &(SDL_FRect){245, 249, 11, 7}, &(SDL_FRect){objListRect.x + nodeDepth * 24, objListRect.y + itemYOffset, 11, 7});
+	//if(!item->studioOpen && item->child)
+		//SDL_RenderTexture(studioRenderer, classIconTex, &(SDL_FRect){245, 249, 11, 7}, &(SDL_FRect){objListRect.x + nodeDepth * 24, objListRect.y + itemYOffset, 11, 7});
 	
 	listRenderSkip:
 	
@@ -257,29 +272,29 @@ void drawObjectProperties(DataObj* item, int posY){
 	//excuse the slop
 	char string[256];
 	
-	SDL_SetRenderDrawColor(studioRenderer, 255, 255, 255, 255);
+	//SDL_SetRenderDrawColor(studioRenderer, 255, 255, 255, 255);
 	
 	if(!item){
-		drawText(studioRenderer, &studioFont, "No object selected!", 2, posY, 1.5, (SDL_FColor){1, 1, 1, 1});
+		//drawText(studioRenderer, &studioFont, "No object selected!", 2, posY, 1.5, (SDL_FColor){1, 1, 1, 1});
 		return;
 	}
 	
 	sprintf(string, "Name: %s", item->name);
-	drawText(studioRenderer, &studioFont, string, 2, posY, 1.5, (SDL_FColor){1, 1, 1, 1});
+	//drawText(studioRenderer, &studioFont, string, 2, posY, 1.5, (SDL_FColor){1, 1, 1, 1});
 	sprintf(string, "Class: %s", item->classData->name);
-	drawText(studioRenderer, &studioFont, string, 2, posY + 12, 1.5, (SDL_FColor){1, 1, 1, 1});
+	//drawText(studioRenderer, &studioFont, string, 2, posY + 12, 1.5, (SDL_FColor){1, 1, 1, 1});
 	sprintf(string, "Position: %.2f, %.2f, %.2f", item->pos.x, item->pos.y, item->pos.z);
-	drawText(studioRenderer, &studioFont, string, 2, posY + 24, 1.5, (SDL_FColor){1, 1, 1, 1});
+	//drawText(studioRenderer, &studioFont, string, 2, posY + 24, 1.5, (SDL_FColor){1, 1, 1, 1});
 	sprintf(string, "Rotation: %d, %d, %d", (int)(item->rot.x * RAD2DEG), (int)(item->rot.y * RAD2DEG), (int)(item->rot.z * RAD2DEG));
-	drawText(studioRenderer, &studioFont, string, 2, posY + 36, 1.5, (SDL_FColor){1, 1, 1, 1});
+	//drawText(studioRenderer, &studioFont, string, 2, posY + 36, 1.5, (SDL_FColor){1, 1, 1, 1});
 	sprintf(string, "Scale: %.2f, %.2f, %.2f", item->scale.x, item->scale.y, item->scale.z);
-	drawText(studioRenderer, &studioFont, string, 2, posY + 48, 1.5, (SDL_FColor){1, 1, 1, 1});
+	//drawText(studioRenderer, &studioFont, string, 2, posY + 48, 1.5, (SDL_FColor){1, 1, 1, 1});
 	
-	drawText(studioRenderer, &studioFont, "Colour: ", 2, posY + 60, 1.5, (SDL_FColor){1, 1, 1, 1});
+	//drawText(studioRenderer, &studioFont, "Colour: ", 2, posY + 60, 1.5, (SDL_FColor){1, 1, 1, 1});
 	//SDL_SetRenderDrawColor(studioRenderer, item->colour.r, item->colour.g, item->colour.b, 255); 
 	//SDL_RenderFillRect(studioRenderer, &(SDL_FRect){64, posY + 40, 24, 8});
 	propColourButton.target = &item->colour;
-	updateAndDrawButton(studioRenderer, &propColourButton);
+	//updateAndDrawButton(studioRenderer, &propColourButton);
 	//SDL_SetRenderDrawColor(studioRenderer, item->colour.r * item->colour.a / 255, item->colour.g * item->colour.a / 255, item->colour.b * item->colour.a / 255, 255); 
 	//SDL_RenderFillRect(studioRenderer, &(SDL_FRect){88, posY + 40, 24, 8});
 }
