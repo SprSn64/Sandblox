@@ -84,8 +84,8 @@ void initStudio(){
 	glGenTextures(1, &studioTexRef->glLoc);
 	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_2D, studioTexRef->glLoc);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, studioTexRef->texture->width, studioTexRef->texture->height, 0, GL_RGBA, GL_UNSIGNED_BYTE, studioTexRef->texture->pixels);
 	glGenerateMipmap(GL_TEXTURE_2D);
 	glBindTexture(GL_TEXTURE_2D, 0);
@@ -244,6 +244,7 @@ void drawObjectList(DataObj* item, int nodeDepth, int *idCount){
 		//SDL_SetRenderDrawColor(studioRenderer, 64, 192, 24, SDL_ALPHA_OPAQUE);
 		
 		//SDL_RenderFillRect(studioRenderer, &(SDL_FRect){objListRect.x, objListRect.y + itemYOffset, objListRect.w, 16});
+		drawRect(studioTex, objListRect.x, objListRect.y + itemYOffset, objListRect.w, 16, 0xFF18C040);
 	}
 	
 	//drawText(studioRenderer, &studioFont, item->name, objListRect.x + 18/**/ + (nodeDepth * 24), 18/**/ + itemYOffset, 1.5, (SDL_FColor){1, 1, 1, 1});
@@ -253,7 +254,8 @@ void drawObjectList(DataObj* item, int nodeDepth, int *idCount){
 	//SDL_RenderTexture(studioRenderer, classIconTex, &iconRect, &iconPos);
 	drawTexture(studioTex, classIconTex->texture, &iconRect, &iconPos, 0xFFFFFFFF);
 	
-	//if(!item->studioOpen && item->child)
+	if(!item->studioOpen && item->child)
+		drawTexture(studioTex, classIconTex->texture, &(SDL_Rect){245, 249, 11, 7}, &(SDL_Rect){objListRect.x + nodeDepth * 24, objListRect.y + itemYOffset, 11, 7}, 0xFFFFFFFF);
 		//SDL_RenderTexture(studioRenderer, classIconTex, &(SDL_FRect){245, 249, 11, 7}, &(SDL_FRect){objListRect.x + nodeDepth * 24, objListRect.y + itemYOffset, 11, 7});
 	
 	listRenderSkip:

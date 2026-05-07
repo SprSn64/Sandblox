@@ -260,7 +260,7 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[]){
 	glEnable(GL_DEPTH_TEST); 
 	glEnable(GL_CULL_FACE); glCullFace(GL_BACK); glFrontFace(GL_CCW);
 	glClearColor(skyboxColour.r, skyboxColour.g, skyboxColour.b, 1);
-	//glEnable(GL_BLEND); glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
 	glUniformMatrix4fv(glLocs[GLVAL_WORLDMATRIX], 1, GL_FALSE, defaultMatrix);
 
@@ -445,7 +445,7 @@ SDL_AppResult SDL_AppIterate(void *appstate){
 	if(client.studio && focusObject)
 		updateStudioGimbles();
 
-	setGlValue(GL_DEPTH_TEST, false);
+	setGlValue(GL_DEPTH_TEST, false); setGlValue(GL_BLEND, true);
 	setGlShader(flatShader); setupGlUniforms();
 
 		skyboxMatrix = translateMatrix(defaultMatrix, currentCamera.pos);
@@ -457,7 +457,7 @@ SDL_AppResult SDL_AppIterate(void *appstate){
 		free(sunMatrix);
 
 	setGlShader(mainShader); setupGlUniforms();
-	setGlValue(GL_DEPTH_TEST, true);
+	setGlValue(GL_DEPTH_TEST, true); setGlValue(GL_BLEND, false);
 
 	Uint32 glError = glGetError();
 	if(glError)
@@ -498,7 +498,7 @@ SDL_AppResult SDL_AppIterate(void *appstate){
 	glUniform2fv(glLocs[GLVAL_RESOLUTION], 1, resFloat);
 
 	if(client.studio){
-		float* guiTestMatrix = genMatrix((Vector3){-aspectRatio, 1, 0}, (Vector3){0.75, 1, 1}, (Vector3){HALFPI, 0, 0});
+		float* guiTestMatrix = genMatrix((Vector3){-aspectRatio, 1, 0}, (Vector3){(240.f / windowScale.x) * aspectRatio * 2, 1, (320.f / windowScale.y) * 2}, (Vector3){HALFPI, 0, 0});
 		drawMeshOpenGL(planePrim, guiTestMatrix, (SDL_FColor){1, 1, 1, 1}, studioTexRef);
 		free(guiTestMatrix);
 	}
@@ -550,6 +550,10 @@ void HandleKeyInput(){
 void setupGlUniforms(){
 	glUniformMatrix4fv(glLocs[GLVAL_PROJMATRIX], 1, GL_FALSE, currentCamera.proj);
 	glUniformMatrix4fv(glLocs[GLVAL_VIEWMATRIX], 1, GL_FALSE, currentCamera.transform);
+
+	//int shaderID; glGetIntegerv(GL_CURRENT_PROGRAM, &shaderID);
+	//if(shaderID == (int)flatShader) return;
+
 	float resFloat[2] = {windowScale.x, windowScale.y};
 	glUniform2fv(glLocs[GLVAL_RESOLUTION], 1, resFloat);
 
