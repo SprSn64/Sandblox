@@ -94,10 +94,13 @@ typedef struct{
 	float *proj;
 } Camera;
 
+typedef struct TextureRef TextureRef;
 typedef struct{
 	DataObj* headObj;
 	Camera* currCamera;
 	DataObj* currPlayer;
+
+	TextureRef* skybox;
 } GameWorld;
 
 typedef struct{

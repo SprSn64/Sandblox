@@ -51,7 +51,7 @@ Texture* loadRasterTexture(char* path){
 	Texture* newTex = newRasterTexture(newSurface->w, newSurface->h);
 
 	//printf("Pixel format of image %s is 0x%x\n", path, newSurface->format);
-	memcpy(newTex->pixels, newSurface->pixels, newSurface->w*newSurface->h * sizeof(Uint32)); 
+	memcpy(newTex->pixels, newSurface->pixels, (Uint32)newSurface->w*newSurface->h * sizeof(Uint32)); 
 
 	SDL_DestroySurface(newSurface);
 	return newTex;
@@ -78,8 +78,8 @@ TextureRef* loadTexture(char* path, bool persistent){
 	texItem->prev = NULL; texItem->next = NULL;
 	texItem->persistent = persistent;
 
-	SDL_Texture* image = newTexture(path, SDL_SCALEMODE_LINEAR);
-	if(image)texItem->image = image;
+	//SDL_Texture* image = newTexture(path, SDL_SCALEMODE_LINEAR);
+	//if(image)texItem->image = image;
 
 	Texture* texture = loadRasterTexture(path);
 	if(!texture) return texItem;

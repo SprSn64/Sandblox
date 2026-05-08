@@ -114,7 +114,6 @@ bool playerEnabled = true;
 
 float* defaultMatrix = NULL;
 float* skyboxMatrix = NULL; float* sunMatrix = NULL;
-SDL_FColor skyboxColour = {0.8, 0.82, 1, 1};
 Vector3 sunAngle = {0, 0, 0};
 
 float* guiMatrix = NULL;
@@ -178,9 +177,7 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[]){
 		printf("OpenGL initiation failed!\n");
 	}
 	glewInit();
-	//SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
 	SDL_SetWindowMinimumSize(window, 320, 240);
-	//SDL_SetRenderVSync(renderer, 1);
 
 	mainShader = loadShader("assets/shaders/default.vert", "assets/shaders/default.frag");
 	flatShader = loadShader("assets/shaders/default.vert", "assets/shaders/unshaded.frag");
@@ -215,9 +212,6 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[]){
 	spherePrim = loadMeshFromObj("assets/models/primitives/sphere.obj", true);
 
 	testRig = genTestRig();
-	
-	//if(glEnabled)
-	//	glEnabled = initOpenGL();
 
 	glGenVertexArrays(1, &VAO); glBindVertexArray(VAO);	
 	glGenBuffers(1, &VBO); glBindBuffer(GL_ARRAY_BUFFER, VBO);
@@ -259,7 +253,7 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[]){
 	SDL_GL_SetSwapInterval(1);
 	glEnable(GL_DEPTH_TEST); 
 	glEnable(GL_CULL_FACE); glCullFace(GL_BACK); glFrontFace(GL_CCW);
-	glClearColor(skyboxColour.r, skyboxColour.g, skyboxColour.b, 1);
+	glClearColor(0, 0, 0, 1);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
 	glUniformMatrix4fv(glLocs[GLVAL_WORLDMATRIX], 1, GL_FALSE, defaultMatrix);
@@ -288,6 +282,8 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[]){
 	defaultMatrix = newMatrix();
 
 	testCodeBlock = (CodeBlock){&testBlockClass, (SDL_FPoint){24, 24}, NULL, NULL, NULL, NULL};
+
+	SDL_HideCursor();
 	
 	//if(glEnabled) goto openGlInitSkip;
 
@@ -431,16 +427,15 @@ SDL_AppResult SDL_AppIterate(void *appstate){
 		studioCameraUpdate(client.gameWorld->currCamera);
 
 	Vector3 invVec3 = {-1, -1, -1};
-	currentCamera.transform = malloc(sizeof(mat4));
+	client.gameWorld->currCamera->transform = malloc(sizeof(mat4));
 	
-	float *camScaled = scaleMatrix(defaultMatrix, (Vector3){currentCamera.zoom, currentCamera.zoom, currentCamera.zoom});
-	float *camTranslated = translateMatrix(camScaled, vec3Mult(currentCamera.pos, invVec3));
-	float *camRotated = rotateMatrix(camTranslated, vec3Mult(currentCamera.rot, invVec3), ROT_YXZ);
+	float *camTranslated = translateMatrix(defaultMatrix, vec3Mult(client.gameWorld->currCamera->pos, invVec3));
+	float *camRotated = rotateMatrix(camTranslated, vec3Mult(client.gameWorld->currCamera->rot, invVec3), ROT_YXZ);
 	
-	memcpy(currentCamera.transform, camRotated, sizeof(mat4));
-	free(camTranslated); free(camScaled); free(camRotated); 
+	memcpy(client.gameWorld->currCamera->transform, camRotated, sizeof(mat4));
+	free(camTranslated); free(camRotated); 
 
-	currentCamera.proj = projMatrix(currentCamera.fov, aspectRatio, 0.1, 1000000);
+	client.gameWorld->currCamera->proj = projMatrix(currentCamera.fov, aspectRatio, 0.1, 1000000);
 
 	if(client.studio && focusObject)
 		updateStudioGimbles();
@@ -449,7 +444,10 @@ SDL_AppResult SDL_AppIterate(void *appstate){
 	setGlShader(flatShader); setupGlUniforms();
 
 		skyboxMatrix = translateMatrix(defaultMatrix, currentCamera.pos);
-		drawMeshOpenGL(skyboxMesh, skyboxMatrix, (SDL_FColor){1,1,1,1}, skyTex);
+		TextureRef* skyboxTex = skyTex;
+		if(client.gameWorld->skybox)
+			skyboxTex = client.gameWorld->skybox;
+		drawMeshOpenGL(skyboxMesh, skyboxMatrix, (SDL_FColor){1,1,1,1}, skyboxTex);
 		free(skyboxMatrix);
 	
 		sunMatrix = genMatrix(currentCamera.pos, (Vector3){1, 1, 1}, vec3Add(normToRot3(lightNormal), (Vector3){PI, PI, 0}));
@@ -498,10 +496,15 @@ SDL_AppResult SDL_AppIterate(void *appstate){
 	glUniform2fv(glLocs[GLVAL_RESOLUTION], 1, resFloat);
 
 	if(client.studio){
-		float* guiTestMatrix = genMatrix((Vector3){-aspectRatio, 1, 0}, (Vector3){(240.f / windowScale.x) * aspectRatio * 2, 1, (320.f / windowScale.y) * 2}, (Vector3){HALFPI, 0, 0});
-		drawMeshOpenGL(planePrim, guiTestMatrix, (SDL_FColor){1, 1, 1, 1}, studioTexRef);
-		free(guiTestMatrix);
+		float* studioMatrix = genMatrix((Vector3){-aspectRatio, 1, 0}, (Vector3){(240.f / windowScale.x) * aspectRatio * 2, 1, (320.f / windowScale.y) * 2}, (Vector3){HALFPI, 0, 0});
+		drawMeshOpenGL(planePrim, studioMatrix, (SDL_FColor){1, 1, 1, 1}, studioTexRef);
+		free(studioMatrix);
 	}
+
+	SDL_FPoint cursorDrawPos = camMoveMode == 1 ? storedMousePos : mousePos;
+	float* cursorMatrix = genMatrix((Vector3){(floor(cursorDrawPos.x) / windowScale.x - 0.5) * 2 * aspectRatio, (-floor(cursorDrawPos.y) / windowScale.y) * 2 + 1, 0}, (Vector3){(32.f / windowScale.x) * aspectRatio * 2, 1, (32.f / windowScale.y) * 2}, (Vector3){HALFPI, 0, 0});
+	drawMeshOpenGL(planePrim, cursorMatrix, (SDL_FColor){1, 1, 1, 1}, cursorTex);
+	free(cursorMatrix);
 
 	free(guiMatrix);
 

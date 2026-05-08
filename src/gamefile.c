@@ -284,6 +284,24 @@ int loadGameFile(const char* filename) {
             cJSON_GetArrayItem(lightDir, 2)->valuedouble * DEG2RAD
         });
 
+    /*cJSON* skybox = cJSON_GetObjectItem(json, "skybox");
+    TextureRef* skyboxTex = NULL;
+    if(skybox && cJSON_IsString(skybox)) {
+        if(skybox->valuestring[0] == '.' && skybox->valuestring[1] == '/'){
+            char* texString = joinDirectories(currPath, skybox->valuestring);
+            skyboxTex = loadTexture(texString, false);
+            free(texString);
+        }else 
+            skyboxTex = loadTexture(skybox->valuestring, false);
+	  
+        if(!skyboxTex)
+            printf("Failed to load texture from file: %s\n", skybox->valuestring);
+    }
+    if(skyboxTex)
+    	client.gameWorld->skybox = skyboxTex;
+    else
+    	client.gameWorld->skybox = NULL;*/
+
     cJSON* objects = cJSON_GetObjectItem(json, "objects");
     if(!objects || !cJSON_IsArray(objects)) {
         printf("No objects array found in JSON\n");
