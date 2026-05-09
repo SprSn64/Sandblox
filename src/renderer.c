@@ -35,7 +35,7 @@ Vector3 screenToGL(Vector3 pos){
 }
 
 Vector3 glToScreen(Vector3 pos){
-	return (Vector3){(pos.x + 1) / 2 * windowScale.x, (pos.y + 1) / 2 * windowScale.y, pos.z};
+	return (Vector3){(pos.x + 1) / 2 * windowScale.x, (-pos.y + 1) / 2 * windowScale.y, pos.z};
 }
 
 SDL_FColor clampColour(SDL_FColor colour){

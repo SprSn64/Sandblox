@@ -472,7 +472,6 @@ SDL_AppResult SDL_AppIterate(void *appstate){
 
 	//drawBone(testRig->rootBone);
 	updateStudio();
-	updatePopups();
 		
 	static char fpsText[256] = "FPS: 0";
 	static char rotText[256] = "Camera Rot: 0, 0";
@@ -494,6 +493,8 @@ SDL_AppResult SDL_AppIterate(void *appstate){
 	glUniformMatrix4fv(glLocs[GLVAL_VIEWMATRIX], 1, GL_FALSE, defaultMatrix);
 	float resFloat[2] = {windowScale.x, windowScale.y};
 	glUniform2fv(glLocs[GLVAL_RESOLUTION], 1, resFloat);
+
+	updatePopups();
 
 	if(client.studio){
 		float* studioMatrix = genMatrix((Vector3){-aspectRatio, 1, 0}, (Vector3){(240.f / windowScale.x) * aspectRatio * 2, 1, (320.f / windowScale.y) * 2}, (Vector3){HALFPI, 0, 0});

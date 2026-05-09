@@ -1,5 +1,6 @@
 #include <SDL3/SDL.h>
 #include <SDL3_image/SDL_image.h>
+#include <GL/glew.h>
 
 #include <stdio.h>
 #include <string.h>
@@ -266,6 +267,17 @@ DataObj** listChildren(DataObj* item){
 
 //not dealing with a descendant list function yet
 
+extern float* defaultMatrix;
+void transformObject(DataObj* item, Vector3 pos, Vector3 scale, Vector3 rot){
+	float* rotMatrix = rotateMatrix(defaultMatrix, rot, ROT_XYZ);
+	Vector3 rotPos = vec4ToVec3(matrixMult(vec3ToVec4(item->pos), rotMatrix));
+	item->pos = (Vector3){rotPos.x * scale.x + pos.x, rotPos.y * scale.y + pos.y, rotPos.z * scale.z + pos.z};
+	free(rotMatrix);
+
+	item->scale = vec3Mult(item->scale, scale);
+	item->rot = vec3Add(item->rot, rot);
+}
+
 NotiPopup* popupHead = NULL;
 
 void sendPopup(char* string, SDL_Texture* image, SDL_FRect* rect, float life){
@@ -299,16 +311,24 @@ void updatePopup(NotiPopup* item){
 extern SDL_Point windowScale;
 extern Font defaultFont;
 
-extern Texture* displayTex;
+extern float aspectRatio;
+extern Mesh* planePrim;
 void renderPopup(NotiPopup* item, Uint32 posX, Uint32 posY){
 	if(item->age >= item->life) return;
 	
 	SDL_SetRenderDrawColor(renderer, 0, 0, 0, 128);
 	SDL_RenderFillRect(renderer, &(SDL_FRect){posX, posY, 224, 64});
-	drawRect(displayTex, posX, posY, 224, 64, 0x80000000);
+	//drawRect(displayTex, posX, posY, 224, 64, 0x80000000);
+
+	float* backMatrix = genMatrix(
+		screenToGL((Vector3){posX, posY, 0}), 
+		(Vector3){(224.f / windowScale.x) * aspectRatio * 2, 1, (64.f / windowScale.y) * 2}, 
+		(Vector3){HALFPI, 0, 0});
+	drawMeshOpenGL(planePrim, backMatrix, (SDL_FColor){0, 0, 0, 0.5}, NULL);
+	free(backMatrix);
 	
 	drawText(renderer, &defaultFont, item->text, posX + 2, posY + 2, 1, (SDL_FColor){1, 1, 1, 1});
-	drawRasterText(displayTex, &defaultFont, item->text, posX + 2, posY + 2, 1, 0xFFFFFFFF);
+	//drawRasterText(displayTex, &defaultFont, item->text, posX + 2, posY + 2, 1, 0xFFFFFFFF);
 }
 
 void updatePopups(){

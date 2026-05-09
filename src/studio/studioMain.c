@@ -52,6 +52,7 @@ HistoryItem* historyHead = NULL;
 DataObj *focusObject = NULL;
 extern SDL_MouseButtonFlags mouseState;
 extern SDL_FPoint mousePos;
+extern ButtonMap mouseButtons[3];
 extern ButtonMap stuMouseButtons[3];
 
 extern ButtonMap stuKeyList[STUDIOKEYBIND_MAX];
@@ -232,7 +233,7 @@ void drawObjectList(DataObj* item, int nodeDepth, int *idCount){
 	if(itemYOffset < 0)
 		goto listRenderSkip;
 	
-	if(between(mousePos.x, objListRect.x, objListRect.x + objListRect.w) && between(mousePos.y, objListRect.y + 3 + itemYOffset, objListRect.y + 15 + itemYOffset) && stuMouseButtons[0].pressed){
+	if(between(mousePos.x, objListRect.x, objListRect.x + objListRect.w) && between(mousePos.y, objListRect.y + 3 + itemYOffset, objListRect.y + 15 + itemYOffset) && mouseButtons[0].pressed){
 		if(item == focusObject){
 			item->studioOpen = !item->studioOpen;
 		}
