@@ -25,7 +25,8 @@ typedef struct {
 
 typedef struct{
 	Uint32 vertA, vertB, vertC;
-	MeshMaterial material;
+	MeshMaterial material; //why the fuck isnt it a pointer
+	//why the fuck are you storing the entire material in each face 
 } MeshFace;
 
 typedef enum meshTypes{
@@ -84,6 +85,9 @@ typedef struct{
 	SDL_FPoint kerning;
 	Uint16 columns;
 } Font;
+
+Vector3 glToScreen(Vector3 pos);
+Vector3 screenToGL(Vector3 pos);
 
 void drawText(SDL_Renderer *renderLoc, Font *textFont, char* text, short posX, short posY, float size, SDL_FColor colour);
 void setDrawColour(SDL_Renderer *render, CharColour colour);

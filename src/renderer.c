@@ -15,7 +15,6 @@
 #include "softwarerender/depth.h"
 
 extern SDL_Renderer *renderer;
-extern bool glEnabled;
 
 extern float timer;
 extern ClientData client;
@@ -30,6 +29,14 @@ SDL_FColor lightAmbient = {0.25, 0.25, 0.3, 1};
 
 //bool matrixOrSlopProject = false;
 extern float* defaultMatrix;
+extern float aspectRatio;
+Vector3 screenToGL(Vector3 pos){
+	return (Vector3){(pos.x / windowScale.x - 0.5) * 2 * aspectRatio, -pos.y / windowScale.y * 2 + 1, pos.z};
+}
+
+Vector3 glToScreen(Vector3 pos){
+	return (Vector3){(pos.x + 1) / 2 * windowScale.x, (pos.y + 1) / 2 * windowScale.y, pos.z};
+}
 
 SDL_FColor clampColour(SDL_FColor colour){
 	return (SDL_FColor){min(max(colour.r, 0), 1), min(max(colour.g, 0), 1), min(max(colour.b, 0), 1), min(max(colour.a, 0), 1)};
@@ -107,8 +114,8 @@ Mesh* genTorusMesh(float outerRad, float innerRad, Uint16 ringRes, Uint16 ringCo
 		Uint32 newI = i * 2;
 		//MeshVert *quadVerts[4] = {&newVerts[i], &newVerts[(i+1) % vertCount], &newVerts[(i + ringRes) % vertCount], &newVerts[(i+1 + ringRes) % vertCount]};
 		
-		newFaces[newI] = (MeshFace){i, (i+1) % vertCount, (i + ringRes) % vertCount};
-		newFaces[(newI + 1)] = (MeshFace){(i + ringRes) % vertCount, (i+1) % vertCount, (i+1 + ringRes) % vertCount};
+		newFaces[newI] = (MeshFace){i, (i+1) % vertCount, (i + ringRes) % vertCount, 0};
+		newFaces[(newI + 1)] = (MeshFace){(i + ringRes) % vertCount, (i+1) % vertCount, (i+1 + ringRes) % vertCount, 0};
 	}
 	
 	Mesh* newMesh = malloc(sizeof(Mesh)); newMesh->persistent = false;
@@ -144,14 +151,14 @@ Mesh* genCylinderMesh(float btmRad, float topRad, float length, int res){
 		int newI = i * 2;
 		//MeshVert *quadVerts[4] = {&newVerts[i], &newVerts[(i+1) % res], &newVerts[(i + res)], &newVerts[(i+1)%res + res]};
 		
-		newFaces[newI] = (MeshFace){i, (i+1) % res, i + res};
-		newFaces[(newI + 1)] = (MeshFace){i + res, (i+1) % res, (i+1)%res + res};
+		newFaces[newI] = (MeshFace){i, (i+1) % res, i + res, 0};
+		newFaces[(newI + 1)] = (MeshFace){i + res, (i+1) % res, (i+1)%res + res, 0};
 	}
 	
 	for(int i=0; i<res-2; i++){
 		int newI = 2 * res + i;
-		newFaces[newI] = (MeshFace){i, 0, (i + 1) % res};
-		newFaces[newI + res - 2] = (MeshFace){res, i + res, res + (i+1) % res};
+		newFaces[newI] = (MeshFace){i, 0, (i + 1) % res, 0};
+		newFaces[newI + res - 2] = (MeshFace){res, i + res, res + (i+1) % res, 0};
 	}
 	
 	Mesh* newMesh = malloc(sizeof(Mesh)); newMesh->persistent = false;
@@ -161,7 +168,7 @@ Mesh* genCylinderMesh(float btmRad, float topRad, float length, int res){
 }
 
 Mesh* genPlaneMesh(float xScale, float yScale, Uint16 xRes, Uint16 yRes){
-	if(fabs(xScale) + fabs(yScale) == 0 || xRes + yRes == 0) return NULL;
+	if(fabs(xScale) + fabs(yScale) == 0 || xRes + yRes == 0) return 0;
 	
 	Uint32 vertCount = (xRes + 1) * (yRes + 1);
 	Uint32 faceCount = xRes * yRes * 2;
@@ -181,8 +188,8 @@ Mesh* genPlaneMesh(float xScale, float yScale, Uint16 xRes, Uint16 yRes){
 	for(Uint32 i=0; i<faceCount/2; i++){
 		Uint32 newI = i * 2;
 		
-		newFaces[newI] = (MeshFace){i, i+1, i + xRes + 1};
-		newFaces[(newI + 1)] = (MeshFace){i + xRes + 1, i+1, i + 2 + xRes};
+		newFaces[newI] = (MeshFace){i, i+1, i + xRes + 1, 0};
+		newFaces[(newI + 1)] = (MeshFace){i + xRes + 1, i+1, i + 2 + xRes, 0};
 	}
 	
 	Mesh* newMesh = malloc(sizeof(Mesh)); newMesh->persistent = false;

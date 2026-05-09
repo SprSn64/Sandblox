@@ -502,7 +502,10 @@ SDL_AppResult SDL_AppIterate(void *appstate){
 	}
 
 	SDL_FPoint cursorDrawPos = camMoveMode == 1 ? storedMousePos : mousePos;
-	float* cursorMatrix = genMatrix((Vector3){(floor(cursorDrawPos.x) / windowScale.x - 0.5) * 2 * aspectRatio, (-floor(cursorDrawPos.y) / windowScale.y) * 2 + 1, 0}, (Vector3){(32.f / windowScale.x) * aspectRatio * 2, 1, (32.f / windowScale.y) * 2}, (Vector3){HALFPI, 0, 0});
+	float* cursorMatrix = genMatrix(
+		screenToGL((Vector3){floor(cursorDrawPos.x), floor(cursorDrawPos.y), 0}), 
+		(Vector3){(32.f / windowScale.x) * aspectRatio * 2, 1, (32.f / windowScale.y) * 2}, 
+		(Vector3){HALFPI, 0, 0});
 	drawMeshOpenGL(planePrim, cursorMatrix, (SDL_FColor){1, 1, 1, 1}, cursorTex);
 	free(cursorMatrix);
 

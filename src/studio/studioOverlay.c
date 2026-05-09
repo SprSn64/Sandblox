@@ -47,7 +47,7 @@ Vector3 quickProj(Vector3 pos){
 	Camera* currCam = client.gameWorld->currCamera;
 
 	Vector4 newPos = matrixMult(matrixMult(vec3ToVec4(pos), currCam->transform), currCam->proj);
-	return (Vector3){(newPos.x / newPos.w) * (windowScale.x / 2), (newPos.y / newPos.w) * (windowScale.y / 2), newPos.z / newPos.w};
+	return glToScreen((Vector3){newPos.x / newPos.w, newPos.y / newPos.w, newPos.z});
 }
 
 extern float aspectRatio;

@@ -70,6 +70,12 @@ CollsionReturn* getCollision(CollisionHull* itemA, CollisionHull* itemB){
 		output->outNorm = (Vector3){0, itemA->pos.y - itemB->pos.y, 0};
 		output->hullA = itemA; output->hullB = itemB;
 	}
+
+	if(itemA->shape == COLLHULL_SPHERE && itemB->shape == COLLHULL_SPHERE){
+		output = malloc(sizeof(CollsionReturn));
+		output->outNorm = (Vector3){0, itemA->pos.y - itemB->pos.y, 0};
+		output->hullA = itemA; output->hullB = itemB;
+	}
 	
 	/*if(collide is yes) then do'eth
 		tell me the collision outputs then please
