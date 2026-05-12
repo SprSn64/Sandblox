@@ -30,7 +30,8 @@ void drawObjects(DataObj* item, int nodeDepth, int *idCount);
 void cleanupObjects(DataObj* item);
 void lesserCleanupObjects(DataObj* item);
 
-DataObj* firstChildOfType(DataObj* item, DataType classData);
+DataObj* firstChildOfType(DataObj* item, DataType* classData);
+DataObj* firstChildWithName(DataObj* item, char* name);
 DataObj** listChildren(DataObj* item);
 
 void sendPopup(char* string, SDL_Texture* image, SDL_FRect* rect, float life);

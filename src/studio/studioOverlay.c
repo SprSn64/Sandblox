@@ -110,9 +110,9 @@ void translateGimbleUpdate(DataObj* item){
 	}
 	
 	switch(gimbleGrabbed){
-		case 1: vector->x = closest(ogPos.x + dist * (dragDist - ogLerp), snapUnit); break;
-		case 2: vector->y = closest(ogPos.y + dist * (dragDist - ogLerp), snapUnit); break;
-		case 3: vector->z = closest(ogPos.z + dist * (dragDist - ogLerp), snapUnit); break;
+		case 1: vector->x = closest(ogPos.x + dist * (dragDist - ogLerp) + 0.5, snapUnit); break;
+		case 2: vector->y = closest(ogPos.y + dist * (dragDist - ogLerp) + 0.5, snapUnit); break;
+		case 3: vector->z = closest(ogPos.z + dist * (dragDist - ogLerp) + 0.5, snapUnit); break;
 	}
 	
 	if(mouseButtons[0].pressed && gimbleGrabbed == 0){

@@ -234,14 +234,27 @@ bool parentObject(DataObj* child, DataObj* parent){
 
 }
 
-DataObj* firstChildOfType(DataObj* item, DataType classData){
+DataObj* firstChildOfType(DataObj* item, DataType* classData){
 	if(!item->child) return NULL;
 	DataObj *loopItem = item->child;
 	while(loopItem){
-		if(loopItem->classData->id == classData.id)
+		if(loopItem->classData->id == classData->id)
 			return loopItem;
 		loopItem = loopItem->next;
 	}
+	printf("Couldn't find child of %s with class '%s'.\n", item->name, classData->name);
+	return NULL;
+}
+
+DataObj* firstChildWithName(DataObj* item, char* name){
+	if(!item->child) return NULL;
+	DataObj *loopItem = item->child;
+	while(loopItem){
+		if(strcmp(loopItem->classData->name, name))
+			return loopItem;
+		loopItem = loopItem->next;
+	}
+	printf("Couldn't find child of %s with name '%s'.\n", item->name, name);
 	return NULL;
 }
 

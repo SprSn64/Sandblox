@@ -130,7 +130,7 @@ CodeBlock testCodeBlock;
 
 SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[]){
 	(void)appstate;
-	client.version = "0.03 INDEV";
+	client.version = "0.04 INDEV";
 	SDL_SetAppMetadata("SandBlox", client.version, NULL);
 
 	DIR* assetsDir = opendir("assets");
@@ -184,6 +184,12 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[]){
 
 	glGenFramebuffers(1, &gameBuffer);
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+	glGenTextures(1, &gameBufferTex);
+	glBindTexture(GL_TEXTURE_2D, gameBufferTex);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, 640, 480, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR); 
 	
 	glGenTextures(1, &glBlankTex);
 	glActiveTexture(GL_TEXTURE0);
@@ -503,6 +509,7 @@ SDL_AppResult SDL_AppIterate(void *appstate){
 	}
 
 	SDL_FPoint cursorDrawPos = camMoveMode == 1 ? storedMousePos : mousePos;
+	if(camMoveMode == 2) cursorDrawPos = (SDL_FPoint){windowScale.x >> 1, windowScale.y >> 1};
 	float* cursorMatrix = genMatrix(
 		screenToGL((Vector3){floor(cursorDrawPos.x), floor(cursorDrawPos.y), 0}), 
 		(Vector3){(32.f / windowScale.x) * aspectRatio * 2, 1, (32.f / windowScale.y) * 2}, 
@@ -518,7 +525,7 @@ SDL_AppResult SDL_AppIterate(void *appstate){
 	free(currentCamera.transform);
 	free(currentCamera.proj);
 
-	//glBindFramebuffer(GL_FRAMEBUFFER, 0);
+	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 	SDL_GL_SwapWindow(window);
 
 	return SDL_APP_CONTINUE;

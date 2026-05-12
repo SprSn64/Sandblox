@@ -131,7 +131,7 @@ void blockInit(DataObj* object){
 void blockDraw(DataObj* object){
 	Mesh *itemMesh = cubePrim;
 	TextureRef *itemTex = NULL;
-	DataObj *meshItem = firstChildOfType(object, meshClass);
+	DataObj *meshItem = firstChildOfType(object, &meshClass);
 	float *meshTransform = object->transform;
 	float *meshMatrix;
 	if(meshItem){
