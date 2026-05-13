@@ -87,17 +87,17 @@ bool setGlTexture(Texture* tex){
 
 extern Uint32 glBlankTex;
 void drawMeshOpenGL(Mesh* mesh, mat4 transform, SDL_FColor colour, TextureRef* overrideTexture) {
-    glUniformMatrix4fv(glLocs[GLVAL_WORLDMATRIX], 1, GL_FALSE, transform);
+	glUniformMatrix4fv(glLocs[GLVAL_WORLDMATRIX], 1, GL_FALSE, transform);
 
-    float colourFloat[4] = { colour.r, colour.g, colour.b, colour.a };
-    glUniform4fv(glLocs[GLVAL_MULTCOLOUR], 1, colourFloat);
+	float colourFloat[4] = {colour.r, colour.g, colour.b, colour.a};
+	glUniform4fv(glLocs[GLVAL_MULTCOLOUR], 1, colourFloat);
 
-    glBufferData(GL_ARRAY_BUFFER, sizeof(MeshVert) * mesh->vertCount, mesh->verts, GL_STATIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(MeshVert) * mesh->vertCount, mesh->verts, GL_STATIC_DRAW);
     
-    if (overrideTexture && overrideTexture->glLoc)
-        glBindTexture(GL_TEXTURE_2D, overrideTexture->glLoc);
-    else
-        glBindTexture(GL_TEXTURE_2D, glBlankTex);
+	if (overrideTexture && overrideTexture->glLoc)
+		glBindTexture(GL_TEXTURE_2D, overrideTexture->glLoc);
+	else
+		glBindTexture(GL_TEXTURE_2D, glBlankTex);
 
     char lastTex[256] = "";
     GLuint currentTex = glBlankTex;
@@ -119,7 +119,7 @@ void drawMeshOpenGL(Mesh* mesh, mat4 transform, SDL_FColor colour, TextureRef* o
         }
 
         if (newTexture) {
-            TextureRef *tref = loadTexture(texPath, false);
+            TextureRef *tref = loadTexture(texPath, false); //there is no need for this.
             currentTex = tref && tref->glLoc ? tref->glLoc : glBlankTex;
             strcpy(lastTex, texPath);
         }
@@ -137,7 +137,7 @@ void drawMeshOpenGL(Mesh* mesh, mat4 transform, SDL_FColor colour, TextureRef* o
 
     free(indices);
 
-    glBindTexture(GL_TEXTURE_2D, 0);
+	glBindTexture(GL_TEXTURE_2D, 0);
 }
 
 void deleteBuffer(Uint32 id){

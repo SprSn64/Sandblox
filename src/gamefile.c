@@ -270,6 +270,29 @@ int loadGameFile(const char* filename) {
         return -1;
     }
 
+    cJSON* version = cJSON_GetObjectItem(json, "version");
+    if(version && cJSON_IsString(version)){
+        if(strcmp(version->valuestring, client.version) > 0){
+        	sendPopup("Map file is from a future version!", NULL, NULL, 5);
+        	return -1;
+        }
+    }
+
+    cJSON* objects = cJSON_GetObjectItem(json, "objects");
+    if(!objects || !cJSON_IsArray(objects)) {
+        printf("No objects array found in JSON\n");
+        cJSON_Delete(json);
+        free(content);
+        return -1;
+    }
+    
+    printf("Found %d objects in JSON\n", cJSON_GetArraySize(objects));
+    loadedPlayer = NULL;
+    
+    client.pause = true;
+    cleanupTextures(true); cleanupMeshes(true);
+    lesserCleanupObjects(client.gameWorld->headObj);
+
     cJSON* plrEnabled = cJSON_GetObjectItem(json, "playerEnabled");
     if(plrEnabled && cJSON_IsBool(plrEnabled))
 		playerEnabled = cJSON_IsTrue(plrEnabled);
@@ -301,21 +324,6 @@ int loadGameFile(const char* filename) {
     	client.gameWorld->skybox = skyboxTex;
     else
     	client.gameWorld->skybox = NULL;*/
-
-    cJSON* objects = cJSON_GetObjectItem(json, "objects");
-    if(!objects || !cJSON_IsArray(objects)) {
-        printf("No objects array found in JSON\n");
-        cJSON_Delete(json);
-        free(content);
-        return -1;
-    }
-    
-    printf("Found %d objects in JSON\n", cJSON_GetArraySize(objects));
-    loadedPlayer = NULL;
-    
-    client.pause = true;
-    cleanupTextures(true); cleanupMeshes(true);
-    lesserCleanupObjects(client.gameWorld->headObj);
     
     int objectCount = cJSON_GetArraySize(objects);
     for(int i = 0; i < objectCount; i++) {

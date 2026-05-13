@@ -418,7 +418,6 @@ SDL_AppResult SDL_AppIterate(void *appstate){
 	if(!client.pause){
 		if(playerEnabled && !client.gameWorld->currPlayer){
 			if(playerRespawn >= 3) loadPlayerAvatar();
-			focusObject = client.gameWorld->currPlayer;
 			playerRespawn += deltaTime;
 		}
 		updateObjects(client.gameWorld->headObj, 0, &idCounter);

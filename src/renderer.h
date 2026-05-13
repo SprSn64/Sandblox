@@ -17,7 +17,7 @@ typedef struct {
     char tex[256];
 } MeshMtlEntry;
 
-typedef struct {
+typedef struct MeshMaterial{
 	//todo add colors?
 	float specular;
 	char tex[256];
