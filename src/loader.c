@@ -60,7 +60,7 @@ Texture* loadRasterTexture(char* path){
 TextureRef* textureExists(char* path){
 	TextureRef *loopItem = headTexture;
 	while(loopItem){
-		if(loopItem->filePath == path)
+		if(!strcmp(loopItem->filePath, path))
 			return loopItem;
 		loopItem = loopItem->next;
 	}
