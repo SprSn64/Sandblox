@@ -307,7 +307,7 @@ int loadGameFile(const char* filename) {
             cJSON_GetArrayItem(lightDir, 2)->valuedouble * DEG2RAD
         });
 
-    /*cJSON* skybox = cJSON_GetObjectItem(json, "skybox");
+    cJSON* skybox = cJSON_GetObjectItem(json, "skybox");
     TextureRef* skyboxTex = NULL;
     if(skybox && cJSON_IsString(skybox)) {
         if(skybox->valuestring[0] == '.' && skybox->valuestring[1] == '/'){
@@ -323,7 +323,7 @@ int loadGameFile(const char* filename) {
     if(skyboxTex)
     	client.gameWorld->skybox = skyboxTex;
     else
-    	client.gameWorld->skybox = NULL;*/
+    	client.gameWorld->skybox = NULL;
     
     int objectCount = cJSON_GetArraySize(objects);
     for(int i = 0; i < objectCount; i++) {
