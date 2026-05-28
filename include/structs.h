@@ -52,6 +52,8 @@ typedef struct{
 	void (*init)(DataObj*);
 	void (*update)(DataObj*);
 	void (*draw)(DataObj*);
+
+	//i should really add a destroy (run on destroy) function for cleaning up
 } DataType;
 
 typedef enum objValues{ //array items for the pointers (the void *values)
@@ -101,6 +103,8 @@ typedef struct{
 	DataObj* currPlayer;
 
 	TextureRef* skybox;
+
+	float playerRespawn;
 } GameWorld;
 
 typedef struct{

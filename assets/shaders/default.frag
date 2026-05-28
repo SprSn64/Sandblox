@@ -29,7 +29,7 @@ void main(){
 	if(baseColour.a <= alphaDither)
 		discard;
 
-	float fogStrength = 0;//min(max(0, (pos.z - 128)/64), 1);
+	float fogStrength = 0;//min(max(0, (sqrt(pos.x * pos.x + pos.y * pos.y + pos.z * pos.z) - 128)/64), 1);
 
 	vec3 reflectSource = normalize(reflect(-normalize(lightNorm), norm));
 	float specular = pow(max(dot(cameraNorm, reflectSource), 0), 16);

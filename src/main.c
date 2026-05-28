@@ -50,6 +50,7 @@ Uint32 glBlankTex; Uint32 blankColour = 0xFFFFFFFF;
 extern TextureRef* studioTexRef;
 
 Uint32 gameBuffer; Uint32 gameBufferTex;
+TextureRef gameBufferTexRef = {NULL, NULL, NULL, 0, NULL, NULL, true};
 
 ClientData client;
 GameWorld game;
@@ -109,7 +110,6 @@ extern SDL_FColor lightColour;
 extern SDL_FColor lightAmbient;
 
 DataObj* playerObj = NULL;
-float playerRespawn = 5;
 bool playerEnabled = true;
 
 float* defaultMatrix = NULL;
@@ -167,8 +167,6 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[]){
 
 	char windowName[64] = "Sandblox vXX.XX";
 	sprintf(windowName, "Sandblox v%s", client.version);
-	//why would you need this if youre gonna use opengl anyway?
-	//erm.... debugg'eth stuff?
 	if(!(window = SDL_CreateWindow(windowName, windowScale.x, windowScale.y, SDL_WINDOW_RESIZABLE | SDL_WINDOW_OPENGL | SDL_WINDOW_MAXIMIZED))){
 		printf("Couldn't create window: %s", SDL_GetError());
 		return SDL_APP_FAILURE;
@@ -197,6 +195,8 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[]){
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, 1, 1, 0, GL_RGBA, GL_UNSIGNED_BYTE, &blankColour);
 	glGenerateMipmap(GL_TEXTURE_2D);
 	glBindTexture(GL_TEXTURE_2D, 0);
+
+	gameBufferTexRef.glLoc = gameBufferTex;
 
 	fontTex = loadTexture("assets/textures/font.png", true);
 	boneTex = loadTexture("assets/textures/bonetex.png", true);
@@ -284,6 +284,10 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[]){
 
 	client.gameWorld->currPlayer = NULL;
 	client.gameWorld->currCamera = &currentCamera;
+	client.gameWorld->playerRespawn = 5;
+	client.gameWorld->skybox = NULL;
+
+	client.debug = true;
 	
 	defaultMatrix = newMatrix();
 
@@ -417,8 +421,8 @@ SDL_AppResult SDL_AppIterate(void *appstate){
 	objListLength = 0;
 	if(!client.pause){
 		if(playerEnabled && !client.gameWorld->currPlayer){
-			if(playerRespawn >= 3) loadPlayerAvatar();
-			playerRespawn += deltaTime;
+			if(client.gameWorld->playerRespawn >= 3) loadPlayerAvatar();
+			client.gameWorld->playerRespawn += deltaTime;
 		}
 		updateObjects(client.gameWorld->headObj, 0, &idCounter);
 	}
@@ -493,7 +497,7 @@ SDL_AppResult SDL_AppIterate(void *appstate){
 	
 	if(client.pause)drawText(renderer, &defaultFont, "Game Paused", 0, windowScale.y - 16, 2, (SDL_FColor){1, 1, 1, 1});
 
-	setGlValue(GL_DEPTH_TEST, false); setGlShader(flatShader);
+	setGlValue(GL_DEPTH_TEST, false); setGlShader(flatShader); setGlValue(GL_BLEND, true);
 	glUniformMatrix4fv(glLocs[GLVAL_PROJMATRIX], 1, GL_FALSE, guiMatrix);
 	glUniformMatrix4fv(glLocs[GLVAL_VIEWMATRIX], 1, GL_FALSE, defaultMatrix);
 	float resFloat[2] = {windowScale.x, windowScale.y};
@@ -516,15 +520,17 @@ SDL_AppResult SDL_AppIterate(void *appstate){
 	drawMeshOpenGL(planePrim, cursorMatrix, (SDL_FColor){1, 1, 1, 1}, cursorTex);
 	free(cursorMatrix);
 
-	free(guiMatrix);
+	free(guiMatrix); setGlValue(GL_BLEND, false);
 
 	//SDL_FPoint drawCursorPos = mousePos;
 	//SDL_RenderTexture(renderer, cursorTex, &(SDL_FRect){0, 0, 32, 32}, &(SDL_FRect){drawCursorPos.x, drawCursorPos.y, 32, 32});
+	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+	drawMeshOpenGL(planePrim, defaultMatrix, (SDL_FColor){1, 1, 1, 1}, &gameBufferTexRef);
 
 	free(currentCamera.transform);
 	free(currentCamera.proj);
-
-	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+	
 	SDL_GL_SwapWindow(window);
 
 	return SDL_APP_CONTINUE;

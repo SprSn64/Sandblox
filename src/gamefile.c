@@ -14,7 +14,6 @@ extern DataObj gameHeader;
 extern Vector3 lightNormal;
 
 DataObj* loadedPlayer = NULL;
-extern float playerRespawn;
 extern char* basePath;
 
 extern void objSpinFunc(DataObj* object);
@@ -50,6 +49,7 @@ DataType* getClassByName(const char* name) {
     if(!strcmp(name, "Image")) return &imageClass;
     if(!strcmp(name, "Script")) return &scriptClass;
     if(!strcmp(name, "Accessory")) return &accessoryClass;
+    if(!strcmp(name, "Armature")) return &armatureClass;
     return NULL;
 }
 
@@ -332,10 +332,10 @@ int loadGameFile(const char* filename) {
             /*DataObj* newObj = */createObjectFromJSON(obj, NULL);
     }
 	
-    playerRespawn = 10;
+    client.gameWorld->playerRespawn = 10;
     if(loadedPlayer){
         client.gameWorld->currPlayer = loadedPlayer;
-        playerRespawn = 0;
+        client.gameWorld->playerRespawn = 0;
         printf("Set current player to: %s\n", loadedPlayer->name ? loadedPlayer->name : "unnamed");
         loadedPlayer = NULL;
     }else
@@ -451,7 +451,10 @@ int saveGameFile(const char* filename){
 DataObj* loadPlayerAvatar(){
 	DataObj* newPlayer = newObject(&playerClass);
 	parentObject(newPlayer, client.gameWorld->headObj);
-	playerRespawn = 0;
+	client.gameWorld->playerRespawn = 0;
+
+	DataObj* newArmature = newObject(&armatureClass);
+	parentObject(newArmature, newPlayer);
 
 	char *avatarPath = malloc(256); sprintf(avatarPath, "%splayer.json", basePath);
 	FILE* file = fopen(avatarPath, "r");

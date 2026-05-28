@@ -20,6 +20,7 @@ extern DataType cameraClass;
 extern DataType imageClass;
 extern DataType scriptClass;
 extern DataType accessoryClass;
+extern DataType armatureClass;
 
 extern DataType fuckingBeerdrinkerClass;
 

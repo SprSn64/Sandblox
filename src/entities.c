@@ -1,4 +1,5 @@
 #include <SDL3/SDL.h>
+#include <GL/glew.h>
 
 #include <string.h>
 #include <math.h>
@@ -11,6 +12,7 @@
 #include "math.h"
 #include "physics.h"
 #include "opengl.h"
+#include "bones.h"
 
 extern ClientData client;
 extern GameWorld game;
@@ -181,8 +183,26 @@ void imageDraw(DataObj* object){
 	if(!itemTex) return;
 	drawMeshOpenGL(planePrim, object->transform, ConvertSDLColour(object->colour), itemTex);
 }
-
 DataType imageClass = {"Image\0", 8, 0, NULL, NULL, imageDraw};
+
+extern Mesh* boneMesh;
+void armatureInit(DataObj* object){
+	Skeleton *itemSkele = genTestRig();
+	object->asVoidptr[OBJVAL_OTHER] = itemSkele;
+}
+void armatureUpdate(DataObj* object){
+	(void)object;
+}
+void armatureDraw(DataObj* object){
+	if(!client.debug) return;
+	Skeleton *itemSkele = object->asVoidptr[OBJVAL_OTHER];
+	if(!itemSkele) return;
+
+	setGlValue(GL_DEPTH_TEST, false);
+	drawBone(itemSkele->rootBone);
+	setGlValue(GL_DEPTH_TEST, true);
+}
+DataType armatureClass = {"Armature\0", 11, 0, armatureInit, armatureUpdate, armatureDraw};
 
 void objSpinFunc(DataObj* object){
 	object->parent->rot = vec3Add(object->parent->rot, (Vector3){0.02, 0.01, 0.005});
