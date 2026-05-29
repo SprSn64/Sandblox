@@ -191,7 +191,11 @@ void armatureInit(DataObj* object){
 	object->asVoidptr[OBJVAL_OTHER] = itemSkele;
 }
 void armatureUpdate(DataObj* object){
-	(void)object;
+	if(object->parent->classData != &playerClass) return;
+
+	object->pos = object->parent->pos;
+	object->scale = object->parent->scale;
+	object->rot = object->parent->rot;
 }
 void armatureDraw(DataObj* object){
 	if(!client.debug) return;
@@ -199,7 +203,7 @@ void armatureDraw(DataObj* object){
 	if(!itemSkele) return;
 
 	setGlValue(GL_DEPTH_TEST, false);
-	drawBone(itemSkele->rootBone);
+	drawBone(itemSkele->rootBone, object->transform);
 	setGlValue(GL_DEPTH_TEST, true);
 }
 DataType armatureClass = {"Armature\0", 11, 0, armatureInit, armatureUpdate, armatureDraw};

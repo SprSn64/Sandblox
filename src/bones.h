@@ -26,6 +26,6 @@ typedef struct{
 } Skeleton;
 
 Skeleton* genTestRig();
-void drawBone(BoneItem* bone);
+void drawBone(BoneItem* bone, mat4 transform);
 
 #endif

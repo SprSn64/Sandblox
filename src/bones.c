@@ -54,14 +54,16 @@ Skeleton* genTestRig(){
 	return newRig;
 }
 
-void drawBone(BoneItem* bone){
+void drawBone(BoneItem* bone, mat4 transform){
 	BoneItem* currBone = bone;
 	while (currBone) {
 		float* boneMatrix = genMatrix(currBone->pos, (Vector3){1, 1, 1}, currBone->rot);
-		drawMeshOpenGL(boneMesh, boneMatrix, (SDL_FColor){1, 1, 1, 1}, boneTex);
-		free(boneMatrix);
+		float* transMatrix = multMatrix(boneMatrix, transform);
+
+		drawMeshOpenGL(boneMesh, transMatrix, (SDL_FColor){1, 1, 1, 1}, boneTex);
+		free(boneMatrix); free(transMatrix);
 		if(currBone->child)
-			drawBone(currBone->child);
+			drawBone(currBone->child, transform);
 		currBone = currBone->next;
 	}
 }
