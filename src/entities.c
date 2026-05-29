@@ -22,34 +22,24 @@ extern Mesh *playerMesh;
 extern Mesh *cubePrim;
 extern TextureRef *homerTex;
 
-DataType playerClass;
+void killPlayer(){
+	if(!client.gameWorld->currPlayer) return;
 
-void accessoryUpdate(DataObj* object){
-	if(object->parent->classData == &playerClass){
-		object->pos = object->parent->pos;
-		object->scale = object->parent->scale;
-		object->rot = object->parent->rot;
-		return;
+	DataObj *loopItem = client.gameWorld->currPlayer->child;
+	while(loopItem){
+		DataObj *nextItem = loopItem->next;
+		removeObject(loopItem);
+		loopItem = nextItem;
 	}
-
-	//do the physics thing and fall
+	removeObject(client.gameWorld->currPlayer);
+	client.gameWorld->currPlayer = NULL;
+	client.gameWorld->playerRespawn = 0;
 }
-
-void accessoryDraw(DataObj* object){
-	if(object->parent->classData == &playerClass)
-		return;
-
-	TextureRef *itemTex = object->asVoidptr[OBJVAL_TEXTURE];
-	drawMeshOpenGL(object->asVoidptr[OBJVAL_MESH], object->transform, ConvertSDLColour(object->colour), itemTex);
-}
-
-DataType accessoryClass = {"Accessory\0", 10, 0, NULL, accessoryUpdate, accessoryDraw};
 
 void playerInit(DataObj* object){
 	//object->pos.y = 0;
 	object->objVel = calloc(1, sizeof(Vector3));
 }
-
 void playerUpdate(DataObj* object){
 	if(!game.currPlayer || object != game.currPlayer) return;
 	
@@ -87,18 +77,20 @@ void playerUpdate(DataObj* object){
 		object->pos.y = floorY;
 		playerVel->y = 20 * keyList[KEYBIND_SPACE].pressed;
 	}
-	if(object->pos.y < -128){
-		object->pos = (Vector3){0, 5, 0};
-		*playerVel = (Vector3){0, 0, 0};
-	}
 
 	object->colour.a = min(game.currCamera->focusDist / 2, 1) * 255;
 	game.currCamera->pos = (Vector3){
 		object->pos.x + (SDL_cos(game.currCamera->rot.x) * SDL_sin(game.currCamera->rot.y)) * game.currCamera->focusDist, 
 		object->pos.y + pow(1 - min(game.currCamera->focusDist / 8, 1), 2) + 2.8 * object->scale.y - SDL_sin(game.currCamera->rot.x) * game.currCamera->focusDist, 
-		object->pos.z + (SDL_cos(game.currCamera->rot.x) * SDL_cos(game.currCamera->rot.y)) * game.currCamera->focusDist};
-}
+		object->pos.z + (SDL_cos(game.currCamera->rot.x) * SDL_cos(game.currCamera->rot.y)) * game.currCamera->focusDist
+	};
 
+	if(object->pos.y < -128){
+		/*object->pos = (Vector3){0, 5, 0};
+		*playerVel = (Vector3){0, 0, 0};*/
+		killPlayer();
+	}
+}
 extern SDL_Renderer* renderer;
 extern Font defaultFont;
 void playerDraw(DataObj* object){
@@ -123,13 +115,35 @@ void playerDraw(DataObj* object){
 	drawText(renderer, &defaultFont, object->name, textProj.x - strlen(object->name) / 2 * defaultFont.kerning.x * nameScale, textProj.y - defaultFont.renderSize.y * nameScale, nameScale, (SDL_FColor){1, 1, 1, 1});
 	*/
 }
+void playerDestroy(DataObj* object){
+	free(object->objVel);
+}
+DataType playerClass = {"Player\0", 2, 0, playerInit, playerUpdate, playerDraw, playerDestroy};
 
-DataType meshClass = (DataType){"Mesh\0", 4, 0, NULL, NULL, NULL};
+void accessoryUpdate(DataObj* object){
+	if(object->parent->classData == &playerClass){
+		object->pos = object->parent->pos;
+		object->scale = object->parent->scale;
+		object->rot = object->parent->rot;
+		return;
+	}
+
+	//do the physics thing and fall
+}
+void accessoryDraw(DataObj* object){
+	if(object->parent->classData == &playerClass)
+		return;
+
+	TextureRef *itemTex = object->asVoidptr[OBJVAL_TEXTURE];
+	drawMeshOpenGL(object->asVoidptr[OBJVAL_MESH], object->transform, ConvertSDLColour(object->colour), itemTex);
+}
+DataType accessoryClass = {"Accessory\0", 10, 0, NULL, accessoryUpdate, accessoryDraw, NULL};
+
+DataType meshClass = (DataType){"Mesh\0", 4, 0, NULL, NULL, NULL, NULL};
 
 void blockInit(DataObj* object){
 	(void)object;
 }
-
 void blockDraw(DataObj* object){
 	Mesh *itemMesh = cubePrim;
 	TextureRef *itemTex = NULL;
@@ -150,23 +164,20 @@ void blockDraw(DataObj* object){
 		free(meshMatrix);
 	}
 }
+DataType blockClass = {"Block\0", 3, 0, blockInit, NULL, blockDraw, NULL};
 
 void homerDraw(DataObj* object){
 	drawBillboard(homerTex, (SDL_FRect){0, 0, 300, 500}, object->pos, (SDL_FPoint){1.5, 2.5}, (SDL_FPoint){3, 5});
 }
+DataType fuckingBeerdrinkerClass = {"beer drinker\0", 666, 0, NULL, NULL, homerDraw, NULL};
 
-DataType playerClass = {"Player\0", 2, 0, playerInit, playerUpdate, playerDraw};
-DataType fuckingBeerdrinkerClass = {"beer drinker\0", 666, 0, NULL, NULL, homerDraw};
-DataType blockClass = {"Block\0", 3, 0, blockInit, NULL, blockDraw};
-
-DataType groupClass = {"Group\0", 5, 0, NULL, NULL, NULL};
+DataType groupClass = {"Group\0", 5, 0, NULL, NULL, NULL, NULL};
 
 void cameraInit(DataObj* object){
 	Camera *cam = calloc(1, sizeof(Camera));
 	cam->fov = 90; cam->zoom = 90; cam->focusDist = 16;
 	object->asVoidptr[OBJVAL_OTHER] = cam;
 }
-
 void cameraUpdate(DataObj* object){
 	Camera *cam = object->asVoidptr[OBJVAL_OTHER];
 	if(cam != NULL){
@@ -174,8 +185,11 @@ void cameraUpdate(DataObj* object){
 		cam->transform = genMatrix(object->pos, object->scale, object->rot);
 	}
 }
+void cameraDestroy(DataObj* object){
+	free(object->asVoidptr[OBJVAL_OTHER]);
+}
 
-DataType cameraClass = {"Camera\0", 6, 0, cameraInit, cameraUpdate, NULL};
+DataType cameraClass = {"Camera\0", 6, 0, cameraInit, cameraUpdate, NULL, cameraDestroy};
 
 extern Mesh* planePrim;
 void imageDraw(DataObj* object){
@@ -183,7 +197,7 @@ void imageDraw(DataObj* object){
 	if(!itemTex) return;
 	drawMeshOpenGL(planePrim, object->transform, ConvertSDLColour(object->colour), itemTex);
 }
-DataType imageClass = {"Image\0", 8, 0, NULL, NULL, imageDraw};
+DataType imageClass = {"Image\0", 8, 0, NULL, NULL, imageDraw, NULL};
 
 extern Mesh* boneMesh;
 void armatureInit(DataObj* object){
@@ -206,13 +220,17 @@ void armatureDraw(DataObj* object){
 	drawBone(itemSkele->rootBone, object->transform);
 	setGlValue(GL_DEPTH_TEST, true);
 }
-DataType armatureClass = {"Armature\0", 11, 0, armatureInit, armatureUpdate, armatureDraw};
+void armatureDestroy(DataObj* object){
+	free(object->asVoidptr[OBJVAL_OTHER]);
+}
+DataType armatureClass = {"Armature\0", 11, 0, armatureInit, armatureUpdate, armatureDraw, armatureDestroy};
 
 void objSpinFunc(DataObj* object){
 	object->parent->rot = vec3Add(object->parent->rot, (Vector3){0.02, 0.01, 0.005});
 }
 
 void killBrickFunc(DataObj* object){
+	if(!game.currPlayer) return;
 	Vector3 *playerPos = &game.currPlayer->pos;
 	DataObj* parent = object->parent;
 	if(
@@ -220,7 +238,7 @@ void killBrickFunc(DataObj* object){
 		between(playerPos->y, parent->pos.y - parent->scale.y - 4, parent->pos.y + 1) &&
 		between(playerPos->z, parent->pos.z - 1, parent->pos.z + parent->scale.z + 1)
 	)
-		playerPos->y = -69420;
+		killPlayer();
 }
 
 void scriptUpdate(DataObj* object){
@@ -229,4 +247,4 @@ void scriptUpdate(DataObj* object){
 		scriptFunc->func(object);
 }
 
-DataType scriptClass = {"Script\0", 9, 0, NULL, scriptUpdate, NULL};
+DataType scriptClass = {"Script\0", 9, 0, NULL, scriptUpdate, NULL, NULL};

@@ -52,8 +52,7 @@ typedef struct{
 	void (*init)(DataObj*);
 	void (*update)(DataObj*);
 	void (*draw)(DataObj*);
-
-	//i should really add a destroy (run on destroy) function for cleaning up
+	void (*destroy)(DataObj*);
 } DataType;
 
 typedef enum objValues{ //array items for the pointers (the void *values)

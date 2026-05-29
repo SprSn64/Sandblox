@@ -28,7 +28,7 @@ extern float timer;
 
 extern Uint32 objListLength;
 
-DataType workspaceClass = {"Workspace", 1, 0, NULL, NULL, NULL};
+DataType workspaceClass = {"Workspace", 1, 0, NULL, NULL, NULL, NULL};
 
 DataObj gameHeader = {
 	.pos = (Vector3){0, 0, 0},
@@ -171,6 +171,9 @@ DataObj* duplicateObject(DataObj* ogItem){
 
 void removeObject(DataObj* object){
 	//object->onRemove(object);
+
+	if (object->classData->destroy)
+		object->classData->destroy(object);
 	
 	if(object == game.headObj){
 		sendPopup("are you out of your mind?", NULL, NULL, 5);
