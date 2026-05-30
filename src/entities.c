@@ -18,7 +18,6 @@ extern ClientData client;
 extern GameWorld game;
 extern double deltaTime;
 extern ButtonMap keyList[KEYBIND_MAX];
-extern Mesh *playerMesh;
 extern Mesh *cubePrim;
 extern TextureRef *homerTex;
 
@@ -47,7 +46,6 @@ void playerUpdate(DataObj* object){
 	//Vector3 gravity = {-object->pos.x, object->pos.y, -object->pos.z};
 	
 	SDL_FPoint playerMove = {0, 0};
-	
 	bool plrMoving = abs(keyList[KEYBIND_D].down - keyList[KEYBIND_A].down) + abs(keyList[KEYBIND_S].down - keyList[KEYBIND_W].down);
 	
 	if(plrMoving){
@@ -69,9 +67,12 @@ void playerUpdate(DataObj* object){
 	
 	playerVel->x = (playerVel->x + playerMove.x * acc) * friction;
 	playerVel->z = (playerVel->z + playerMove.y * acc) * friction;
+
 	playerVel->y += deltaTime * (-60 + 30 * (keyList[KEYBIND_SPACE].down && playerVel->y > 0));
 	
-	object->pos = (Vector3){object->pos.x + playerVel->x * deltaTime, object->pos.y + playerVel->y * deltaTime, object->pos.z + playerVel->z * deltaTime};
+	if(fabs(playerVel->x) + fabs(playerVel->z) > 0.008 || playerVel->y != 0)
+		object->pos = (Vector3){object->pos.x + playerVel->x * deltaTime, object->pos.y + playerVel->y * deltaTime, object->pos.z + playerVel->z * deltaTime};
+
 	
 	if(floorY > -INFINITY && object->pos.y <= floorY){
 		object->pos.y = floorY;
@@ -91,11 +92,16 @@ void playerUpdate(DataObj* object){
 		killPlayer();
 	}
 }
-extern SDL_Renderer* renderer;
-extern Font defaultFont;
+
+extern Mesh *playerMesh;
+extern Mesh *playerFemMesh;
 void playerDraw(DataObj* object){
 	SDL_FColor plrColour = ConvertSDLColour(object->colour);
-	drawMeshOpenGL(playerMesh, object->transform, plrColour, NULL);
+	Mesh* plrMesh = playerMesh;
+	DataObj* femBody = firstChildWithName(object, "femBody");
+	if(femBody && femBody->classData->id == groupClass.id)
+		plrMesh = playerFemMesh;
+	drawMeshOpenGL(plrMesh, object->transform, plrColour, NULL);
 	
 	DataObj *hatItem = object->child;
 	while(hatItem){

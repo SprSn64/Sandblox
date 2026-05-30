@@ -56,7 +56,13 @@
 			"collision": {
 				"enabled": false,
 				"type": "none"
-			}
+			},
+			"children": [
+				{
+					"name": "femBody",
+					"class": "Group"
+				}						
+			]
 		},
 		{
 			"name": "Red Teapot",

@@ -245,7 +245,7 @@ DataObj* firstChildOfType(DataObj* item, DataType* classData){
 			return loopItem;
 		loopItem = loopItem->next;
 	}
-	printf("Couldn't find child of %s with class '%s'.\n", item->name, classData->name);
+	//printf("Couldn't find child of %s with class '%s'.\n", item->name, classData->name);
 	return NULL;
 }
 
@@ -253,11 +253,11 @@ DataObj* firstChildWithName(DataObj* item, char* name){
 	if(!item->child) return NULL;
 	DataObj *loopItem = item->child;
 	while(loopItem){
-		if(strcmp(loopItem->classData->name, name))
+		if(!strcmp(loopItem->name, name))
 			return loopItem;
 		loopItem = loopItem->next;
 	}
-	printf("Couldn't find child of %s with name '%s'.\n", item->name, name);
+	//printf("Couldn't find child of %s with name '%s'.\n", item->name, name);
 	return NULL;
 }
 

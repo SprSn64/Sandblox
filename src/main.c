@@ -87,10 +87,8 @@ Texture *rastFontTex;
 
 TextureRef *fontTex = NULL; TextureRef *playerTex = NULL; TextureRef *homerTex = NULL;
 TextureRef *boneTex = NULL; TextureRef *cursorTex = NULL; TextureRef *skyTex = NULL; TextureRef *sunTex = NULL;
-Mesh *playerMesh = NULL; Mesh *boneMesh = NULL; Mesh *skyboxMesh = NULL; Mesh *sunMesh = NULL;
+Mesh *playerMesh = NULL; Mesh *playerFemMesh = NULL; Mesh *boneMesh = NULL; Mesh *skyboxMesh = NULL; Mesh *sunMesh = NULL;
 Mesh *planePrim = NULL; Mesh *cubePrim = NULL; Mesh *spherePrim = NULL;
-
-Skeleton* testRig = NULL;
 
 ButtonMap keyList[KEYBIND_MAX];
 
@@ -209,6 +207,7 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[]){
 	defaultFont = (Font){fontTex, rastFontTex, 32, (SDL_Point){32, 32}, (SDL_Point){8, 8}, (SDL_FPoint){6, 0}, 16};
 
 	playerMesh = loadMeshFromObj("assets/models/player.obj", true); 
+	playerFemMesh = loadMeshFromObj("assets/models/playerfem.obj", true); 
 	boneMesh = loadMeshFromObj("assets/models/bone.obj", true); 
 	skyboxMesh = loadMeshFromObj("assets/models/advskybox.obj", true);
 	sunMesh = loadMeshFromObj("assets/models/skyboxsun.obj", true);
@@ -216,8 +215,6 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[]){
 	planePrim = genPlaneMesh(1, 1, 1, 1); planePrim->persistent = true;
 	cubePrim = loadMeshFromObj("assets/models/primitives/cube.obj", true);
 	spherePrim = loadMeshFromObj("assets/models/primitives/sphere.obj", true);
-
-	testRig = genTestRig();
 
 	glGenVertexArrays(1, &VAO); glBindVertexArray(VAO);	
 	glGenBuffers(1, &VBO); glBindBuffer(GL_ARRAY_BUFFER, VBO);
@@ -479,7 +476,6 @@ SDL_AppResult SDL_AppIterate(void *appstate){
 
 	//drawSkip:
 
-	//drawBone(testRig->rootBone);
 	updateStudio();
 		
 	static char fpsText[256] = "FPS: 0";

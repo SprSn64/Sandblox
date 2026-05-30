@@ -16,12 +16,14 @@ extern SDL_Renderer *renderer;
 extern char* basePath;
 
 SDL_Texture* avatarBaseTex = NULL;
+SDL_Texture* avatarFemBaseTex = NULL;
 
 extern Font defaultFont;
 SDL_Texture *newTexture(char* path, SDL_ScaleMode scaleMode);
 void drawText(SDL_Renderer *renderLoc, Font *textFont, char* text, short posX, short posY, float scale, SDL_FColor colour);
 
 char* playerName;
+bool playerFem = false;
 SDL_FColor playerColour = {1, 1, 1, 1};
 
 AvatarItem* headAvatarItem = NULL;
@@ -101,11 +103,19 @@ void loadAvatar(){
 	cJSON* json = cJSON_Parse(content);
 	if(!json){
 		printf("Failed to parse JSON: %s\n", cJSON_GetErrorPtr());
+		free(content);
+		return;
 	}
 
 	cJSON* name = cJSON_GetObjectItem(json, "name");
 	if(name && cJSON_IsString(name))
 		playerName = strdup(name->valuestring);
+
+	playerFem = false;
+	cJSON* femBody = cJSON_GetObjectItem(json, "femBody");
+      if(femBody && cJSON_IsBool(femBody) && cJSON_IsTrue(femBody)){
+      	playerFem = true;
+      }
 
 	cJSON* colour = cJSON_GetObjectItem(json, "colour");
 	if(colour && cJSON_IsArray(colour) && cJSON_GetArraySize(colour) >= 4)
@@ -139,6 +149,7 @@ void loadAvatar(){
 
 void initAvatar(){
 	avatarBaseTex = newTexture("assets/avatar/avatarbase.png", SDL_SCALEMODE_LINEAR);
+	avatarFemBaseTex = newTexture("assets/avatar/avatarbasefem.png", SDL_SCALEMODE_LINEAR);
 
 	loadAvatar();
 }
@@ -158,8 +169,14 @@ void drawAvatar(SDL_Point pos){
 	SDL_SetRenderDrawColor(renderer, 192, 192, 192, 255);
 	SDL_RenderFillRect(renderer, &drawRect);
 
-	setTextureColor(avatarBaseTex, playerColour);
-	SDL_RenderTexture(renderer, avatarBaseTex, &sourceRect, &drawRect);
+	if(playerFem){
+		setTextureColor(avatarFemBaseTex, playerColour);
+		SDL_RenderTexture(renderer, avatarFemBaseTex, &sourceRect, &drawRect);
+	}else{
+		setTextureColor(avatarBaseTex, playerColour);
+		SDL_RenderTexture(renderer, avatarBaseTex, &sourceRect, &drawRect);
+	}
+	
 	AvatarItem* currItem = headAvatarItem;
 	//Uint8 itemIndex = 0;
 	while (currItem) {

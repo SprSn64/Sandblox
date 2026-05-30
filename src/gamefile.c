@@ -12,6 +12,7 @@
 extern ClientData client;
 extern DataObj gameHeader;
 extern Vector3 lightNormal;
+extern SDL_FColor lightColour;
 
 DataObj* loadedPlayer = NULL;
 extern char* basePath;
@@ -307,6 +308,17 @@ int loadGameFile(const char* filename) {
             cJSON_GetArrayItem(lightDir, 2)->valuedouble * DEG2RAD
         });
 
+    cJSON* lightCol = cJSON_GetObjectItem(json, "lightColour");
+    if(lightCol && cJSON_IsArray(lightCol) && cJSON_GetArraySize(lightCol) >= 4){
+        lightColour = (SDL_FColor){
+            (float)(cJSON_GetArrayItem(lightCol, 0)->valueint) / 255,
+            (float)(cJSON_GetArrayItem(lightCol, 1)->valueint) / 255,
+            (float)(cJSON_GetArrayItem(lightCol, 2)->valueint) / 255,
+            (float)(cJSON_GetArrayItem(lightCol, 3)->valueint) / 255
+        };
+    }else
+        lightColour = (SDL_FColor){1, 1, 1, 1};
+
     cJSON* skybox = cJSON_GetObjectItem(json, "skybox");
     TextureRef* skyboxTex = NULL;
     if(skybox && cJSON_IsString(skybox)) {
@@ -429,6 +441,10 @@ int saveGameFile(const char* filename){
 	cJSON* jsonHeader = cJSON_CreateObject();
 	cJSON_AddStringToObject(jsonHeader, "version", client.version);
 
+	if(client.gameWorld->skybox){
+		cJSON_AddStringToObject(jsonHeader, "skybox", client.gameWorld->skybox->filePath);
+	}
+
 	cJSON* objectArray = cJSON_AddArrayToObject(jsonHeader, "objects");
 	
 	addObjToJsonArray(objectArray, client.gameWorld->headObj);
@@ -475,12 +491,20 @@ DataObj* loadPlayerAvatar(){
 	cJSON* json = cJSON_Parse(content);
 	if(!json){
 		printf("Failed to parse JSON: %s\n", cJSON_GetErrorPtr());
+		free(content);
 		goto avatarLoadSkip;
 	}
 
 	cJSON* name = cJSON_GetObjectItem(json, "name");
 	if(name && cJSON_IsString(name))
 		newPlayer->name = strdup(name->valuestring);
+
+	cJSON* femBody = cJSON_GetObjectItem(json, "femBody");
+      if(femBody && cJSON_IsBool(femBody) && cJSON_IsTrue(femBody)){
+      	DataObj* femBodyItem = newObject(&groupClass);
+      	femBodyItem->name = strdup("femBody");
+		parentObject(femBodyItem, newPlayer);
+      }
 
 	cJSON* colour = cJSON_GetObjectItem(json, "colour");
 	if(colour && cJSON_IsArray(colour) && cJSON_GetArraySize(colour) >= 4)
@@ -511,9 +535,7 @@ DataObj* loadPlayerAvatar(){
 		removeObject(newObj);
 	}
 
-	cJSON_Delete(json);
 	free(content);
-
 avatarLoadSkip:
 	free(avatarPath);
 	client.gameWorld->currPlayer = newPlayer;
