@@ -35,9 +35,26 @@ void killPlayer(){
 	client.gameWorld->playerRespawn = 0;
 }
 
+/*
+	DataObj* parent;
+	Uint32 shape;
+	Vector3 pos, rot, scale;
+
+	bool active; //no physics
+	float mass; //either this or density
+	
+	void (*funkyCollision)(void); //custom collision function for COLLHULL_FUNCTION
+*/
+
 void playerInit(DataObj* object){
 	//object->pos.y = 0;
 	object->objVel = calloc(1, sizeof(Vector3));
+
+	object->objColl = calloc(1, sizeof(CollisionHull));
+	CollisionHull* collision = object->objColl;
+	collision->parent = object; collision->shape = COLLHULL_CUBE;
+	collision->pos = (Vector3){-0.5, 4, -0.5}; collision->scale = (Vector3){1, 4, 1};
+	collision->active = true;
 }
 void playerUpdate(DataObj* object){
 	if(!game.currPlayer || object != game.currPlayer) return;
@@ -61,8 +78,9 @@ void playerUpdate(DataObj* object){
 	}
 	
 	float floorY = findFloorY(object->pos, object->pos.y, game.headObj);
+	//lazyCollisionLoop(object, game.headObj);
 	
-	float friction = (0.90 - 0.005 * (floorY > -INFINITY && object->pos.y <= floorY));
+	float friction = 0.90 - 0.005 * (floorY > -INFINITY && object->pos.y <= floorY);
 	float acc = 1.2;
 	
 	playerVel->x = (playerVel->x + playerMove.x * acc) * friction;
@@ -73,7 +91,6 @@ void playerUpdate(DataObj* object){
 	if(fabs(playerVel->x) + fabs(playerVel->z) > 0.008 || playerVel->y != 0)
 		object->pos = (Vector3){object->pos.x + playerVel->x * deltaTime, object->pos.y + playerVel->y * deltaTime, object->pos.z + playerVel->z * deltaTime};
 
-	
 	if(floorY > -INFINITY && object->pos.y <= floorY){
 		object->pos.y = floorY;
 		playerVel->y = 20 * keyList[KEYBIND_SPACE].pressed;
@@ -92,7 +109,6 @@ void playerUpdate(DataObj* object){
 		killPlayer();
 	}
 }
-
 extern Mesh *playerMesh;
 extern Mesh *playerFemMesh;
 void playerDraw(DataObj* object){
@@ -122,7 +138,7 @@ void playerDraw(DataObj* object){
 	*/
 }
 void playerDestroy(DataObj* object){
-	free(object->objVel);
+	free(object->objVel); free(object->objColl);
 }
 DataType playerClass = {"Player\0", 2, 0, playerInit, playerUpdate, playerDraw, playerDestroy};
 

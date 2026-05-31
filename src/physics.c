@@ -26,6 +26,7 @@ float checkBlockCollisionY(Vector3 pos, float footY, DataObj* block){
 	return -INFINITY;
 }
 
+extern ClientData client;
 float checkSphereCollisionY(Vector3 pos, DataObj* block){
 	CollisionHull *collider = block->props[OBJVAL_COLLIDER];
 	
@@ -51,6 +52,7 @@ float findFloorY(Vector3 pos, float footY, DataObj* item){
 	float blockFloor = max(checkBlockCollisionY(pos, footY, item), checkSphereCollisionY(pos, item));
 	highestFloor = max(blockFloor, highestFloor);
 	
+	if(item == client.gameWorld->currPlayer) return -INFINITY;
 	DataObj* child = item->child;
 	while(child){
 		float childFloor = findFloorY(pos, footY, child);
@@ -67,7 +69,7 @@ CollisionReturn* getCollision(CollisionHull* itemA, CollisionHull* itemB){
 	if(itemA->shape == COLLHULL_CUBE && itemB->shape == COLLHULL_CUBE){
 		if(!(between(itemA->pos.x, itemB->pos.x, itemB->pos.x + itemB->scale.x) && between(itemA->pos.y, itemB->pos.y, itemB->pos.y + itemB->scale.y) && between(itemA->pos.z, itemB->pos.z, itemB->pos.z + itemB->scale.z))) return NULL;
 		output = malloc(sizeof(CollisionReturn));
-		output->outNorm = (Vector3){0, itemA->pos.y - itemB->pos.y, 0};
+		output->outNorm = (Vector3){0, itemB->pos.y - itemA->pos.y, 0};
 		output->hullA = itemA; output->hullB = itemB;
 	}
 
@@ -76,6 +78,9 @@ CollisionReturn* getCollision(CollisionHull* itemA, CollisionHull* itemB){
 		output->outNorm = (Vector3){0, itemA->pos.y - itemB->pos.y, 0};
 		output->hullA = itemA; output->hullB = itemB;
 	}
+
+	//if(!output)
+	//	printf("Couldnt find a collision between %s and %s\n", itemA->parent->name, itemB->parent->name);
 	
 	/*if(collide is yes) then do'eth
 		tell me the collision outputs then please
@@ -84,11 +89,38 @@ CollisionReturn* getCollision(CollisionHull* itemA, CollisionHull* itemB){
 	//end
 }
 
-void resolveCollision(CollsionReturn* coll){
-	if(coll->hullA->active && coll->hullB->active) return;
 void resolveCollision(CollisionReturn* coll){
 	if(!coll->hullA->active && !coll->hullB->active) return;
 
 	bool bothFix = (!coll->hullA->active && !coll->hullB->active) && (coll->hullA->active != coll->hullB->active);
 	(void)bothFix;
+
+	DataObj* itemA = coll->hullA->parent;
+	DataObj* itemB = coll->hullB->parent;
+	if(!itemA || !itemB) return;
+	itemA->pos = (Vector3){itemA->pos.x + coll->outNorm.x, itemA->pos.y + coll->outNorm.y, itemA->pos.z + coll->outNorm.z};
+
+	printf("Resolved collision between %s and %s with an intersect normal of %f, %f, %f\n", itemA->name, itemB->name, coll->outNorm.x, coll->outNorm.y, coll->outNorm.z);
+}
+
+extern DataType playerClass;
+void lazyCollisionLoop(DataObj* object, DataObj* item){
+	if(!object->props[OBJVAL_COLLIDER])
+		return;
+	DataObj* child = item->child;
+	while(child){
+		if(!child->props[OBJVAL_COLLIDER] || child == object) goto collideLoopSkip;
+
+		CollisionReturn* collision = getCollision(object->props[OBJVAL_COLLIDER], child->props[OBJVAL_COLLIDER]);
+		if(collision){
+			resolveCollision(collision);
+
+			if(object->classData == &playerClass){
+				Vector3* plrVel = object->props[OBJVAL_VELOCITY];
+				plrVel->y = 0;
+			}
+		}
+collideLoopSkip:
+		child = child->next;
+	}
 }

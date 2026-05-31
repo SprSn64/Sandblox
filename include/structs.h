@@ -62,6 +62,13 @@ typedef enum objValues{ //array items for the pointers (the void *values)
 	OBJVAL_MAX, //always put in end
 } objValues;
 
+#define objOther props[OBJVAL_OTHER]
+#define objScr props[OBJVAL_SCRIPT]
+#define objColl props[OBJVAL_COLLIDER]
+#define objVel props[OBJVAL_VELOCITY]
+#define objMesh props[OBJVAL_MESH]
+#define objTex props[OBJVAL_TEXTURE]
+
 typedef struct DataObj{
 	Vector3 pos, scale, rot;
 	float *transform;
@@ -83,9 +90,6 @@ typedef struct DataObj{
 	void (*destroy)(void);
 	*/
 } DataObj;
-
-#define objMesh props[OBJVAL_MESH]
-#define objVel props[OBJVAL_VELOCITY]
 
 typedef struct{
 	Vector3 pos, rot;
@@ -149,7 +153,7 @@ typedef struct CollisionHull{
 	Uint32 shape;
 	Vector3 pos, rot, scale;
 
-	bool active; //no physics
+	bool active; //no physics when false
 	float mass; //either this or density
 	
 	void (*funkyCollision)(void); //custom collision function for COLLHULL_FUNCTION

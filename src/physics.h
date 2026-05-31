@@ -6,4 +6,6 @@
 float checkBlockCollisionY(Vector3 pos, float footY, DataObj* block);
 float findFloorY(Vector3 pos, float footY, DataObj* item);
 
+void lazyCollisionLoop(DataObj* object, DataObj* item);
+
 #endif
