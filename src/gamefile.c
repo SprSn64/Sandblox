@@ -170,7 +170,7 @@ DataObj* createObjectFromJSON(cJSON* obj, DataObj* parent) {
     }
     
     if(mesh)
-        newObj->asVoidptr[OBJVAL_MESH] = mesh;
+        newObj->props[OBJVAL_MESH] = mesh;
     
     TextureRef* tex = NULL;
     if(texture && cJSON_IsString(texture)) {
@@ -185,10 +185,10 @@ DataObj* createObjectFromJSON(cJSON* obj, DataObj* parent) {
             printf("Failed to load texture from file: %s\n", texture->valuestring);
     }
     if(tex) {
-        	newObj->asVoidptr[OBJVAL_TEXTURE] = tex;
+        	newObj->props[OBJVAL_TEXTURE] = tex;
     }
     
-    //CollisionHull *block->asVoidptr[OBJVAL_COLLIDER]
+    //CollisionHull *block->props[OBJVAL_COLLIDER]
     if(collision && cJSON_IsObject(collision)) {
         cJSON* enabled = cJSON_GetObjectItem(collision, "enabled");
         cJSON* type = cJSON_GetObjectItem(collision, "type");
@@ -212,7 +212,7 @@ DataObj* createObjectFromJSON(cJSON* obj, DataObj* parent) {
                 free(collider); // no collision
         }
 	    colliderLoadSkip:
-	    newObj->asVoidptr[OBJVAL_COLLIDER] = collider;
+	    newObj->props[OBJVAL_COLLIDER] = collider;
     }
     
     if(scriptFile && cJSON_IsString(scriptFile)) {
@@ -220,7 +220,7 @@ DataObj* createObjectFromJSON(cJSON* obj, DataObj* parent) {
 
         newScript->func = getFunctionByName(scriptFile->valuestring); newScript->funcName = strdup(scriptFile->valuestring);  
         if(newScript->func != NULL)
-            newObj->asVoidptr[OBJVAL_SCRIPT] = newScript;
+            newObj->props[OBJVAL_SCRIPT] = newScript;
         else
             free(newScript);
     }
@@ -398,19 +398,19 @@ void addObjToJsonArray(cJSON* array, DataObj* item){
 	sprintf(rawColour, "[%d, %d, %d, %d]", item->colour.r, item->colour.g, item->colour.b, item->colour.a);
 	cJSON_AddRawToObject(newObj, "colour", rawColour);
 	
-	Mesh* itemMesh = item->asVoidptr[OBJVAL_MESH];
+	Mesh* itemMesh = item->props[OBJVAL_MESH];
 	if(itemMesh && itemMesh->meshType == MESHTYPE_FILE)
 		cJSON_AddStringToObject(newObj, "mesh", itemMesh->filePath);
 	
-	TextureRef* itemTex = item->asVoidptr[OBJVAL_TEXTURE];
+	TextureRef* itemTex = item->props[OBJVAL_TEXTURE];
 	if(itemTex)
 		cJSON_AddStringToObject(newObj, "texture", itemTex->filePath);
 	
-	ScriptItem *itemScript = item->asVoidptr[OBJVAL_SCRIPT];
+	ScriptItem *itemScript = item->props[OBJVAL_SCRIPT];
 	if(itemScript && itemScript->funcName)
 		cJSON_AddStringToObject(newObj, "script", itemScript->funcName);
 	
-	CollisionHull *collider = item->asVoidptr[OBJVAL_COLLIDER];
+	CollisionHull *collider = item->props[OBJVAL_COLLIDER];
 	
 	if(!collider) goto colliderSkip;
 	

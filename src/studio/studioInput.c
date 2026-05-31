@@ -137,7 +137,7 @@ void buttonAddObject(Button* item){
 	
 	if(newItem->classData == &blockClass){ //not piratesoftwaring here, add button object will have a dropdown of all the objects soon probably
 		CollisionHull *newColl = malloc(sizeof(CollisionHull));
-		newColl->shape = COLLHULL_CUBE; newItem->asVoidptr[OBJVAL_COLLIDER] = newColl;
+		newColl->shape = COLLHULL_CUBE; newItem->props[OBJVAL_COLLIDER] = newColl;
 	}
 	
 	parentItem->studioOpen = true;

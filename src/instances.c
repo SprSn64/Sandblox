@@ -38,7 +38,7 @@ DataObj gameHeader = {
 	.colour = (CharColour){0, 0, 0, 255, 0, COLOURMODE_RGB},
 	.name = "Workspace",
 	.classData = &workspaceClass,
-	.asVoidptr = {NULL},
+	.props = {NULL},
 	.prev = NULL, .next = NULL, .parent = NULL, .child = NULL,
 	.studioOpen = true,
 };
@@ -160,10 +160,10 @@ DataObj* duplicateObject(DataObj* ogItem){
 	sprintf(newName, "%s (Copy)", ogItem->name);
 	newItem->name = newName;
 	
-	newItem->asVoidptr[OBJVAL_SCRIPT] = ogItem->asVoidptr[OBJVAL_SCRIPT];
-	if(ogItem->asVoidptr[OBJVAL_COLLIDER]){
-		CollisionHull* newColl = malloc(sizeof(CollisionHull)); memcpy(newColl, ogItem->asVoidptr[OBJVAL_COLLIDER], sizeof(CollisionHull));
-		newItem->asVoidptr[OBJVAL_COLLIDER] = newColl;
+	newItem->props[OBJVAL_SCRIPT] = ogItem->props[OBJVAL_SCRIPT];
+	if(ogItem->props[OBJVAL_COLLIDER]){
+		CollisionHull* newColl = malloc(sizeof(CollisionHull)); memcpy(newColl, ogItem->props[OBJVAL_COLLIDER], sizeof(CollisionHull));
+		newItem->props[OBJVAL_COLLIDER] = newColl;
 	}
 	
 	return newItem;

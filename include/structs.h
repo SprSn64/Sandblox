@@ -69,10 +69,7 @@ typedef struct DataObj{
 	char *name;
 	DataType* classData;
 
-	void *asVoidptr[OBJVAL_MAX];
-	//Vector3 asVec3[OBJVAL_MAX];
-	//int asInt[OBJVAL_MAX];
-	//float asFloat[OBJVAL_MAX];
+	void *props[OBJVAL_MAX];
 
 	struct DataObj* prev;
 	struct DataObj* next;
@@ -86,6 +83,9 @@ typedef struct DataObj{
 	void (*destroy)(void);
 	*/
 } DataObj;
+
+#define objMesh props[OBJVAL_MESH]
+#define objVel props[OBJVAL_VELOCITY]
 
 typedef struct{
 	Vector3 pos, rot;
@@ -159,7 +159,7 @@ typedef struct{
 	CollisionHull* hullA;
 	CollisionHull* hullB;
 	Vector3 outNorm;
-} CollsionReturn;
+} CollisionReturn;
 
 typedef struct{
 	void *head;

@@ -507,14 +507,16 @@ SDL_AppResult SDL_AppIterate(void *appstate){
 		free(studioMatrix);
 	}
 
-	SDL_FPoint cursorDrawPos = camMoveMode == 1 ? storedMousePos : mousePos;
-	if(camMoveMode == 2) cursorDrawPos = (SDL_FPoint){windowScale.x >> 1, windowScale.y >> 1};
-	float* cursorMatrix = genMatrix(
-		screenToGL((Vector3){floor(cursorDrawPos.x), floor(cursorDrawPos.y), 0}), 
-		(Vector3){(32.f / windowScale.x) * aspectRatio * 2, 1, (32.f / windowScale.y) * 2}, 
-		(Vector3){HALFPI, 0, 0});
-	drawMeshOpenGL(planePrim, cursorMatrix, (SDL_FColor){1, 1, 1, 1}, cursorTex);
-	free(cursorMatrix);
+	if(SDL_GetWindowFlags(window) & SDL_WINDOW_MOUSE_FOCUS){
+		SDL_FPoint cursorDrawPos = camMoveMode == 1 ? storedMousePos : mousePos;
+		if(camMoveMode == 2) cursorDrawPos = (SDL_FPoint){windowScale.x >> 1, windowScale.y >> 1};
+		float* cursorMatrix = genMatrix(
+			screenToGL((Vector3){floor(cursorDrawPos.x), floor(cursorDrawPos.y), 0}), 
+			(Vector3){(32.f / windowScale.x) * aspectRatio * 2, 1, (32.f / windowScale.y) * 2}, 
+			(Vector3){HALFPI, 0, 0});
+		drawMeshOpenGL(planePrim, cursorMatrix, (SDL_FColor){1, 1, 1, 1}, cursorTex);
+		free(cursorMatrix);
+	}
 
 	free(guiMatrix); setGlValue(GL_BLEND, false);
 

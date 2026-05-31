@@ -8,7 +8,7 @@
 // check if a point is inside a block's bounding box (AABB collision)
 // returns the Y position of the top of the block if collision, or -INFINITY if no collision
 float checkBlockCollisionY(Vector3 pos, float footY, DataObj* block){
-	CollisionHull *collider = block->asVoidptr[OBJVAL_COLLIDER];
+	CollisionHull *collider = block->props[OBJVAL_COLLIDER];
 	
 	if(!collider) return -INFINITY; // collision disabled
 	
@@ -27,7 +27,7 @@ float checkBlockCollisionY(Vector3 pos, float footY, DataObj* block){
 }
 
 float checkSphereCollisionY(Vector3 pos, DataObj* block){
-	CollisionHull *collider = block->asVoidptr[OBJVAL_COLLIDER];
+	CollisionHull *collider = block->props[OBJVAL_COLLIDER];
 	
 	if(!collider) return -INFINITY; // collision disabled
 	
@@ -61,18 +61,18 @@ float findFloorY(Vector3 pos, float footY, DataObj* item){
 	return highestFloor;
 }
 
-CollsionReturn* getCollision(CollisionHull* itemA, CollisionHull* itemB){
-	CollsionReturn *output = NULL;
+CollisionReturn* getCollision(CollisionHull* itemA, CollisionHull* itemB){
+	CollisionReturn *output = NULL;
 	
 	if(itemA->shape == COLLHULL_CUBE && itemB->shape == COLLHULL_CUBE){
 		if(!(between(itemA->pos.x, itemB->pos.x, itemB->pos.x + itemB->scale.x) && between(itemA->pos.y, itemB->pos.y, itemB->pos.y + itemB->scale.y) && between(itemA->pos.z, itemB->pos.z, itemB->pos.z + itemB->scale.z))) return NULL;
-		output = malloc(sizeof(CollsionReturn));
+		output = malloc(sizeof(CollisionReturn));
 		output->outNorm = (Vector3){0, itemA->pos.y - itemB->pos.y, 0};
 		output->hullA = itemA; output->hullB = itemB;
 	}
 
 	if(itemA->shape == COLLHULL_SPHERE && itemB->shape == COLLHULL_SPHERE){
-		output = malloc(sizeof(CollsionReturn));
+		output = malloc(sizeof(CollisionReturn));
 		output->outNorm = (Vector3){0, itemA->pos.y - itemB->pos.y, 0};
 		output->hullA = itemA; output->hullB = itemB;
 	}
@@ -86,6 +86,8 @@ CollsionReturn* getCollision(CollisionHull* itemA, CollisionHull* itemB){
 
 void resolveCollision(CollsionReturn* coll){
 	if(coll->hullA->active && coll->hullB->active) return;
+void resolveCollision(CollisionReturn* coll){
+	if(!coll->hullA->active && !coll->hullB->active) return;
 
 	bool bothFix = (!coll->hullA->active && !coll->hullB->active) && (coll->hullA->active != coll->hullB->active);
 	(void)bothFix;

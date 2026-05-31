@@ -107,8 +107,8 @@ void playerDraw(DataObj* object){
 	while(hatItem){
 		if(hatItem->classData->id == accessoryClass.id){
 			SDL_FColor hatCol = ConvertSDLColour(hatItem->colour); hatCol.a = plrColour.a;
-			TextureRef *itemTex = hatItem->asVoidptr[OBJVAL_TEXTURE];
-			drawMeshOpenGL(hatItem->asVoidptr[OBJVAL_MESH], object->transform, hatCol, itemTex);
+			TextureRef *itemTex = hatItem->props[OBJVAL_TEXTURE];
+			drawMeshOpenGL(hatItem->props[OBJVAL_MESH], object->transform, hatCol, itemTex);
 		}
 		hatItem = hatItem->next;
 	}
@@ -140,8 +140,8 @@ void accessoryDraw(DataObj* object){
 	if(object->parent->classData == &playerClass)
 		return;
 
-	TextureRef *itemTex = object->asVoidptr[OBJVAL_TEXTURE];
-	drawMeshOpenGL(object->asVoidptr[OBJVAL_MESH], object->transform, ConvertSDLColour(object->colour), itemTex);
+	TextureRef *itemTex = object->props[OBJVAL_TEXTURE];
+	drawMeshOpenGL(object->props[OBJVAL_MESH], object->transform, ConvertSDLColour(object->colour), itemTex);
 }
 DataType accessoryClass = {"Accessory\0", 10, 0, NULL, accessoryUpdate, accessoryDraw, NULL};
 
@@ -157,9 +157,9 @@ void blockDraw(DataObj* object){
 	float *meshTransform = object->transform;
 	float *meshMatrix;
 	if(meshItem){
-		if(meshItem->asVoidptr[OBJVAL_MESH])itemMesh = meshItem->asVoidptr[OBJVAL_MESH];
-		if(meshItem->asVoidptr[OBJVAL_TEXTURE]){
-			itemTex = meshItem->asVoidptr[OBJVAL_TEXTURE];;
+		if(meshItem->props[OBJVAL_MESH])itemMesh = meshItem->props[OBJVAL_MESH];
+		if(meshItem->props[OBJVAL_TEXTURE]){
+			itemTex = meshItem->props[OBJVAL_TEXTURE];;
 		}
 		meshMatrix = genMatrix(meshItem->pos, meshItem->scale, meshItem->rot);
 		meshTransform = multMatrix(meshMatrix, object->transform);
@@ -182,24 +182,24 @@ DataType groupClass = {"Group\0", 5, 0, NULL, NULL, NULL, NULL};
 void cameraInit(DataObj* object){
 	Camera *cam = calloc(1, sizeof(Camera));
 	cam->fov = 90; cam->zoom = 90; cam->focusDist = 16;
-	object->asVoidptr[OBJVAL_OTHER] = cam;
+	object->props[OBJVAL_OTHER] = cam;
 }
 void cameraUpdate(DataObj* object){
-	Camera *cam = object->asVoidptr[OBJVAL_OTHER];
+	Camera *cam = object->props[OBJVAL_OTHER];
 	if(cam != NULL){
 		free(cam->transform);
 		cam->transform = genMatrix(object->pos, object->scale, object->rot);
 	}
 }
 void cameraDestroy(DataObj* object){
-	free(object->asVoidptr[OBJVAL_OTHER]);
+	free(object->props[OBJVAL_OTHER]);
 }
 
 DataType cameraClass = {"Camera\0", 6, 0, cameraInit, cameraUpdate, NULL, cameraDestroy};
 
 extern Mesh* planePrim;
 void imageDraw(DataObj* object){
-	TextureRef *itemTex = object->asVoidptr[OBJVAL_TEXTURE];
+	TextureRef *itemTex = object->props[OBJVAL_TEXTURE];
 	if(!itemTex) return;
 	drawMeshOpenGL(planePrim, object->transform, ConvertSDLColour(object->colour), itemTex);
 }
@@ -208,7 +208,7 @@ DataType imageClass = {"Image\0", 8, 0, NULL, NULL, imageDraw, NULL};
 extern Mesh* boneMesh;
 void armatureInit(DataObj* object){
 	Skeleton *itemSkele = genTestRig();
-	object->asVoidptr[OBJVAL_OTHER] = itemSkele;
+	object->props[OBJVAL_OTHER] = itemSkele;
 }
 void armatureUpdate(DataObj* object){
 	if(object->parent->classData != &playerClass) return;
@@ -219,7 +219,7 @@ void armatureUpdate(DataObj* object){
 }
 void armatureDraw(DataObj* object){
 	if(!client.debug) return;
-	Skeleton *itemSkele = object->asVoidptr[OBJVAL_OTHER];
+	Skeleton *itemSkele = object->props[OBJVAL_OTHER];
 	if(!itemSkele) return;
 
 	setGlValue(GL_DEPTH_TEST, false);
@@ -227,7 +227,7 @@ void armatureDraw(DataObj* object){
 	setGlValue(GL_DEPTH_TEST, true);
 }
 void armatureDestroy(DataObj* object){
-	free(object->asVoidptr[OBJVAL_OTHER]);
+	free(object->props[OBJVAL_OTHER]);
 }
 DataType armatureClass = {"Armature\0", 11, 0, armatureInit, armatureUpdate, armatureDraw, armatureDestroy};
 
@@ -248,7 +248,7 @@ void killBrickFunc(DataObj* object){
 }
 
 void scriptUpdate(DataObj* object){
-	ScriptItem *scriptFunc = object->asVoidptr[OBJVAL_SCRIPT];
+	ScriptItem *scriptFunc = object->props[OBJVAL_SCRIPT];
 	if(scriptFunc != NULL)
 		scriptFunc->func(object);
 }

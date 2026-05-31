@@ -4,7 +4,6 @@
 #include <SDL3/SDL.h>
 
 #include <structs.h>
-#include <obj_fields.h>
 
 typedef struct NotiPopup{
 	char* text;
