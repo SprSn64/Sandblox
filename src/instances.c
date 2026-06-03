@@ -81,26 +81,6 @@ noDraw:
 	}
 }
 
-void cleanupObjects(DataObj* item){
-	DataObj* child = item->child;
-	while (child) {
-		DataObj *next = child->next;
-		cleanupObjects(child);
-		child = next;
-	}
-	if (&gameHeader != item) free(item);
-}
-
-void lesserCleanupObjects(DataObj* item){
-	DataObj* child = item->child;
-	while (child) {
-		DataObj *next = child->next;
-		cleanupObjects(child);
-		free(item);
-		child = next;
-	}
-}
-
 DataObj* newObject(DataType* classData){
 	DataObj *newObj = calloc(1, sizeof(DataObj)); 
 	if(newObj == NULL){
@@ -214,6 +194,26 @@ void removeObject(DataObj* object){
 	
 	printf("Object '%s' removed.\n", object->name);
 	free(object);
+}
+
+void cleanupObjects(DataObj* item){
+	DataObj* child = item->child;
+	while (child) {
+		DataObj *next = child->next;
+		cleanupObjects(child);
+		child = next;
+	}
+	if (&gameHeader != item) removeObject(item);
+}
+
+void lesserCleanupObjects(DataObj* item){
+	DataObj* child = item->child;
+	while (child) {
+		DataObj *next = child->next;
+		cleanupObjects(child);
+		removeObject(item);
+		child = next;
+	}
 }
 
 bool parentObject(DataObj* child, DataObj* parent){

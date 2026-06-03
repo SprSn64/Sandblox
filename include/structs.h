@@ -16,6 +16,7 @@ typedef enum gameKeybinds{
 	KEYBIND_UP, KEYBIND_DOWN, KEYBIND_LEFT, KEYBIND_RIGHT,
 	KEYBIND_I, KEYBIND_O,
 	KEYBIND_SWAPRENDER, KEYBIND_MENU,
+	KEYBIND_Q, KEYBIND_E,
 	KEYBIND_MAX
 } gameKeybinds;
 
@@ -117,7 +118,7 @@ typedef struct{
 
 typedef struct{
 	IPAddress serverIP;
-	IPAddress* clientsIP;
+	IPAddress* clientIP;
 	Uint16 port;
 	char* version;
 	float avgPing;
@@ -126,7 +127,7 @@ typedef struct{
 } Server;
 
 typedef struct{
-	bool debug, pause, studio, online;
+	bool debug, pause, studio, online, hosting;
 	char* version;
 	Uint32 playerID;
 	GameWorld *gameWorld;

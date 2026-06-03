@@ -6,9 +6,20 @@
 #include <string.h>
 #include <math.h>
 
-
 #include <structs.h>
 #include "server.h"
+
+#ifndef __linux__
+Server* serverInit(Uint16 port){
+	printf("Servers currently not supported on non-linux devices... sorry!");
+
+	return NULL;
+}
+
+int serverUpdate(){
+	return 0;
+}
+#endif
 
 #ifdef __linux__
 #include <netinet/in.h>
@@ -16,6 +27,11 @@
 
 struct sockaddr_in address; 
 int socketfd;
+struct hostent* server;
+
+void sendNetwork(char* request){
+	
+}
 
 Server* serverInit(Uint16 port){
 	socketfd = socket(AF_INET, SOCK_STREAM, 0);
@@ -42,14 +58,4 @@ int serverUpdate(){
 	return 0;
 }
 
-#endif
-
-#ifndef __linux__
-Server* serverInit(Uint16 port){
-	return NULL;
-}
-
-int serverUpdate(){
-	return 0;
-}
 #endif
