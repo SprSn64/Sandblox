@@ -217,6 +217,8 @@ void lesserCleanupObjects(DataObj* item){
 }
 
 bool parentObject(DataObj* child, DataObj* parent){
+	if(child == parent || parent->parent == child) return 0;
+
 	child->parent = parent;
 	child->next = NULL;
 
@@ -234,7 +236,6 @@ bool parentObject(DataObj* child, DataObj* parent){
 	//printf("%s -> %s\n", parent->name, loopItem->next->name);
 
 	return 0;
-
 }
 
 DataObj* firstChildOfType(DataObj* item, DataType* classData){
