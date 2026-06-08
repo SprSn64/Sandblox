@@ -25,14 +25,15 @@ in vec4 colour;
 void main(){
 	vec4 baseColour = colour * texture(tex0, uv);
 	if(baseColour.a == 0) discard;
-	float alphaDither = baseColour.a == 1 ? 0 : (sin(pos.x/pos.w * resolution.x + pos.w) * sin(pos.y/pos.w * resolution.y + pos.w) + 1) / 2;
-	if(baseColour.a <= alphaDither)
-		discard;
+	if(resolution.x + resolution.y > 0){
+		float alphaDither = baseColour.a == 1 ? 0 : (sin(pos.x/pos.w * resolution.x + pos.w) * sin(pos.y/pos.w * resolution.y + pos.w) + 1) / 2;
+		if(baseColour.a <= alphaDither) discard;
+	}
 
 	float fogStrength = 0;//min(max(0, (sqrt(pos.x * pos.x + pos.y * pos.y + pos.z * pos.z) - 128)/64), 1);
 
 	vec3 reflectSource = normalize(reflect(-normalize(lightNorm), norm));
 	float specular = pow(max(dot(cameraNorm, reflectSource), 0), 16);
 
-	FragColor = mix((baseColour * max(dot(norm, normalize(lightNorm)), 0) + baseColour * ambColour + specular) * lightColour, fogColour, fogStrength);
+	FragColor = mix((baseColour * max(dot(norm, normalize(lightNorm)), 0) + specular) * lightColour + baseColour * ambColour, fogColour, fogStrength);
 } 

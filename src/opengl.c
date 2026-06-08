@@ -28,7 +28,7 @@ extern Mesh* playerMesh;
 extern Mesh* cubePrim;
 extern SDL_FColor skyboxColour;
 
-extern Uint32 mainShader; extern Uint32 flatShader;
+extern Uint32 mainShader;
 
 const char *vertexShaderSource = NULL;
 const char *fragmentShaderSource = NULL;
