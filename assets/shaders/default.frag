@@ -33,7 +33,7 @@ void main(){
 	float fogStrength = 0;//min(max(0, (sqrt(pos.x * pos.x + pos.y * pos.y + pos.z * pos.z) - 128)/64), 1);
 
 	vec3 reflectSource = normalize(reflect(-normalize(lightNorm), norm));
-	float specular = pow(max(dot(cameraNorm, reflectSource), 0), 16);
+	float specular = min(pow(max(dot(cameraNorm, reflectSource), 0), 16), 1);
 
 	FragColor = mix((baseColour * max(dot(norm, normalize(lightNorm)), 0) + specular) * lightColour + baseColour * ambColour, fogColour, fogStrength);
 } 

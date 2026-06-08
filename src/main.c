@@ -515,6 +515,8 @@ SDL_AppResult SDL_AppIterate(void *appstate){
 	glUniformMatrix4fv(glLocs[GLVAL_VIEWMATRIX], 1, GL_FALSE, defaultMatrix);
 	resFloat[0] = 0; resFloat[1] = 0;
 	glUniform2fv(glLocs[GLVAL_RESOLUTION], 1, resFloat);
+	glUniform4fv(glLocs[GLVAL_LIGHTCOLOUR], 1, (float*)&flatLight);
+	glUniform4fv(glLocs[GLVAL_AMBCOLOUR], 1, (float*)&flatAmb);
 
 	updatePopups();
 
