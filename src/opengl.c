@@ -177,3 +177,15 @@ void openGlGenBuffers(Mesh* mesh){
 	//genVBO(mesh, mesh->vertBuffer);
 	//mesh->eleBuffer = genEBO(mesh, 0);
 }
+
+void bufferGLText(TextureRef* target, Font* font, char* text, SDL_FColor colour){
+	Texture* tex = target->texture;
+	if(tex)
+		freeRasterTexture(tex);
+	tex = newRasterTexture(max(font->kerning.x * strlen(text), font->renderSize.x), font->renderSize.y);
+
+	clearTex(tex, 0x00000000);
+	drawRasterText(tex, font, text, 0, 0, 1, colourToInt(colour));
+
+	//updateGlTexture(target);
+}

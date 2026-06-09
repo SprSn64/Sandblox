@@ -51,6 +51,7 @@ extern TextureRef* studioTexRef;
 
 Uint32 gameBuffer; Uint32 gameBufferTex;
 TextureRef gameBufferTexRef = {NULL, NULL, NULL, 0, NULL, NULL, true};
+TextureRef textBufferTex;
 
 ClientData client;
 GameWorld game;
@@ -539,11 +540,11 @@ SDL_AppResult SDL_AppIterate(void *appstate){
 
 	free(guiMatrix); setGlValue(GL_BLEND, false);
 
-	//SDL_FPoint drawCursorPos = mousePos;
-	//SDL_RenderTexture(renderer, cursorTex, &(SDL_FRect){0, 0, 32, 32}, &(SDL_FRect){drawCursorPos.x, drawCursorPos.y, 32, 32});
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
-	drawMeshOpenGL(planePrim, defaultMatrix, (SDL_FColor){1, 1, 1, 1}, &gameBufferTexRef);
+	//float* debugMatrix = genMatrix((Vector3){0, 1, 0}, (Vector3){(256.f / windowScale.x) * aspectRatio, 1, 256.f / windowScale.y}, (Vector3){HALFPI, 0, 0});
+	//drawMeshOpenGL(planePrim, debugMatrix, (SDL_FColor){1, 1, 1, 1}, &gameBufferTexRef);
+	//free(debugMatrix);
 
 	free(currentCamera.transform);
 	free(currentCamera.proj);

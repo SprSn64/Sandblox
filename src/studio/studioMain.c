@@ -58,6 +58,8 @@ extern ButtonMap stuMouseButtons[3];
 extern ButtonMap stuKeyList[STUDIOKEYBIND_MAX];
 extern ButtonMap keyList[KEYBIND_MAX];
 
+extern Font defaultFont;
+
 void drawObjectList(DataObj* item, int nodeDepth, int *idCount);
 void drawObjectProperties(DataObj* item, int posY);
 
@@ -249,6 +251,7 @@ void drawObjectList(DataObj* item, int nodeDepth, int *idCount){
 	}
 	
 	//drawText(studioRenderer, &studioFont, item->name, objListRect.x + 18/**/ + (nodeDepth * 24), 18/**/ + itemYOffset, 1.5, (SDL_FColor){1, 1, 1, 1});
+	drawRasterText(studioTex, &defaultFont, item->name, objListRect.x + 18/**/ + (nodeDepth * 24), 18/**/ + itemYOffset, 1.5, 0xFFFFFFFF);
 	
 	SDL_Rect iconRect = {(item->classData->id % 16) * 16, (int)floor((float)item->classData->id / 16) * 16 % 256, 16, 16};
 	SDL_Rect iconPos = {objListRect.x + nodeDepth * 24, objListRect.y/**/ + itemYOffset, 16, 16};
@@ -278,7 +281,7 @@ void drawObjectProperties(DataObj* item, int posY){
 	//SDL_SetRenderDrawColor(studioRenderer, 255, 255, 255, 255);
 	
 	if(!item){
-		//drawText(studioRenderer, &studioFont, "No object selected!", 2, posY, 1.5, (SDL_FColor){1, 1, 1, 1});
+		drawRasterText(studioTex, &defaultFont, "No object selected!", 2, posY, 1.5, 0xFFFFFFFF);
 		return;
 	}
 	

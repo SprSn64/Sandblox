@@ -18,8 +18,13 @@ extern ClientData client;
 extern GameWorld game;
 extern double deltaTime;
 extern ButtonMap keyList[KEYBIND_MAX];
+
 extern Mesh *cubePrim;
+extern Mesh *planePrim;
 extern TextureRef *homerTex;
+
+extern TextureRef textBufferTex;
+extern Font defaultFont;
 
 void killPlayer(){
 	if(!client.gameWorld->currPlayer) return;
@@ -135,6 +140,12 @@ void playerDraw(DataObj* object){
 	if(textProj.z >= 0) return;
 	float nameScale = 2;
 	drawText(renderer, &defaultFont, object->name, textProj.x - strlen(object->name) / 2 * defaultFont.kerning.x * nameScale, textProj.y - defaultFont.renderSize.y * nameScale, nameScale, (SDL_FColor){1, 1, 1, 1});
+	*/
+
+	/*float* textMatrix = translateMatrix(object->transform, (Vector3){0, 5, 0});
+	bufferGLText(&textBufferTex, &defaultFont, object->name, (SDL_FColor){1, 1, 1, 1});
+	drawMeshOpenGL(planePrim, textMatrix, (SDL_FColor){1, 1, 1, 1}, &textBufferTex);
+	free(textMatrix);
 	*/
 }
 void playerDestroy(DataObj* object){

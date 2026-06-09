@@ -29,4 +29,6 @@ void drawMeshOpenGL(Mesh* mesh, mat4 transform, SDL_FColor colour, TextureRef* t
 
 //void openGlBindMesh(Mesh* mesh);
 
+void bufferGLText(TextureRef* target, Font* font, char* text, SDL_FColor colour);
+
 #endif
