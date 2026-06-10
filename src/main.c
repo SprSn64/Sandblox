@@ -49,7 +49,7 @@ Uint32 glBlankTex; Uint32 blankColour = 0xFFFFFFFF;
 
 extern TextureRef* studioTexRef;
 
-Uint32 gameBuffer; Uint32 gameBufferTex;
+Uint32 gameBuffer; Uint32 gameBufferTex; Uint32 gameRenderBuffer;
 TextureRef gameBufferTexRef = {NULL, NULL, NULL, 0, NULL, NULL, true};
 TextureRef textBufferTex;
 
@@ -90,6 +90,7 @@ TextureRef *fontTex = NULL; TextureRef *playerTex = NULL; TextureRef *homerTex =
 TextureRef *boneTex = NULL; TextureRef *cursorTex = NULL; TextureRef *skyTex = NULL; TextureRef *sunTex = NULL;
 Mesh *playerMesh = NULL; Mesh *playerFemMesh = NULL; Mesh *boneMesh = NULL; Mesh *skyboxMesh = NULL; Mesh *sunMesh = NULL;
 Mesh *planePrim = NULL; Mesh *cubePrim = NULL; Mesh *spherePrim = NULL;
+Mesh *frameBuffMesh = NULL;
 
 ButtonMap keyList[KEYBIND_MAX];
 
@@ -177,15 +178,6 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[]){
 	SDL_SetWindowMinimumSize(window, 320, 240);
 
 	mainShader = loadShader("assets/shaders/default.vert", "assets/shaders/default.frag");
-
-	glGenFramebuffers(1, &gameBuffer);
-	glBindFramebuffer(GL_FRAMEBUFFER, 0);
-
-	glGenTextures(1, &gameBufferTex);
-	glBindTexture(GL_TEXTURE_2D, gameBufferTex);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, 640, 480, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR); 
 	
 	glGenTextures(1, &glBlankTex);
 	glActiveTexture(GL_TEXTURE0);
@@ -193,6 +185,29 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[]){
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, 1, 1, 0, GL_RGBA, GL_UNSIGNED_BYTE, &blankColour);
 	glGenerateMipmap(GL_TEXTURE_2D);
 	glBindTexture(GL_TEXTURE_2D, 0);
+
+	//Uint32 gameBuffer;
+	glGenFramebuffers(1, &gameBuffer);
+	glBindFramebuffer(GL_FRAMEBUFFER, gameBuffer);
+
+	glGenTextures(1, &gameBufferTex);
+	glBindTexture(GL_TEXTURE_2D, gameBufferTex);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, 1920, 1080, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, gameBufferTex, 0);
+
+	glGenRenderbuffers(1, &gameRenderBuffer);
+	glBindRenderbuffer(GL_RENDERBUFFER, gameRenderBuffer);
+	glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, 1920, 1080);
+	glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, gameRenderBuffer);
+	glBindTexture(GL_TEXTURE_2D, 0);
+
+	int fbStatus = glCheckFramebufferStatus(GL_FRAMEBUFFER);
+	if(fbStatus != 0)
+		printf("Framebuffer error: %d\n", fbStatus);
 
 	gameBufferTexRef.glLoc = gameBufferTex;
 
@@ -211,6 +226,7 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[]){
 	boneMesh = loadMeshFromObj("assets/models/bone.obj", true); 
 	skyboxMesh = loadMeshFromObj("assets/models/advskybox.obj", true);
 	sunMesh = loadMeshFromObj("assets/models/skyboxsun.obj", true);
+	frameBuffMesh = loadMeshFromObj("assets/models/framebuffer.obj", true);
 	
 	planePrim = genPlaneMesh(1, 1, 1, 1); planePrim->persistent = true;
 	cubePrim = loadMeshFromObj("assets/models/primitives/cube.obj", true);
@@ -290,7 +306,7 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[]){
 
 	testCodeBlock = (CodeBlock){&testBlockClass, (SDL_FPoint){24, 24}, NULL, NULL, NULL, NULL};
 
-	SDL_HideCursor();
+	//SDL_HideCursor();
 	
 	//if(glEnabled) goto openGlInitSkip;
 
@@ -425,7 +441,7 @@ SDL_AppResult SDL_AppIterate(void *appstate){
 
 	glViewport(0, 0, windowScale.x, windowScale.y);
 
-	//glBindFramebuffer(GL_FRAMEBUFFER, gameBuffer);
+	glBindFramebuffer(GL_FRAMEBUFFER, gameBuffer);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	setGlShader(mainShader);
 
@@ -521,12 +537,6 @@ SDL_AppResult SDL_AppIterate(void *appstate){
 
 	updatePopups();
 
-	if(client.studio){
-		float* studioMatrix = genMatrix((Vector3){-aspectRatio, 1, 0}, (Vector3){(240.f / windowScale.x) * aspectRatio * 2, 1, (320.f / windowScale.y) * 2}, (Vector3){HALFPI, 0, 0});
-		drawMeshOpenGL(planePrim, studioMatrix, (SDL_FColor){1, 1, 1, 1}, studioTexRef);
-		free(studioMatrix);
-	}
-
 	if(SDL_GetWindowFlags(window) & SDL_WINDOW_MOUSE_FOCUS){
 		SDL_FPoint cursorDrawPos = camMoveMode == 1 ? storedMousePos : mousePos;
 		if(camMoveMode == 2) cursorDrawPos = (SDL_FPoint){windowScale.x >> 1, windowScale.y >> 1};
@@ -537,14 +547,19 @@ SDL_AppResult SDL_AppIterate(void *appstate){
 		drawMeshOpenGL(planePrim, cursorMatrix, (SDL_FColor){1, 1, 1, 1}, cursorTex);
 		free(cursorMatrix);
 	}
-
-	free(guiMatrix); setGlValue(GL_BLEND, false);
-
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
-	//float* debugMatrix = genMatrix((Vector3){0, 1, 0}, (Vector3){(256.f / windowScale.x) * aspectRatio, 1, 256.f / windowScale.y}, (Vector3){HALFPI, 0, 0});
-	//drawMeshOpenGL(planePrim, debugMatrix, (SDL_FColor){1, 1, 1, 1}, &gameBufferTexRef);
-	//free(debugMatrix);
+	float* debugMatrix = genMatrix((Vector3){0, 0, 0}, (Vector3){aspectRatio, 1, 1}, (Vector3){0, 0, 0});
+	drawMeshOpenGL(frameBuffMesh, debugMatrix, (SDL_FColor){1, 1, 1, 1}, &gameBufferTexRef);
+	free(debugMatrix);
+
+	if(client.studio){
+		float* studioMatrix = genMatrix((Vector3){-aspectRatio, 1, 0}, (Vector3){(240.f / windowScale.x) * aspectRatio * 2, 1, (320.f / windowScale.y) * 2}, (Vector3){HALFPI, 0, 0});
+		drawMeshOpenGL(planePrim, studioMatrix, (SDL_FColor){1, 1, 1, 1}, studioTexRef);
+		free(studioMatrix);
+	}
+
+	free(guiMatrix); setGlValue(GL_BLEND, false);
 
 	free(currentCamera.transform);
 	free(currentCamera.proj);
@@ -565,8 +580,7 @@ void SDL_AppQuit(void *appstate, SDL_AppResult result){
 
 	glDeleteProgram(mainShader);
 	glDeleteBuffers(1, &VAO); glDeleteBuffers(1, &VBO); glDeleteBuffers(1, &EBO);
-	glDeleteTextures(1, &glBlankTex);
-	glDeleteFramebuffers(1, &gameBuffer);
+	glDeleteTextures(1, &glBlankTex); glDeleteFramebuffers(1, &gameBuffer); glDeleteRenderbuffers(1, &gameRenderBuffer);
 }
 
 void HandleKeyInput(){
