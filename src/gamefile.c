@@ -11,8 +11,10 @@
 
 extern ClientData client;
 extern DataObj gameHeader;
+
 extern Vector3 lightNormal;
 extern SDL_FColor lightColour;
+extern SDL_FColor lightAmbient;
 
 DataObj* loadedPlayer = NULL;
 extern char* basePath;
@@ -319,6 +321,17 @@ int loadGameFile(const char* filename) {
     }else
         lightColour = (SDL_FColor){1, 1, 1, 1};
 
+    cJSON* lightAmb = cJSON_GetObjectItem(json, "lightAmb");
+    if(lightAmb && cJSON_IsArray(lightAmb) && cJSON_GetArraySize(lightAmb) >= 4){
+        lightAmbient = (SDL_FColor){
+            (float)(cJSON_GetArrayItem(lightAmb, 0)->valueint) / 255,
+            (float)(cJSON_GetArrayItem(lightAmb, 1)->valueint) / 255,
+            (float)(cJSON_GetArrayItem(lightAmb, 2)->valueint) / 255,
+            (float)(cJSON_GetArrayItem(lightAmb, 3)->valueint) / 255
+        };
+    }else
+        lightAmbient = (SDL_FColor){0.25, 0.25, 0.3, 1};
+
     cJSON* skybox = cJSON_GetObjectItem(json, "skybox");
     TextureRef* skyboxTex = NULL;
     if(skybox && cJSON_IsString(skybox)) {
@@ -332,10 +345,7 @@ int loadGameFile(const char* filename) {
         if(!skyboxTex)
             printf("Failed to load texture from file: %s\n", skybox->valuestring);
     }
-    if(skyboxTex)
-    	client.gameWorld->skybox = skyboxTex;
-    else
-    	client.gameWorld->skybox = NULL;
+    client.gameWorld->skybox = skyboxTex;
     
     int objectCount = cJSON_GetArraySize(objects);
     for(int i = 0; i < objectCount; i++) {

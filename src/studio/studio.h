@@ -4,5 +4,6 @@
 #include "studioMain.h"
 #include "studioInput.h"
 #include "studioOverlay.h"
+#include "studioPanels.h"
 
 #endif

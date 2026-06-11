@@ -27,14 +27,24 @@ typedef struct HistoryItem{
 	struct HistoryItem* prev;
 } HistoryItem;
 
-typedef struct StudioPanel{
-	//something defining the type or info or something idk
-	//add something else for multiple tabs on a single panel maybe
-	struct StudioPanel* childA;
-	struct StudioPanel* childB;
+typedef struct StudioSplit{
+	bool splitA, splitB; //true for another pair of panels
+	void* childA;
+	void* childB;
 
 	float split; //weight of scale ratio between childA and childB, 0.5 for right in the center
 	bool vert; //if the split is verticle (childA above childB)
+} StudioSplit;
+
+typedef enum panelTypes{
+	PANEL_GAME, PANEL_EXPLORER, //explorer as in the list of objects
+	PANEL_PROPERTIES, PANEL_CONSOLE,
+	PANEL_TOOLBAR,
+} panelTypes;
+
+typedef struct StudioPanel{
+	Uint32 type;
+	//add something for extra tabs on a single panel
 } StudioPanel;
 
 HistoryItem* addHistoryItem(Uint32 type, void** items);

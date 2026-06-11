@@ -235,3 +235,7 @@ void extractRotMatrix(mat4 matrix, mat4 outputLoc){
 	};
 	memcpy(outputLoc, output, sizeof(mat4));
 }
+
+bool withinRect(SDL_FPoint pos, SDL_FRect rect){
+	return between(pos.x - rect.x, 0, rect.w) && between(pos.y - rect.y, 0, rect.h);
+}

@@ -184,27 +184,6 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[]){
 	glGenerateMipmap(GL_TEXTURE_2D);
 	glBindTexture(GL_TEXTURE_2D, 0);
 
-	//Uint32 gameBuffer;
-	/*glGenFramebuffers(1, &gameBuffer);
-	glBindFramebuffer(GL_FRAMEBUFFER, gameBuffer);
-
-	glGenTextures(1, &gameBufferTex);
-	glBindTexture(GL_TEXTURE_2D, gameBufferTex);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, 1920, 1080, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, gameBufferTex, 0);
-
-	glGenRenderbuffers(1, &gameRenderBuffer);
-	glBindRenderbuffer(GL_RENDERBUFFER, gameRenderBuffer);
-	glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, 1920, 1080);
-	glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, gameRenderBuffer);
-	glBindTexture(GL_TEXTURE_2D, 0);*/
-
-	//gameBufferTexRef.glLoc = gameBufferTex;
-
 	SDL_GetWindowSize(window, &windowScale.x, &windowScale.y);
 	gameBuffer = newFrameBuffer(windowScale.x, windowScale.y);
 
@@ -353,9 +332,8 @@ SDL_AppResult SDL_AppEvent(void *appstate, SDL_Event *event){
 	return SDL_APP_CONTINUE;
 }
 
-extern bool studioFocus;
-extern SDL_Point studioWindowScale;
 extern void studioCameraUpdate(Camera* cam);
+extern StudioSplit panelHead;
 
 SDL_AppResult SDL_AppIterate(void *appstate){
 	(void)appstate;
@@ -548,15 +526,16 @@ SDL_AppResult SDL_AppIterate(void *appstate){
 	}
 	bindFrameBuffer(NULL);
 
-	float* debugMatrix = genMatrix((Vector3){0, 0, 0}, (Vector3){aspectRatio, 1, 1}, (Vector3){0, 0, 0});
-	drawMeshOpenGL(frameBuffMesh, debugMatrix, (SDL_FColor){1, 1, 1, 1}, gameBuffer->texture);
-	free(debugMatrix);
+	float* gameMatrix = genMatrix((Vector3){0, 0, 0}, (Vector3){aspectRatio, 1, 1}, (Vector3){0, 0, 0});
+	drawMeshOpenGL(frameBuffMesh, gameMatrix, (SDL_FColor){1, 1, 1, 1}, gameBuffer->texture);
+	free(gameMatrix);
 
 	if(client.studio){
 		float* studioMatrix = genMatrix((Vector3){-aspectRatio, 1, 0}, (Vector3){(240.f / windowScale.x) * aspectRatio * 2, 1, (320.f / windowScale.y) * 2}, (Vector3){HALFPI, 0, 0});
 		drawMeshOpenGL(planePrim, studioMatrix, (SDL_FColor){1, 1, 1, 1}, studioTexRef);
 		free(studioMatrix);
 	}
+	drawSplit(&panelHead);
 
 	free(guiMatrix); setGlValue(GL_BLEND, false);
 
