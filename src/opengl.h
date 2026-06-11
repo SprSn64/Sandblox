@@ -11,6 +11,11 @@ typedef enum glValueLocations{
 	GLVAL_MAX
 } glValueLocations;
 
+typedef struct FrameBuffer{
+	Uint32 frameBuff, renderBuff;
+	TextureRef* texture;
+} FrameBuffer;
+
 bool initOpenGL();
 void updateOpenGL();
 void endUpdateOpenGL();
@@ -30,5 +35,9 @@ void drawMeshOpenGL(Mesh* mesh, mat4 transform, SDL_FColor colour, TextureRef* t
 //void openGlBindMesh(Mesh* mesh);
 
 void bufferGLText(TextureRef* target, Font* font, char* text, SDL_FColor colour);
+
+FrameBuffer* newFrameBuffer(Uint16 width, Uint16 height);
+void bindFrameBuffer(FrameBuffer* item);
+void freeFrameBuffer(FrameBuffer* item);
 
 #endif

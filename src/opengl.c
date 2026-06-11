@@ -188,4 +188,69 @@ void bufferGLText(TextureRef* target, Font* font, char* text, SDL_FColor colour)
 	drawRasterText(tex, font, text, 0, 0, 1, colourToInt(colour));
 
 	//updateGlTexture(target);
+	glBindTexture(GL_TEXTURE_2D, target->glLoc);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, tex->width, tex->height, 0, GL_RGBA, GL_UNSIGNED_BYTE, tex->pixels);
+	glBindTexture(GL_TEXTURE_2D, 0);
+}
+
+FrameBuffer* newFrameBuffer(Uint16 width, Uint16 height){
+	FrameBuffer* newFB = malloc(sizeof(FrameBuffer));
+	if(!newFB) return NULL;
+
+	TextureRef* fbTexture = malloc(sizeof(TextureRef)); 
+	newFB->texture = fbTexture;
+
+	/*glGenFramebuffers(1, &gameBuffer);
+	glBindFramebuffer(GL_FRAMEBUFFER, gameBuffer);
+
+	glGenTextures(1, &gameBufferTex);
+	glBindTexture(GL_TEXTURE_2D, gameBufferTex);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, 1920, 1080, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, gameBufferTex, 0);
+
+	glGenRenderbuffers(1, &gameRenderBuffer);
+	glBindRenderbuffer(GL_RENDERBUFFER, gameRenderBuffer);
+	glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, 1920, 1080);
+	glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, gameRenderBuffer);
+	glBindTexture(GL_TEXTURE_2D, 0);*/
+
+	glGenFramebuffers(1, &newFB->frameBuff);
+	glBindFramebuffer(GL_FRAMEBUFFER, newFB->frameBuff);
+
+	glGenTextures(1, &fbTexture->glLoc);
+	glBindTexture(GL_TEXTURE_2D, fbTexture->glLoc);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST); glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE); glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, fbTexture->glLoc, 0);
+
+	glGenRenderbuffers(1, &newFB->renderBuff);
+	glBindRenderbuffer(GL_RENDERBUFFER, newFB->renderBuff);
+	glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, width, height);
+	glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, newFB->renderBuff);
+	glBindTexture(GL_TEXTURE_2D, 0);
+
+	int fbStatus = glCheckFramebufferStatus(GL_FRAMEBUFFER);
+	if(fbStatus != GL_FRAMEBUFFER_COMPLETE)
+		printf("Framebuffer error: %d\n", fbStatus);
+
+	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+	glBindRenderbuffer(GL_RENDERBUFFER, 0);
+
+	return newFB;
+}
+
+void bindFrameBuffer(FrameBuffer* item){
+	glBindFramebuffer(GL_FRAMEBUFFER, item ? item->frameBuff : 0);
+}
+
+void freeFrameBuffer(FrameBuffer* item){
+	if(!item) return;
+	if(item->texture)freeTexture(item->texture);
+	glDeleteFramebuffers(1, &item->frameBuff); glDeleteRenderbuffers(1, &item->renderBuff);
+	free(item);
 }

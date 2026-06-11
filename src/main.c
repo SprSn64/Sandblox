@@ -36,8 +36,6 @@
 	Add secondary studio menu for changing object properties (colour, scale, etc)
 */
 
-extern SDL_Window *studioWindow;
-
 SDL_Window *window = NULL;
 SDL_Renderer *renderer = NULL;
 
@@ -49,8 +47,8 @@ Uint32 glBlankTex; Uint32 blankColour = 0xFFFFFFFF;
 
 extern TextureRef* studioTexRef;
 
-Uint32 gameBuffer; Uint32 gameBufferTex; Uint32 gameRenderBuffer;
-TextureRef gameBufferTexRef = {NULL, NULL, NULL, 0, NULL, NULL, true};
+FrameBuffer *gameBuffer;
+
 TextureRef textBufferTex;
 
 ClientData client;
@@ -187,7 +185,7 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[]){
 	glBindTexture(GL_TEXTURE_2D, 0);
 
 	//Uint32 gameBuffer;
-	glGenFramebuffers(1, &gameBuffer);
+	/*glGenFramebuffers(1, &gameBuffer);
 	glBindFramebuffer(GL_FRAMEBUFFER, gameBuffer);
 
 	glGenTextures(1, &gameBufferTex);
@@ -203,13 +201,12 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[]){
 	glBindRenderbuffer(GL_RENDERBUFFER, gameRenderBuffer);
 	glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, 1920, 1080);
 	glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, gameRenderBuffer);
-	glBindTexture(GL_TEXTURE_2D, 0);
+	glBindTexture(GL_TEXTURE_2D, 0);*/
 
-	int fbStatus = glCheckFramebufferStatus(GL_FRAMEBUFFER);
-	if(fbStatus != 0)
-		printf("Framebuffer error: %d\n", fbStatus);
+	//gameBufferTexRef.glLoc = gameBufferTex;
 
-	gameBufferTexRef.glLoc = gameBufferTex;
+	SDL_GetWindowSize(window, &windowScale.x, &windowScale.y);
+	gameBuffer = newFrameBuffer(windowScale.x, windowScale.y);
 
 	fontTex = loadTexture("assets/textures/font.png", true);
 	boneTex = loadTexture("assets/textures/bonetex.png", true);
@@ -441,7 +438,9 @@ SDL_AppResult SDL_AppIterate(void *appstate){
 
 	glViewport(0, 0, windowScale.x, windowScale.y);
 
-	glBindFramebuffer(GL_FRAMEBUFFER, gameBuffer);
+	//freeFrameBuffer(gameBuffer);
+	//gameBuffer = newFrameBuffer(windowScale.x, windowScale.y);
+	bindFrameBuffer(gameBuffer);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	setGlShader(mainShader);
 
@@ -547,10 +546,10 @@ SDL_AppResult SDL_AppIterate(void *appstate){
 		drawMeshOpenGL(planePrim, cursorMatrix, (SDL_FColor){1, 1, 1, 1}, cursorTex);
 		free(cursorMatrix);
 	}
-	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+	bindFrameBuffer(NULL);
 
 	float* debugMatrix = genMatrix((Vector3){0, 0, 0}, (Vector3){aspectRatio, 1, 1}, (Vector3){0, 0, 0});
-	drawMeshOpenGL(frameBuffMesh, debugMatrix, (SDL_FColor){1, 1, 1, 1}, &gameBufferTexRef);
+	drawMeshOpenGL(frameBuffMesh, debugMatrix, (SDL_FColor){1, 1, 1, 1}, gameBuffer->texture);
 	free(debugMatrix);
 
 	if(client.studio){
@@ -580,7 +579,7 @@ void SDL_AppQuit(void *appstate, SDL_AppResult result){
 
 	glDeleteProgram(mainShader);
 	glDeleteBuffers(1, &VAO); glDeleteBuffers(1, &VBO); glDeleteBuffers(1, &EBO);
-	glDeleteTextures(1, &glBlankTex); glDeleteFramebuffers(1, &gameBuffer); glDeleteRenderbuffers(1, &gameRenderBuffer);
+	glDeleteTextures(1, &glBlankTex); freeFrameBuffer(gameBuffer);
 }
 
 void HandleKeyInput(){
