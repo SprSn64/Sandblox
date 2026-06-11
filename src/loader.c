@@ -128,8 +128,8 @@ void freeTexture(TextureRef* tex){
 	if(headTexture == tex)
 		headTexture = tex->next;
 
-	tex->next->prev = tex->prev;
-	tex->prev->next = tex->next;
+	if(tex->next)tex->next->prev = tex->prev;
+	if(tex->prev)tex->prev->next = tex->next;
 	free(tex);
 }
 
@@ -142,7 +142,7 @@ void cleanupTextures(bool soft){
 		}
 
 		TextureRef *next = currItem->next;
-		//freeTexture(currItem); //double free? what?
+		freeTexture(currItem); //double free? what?
 		currItem = next;
 	}
 }
@@ -380,8 +380,8 @@ void freeMesh(Mesh* mesh){
 	if(headMesh == mesh)
 		headMesh = mesh->next;
 
-	mesh->next->prev = mesh->prev;
-	mesh->prev->next = mesh->next;
+	if(mesh->next)mesh->next->prev = mesh->prev;
+	if(mesh->prev)mesh->prev->next = mesh->next;
 	free(mesh);
 }
 
@@ -393,7 +393,7 @@ void cleanupMeshes(bool soft){
 			continue;
 		}
 		Mesh *next = currItem->next;
-		//freeMesh(currItem); //still a double free?
+		freeMesh(currItem); //still a double free?
 		currItem = next;
 	}
 }
