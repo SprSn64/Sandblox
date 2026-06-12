@@ -32,6 +32,7 @@ AvatarItem* loadHatJson(cJSON* obj){
 	AvatarItem* newItem = malloc(sizeof(AvatarItem));
 	if(!newItem) return NULL;
 
+	cJSON* name = cJSON_GetObjectItem(obj, "name");
 	cJSON* mesh = cJSON_GetObjectItem(obj, "mesh");
 	cJSON* texture = cJSON_GetObjectItem(obj, "texture");
 	cJSON* colour = cJSON_GetObjectItem(obj, "colour");
@@ -65,6 +66,14 @@ AvatarItem* loadHatJson(cJSON* obj){
 	else
 		newItem->matchSkin = false;
 
+	if(name && cJSON_IsString(name))
+		printf("Loaded hat %s.\n", name->valuestring);
+	else
+		printf("Loaded unnamed hat.\n");
+
+	newItem->prev = NULL;
+	newItem->next = NULL;
+
 	if(!headAvatarItem){
 		headAvatarItem = newItem;
 		return newItem;
@@ -75,9 +84,8 @@ AvatarItem* loadHatJson(cJSON* obj){
 		loopItem = loopItem->next;
 	}
 	loopItem->next = newItem;
-	newItem->prev = loopItem;
 
-	newItem->next = NULL;
+	newItem->prev = loopItem;
 
 	return newItem;
 }
