@@ -4,6 +4,6 @@
 #include <SDL3/SDL.h>
 #include <structs.h>
 
-void drawSplit(StudioSplit* item);
+void drawSplit(StudioSplit* item, SDL_FRect* area);
 
 #endif

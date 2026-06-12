@@ -19,9 +19,9 @@ extern float* defaultMatrix;
 extern SDL_Point windowScale;
 extern Mesh *planePrim;
 
-StudioSplit panelHead = {false, false, NULL, NULL, 0.5, false};
+StudioSplit panelHead = {false, false, NULL, NULL, 0.1, true};
 
-void drawSplit(StudioSplit* item){
+void drawSplit(StudioSplit* item, SDL_FRect* area){
 	glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
 	float* aMatrix = NULL; float* bMatrix = NULL;
@@ -40,4 +40,23 @@ void drawSplit(StudioSplit* item){
 	free(aMatrix); free(bMatrix);
 
 	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+}
+
+extern Mesh* frameBuffMesh;
+extern FrameBuffer* gameBuffer;
+void drawGamePanel(SDL_FRect* area){
+	(void)area;
+	float* gameMatrix = genMatrix((Vector3){0, 0, 0}, (Vector3){aspectRatio, 1, 1}, (Vector3){0, 0, 0});
+	drawMeshOpenGL(frameBuffMesh, gameMatrix, (SDL_FColor){1, 1, 1, 1}, gameBuffer->texture);
+	free(gameMatrix);
+}
+
+/*
+	PANEL_GAME, PANEL_EXPLORER,
+	PANEL_PROPERTIES, PANEL_CONSOLE,
+	PANEL_TOOLBAR,
+}*/
+
+void drawPanel(SDL_FRect* area){
+	(void)area;
 }

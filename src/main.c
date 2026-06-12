@@ -530,7 +530,7 @@ SDL_AppResult SDL_AppIterate(void *appstate){
 		drawMeshOpenGL(planePrim, studioMatrix, (SDL_FColor){1, 1, 1, 1}, studioTexRef);
 		free(studioMatrix);
 	}
-	drawSplit(&panelHead);
+	drawSplit(&panelHead, NULL);
 
 	free(guiMatrix); setGlValue(GL_BLEND, false);
 

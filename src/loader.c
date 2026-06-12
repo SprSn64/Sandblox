@@ -335,12 +335,12 @@ Mesh* loadMeshFromObj(char *path, bool persistent) {
 
 				face->material.tex[0] = '\0';
 
-                for (int mtrl = 0; mtrl < materialCount; mtrl++) {
-                    if (strcmp(materials[mtrl].name, currentMaterial) == 0) {
-                        strcpy(face->material.tex, materials[mtrl].tex);
-                        break;
-                    }
-                }
+				for (int mtrl = 0; mtrl < materialCount; mtrl++) {
+					if (strcmp(materials[mtrl].name, currentMaterial) == 0) {
+						strcpy(face->material.tex, materials[mtrl].tex); //problem part?
+						break;
+					}
+				}
             }
         } else if (strncmp(line, "mtllib ", 7) == 0) {
             char mtlName[256];

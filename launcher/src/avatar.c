@@ -9,7 +9,6 @@
 #include <stdlib.h>
 #include <string.h>
 #include <math.h>
-
 extern SDL_Window *window;
 extern SDL_Renderer *renderer;
 
@@ -211,7 +210,6 @@ void drawAvatar(SDL_Point pos){
 #include "input.h"
 void buttonRefreshAvatar(Button* item){
 	(void)item;
-	//return; //currently crashes
 
 	AvatarItem* loopItem = headAvatarItem;
 	while(loopItem){
