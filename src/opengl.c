@@ -199,24 +199,7 @@ FrameBuffer* newFrameBuffer(Uint16 width, Uint16 height){
 
 	TextureRef* fbTexture = malloc(sizeof(TextureRef)); 
 	newFB->texture = fbTexture;
-
-	/*glGenFramebuffers(1, &gameBuffer);
-	glBindFramebuffer(GL_FRAMEBUFFER, gameBuffer);
-
-	glGenTextures(1, &gameBufferTex);
-	glBindTexture(GL_TEXTURE_2D, gameBufferTex);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, 1920, 1080, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, gameBufferTex, 0);
-
-	glGenRenderbuffers(1, &gameRenderBuffer);
-	glBindRenderbuffer(GL_RENDERBUFFER, gameRenderBuffer);
-	glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, 1920, 1080);
-	glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, gameRenderBuffer);
-	glBindTexture(GL_TEXTURE_2D, 0);*/
+	newFB->width = width; newFB->height = height;
 
 	glGenFramebuffers(1, &newFB->frameBuff);
 	glBindFramebuffer(GL_FRAMEBUFFER, newFB->frameBuff);
@@ -246,6 +229,8 @@ FrameBuffer* newFrameBuffer(Uint16 width, Uint16 height){
 
 void bindFrameBuffer(FrameBuffer* item){
 	glBindFramebuffer(GL_FRAMEBUFFER, item ? item->frameBuff : 0);
+	if(item) glViewport(0, 0, item->width, item->height);
+	else glViewport(0, 0, windowScale.x, windowScale.y);
 }
 
 void freeFrameBuffer(FrameBuffer* item){

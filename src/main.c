@@ -238,11 +238,6 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[]){
 
 	glLocs[GLVAL_TEXTURE0] = glGetUniformLocation(mainShader, "tex0");
 
-	for(int i=0; i<GLVAL_MAX; i++){
-		printf("%d ", glLocs[i]);
-	}
-	printf("\n");
-
 	//glUniform1i(glLocs[GLVAL_TEXTURE0], 0);
 
 	SDL_GL_SetSwapInterval(1);
@@ -472,7 +467,7 @@ SDL_AppResult SDL_AppIterate(void *appstate){
 	glUniform2fv(glLocs[GLVAL_RESOLUTION], 1, resFloat);
 
 	Uint32 glError = glGetError();
-	if(glError)
+	if(glError != GL_NO_ERROR)
 		printf("GL ERROR: %d\n", glError);
 	
 	//drawCube((Vector3){(2 + SDL_cos(timer)) / -2, SDL_sin(timer) + 1, (2 + SDL_cos(timer)) / -2}, (Vector3){2 + SDL_cos(timer), SDL_sin(timer) + 1, 2 + SDL_cos(timer)}, (SDL_FColor){0.6, 0.8, 1, 1});

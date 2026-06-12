@@ -8,12 +8,6 @@
 #include "loader.h"
 #include "opengl.h"
 
-typedef struct {
-	int v;
-	int vt;
-	int vn;
-} FaceIndex;
-
 TextureRef* headTexture = NULL;
 Mesh* headMesh = NULL;
 
@@ -157,119 +151,126 @@ Mesh* meshExists(char* path){
 	return NULL;
 }
 
+typedef struct {
+	int vert;
+	int vertUV;
+	int vertNorm;
+} FaceIndex;
+
 static void objCount(const char *path, Uint32 *out_v, Uint32 *out_vt, Uint32 *out_vn, Uint32 *out_faces) {
-    FILE *f = fopen(path, "r");
-    if (!f) return;
+    FILE *file = fopen(path, "r");
+    if (!file) return;
 
     char line[512];
-    Uint32 v = 0, vt = 0, vn = 0, faces = 0;
-    while (fgets(line, sizeof(line), f)) {
+    Uint32 verts = 0, vertUVs = 0, vertNorms = 0, faces = 0;
+    while (fgets(line, sizeof(line), file)) {
         if (line[0] == 'v' && line[1] == ' ')
-            v++;
+            verts++;
         else if (line[0] == 'v' && line[1] == 't')
-            vt++;
+            vertUVs++;
         else if (line[0] == 'v' && line[1] == 'n')
-            vn++;
+            vertNorms++;
         else if (line[0] == 'f' && line[1] == ' ') {
-            int verts = 0;
-            char *p = line + 2;
-            while (*p) {
-                while (*p == ' ') p++;
-                if (*p == '\0' || *p == '\n') break;
-                verts++;
-                while (*p && *p != ' ') p++;
+            int faceVerts = 0;
+            char *pointer = line + 2;
+            while (*pointer) {
+                while (*pointer == ' ') pointer++;
+                if (*pointer == '\0' || *pointer == '\n') break;
+                faceVerts++;
+                while (*pointer && *pointer != ' ') pointer++;
             }
 
-            if (verts >= 3)
-                faces += verts - 2;
+            if (faceVerts >= 3)
+                faces += faceVerts - 2;
         }
     }
-    fclose(f);
+    fclose(file);
 
-    *out_v = v;
-    *out_vt = vt;
-    *out_vn = vn;
+    *out_v = verts;
+    *out_vt = vertUVs;
+    *out_vn = vertNorms;
     *out_faces = faces;
 }
 
 static FaceIndex parseFaceToken(const char *tok) {
-    FaceIndex fi = { -1, -1, -1 };
-    fi.v = atoi(tok) - 1;
+	FaceIndex index = {-1, -1, -1};
+	index.vert = atoi(tok) - 1;
 
-    const char *s = strchr(tok, '/');
-    if (!s) return fi;
+	const char *s = strchr(tok, '/');
+	if (!s) return index;
 
-    s++;
-    if (*s != '/') {
-        fi.vt = atoi(s) - 1;
-        s = strchr(s, '/');
-    }
-    if (s && *s == '/') {
-        s++;
-        fi.vn = atoi(s) - 1;
-    }
+	s++;
+	if (*s != '/') {
+		index.vertUV = atoi(s) - 1;
+		s = strchr(s, '/');
+	}
+	if (s && *s == '/') {
+		s++;
+		index.vertNorm = atoi(s) - 1;
+	}
 
-    return fi;
+	return index;
 }
 
 int loadMtlFile(const char *objPath, const char *mtlName, MeshMtlEntry *materials, int maxCount) {
-    char mtlPath[512];
+	char mtlPath[512];
 
-    strcpy(mtlPath, objPath);
-    char *slash = strrchr(mtlPath, '/');
-    if (slash) {
-        *(slash + 1) = '\0';
-        strcat(mtlPath, mtlName);
-    } else {
-        strcpy(mtlPath, mtlName);
-    }
+	strcpy(mtlPath, objPath);
+	char *lastSlash = strrchr(mtlPath, '/');
+	if (lastSlash) {
+		*(lastSlash + 1) = '\0';
+ 		strcat(mtlPath, mtlName);
+	} else {
+		strcpy(mtlPath, mtlName);
+	}
 
+	FILE *file = fopen(mtlPath, "r");
+	if (!file) {
+		//printf("dihhhhhhh\n");
+		return 0;
+	}
 
-    FILE *f = fopen(mtlPath, "r");
-    if (!f) {
-        //printf("dihhhhhhh\n");
-        return 0;
-    }
+	char line[512];
+	int count = 0;
+	MeshMtlEntry *current = NULL;
 
-    char line[512];
-    int count = 0;
-    MeshMtlEntry *current = NULL;
+	while (fgets(line, sizeof(line), file)){
+		if (strncmp(line, "newmtl ", 7) == 0) { //compares if the first 7 letters are equal
+			if (count >= maxCount) break;
 
-    while (fgets(line, sizeof(line), f)) {
-        if (strncmp(line, "newmtl ", 7) == 0) {
-            if (count >= maxCount) break;
+			current = &materials[count++];
+			sscanf(line, "newmtl %127s", current->name);
+			current->tex[0] = '\0';
+		} else if (strncmp(line, "map_Kd ", 7) == 0 && current) {
+			sscanf(line, "map_Kd %255s", current->tex);
+			printf("mtl tex %s\n", current->tex);
+		}
+	}
 
-            current = &materials[count++];
-            sscanf(line, "newmtl %127s", current->name);
-            current->tex[0] = '\0';
-        }
-        else if (strncmp(line, "map_Kd ", 7) == 0 && current) {
-            sscanf(line, "map_Kd %255s", current->tex);
-            printf("mtl tex %s\n", current->tex);
-        }
-    }
-
-    fclose(f);
-    return count;
+	fclose(file);
+	return count;
 }
 
-//todo: some uvs are broken?
+/*TODO: 
+	some uvs are broken?
+	mop up this spilled spaghetti!
+*/
 Mesh* loadMeshFromObj(char *path, bool persistent) {
-    Mesh* checkMesh = meshExists(path);
-    if(checkMesh) return checkMesh;
+	Mesh* checkMesh = meshExists(path);
+	if(checkMesh) return checkMesh;
 
     MeshMtlEntry materials[64];
     int materialCount = 0;
     char currentMaterial[128] = "";
 
-    Uint32 vcount = 0, vtcount = 0, vncount = 0, tricount = 0;
-    objCount(path, &vcount, &vtcount, &vncount, &tricount);
+	Uint32 vcount = 0, vtcount = 0, vncount = 0, tricount = 0;
+	objCount(path, &vcount, &vtcount, &vncount, &tricount);
 
-    FILE *f = fopen(path, "r");
-    if (!f) return NULL;
+	FILE *file = fopen(path, "r");
+	if (!file) return NULL;
 
-    Mesh *mesh = calloc(1, sizeof(Mesh)); mesh->prev = NULL; mesh->next = NULL;
-    mesh->vertCount = vcount; mesh->faceCount = tricount;
+	Mesh *mesh = calloc(1, sizeof(Mesh)); mesh->prev = NULL; mesh->next = NULL;
+	mesh->vertCount = vcount; mesh->faceCount = tricount;
     mesh->verts = calloc(vcount, sizeof(MeshVert));
     mesh->faces = calloc(tricount, sizeof(MeshFace));
     
@@ -277,62 +278,62 @@ Mesh* loadMeshFromObj(char *path, bool persistent) {
     mesh->filePath = malloc(sizeof(char) * (strlen(path) + 1)); sprintf(mesh->filePath, "%s", path);
 
     SDL_FPoint *uvs = calloc(vtcount, sizeof(SDL_FPoint));
-    Vector3 *normals = calloc(vncount, sizeof(Vector3));
+	Vector3 *normals = calloc(vncount, sizeof(Vector3));
 
-    char line[512];
-    Uint32 vi = 0, vti = 0, vni = 0, fi = 0;
-    while (fgets(line, sizeof(line), f)) {
-        if (line[0] == 'v' && line[1] == ' ') {
-		float r, g, b = 1;
-            sscanf(line, "v %f %f %f, %f, %f, %f",
-                   &mesh->verts[vi].pos.x,
-                   &mesh->verts[vi].pos.y,
-                   &mesh->verts[vi].pos.z,
-			 &r,
-			 &g,
-			 &b);
-		 mesh->verts[vi].colour = (SDL_FColor){r, g, b, 1.0f};
-            vi++;
-        }
-        else if (line[0] == 'v' && line[1] == 't') {
-            sscanf(line, "vt %f %f",
-                   &uvs[vti].x,
-                   &uvs[vti].y);
-		uvs[vti].y = 1 - uvs[vti].y;
-            vti++;
-        }
-        else if (line[0] == 'v' && line[1] == 'n') {
-            sscanf(line, "vn %f %f %f",
-                   &normals[vni].x,
-                   &normals[vni].y,
-                   &normals[vni].z);
-            vni++;
-        }
-        else if (line[0] == 'f' && line[1] == ' ') {
-            FaceIndex idx[16];
-            int count = 0;
+	char line[512];
+	Uint32 vertItems = 0, vertUVItems = 0, vertNormalItems = 0, faceItems = 0;
+	while (fgets(line, sizeof(line), file)) {
+		if (line[0] == 'v' && line[1] == ' ') {
+			float r, g, b = 1;
+            	sscanf(line, "v %f %f %f, %f, %f, %f",
+				&mesh->verts[vertItems].pos.x,
+				&mesh->verts[vertItems].pos.y,
+				&mesh->verts[vertItems].pos.z,
+				&r,
+				&g,
+				&b
+			);
+			mesh->verts[vertItems].colour = (SDL_FColor){r, g, b, 1.0f};
+            	vertItems++;
+        	} else if (line[0] == 'v' && line[1] == 't') {
+            	sscanf(line, "vt %f %f",
+				&uvs[vertUVItems].x,
+				&uvs[vertUVItems].y
+			);
+			uvs[vertUVItems].y = 1 - uvs[vertUVItems].y;
+			vertUVItems++;
+		} else if (line[0] == 'v' && line[1] == 'n') {
+			sscanf(line, "vn %f %f %f",
+				&normals[vertNormalItems].x,
+				&normals[vertNormalItems].y,
+				&normals[vertNormalItems].z
+			);
+			vertNormalItems++;
+		} else if (line[0] == 'f' && line[1] == ' ') {
+			FaceIndex indexes[16];
+			int count = 0;
 
-            char *tok = strtok(line + 2, " \t\r\n");
-            while (tok && count < 16) {
-                idx[count++] = parseFaceToken(tok);
-                tok = strtok(NULL, " \t\r\n");
-            }
-            for (int i = 1; i + 1 < count; i++) {
-                MeshFace *face = &mesh->faces[fi++];
-                MeshVert *a = &mesh->verts[idx[0].v];
-                MeshVert *b = &mesh->verts[idx[i].v];
-                MeshVert *c = &mesh->verts[idx[i + 1].v];
-                if (idx[0].vt >= 0) a->uv = uvs[idx[0].vt];
-                if (idx[i].vt >= 0) b->uv = uvs[idx[i].vt];
-                if (idx[i+1].vt >= 0) c->uv = uvs[idx[i+1].vt];
-                if (idx[0].vn >= 0) a->norm = normals[idx[0].vn];
-                if (idx[i].vn >= 0) b->norm = normals[idx[i].vn];
-                if (idx[i+1].vn >= 0) c->norm = normals[idx[i+1].vn];
-                face->vertA = idx[0].v;
-                face->vertB = idx[i].v;
-                face->vertC = idx[i + 1].v;
+			char *tok = strtok(line + 2, " \t\r\n");
+			while (tok && count < 16) {
+				indexes[count++] = parseFaceToken(tok);
+				tok = strtok(NULL, " \t\r\n");
+			}
+			for (int i = 1; i + 1 < count; i++) {
+				MeshFace *face = &mesh->faces[faceItems++];
+				MeshVert *a = &mesh->verts[indexes[0].vert];
+				MeshVert *b = &mesh->verts[indexes[i].vert];
+				MeshVert *c = &mesh->verts[indexes[i + 1].vert];
+				if (indexes[0].vertUV >= 0) a->uv = uvs[indexes[0].vertUV];
+				if (indexes[i].vertUV >= 0) b->uv = uvs[indexes[i].vertUV];
+				if (indexes[i+1].vertUV >= 0) c->uv = uvs[indexes[i+1].vertUV];
+				if (indexes[0].vertNorm >= 0) a->norm = normals[indexes[0].vertNorm];
+				if (indexes[i].vertNorm >= 0) b->norm = normals[indexes[i].vertNorm];
+				if (indexes[i+1].vertNorm >= 0) c->norm = normals[indexes[i+1].vertNorm];
+				face->vertA = indexes[0].vert;
+				face->vertB = indexes[i].vert;
+				face->vertC = indexes[i + 1].vert;
 
-                face->material.tex[0] = '\0';
+				face->material.tex[0] = '\0';
 
                 for (int mtrl = 0; mtrl < materialCount; mtrl++) {
                     if (strcmp(materials[mtrl].name, currentMaterial) == 0) {
@@ -347,12 +348,12 @@ Mesh* loadMeshFromObj(char *path, bool persistent) {
             materialCount = loadMtlFile(path, mtlName, materials, 64);
         } else if (strncmp(line, "usemtl ", 7) == 0) {
             sscanf(line, "usemtl %127s", currentMaterial);
-        }
-    }
+		}
+	}
 
-    fclose(f);
-    free(uvs);
-    free(normals);
+	fclose(file);
+	free(uvs);
+	free(normals);
 
     openGlGenBuffers(mesh);
     mesh->persistent = persistent;

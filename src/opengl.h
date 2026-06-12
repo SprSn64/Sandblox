@@ -14,6 +14,7 @@ typedef enum glValueLocations{
 typedef struct FrameBuffer{
 	Uint32 frameBuff, renderBuff;
 	TextureRef* texture;
+	Uint16 width, height;
 } FrameBuffer;
 
 bool initOpenGL();
