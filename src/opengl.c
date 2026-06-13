@@ -99,17 +99,33 @@ void drawMeshOpenGL(Mesh* mesh, mat4 transform, SDL_FColor colour, TextureRef* o
 	else
 		glBindTexture(GL_TEXTURE_2D, glBlankTex);
 
-    char lastTex[256] = "";
-    GLuint currentTex = glBlankTex;
+	TextureRef* lastTex = NULL;
+	GLuint currentTex = glBlankTex;
 
-    GLuint *indices = malloc(sizeof(GLuint) * mesh->faceCount * 3);
-    Uint32 idxCount = 0;
+	GLuint *indices = malloc(sizeof(GLuint) * mesh->faceCount * 3);
+	Uint32 idxCount = 0;
 
-    for (Uint32 i = 0; i < mesh->faceCount; ++i) {
-        MeshFace *face = &mesh->faces[i];
-        char *texPath = face->material.tex;
+	for (Uint32 i = 0; i < mesh->faceCount; ++i) {
+		MeshFace *face = &mesh->faces[i];
+		MeshMaterial currMaterial = face->material;
 
-        bool newTexture = strcmp(lastTex, texPath) != 0;
+		bool newTex = currMaterial.texture != lastTex;
+
+		if(newTex && idxCount > 0){
+			glBindTexture(GL_TEXTURE_2D, overrideTexture ? overrideTexture->glLoc : currentTex);
+			glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(GLuint) * idxCount, indices, GL_STATIC_DRAW);
+			glDrawElements(GL_TRIANGLES, idxCount, GL_UNSIGNED_INT, 0);
+			idxCount = 0;
+		}
+
+		if(newTex){
+			currentTex = currMaterial.texture->glLoc ? currMaterial.texture->glLoc : glBlankTex;
+			lastTex = currMaterial.texture;
+		}
+
+        //char *texPath = face->material.tex;
+
+        /*bool newTexture = strcmp(lastTex, texPath) != 0;
 
         if (newTexture && idxCount > 0) {
             glBindTexture(GL_TEXTURE_2D, overrideTexture ? overrideTexture->glLoc : currentTex );
@@ -122,10 +138,10 @@ void drawMeshOpenGL(Mesh* mesh, mat4 transform, SDL_FColor colour, TextureRef* o
             TextureRef *tref = loadTexture(texPath, false); //there is no need for this.
             currentTex = tref && tref->glLoc ? tref->glLoc : glBlankTex;
             strcpy(lastTex, texPath);
-        }
+        }*/
 
-        indices[idxCount++] = face->vertA;
-        indices[idxCount++] = face->vertB;
+		indices[idxCount++] = face->vertA;
+		indices[idxCount++] = face->vertB;
         indices[idxCount++] = face->vertC;
     }
 

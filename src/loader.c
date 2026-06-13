@@ -63,11 +63,13 @@ TextureRef* textureExists(char* path){
 
 TextureRef* loadTexture(char* path, bool persistent){
 	TextureRef* texCheck = textureExists(path);
-	if(texCheck) return texCheck;
+	if(texCheck){
+		printf("Texture %s already exists...\n", path);
+		return texCheck;
+	}
 
 	TextureRef* texItem = malloc(sizeof(TextureRef));
-	if(!texItem)
-		return NULL;
+	if(!texItem) return NULL;
 	texItem->filePath = strdup(path);
 	texItem->prev = NULL; texItem->next = NULL;
 	texItem->persistent = persistent;
@@ -244,6 +246,8 @@ int loadMtlFile(const char *objPath, const char *mtlName, MeshMaterial *material
 		} else if (strncmp(line, "map_Kd ", 7) == 0 && current) {
 			sscanf(line, "map_Kd %255s", current->tex);
 			printf("mtl tex %s\n", current->tex);
+
+			current->texture = loadTexture(current->tex, false);
 		}
 	}
 
