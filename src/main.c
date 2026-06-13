@@ -355,6 +355,7 @@ SDL_AppResult SDL_AppIterate(void *appstate){
 	aspectRatio = (float)windowScale.x/windowScale.y;
 
 	guiMatrix = isoProjMatrix(1, aspectRatio, 0.01, 1000);
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 	if(debugServer)
 		serverUpdate();
@@ -480,9 +481,11 @@ SDL_AppResult SDL_AppIterate(void *appstate){
 	idCounter = 0;
 	drawObjects(client.gameWorld->headObj, 0, &idCounter);
 
+	if(focusObject)drawStudioOverlay();
+
 	//drawSkip:
 
-	updateStudio();
+	//updateStudio();
 		
 	static char fpsText[256] = "FPS: 0";
 	static char rotText[256] = "Camera Rot: 0, 0";
@@ -521,16 +524,19 @@ SDL_AppResult SDL_AppIterate(void *appstate){
 	}
 	bindFrameBuffer(NULL);
 
-	float* gameMatrix = genMatrix((Vector3){0, 0, 0}, (Vector3){aspectRatio, 1, 1}, (Vector3){0, 0, 0});
-	drawMeshOpenGL(frameBuffMesh, gameMatrix, (SDL_FColor){1, 1, 1, 1}, gameBuffer->texture);
-	free(gameMatrix);
-
 	if(client.studio){
+		drawSplit(&panelHead, &(SDL_FRect){-aspectRatio, 1, 2 * aspectRatio, 2});
+	}else{
+		float* gameMatrix = genMatrix((Vector3){0, 0, 0}, (Vector3){aspectRatio, 1, 1}, (Vector3){0, 0, 0});
+		drawMeshOpenGL(frameBuffMesh, gameMatrix, (SDL_FColor){1, 1, 1, 1}, gameBuffer->texture);
+		free(gameMatrix);
+	}
+
+	/*if(client.studio){
 		float* studioMatrix = genMatrix((Vector3){-aspectRatio, 1, 0}, (Vector3){(240.f / windowScale.x) * aspectRatio * 2, 1, (320.f / windowScale.y) * 2}, (Vector3){HALFPI, 0, 0});
 		drawMeshOpenGL(planePrim, studioMatrix, (SDL_FColor){1, 1, 1, 1}, studioTexRef);
 		free(studioMatrix);
-	}
-	drawSplit(&panelHead, NULL);
+	}*/
 
 	free(guiMatrix); setGlValue(GL_BLEND, false);
 

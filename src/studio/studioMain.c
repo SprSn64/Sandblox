@@ -38,6 +38,8 @@ TextureRef *colourPickTex = NULL;
 Mesh *rotateGimbleMesh = NULL;
 Mesh *translateGimbleMesh = NULL;
 
+TextureRef *toolButtonTex = NULL;
+
 extern Mesh *spherePrim;
 
 SDL_Point studioWindowScale = {240, 320};
@@ -110,6 +112,8 @@ void initStudio(){
 	colourPickTex = loadTexture("assets/textures/studio/colourpicker.png", true);
 	rotateGimbleMesh = genTorusMesh(2, 0.1, 3, 24); rotateGimbleMesh->persistent = true;
 	translateGimbleMesh = loadMeshFromObj("assets/models/arrowwidget.obj", true);
+
+	toolButtonTex = loadTexture("assets/textures/studio/toolbuttons.png", true);
 
 	//studioFontTex = IMG_LoadTexture(studioRenderer, "assets/textures/font.png");
 	studioFont = (Font){(TextureRef*)studioFontTex, NULL, 32, (SDL_Point){32, 32}, (SDL_Point){8, 8}, (SDL_FPoint){6, 0}, 16};
@@ -203,9 +207,7 @@ ctrlSkip:
 		//SDL_RenderFillRect(studioRenderer, &(SDL_FRect){objListRect.x + objListRect.w - 8, objListRect.y + (objListRect.h - scrollHeight) * scrollT, 8, scrollHeight});
 		drawRect(studioTex, objListRect.x + objListRect.w - 8, objListRect.y + (objListRect.h - scrollHeight) * scrollT, 8, scrollHeight, 0xFFC4C1C0);
 	}
-	
-	if(focusObject)drawStudioOverlay();
-	
+		
 	//make this less shitty soon
 	//updateAndDrawButton(studioRenderer, &addObjButton); updateAndDrawButton(studioRenderer, &removeObjButton); updateAndDrawButton(studioRenderer, &pauseButton);
 	//updateAndDrawButton(studioRenderer, &loadFileButton); updateAndDrawButton(studioRenderer, &saveFileButton);

@@ -39,7 +39,8 @@ typedef struct StudioSplit{
 typedef enum panelTypes{
 	PANEL_GAME, PANEL_EXPLORER, //explorer as in the list of objects
 	PANEL_PROPERTIES, PANEL_CONSOLE,
-	PANEL_TOOLBAR,
+	PANEL_TOOLBAR, PANEL_CODEEDITOR,
+	PANEL_MAX
 } panelTypes;
 
 typedef struct StudioPanel{
