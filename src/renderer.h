@@ -12,15 +12,13 @@ typedef struct{
 	SDL_FColor colour;
 } MeshVert;
 
-typedef struct {
-    char name[128];
-    char tex[256];
-} MeshMtlEntry;
-
 typedef struct MeshMaterial{
 	//todo add colors?
 	float specular;
+
+	char name[128];
 	char tex[256];
+	TextureRef* texture;
 } MeshMaterial;
 
 typedef struct{
@@ -41,6 +39,8 @@ typedef struct Mesh{
 	MeshFace *faces;
 	
 	Uint32 vertArray, vertBuffer, eleBuffer;
+
+	MeshMaterial *materials;
 
 	Uint32 meshType;
 	char* filePath;

@@ -196,23 +196,23 @@ static FaceIndex parseFaceToken(const char *tok) {
 	FaceIndex index = {-1, -1, -1};
 	index.vert = atoi(tok) - 1;
 
-	const char *s = strchr(tok, '/');
-	if (!s) return index;
+	const char *firstSlash = strchr(tok, '/');
+	if (!firstSlash) return index;
 
-	s++;
-	if (*s != '/') {
-		index.vertUV = atoi(s) - 1;
-		s = strchr(s, '/');
+	firstSlash++;
+	if (*firstSlash != '/') {
+		index.vertUV = atoi(firstSlash) - 1;
+		firstSlash = strchr(firstSlash, '/');
 	}
-	if (s && *s == '/') {
-		s++;
-		index.vertNorm = atoi(s) - 1;
+	if (firstSlash && *firstSlash == '/') {
+		firstSlash++;
+		index.vertNorm = atoi(firstSlash) - 1;
 	}
 
 	return index;
 }
 
-int loadMtlFile(const char *objPath, const char *mtlName, MeshMtlEntry *materials, int maxCount) {
+int loadMtlFile(const char *objPath, const char *mtlName, MeshMaterial *materials, int maxCount) {
 	char mtlPath[512];
 
 	strcpy(mtlPath, objPath);
@@ -232,7 +232,7 @@ int loadMtlFile(const char *objPath, const char *mtlName, MeshMtlEntry *material
 
 	char line[512];
 	int count = 0;
-	MeshMtlEntry *current = NULL;
+	MeshMaterial *current = NULL;
 
 	while (fgets(line, sizeof(line), file)){
 		if (strncmp(line, "newmtl ", 7) == 0) { //compares if the first 7 letters are equal
@@ -259,23 +259,25 @@ Mesh* loadMeshFromObj(char *path, bool persistent) {
 	Mesh* checkMesh = meshExists(path);
 	if(checkMesh) return checkMesh;
 
-    MeshMtlEntry materials[64];
-    int materialCount = 0;
-    char currentMaterial[128] = "";
+	FILE *file = fopen(path, "r");
+	if (!file) return NULL;
+
+	MeshMaterial *materials = malloc(sizeof(MeshMaterial) * 64);
+	int materialCount = 0;
+	char currentMaterial[128] = "";
 
 	Uint32 vcount = 0, vtcount = 0, vncount = 0, tricount = 0;
 	objCount(path, &vcount, &vtcount, &vncount, &tricount);
 
-	FILE *file = fopen(path, "r");
-	if (!file) return NULL;
-
 	Mesh *mesh = calloc(1, sizeof(Mesh)); mesh->prev = NULL; mesh->next = NULL;
 	mesh->vertCount = vcount; mesh->faceCount = tricount;
-    mesh->verts = calloc(vcount, sizeof(MeshVert));
-    mesh->faces = calloc(tricount, sizeof(MeshFace));
+	mesh->verts = calloc(vcount, sizeof(MeshVert));
+	mesh->faces = calloc(tricount, sizeof(MeshFace));
+
+	mesh->materials = materials;
     
-    mesh->meshType = MESHTYPE_FILE;
-    mesh->filePath = malloc(sizeof(char) * (strlen(path) + 1)); sprintf(mesh->filePath, "%s", path);
+	mesh->meshType = MESHTYPE_FILE;
+	mesh->filePath = malloc(sizeof(char) * (strlen(path) + 1)); sprintf(mesh->filePath, "%s", path);
 
     SDL_FPoint *uvs = calloc(vtcount, sizeof(SDL_FPoint));
 	Vector3 *normals = calloc(vncount, sizeof(Vector3));
@@ -337,19 +339,24 @@ Mesh* loadMeshFromObj(char *path, bool persistent) {
 
 				for (int mtrl = 0; mtrl < materialCount; mtrl++) {
 					if (strcmp(materials[mtrl].name, currentMaterial) == 0) {
-						strcpy(face->material.tex, materials[mtrl].tex); //problem part?
+						//problem part?
+						face->material = materials[mtrl]; //stores material into face.material as a whole memory duplicate for some reason
 						break;
 					}
 				}
-            }
-        } else if (strncmp(line, "mtllib ", 7) == 0) {
-            char mtlName[256];
-            sscanf(line, "mtllib %255s", mtlName);
-            materialCount = loadMtlFile(path, mtlName, materials, 64);
-        } else if (strncmp(line, "usemtl ", 7) == 0) {
-            sscanf(line, "usemtl %127s", currentMaterial);
+			}
+		} else if (strncmp(line, "mtllib ", 7) == 0) {
+			char mtlName[256];
+			sscanf(line, "mtllib %255s", mtlName);
+			materialCount = loadMtlFile(path, mtlName, materials, 64); //loads material
+		} else if (strncmp(line, "usemtl ", 7) == 0) {
+			sscanf(line, "usemtl %127s", currentMaterial);
 		}
 	}
+
+	/*for(int i=0; i < 64; i++){
+		printf("Material %d: name %s, tex %s\n", i, materials[i].name, materials[i].tex);
+	}*/
 
 	fclose(file);
 	free(uvs);

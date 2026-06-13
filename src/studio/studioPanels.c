@@ -98,8 +98,8 @@ void drawExplorerPanel(SDL_FRect* area){
 	drawMeshOpenGL(planePrim, panelMatrix, (SDL_FColor){0.5, 0.5, 0.55, 1}, NULL);
 	free(panelMatrix);
 
-	float textScale = bufferGLText(textBufferTex, &defaultFont, "The quick brown fox\0", 2, (SDL_FColor){1, 1, 1, 1});
-	float* textMatrix = genMatrix((Vector3){area->x, area->y, 0}, (Vector3){0.12 * aspectRatio * 2, 1, 0.12 * 4 * textScale}, (Vector3){HALFPI, 0, 0});
+	float textRatio = bufferGLText(textBufferTex, &defaultFont, "The quick brown fox\0", 2, (SDL_FColor){1, 1, 1, 1});
+	float* textMatrix = genMatrix((Vector3){area->x, area->y, 0}, (Vector3){0.5, 1, 0.5 * textRatio}, (Vector3){HALFPI, 0, 0});
 	drawMeshOpenGL(planePrim, textMatrix, (SDL_FColor){1, 1, 1, 1}, textBufferTex);
 	free(textMatrix);
 }
