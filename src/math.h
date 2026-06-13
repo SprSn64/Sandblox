@@ -9,6 +9,8 @@ float closest(float input, float snap);
 bool between(float input, float min, float max);
 SDL_FPoint normalize2(SDL_FPoint vec);
 
+bool withinRect(SDL_FPoint pos, SDL_FRect rect);
+
 float clamp(float value, float min, float max);
 
 Vector3 normalize3(Vector3 vec);

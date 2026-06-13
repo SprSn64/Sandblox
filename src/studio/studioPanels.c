@@ -17,20 +17,28 @@
 extern float aspectRatio;
 extern float* defaultMatrix;
 extern SDL_Point windowScale;
+extern SDL_FPoint mousePos;
 extern Mesh *planePrim;
+
+extern TextureRef* textBufferTex;
+extern Font defaultFont;
 
 extern TextureRef* homerTex;
 
 StudioPanel testGamePanel = {PANEL_GAME};
 StudioPanel testToolbarPanel = {PANEL_TOOLBAR};
 StudioPanel testExplorerPanel = {PANEL_EXPLORER};
+StudioPanel testConsolePanel = {PANEL_CONSOLE};
 
-//StudioSplit testPanelC = {false, false, NULL, NULL, 0.5, false};
-StudioSplit testPanelB = {false, false, &testGamePanel, &testExplorerPanel, 0.85, false};
+StudioSplit testPanelC = {false, false, &testGamePanel, &testConsolePanel, 0.8, true};
+StudioSplit testPanelB = {true, false, &testPanelC, &testExplorerPanel, 0.85, false};
 StudioSplit panelHead = {false, true, &testToolbarPanel, &testPanelB, 0.1, true};
 
-void drawPanel(StudioPanel* item, SDL_FRect* area);
+void updatePanel(StudioPanel* item, SDL_FRect* area){
+	if(!withinRect(mousePos, *area)) return;
+}
 
+void drawPanel(StudioPanel* item, SDL_FRect* area);
 void drawSplit(StudioSplit* item, SDL_FRect* area){
 	SDL_FRect areaA; SDL_FRect areaB;
 
@@ -57,17 +65,17 @@ void drawSplit(StudioSplit* item, SDL_FRect* area){
 	//float* aMatrix = genMatrix((Vector3){areaA.x, areaA.y, 0}, (Vector3){areaA.w, 1, areaA.h}, (Vector3){HALFPI, 0, 0});
 	//float* bMatrix = genMatrix((Vector3){areaB.x, areaB.y, 0}, (Vector3){areaB.w, 1, areaB.h}, (Vector3){HALFPI, 0, 0});
 
-	//drawMeshOpenGL(planePrim, aMatrix, (SDL_FColor){1, 0, 0, 0.25}, homerTex);
 	if(item->childA){
 		if(item->splitA) drawSplit((StudioSplit*)item->childA, &areaA);
 		else drawPanel((StudioPanel*)item->childA, &areaA);
 	}
+	//drawMeshOpenGL(planePrim, aMatrix, (SDL_FColor){1, 0, 0, 0.25}, homerTex);
 
-	//drawMeshOpenGL(planePrim, bMatrix, (SDL_FColor){0, 0, 1, 0.25}, homerTex);
 	if(item->childB){
 		if(item->splitB) drawSplit((StudioSplit*)item->childB, &areaB);
 		else drawPanel((StudioPanel*)item->childB, &areaB);
 	}
+	//drawMeshOpenGL(planePrim, bMatrix, (SDL_FColor){0, 0, 1, 0.25}, homerTex);
 
 	//free(aMatrix); free(bMatrix);
 }
@@ -91,15 +99,46 @@ void drawToolbarPanel(SDL_FRect* area){
 	free(placeholdMatrix);
 }
 
-extern TextureRef* textBufferTex;
-extern Font defaultFont;
+void drawExplorerItem(SDL_FRect* area, DataObj* item, int nodeDepth, int *idCount){
+	int i = (*idCount)++;
+
+	float textRatio = bufferGLText(textBufferTex, &defaultFont, item->name, 2, (SDL_FColor){1, 1, 1, 1});
+	float* textMatrix = genMatrix((Vector3){area->x + nodeDepth * 0.05, area->y - i * 0.025, 0}, (Vector3){0.025 / textRatio, 1, 0.025}, (Vector3){HALFPI, 0, 0});
+	drawMeshOpenGL(planePrim, textMatrix, (SDL_FColor){1, 1, 1, 1}, textBufferTex);
+	free(textMatrix);
+
+	//if(!item->studioOpen) return;
+	
+	DataObj* child = item->child;
+	while (child) {
+		DataObj *next = child->next;
+		drawExplorerItem(area, child, nodeDepth + 1, idCount);
+		child = next;
+	}
+}
+
+extern ClientData client;
 void drawExplorerPanel(SDL_FRect* area){
 	float* panelMatrix = genMatrix((Vector3){area->x, area->y, 0}, (Vector3){area->w, 1, area->h}, (Vector3){HALFPI, 0, 0});
 	drawMeshOpenGL(planePrim, panelMatrix, (SDL_FColor){0.5, 0.5, 0.55, 1}, NULL);
 	free(panelMatrix);
 
-	float textRatio = bufferGLText(textBufferTex, &defaultFont, "The quick brown fox\0", 2, (SDL_FColor){1, 1, 1, 1});
+	/*float textRatio = bufferGLText(textBufferTex, &defaultFont, "The quick brown fox\0", 2, (SDL_FColor){1, 1, 1, 1});
 	float* textMatrix = genMatrix((Vector3){area->x, area->y, 0}, (Vector3){0.5, 1, 0.5 * textRatio}, (Vector3){HALFPI, 0, 0});
+	drawMeshOpenGL(planePrim, textMatrix, (SDL_FColor){1, 1, 1, 1}, textBufferTex);
+	free(textMatrix);*/
+
+	int idCounter = 0;
+	drawExplorerItem(area, client.gameWorld->headObj, 0, &idCounter);
+}
+
+void drawConsolePanel(SDL_FRect* area){
+	float* panelMatrix = genMatrix((Vector3){area->x, area->y, 0}, (Vector3){area->w, 1, area->h}, (Vector3){HALFPI, 0, 0});
+	drawMeshOpenGL(planePrim, panelMatrix, (SDL_FColor){0.2, 0.2, 0.23, 1}, NULL);
+	free(panelMatrix);
+
+	float textRatio = bufferGLText(textBufferTex, &defaultFont, "fuck!", 2, (SDL_FColor){1, 1, 1, 1});
+	float* textMatrix = genMatrix((Vector3){area->x, area->y, 0}, (Vector3){0.025 / textRatio, 1, 0.025}, (Vector3){HALFPI, 0, 0});
 	drawMeshOpenGL(planePrim, textMatrix, (SDL_FColor){1, 1, 1, 1}, textBufferTex);
 	free(textMatrix);
 }
@@ -117,5 +156,6 @@ void drawPanel(StudioPanel* item, SDL_FRect* area){
 		case PANEL_GAME: drawGamePanel(area); break;
 		case PANEL_EXPLORER: drawExplorerPanel(area); break;
 		case PANEL_TOOLBAR: drawToolbarPanel(area); break;
+		case PANEL_CONSOLE: drawConsolePanel(area); break;
 	}
 }
