@@ -58,8 +58,6 @@ extern ButtonMap mouseButtons[3];
 extern char *clientLoc;
 extern char *basePath;
 
-char *runArgs = "-studio";
-
 Button* currButtonItem;
 
 bool between(float input, float min, float max);
@@ -136,7 +134,7 @@ void drawButton(SDL_Renderer* render, Button* item){
 
 extern MapEntry* chosenMap;
 
-void buttonLaunch(Button* item){
+void buttonLaunch(Button* item, char* runArgs){
 	item->enabled = false;
 
 	char configDir[512]; sprintf(configDir, "%s/config.cfg", basePath);
@@ -184,6 +182,14 @@ void buttonLaunch(Button* item){
 		printf("Program Output: %d\n", systReturn);
 reenableButton:
 	item->enabled = true;
+}
+
+void regularButtonLaunch(Button* item){
+	buttonLaunch(item, "");
+}
+
+void studioButtonLaunch(Button* item){
+	buttonLaunch(item, "-studio");
 }
 
 static void SDLCALL getClientDialogue(void* userdata, const char* const* filelist, int filter){

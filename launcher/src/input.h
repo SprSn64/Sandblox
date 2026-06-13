@@ -28,7 +28,8 @@ Button newTextboxButton(void* target, char* text, SDL_FRect rect);
 bool updateButton(Button* item);
 void drawButton(SDL_Renderer* render, Button* item);
 
-void buttonLaunch(Button* item);
+void regularButtonLaunch(Button* item);
+void studioButtonLaunch(Button* item);
 void buttonSelectClient(Button* item);
 void buttonSetPage(Button* item);
 void buttonOpenLink(Button* item);
