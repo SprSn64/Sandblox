@@ -23,11 +23,11 @@ extern TextureRef* homerTex;
 
 StudioPanel testGamePanel = {PANEL_GAME};
 StudioPanel testToolbarPanel = {PANEL_TOOLBAR};
+StudioPanel testExplorerPanel = {PANEL_EXPLORER};
 
-StudioSplit testPanelA = {false, false, NULL, NULL, 0.5, false};
-StudioSplit testPanelC = {false, false, NULL, NULL, 0.5, false};
-StudioSplit testPanelB = {false, true, &testGamePanel, &testPanelC, 0.8, false};
-StudioSplit panelHead = {false, true, &testToolbarPanel, &testPanelB, 0.15, true};
+//StudioSplit testPanelC = {false, false, NULL, NULL, 0.5, false};
+StudioSplit testPanelB = {false, false, &testGamePanel, &testExplorerPanel, 0.85, false};
+StudioSplit panelHead = {false, true, &testToolbarPanel, &testPanelB, 0.1, true};
 
 void drawPanel(StudioPanel* item, SDL_FRect* area);
 
@@ -91,6 +91,19 @@ void drawToolbarPanel(SDL_FRect* area){
 	free(placeholdMatrix);
 }
 
+extern TextureRef* textBufferTex;
+extern Font defaultFont;
+void drawExplorerPanel(SDL_FRect* area){
+	float* panelMatrix = genMatrix((Vector3){area->x, area->y, 0}, (Vector3){area->w, 1, area->h}, (Vector3){HALFPI, 0, 0});
+	drawMeshOpenGL(planePrim, panelMatrix, (SDL_FColor){0.5, 0.5, 0.55, 1}, NULL);
+	free(panelMatrix);
+
+	float textScale = bufferGLText(textBufferTex, &defaultFont, "The quick brown fox\0", 2, (SDL_FColor){1, 1, 1, 1});
+	float* textMatrix = genMatrix((Vector3){area->x, area->y, 0}, (Vector3){0.12 * aspectRatio * 2, 1, 0.12 * 4 * textScale}, (Vector3){HALFPI, 0, 0});
+	drawMeshOpenGL(planePrim, textMatrix, (SDL_FColor){1, 1, 1, 1}, textBufferTex);
+	free(textMatrix);
+}
+
 /*
 	PANEL_GAME, PANEL_EXPLORER,
 	PANEL_PROPERTIES, PANEL_CONSOLE,
@@ -102,6 +115,7 @@ void drawPanel(StudioPanel* item, SDL_FRect* area){
 
 	switch(item->type){
 		case PANEL_GAME: drawGamePanel(area); break;
+		case PANEL_EXPLORER: drawExplorerPanel(area); break;
 		case PANEL_TOOLBAR: drawToolbarPanel(area); break;
 	}
 }

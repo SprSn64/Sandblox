@@ -178,19 +178,23 @@ void openGlGenBuffers(Mesh* mesh){
 	//mesh->eleBuffer = genEBO(mesh, 0);
 }
 
-void bufferGLText(TextureRef* target, Font* font, char* text, SDL_FColor colour){
+float bufferGLText(TextureRef* target, Font* font, char* text, float size, SDL_FColor colour){
 	Texture* tex = target->texture;
 	if(tex)
 		freeRasterTexture(tex);
-	tex = newRasterTexture(max(font->kerning.x * strlen(text), font->renderSize.x), font->renderSize.y);
+	SDL_Point scale = {font->renderSize.x + max(font->kerning.x * size * strlen(text), font->renderSize.x * size), font->renderSize.y * size};
+	tex = newRasterTexture(scale.x, scale.y);
+	target->texture = tex;
 
-	clearTex(tex, 0x00000000);
-	drawRasterText(tex, font, text, 0, 0, 1, colourToInt(colour));
+	clearTex(tex, colourToInt((SDL_FColor){colour.r, colour.g, colour.b, 0}));
+	drawRasterText(tex, font, text, 0, 0, size, colourToInt(colour));
 
 	//updateGlTexture(target);
 	glBindTexture(GL_TEXTURE_2D, target->glLoc);
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, tex->width, tex->height, 0, GL_RGBA, GL_UNSIGNED_BYTE, tex->pixels);
 	glBindTexture(GL_TEXTURE_2D, 0);
+
+	return (float)scale.y / scale.x;
 }
 
 FrameBuffer* newFrameBuffer(Uint16 width, Uint16 height){

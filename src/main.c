@@ -45,11 +45,13 @@ Uint32 mainShader;
 Uint32 glVersion[2] = {0, 0};
 Uint32 glBlankTex; Uint32 blankColour = 0xFFFFFFFF;
 
+SDL_FColor flatAmb = {1, 1, 1, 1}; SDL_FColor flatLight = {0, 0, 0, 1};
+
 extern TextureRef* studioTexRef;
 
 FrameBuffer *gameBuffer;
 
-TextureRef textBufferTex;
+TextureRef *textBufferTex;
 
 ClientData client;
 GameWorld game;
@@ -193,6 +195,17 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[]){
 	cursorTex = loadTexture("assets/textures/cursor.png", true);
 	skyTex = loadTexture("assets/textures/skybox.png", true);
 	sunTex = loadTexture("assets/textures/sunflare.png", true);
+
+	textBufferTex = malloc(sizeof(TextureRef));
+	textBufferTex->texture = newRasterTexture(16, 16);
+	glGenTextures(1, &textBufferTex->glLoc);
+	glActiveTexture(GL_TEXTURE0);
+	glBindTexture(GL_TEXTURE_2D, textBufferTex->glLoc);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR); glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, textBufferTex->texture->width, textBufferTex->texture->height, 0, GL_RGBA, GL_UNSIGNED_BYTE, textBufferTex->texture->pixels);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE); glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+	glGenerateMipmap(GL_TEXTURE_2D);
+	glBindTexture(GL_TEXTURE_2D, 0);
 
 	rastFontTex = loadRasterTexture("assets/textures/font.png");
 	defaultFont = (Font){fontTex, rastFontTex, 32, (SDL_Point){32, 32}, (SDL_Point){8, 8}, (SDL_FPoint){6, 0}, 16};
@@ -397,7 +410,7 @@ SDL_AppResult SDL_AppIterate(void *appstate){
 	
 	currentCamera.rot.x += (keyList[KEYBIND_UP].down - keyList[KEYBIND_DOWN].down) * 1 * deltaTime;
 	currentCamera.rot.y += (keyList[KEYBIND_LEFT].down - keyList[KEYBIND_RIGHT].down) * 1 * deltaTime;
-	currentCamera.rot = (Vector3){fmod(currentCamera.rot.x, 6.28318), fmod(currentCamera.rot.y, 6.28318), fmod(currentCamera.rot.z, 6.28318)};
+	currentCamera.rot = (Vector3){fmod(min(max(currentCamera.rot.x, -HALFPI), HALFPI), 6.28318), fmod(currentCamera.rot.y, 6.28318), fmod(currentCamera.rot.z, 6.28318)};
 	currentCamera.focusDist = min(max(currentCamera.focusDist + (keyList[KEYBIND_I].down - keyList[KEYBIND_O].down) * 4 * max(1, sqrt(currentCamera.focusDist)) * deltaTime, 0), 64);
 
 	int idCounter = 0;
@@ -444,8 +457,6 @@ SDL_AppResult SDL_AppIterate(void *appstate){
 	glUniform3fv(glLocs[GLVAL_LIGHTNORM], 1, (float*)&lightNormal);
 	Vector3 cameraNormal = rotToNorm3(client.gameWorld->currCamera->rot);
 	glUniform3fv(glLocs[GLVAL_CAMERANORM], 1, (float*)&cameraNormal);
-
-	SDL_FColor flatAmb = {1, 1, 1, 1}; SDL_FColor flatLight = {0, 0, 0, 1};
 
 	setGlValue(GL_DEPTH_TEST, false); setGlValue(GL_BLEND, true);
 	glUniform4fv(glLocs[GLVAL_LIGHTCOLOUR], 1, (float*)&flatLight);

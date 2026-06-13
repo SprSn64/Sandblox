@@ -23,7 +23,7 @@ extern Mesh *cubePrim;
 extern Mesh *planePrim;
 extern TextureRef *homerTex;
 
-extern TextureRef textBufferTex;
+extern TextureRef *textBufferTex;
 extern Font defaultFont;
 
 void killPlayer(){
@@ -134,19 +134,24 @@ void playerDraw(DataObj* object){
 		hatItem = hatItem->next;
 	}
 
-	/*if(object == game.currPlayer && !client.pause) return;
-	Vector3 textPos = vec3Add(object->pos, (Vector3){0, 5, 0});
+	if(object == game.currPlayer && !client.pause) return;
+	/*Vector3 textPos = vec3Add(object->pos, (Vector3){0, 5, 0});
 	Vector3 textProj = projToScreen(viewProj(worldToCamera(textPos)));
 	if(textProj.z >= 0) return;
 	float nameScale = 2;
 	drawText(renderer, &defaultFont, object->name, textProj.x - strlen(object->name) / 2 * defaultFont.kerning.x * nameScale, textProj.y - defaultFont.renderSize.y * nameScale, nameScale, (SDL_FColor){1, 1, 1, 1});
 	*/
 
-	/*float* textMatrix = translateMatrix(object->transform, (Vector3){0, 5, 0});
-	bufferGLText(&textBufferTex, &defaultFont, object->name, (SDL_FColor){1, 1, 1, 1});
-	drawMeshOpenGL(planePrim, textMatrix, (SDL_FColor){1, 1, 1, 1}, &textBufferTex);
+	float textRatio = bufferGLText(textBufferTex, &defaultFont, object->name, 4, (SDL_FColor){1, 1, 1, 1});
+	float* textMatrix = genMatrix(vec3Add(object->pos, (Vector3){0, 6, 0}), (Vector3){1 / textRatio, 1, 1}, 
+		(Vector3){
+			client.gameWorld->currCamera->rot.x + HALFPI,
+			client.gameWorld->currCamera->rot.y,
+			client.gameWorld->currCamera->rot.z
+		}
+	);
+	drawMeshOpenGL(planePrim, textMatrix, (SDL_FColor){1, 1, 1, 1}, textBufferTex);
 	free(textMatrix);
-	*/
 }
 void playerDestroy(DataObj* object){
 	free(object->objVel); free(object->objColl);
