@@ -35,6 +35,11 @@ void killPlayer(){
 		removeObject(loopItem);
 		loopItem = nextItem;
 	}
+
+	char* printLog = malloc(256);
+	sprintf(printLog, "%s has died!\n", client.gameWorld->currPlayer->name);
+	logToConsole(printLog, CONSOLELOG_DEFAULT);
+
 	removeObject(client.gameWorld->currPlayer);
 	client.gameWorld->currPlayer = NULL;
 	client.gameWorld->playerRespawn = 0;

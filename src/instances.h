@@ -10,9 +10,24 @@ typedef struct NotiPopup{
 	SDL_Texture* image;
 	SDL_FRect* imageSrc;
 	float age, life; //in seconds
-	struct NotiPopup* next;
 	struct NotiPopup* prev;
+	struct NotiPopup* next;
 } NotiPopup;
+
+typedef enum consoleLogTypes{
+	CONSOLELOG_DEFAULT,
+	CONSOLELOG_WARNING, CONSOLELOG_ERROR,
+	CONSOLELOG_EXTRA, CONSOLELOG_MAX
+} consoleLogTypes;
+
+typedef struct ConsoleLog{
+	char* text;
+	Uint32 type;
+	Uint32 count;
+
+	struct ConsoleLog* prev;
+	struct ConsoleLog* next;
+} ConsoleLog;
 
 typedef struct ScriptItem{
 	void (*func)(DataObj*);
@@ -35,5 +50,8 @@ DataObj** listChildren(DataObj* item);
 
 void sendPopup(char* string, SDL_Texture* image, SDL_FRect* rect, float life);
 void updatePopups();
+
+void logToConsole(char* string, Uint32 type);
+void clearConsole();
 
 #endif

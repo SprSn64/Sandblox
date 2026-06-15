@@ -492,6 +492,7 @@ SDL_AppResult SDL_AppIterate(void *appstate){
 	idCounter = 0;
 	drawObjects(client.gameWorld->headObj, 0, &idCounter);
 
+	if(client.studio)updateSplit(&panelHead, &(SDL_FRect){-aspectRatio, 1, 2 * aspectRatio, 2});
 	if(focusObject)drawStudioOverlay();
 
 	//drawSkip:
@@ -563,7 +564,7 @@ void SDL_AppQuit(void *appstate, SDL_AppResult result){
 	(void)appstate; (void)result;
 	cleanupObjects(client.gameWorld->headObj);
 	studioCleanup();
-	cleanupTextures(false); cleanupMeshes(false);
+	cleanupTextures(false); cleanupMeshes(false); clearConsole();
 
 	free(defaultMatrix);
 	//free(depthBuffer); freeRasterTexture(displayTex); freeRasterTexture(rastFontTex);

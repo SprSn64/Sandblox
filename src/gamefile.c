@@ -183,8 +183,11 @@ DataObj* createObjectFromJSON(cJSON* obj, DataObj* parent) {
         }else 
             tex = loadTexture(texture->valuestring, false);
 	  
-        if(!tex)
-            printf("Failed to load texture from file: %s\n", texture->valuestring);
+        if(!tex){
+            char* warningLog = malloc(256);
+		sprintf(warningLog, "Failed to load texture from file: %s\n", texture->valuestring);
+		logToConsole(warningLog, CONSOLELOG_WARNING);
+        }
     }
     if(tex) {
         	newObj->props[OBJVAL_TEXTURE] = tex;
@@ -293,7 +296,7 @@ int loadGameFile(const char* filename) {
     loadedPlayer = NULL;
     
     client.pause = true;
-    cleanupTextures(true); cleanupMeshes(true);
+    cleanupTextures(true); cleanupMeshes(true); clearConsole();
     lesserCleanupObjects(client.gameWorld->headObj);
 
     cJSON* plrEnabled = cJSON_GetObjectItem(json, "playerEnabled");
@@ -342,8 +345,11 @@ int loadGameFile(const char* filename) {
         }else 
             skyboxTex = loadTexture(skybox->valuestring, false);
 	  
-        if(!skyboxTex)
-            printf("Failed to load texture from file: %s\n", skybox->valuestring);
+        if(!skyboxTex){
+            char* warningLog = malloc(256);
+		sprintf(warningLog, "Failed to load texture from file: %s\n", skybox->valuestring);
+		logToConsole(warningLog, CONSOLELOG_WARNING);
+        }
     }
     client.gameWorld->skybox = skyboxTex;
     

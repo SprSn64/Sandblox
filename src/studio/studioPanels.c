@@ -13,6 +13,7 @@
 #include "../opengl.h"
 #include "../math.h"
 #include "../renderer.h"
+#include "../instances.h"
 
 extern float aspectRatio;
 extern float* defaultMatrix;
@@ -36,6 +37,40 @@ StudioSplit panelHead = {false, true, &testToolbarPanel, &testPanelB, 0.1, true}
 
 void updatePanel(StudioPanel* item, SDL_FRect* area){
 	if(!withinRect(mousePos, *area)) return;
+}
+
+void updateSplit(StudioSplit* item, SDL_FRect* area){
+	SDL_FRect areaA; SDL_FRect areaB;
+
+	if(item->vert){ 	//vertical panels :
+		areaA = (SDL_FRect){
+			area->x, area->y, 
+			area->w, area->h * item->split
+		};
+		areaB = (SDL_FRect){
+			area->x, -1 + area->h * (1-item->split), 
+			area->w, area->h * (1-item->split)
+		};
+	}else{		//horizontal panels ..
+		areaA = (SDL_FRect){
+			area->x, area->y, 
+			area->w * item->split, area->h
+		};
+		areaB = (SDL_FRect){
+			area->x + area->w * item->split, area->y, 
+			area->w * (1-item->split), area->h
+		};
+	}
+
+	if(item->childA){
+		if(item->splitA) updateSplit((StudioSplit*)item->childA, &areaA);
+		else updatePanel((StudioPanel*)item->childA, &areaA);
+	}
+
+	if(item->childB){
+		if(item->splitB) updateSplit((StudioSplit*)item->childB, &areaB);
+		else updatePanel((StudioPanel*)item->childB, &areaB);
+	}
 }
 
 void drawPanel(StudioPanel* item, SDL_FRect* area);
@@ -132,15 +167,44 @@ void drawExplorerPanel(SDL_FRect* area){
 	drawExplorerItem(area, client.gameWorld->headObj, 0, &idCounter);
 }
 
+SDL_FColor logColours[CONSOLELOG_MAX] = {
+	(SDL_FColor){1, 1, 1, 1},
+	(SDL_FColor){1, 0.96, 0, 1}, (SDL_FColor){1, 0.14, 0.04, 1},
+	(SDL_FColor){0.65, 0.65, 0.65, 1}
+};
+
+float logTextSize = 0.02;
+extern ConsoleLog *consoleHead;
+int consoleScroll = 0;
 void drawConsolePanel(SDL_FRect* area){
 	float* panelMatrix = genMatrix((Vector3){area->x, area->y, 0}, (Vector3){area->w, 1, area->h}, (Vector3){HALFPI, 0, 0});
 	drawMeshOpenGL(planePrim, panelMatrix, (SDL_FColor){0.2, 0.2, 0.23, 1}, NULL);
 	free(panelMatrix);
 
-	float textRatio = bufferGLText(textBufferTex, &defaultFont, "fuck!", 2, (SDL_FColor){1, 1, 1, 1});
-	float* textMatrix = genMatrix((Vector3){area->x, area->y, 0}, (Vector3){0.025 / textRatio, 1, 0.025}, (Vector3){HALFPI, 0, 0});
-	drawMeshOpenGL(planePrim, textMatrix, (SDL_FColor){1, 1, 1, 1}, textBufferTex);
-	free(textMatrix);
+	ConsoleLog *currLog = consoleHead;
+	int index = 0;
+	while(currLog){
+		//if(currLog->type == CONSOLELOG_EXTRA) goto logDrawSkip;
+		int itemY = index - consoleScroll + 16;
+		if(itemY < 0) goto logDrawSkip;
+
+		float textRatio = bufferGLText(textBufferTex, &defaultFont, currLog->text, 2, (SDL_FColor){1, 1, 1, 1});
+		float* textMatrix = genMatrix((Vector3){area->x + 4*logTextSize*(currLog->count > 1), area->y - itemY * logTextSize, 0}, (Vector3){logTextSize / textRatio, 1, logTextSize}, (Vector3){HALFPI, 0, 0});
+		drawMeshOpenGL(planePrim, textMatrix, logColours[currLog->type], textBufferTex);
+		free(textMatrix);
+
+		if(currLog->count > 1){
+			char numString[8]; sprintf(numString, "x%d", currLog->count);
+			float numRatio = bufferGLText(textBufferTex, &defaultFont, numString, 2, (SDL_FColor){1, 1, 1, 1});
+			float* numMatrix = genMatrix((Vector3){area->x, area->y - itemY * logTextSize, 0}, (Vector3){logTextSize / numRatio, 1, logTextSize}, (Vector3){HALFPI, 0, 0});
+			drawMeshOpenGL(planePrim, numMatrix, logColours[currLog->type], textBufferTex);
+			free(numMatrix);
+		}
+
+logDrawSkip:
+		index++;
+		currLog = currLog->next;
+	}
 }
 
 /*

@@ -30,6 +30,8 @@ extern Uint32 objListLength;
 
 DataType workspaceClass = {"Workspace", 1, 0, NULL, NULL, NULL, NULL};
 
+void logToConsole(char* string, Uint32 type);
+
 DataObj gameHeader = {
 	.pos = (Vector3){0, 0, 0},
 	.scale = (Vector3){1, 1, 1},
@@ -84,7 +86,9 @@ noDraw:
 DataObj* newObject(DataType* classData){
 	DataObj *newObj = calloc(1, sizeof(DataObj)); 
 	if(newObj == NULL){
-		printf("Failed to create object of type '%s'.\n", classData->name);
+		char* errorLog = malloc(256);
+		sprintf(errorLog, "Failed to create object of type '%s'.\n", classData->name);
+		logToConsole(errorLog, CONSOLELOG_ERROR);
 		return NULL;
 	}
 	/*newObj->parent = parent;
@@ -127,7 +131,9 @@ DataObj* newObject(DataType* classData){
 	if (classData->init)
 		classData->init(newObj);
 
-	printf("Created new object of type '%s'.\n", classData->name);
+	char* successLog = malloc(256);
+	sprintf(successLog, "Created new object of type '%s'.\n", classData->name);
+	logToConsole(successLog, CONSOLELOG_EXTRA);
 	
 	return newObj;
 }
@@ -192,7 +198,7 @@ void removeObject(DataObj* object){
 		}
 	}
 	
-	printf("Object '%s' removed.\n", object->name);
+	//printf("Object '%s' removed.\n", object->name);
 	free(object);
 }
 
@@ -330,6 +336,7 @@ extern Font defaultFont;
 
 extern float aspectRatio;
 extern Mesh* planePrim;
+extern TextureRef* textBufferTex;
 void renderPopup(NotiPopup* item, Uint32 posX, Uint32 posY){
 	if(item->age >= item->life) return;
 	
@@ -338,14 +345,21 @@ void renderPopup(NotiPopup* item, Uint32 posX, Uint32 posY){
 	//drawRect(displayTex, posX, posY, 224, 64, 0x80000000);
 
 	float* backMatrix = genMatrix(
-		screenToGL((Vector3){posX, posY, 0}), 
+		screenToGL((Vector3){posX, posY, 0}),
 		(Vector3){(224.f / windowScale.x) * aspectRatio * 2, 1, (64.f / windowScale.y) * 2}, 
-		(Vector3){HALFPI, 0, 0});
+		(Vector3){HALFPI, 0, 0}
+	);
 	drawMeshOpenGL(planePrim, backMatrix, (SDL_FColor){0, 0, 0, 0.5}, NULL);
 	free(backMatrix);
 	
-	drawText(renderer, &defaultFont, item->text, posX + 2, posY + 2, 1, (SDL_FColor){1, 1, 1, 1});
+	//drawText(renderer, &defaultFont, item->text, posX + 2, posY + 2, 1, (SDL_FColor){1, 1, 1, 1});
 	//drawRasterText(displayTex, &defaultFont, item->text, posX + 2, posY + 2, 1, 0xFFFFFFFF);
+
+	float textRatio = bufferGLText(textBufferTex, &defaultFont, item->text, 2, (SDL_FColor){1, 1, 1, 1});
+	float textScale = screenToGL((Vector3){32 + (windowScale.x >> 1), 1, 0}).x;
+	float* textMatrix = genMatrix(screenToGL((Vector3){posX + 2, posY + 2, 0}), (Vector3){textScale, 1, textScale * textRatio}, (Vector3){HALFPI, 0, 0});
+	drawMeshOpenGL(planePrim, textMatrix, (SDL_FColor){1, 1, 1, 1}, textBufferTex);
+	free(textMatrix);
 }
 
 void updatePopups(){
@@ -358,4 +372,59 @@ void updatePopups(){
 		
 		loopItem = loopItem->next;
 	}
+}
+
+ConsoleLog *consoleHead = NULL;
+ConsoleLog *consoleLast = NULL;
+
+extern int consoleScroll;
+
+void logToConsole(char* string, Uint32 type){
+	if(consoleLast && consoleLast->type == type && !strcmp(consoleLast->text, string)){
+		consoleLast->count += 1;
+		return;
+	}
+
+	ConsoleLog* newLog = malloc(sizeof(ConsoleLog));
+	if(!newLog) return;
+	
+	newLog->text = string;
+	newLog->type = type;
+	newLog->count = 1;
+
+	consoleScroll++;
+	
+	newLog->prev = consoleLast;
+	newLog->next = NULL;
+
+	/*if(consoleScroll >= 16 && consoleHead){
+		consoleHead = consoleHead->next;
+		consoleHead->next->prev = NULL;
+		free(consoleHead);
+	}*/
+
+	if(!consoleHead){
+		consoleHead = newLog;
+		consoleLast = newLog;
+		newLog->prev = NULL;
+		return;
+	}
+
+	if(consoleLast){
+		consoleLast->next = newLog;
+	}
+
+	consoleLast = newLog;
+}
+
+void clearConsole(){
+	ConsoleLog *currLog = consoleHead;
+	while(currLog){
+		ConsoleLog* next = currLog->next;
+		if(currLog->text)free(currLog->text);
+		free(currLog);
+		currLog = next;
+	}
+
+	consoleHead = NULL; consoleLast = NULL;
 }

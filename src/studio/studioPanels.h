@@ -5,5 +5,6 @@
 #include <structs.h>
 
 void drawSplit(StudioSplit* item, SDL_FRect* area);
+void updateSplit(StudioSplit* item, SDL_FRect* area);
 
 #endif

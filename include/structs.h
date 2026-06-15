@@ -85,11 +85,7 @@ typedef struct DataObj{
 	struct DataObj* child;
 	
 	bool studioOpen;
-	
-	/* connect functions and whatnot
-	void (*collide)(void);
-	void (*destroy)(void);
-	*/
+	Uint32 serverID; //unique ID for object updates through server stuff or something
 } DataObj;
 
 typedef struct{
