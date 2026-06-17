@@ -137,10 +137,7 @@ void drawToolbarPanel(SDL_FRect* area){
 void drawExplorerItem(SDL_FRect* area, DataObj* item, int nodeDepth, int *idCount){
 	int i = (*idCount)++;
 
-	float textRatio = bufferGLText(textBufferTex, &defaultFont, item->name, 2, (SDL_FColor){1, 1, 1, 1});
-	float* textMatrix = genMatrix((Vector3){area->x + nodeDepth * 0.05, area->y - i * 0.025, 0}, (Vector3){0.025 / textRatio, 1, 0.025}, (Vector3){HALFPI, 0, 0});
-	drawMeshOpenGL(planePrim, textMatrix, (SDL_FColor){1, 1, 1, 1}, textBufferTex);
-	free(textMatrix);
+	drawGlText(&defaultFont, (Vector3){area->x + nodeDepth * 0.05, area->y - i * 0.025, 0}, item->name, 0.025, (SDL_FColor){1, 1, 1, 1});
 
 	//if(!item->studioOpen) return;
 	
@@ -158,11 +155,6 @@ void drawExplorerPanel(SDL_FRect* area){
 	drawMeshOpenGL(planePrim, panelMatrix, (SDL_FColor){0.5, 0.5, 0.55, 1}, NULL);
 	free(panelMatrix);
 
-	/*float textRatio = bufferGLText(textBufferTex, &defaultFont, "The quick brown fox\0", 2, (SDL_FColor){1, 1, 1, 1});
-	float* textMatrix = genMatrix((Vector3){area->x, area->y, 0}, (Vector3){0.5, 1, 0.5 * textRatio}, (Vector3){HALFPI, 0, 0});
-	drawMeshOpenGL(planePrim, textMatrix, (SDL_FColor){1, 1, 1, 1}, textBufferTex);
-	free(textMatrix);*/
-
 	int idCounter = 0;
 	drawExplorerItem(area, client.gameWorld->headObj, 0, &idCounter);
 }
@@ -170,7 +162,7 @@ void drawExplorerPanel(SDL_FRect* area){
 SDL_FColor logColours[CONSOLELOG_MAX] = {
 	(SDL_FColor){1, 1, 1, 1},
 	(SDL_FColor){1, 0.96, 0, 1}, (SDL_FColor){1, 0.14, 0.04, 1},
-	(SDL_FColor){0.65, 0.65, 0.65, 1}
+	(SDL_FColor){0.65, 0.12, 0.98, 1}, (SDL_FColor){0.65, 0.65, 0.65, 1}
 };
 
 float logTextSize = 0.02;
@@ -188,17 +180,23 @@ void drawConsolePanel(SDL_FRect* area){
 		int itemY = index - consoleScroll + 16;
 		if(itemY < 0) goto logDrawSkip;
 
-		float textRatio = bufferGLText(textBufferTex, &defaultFont, currLog->text, 2, (SDL_FColor){1, 1, 1, 1});
-		float* textMatrix = genMatrix((Vector3){area->x + 4*logTextSize*(currLog->count > 1), area->y - itemY * logTextSize, 0}, (Vector3){logTextSize / textRatio, 1, logTextSize}, (Vector3){HALFPI, 0, 0});
-		drawMeshOpenGL(planePrim, textMatrix, logColours[currLog->type], textBufferTex);
-		free(textMatrix);
+		drawGlText(
+			&defaultFont, 
+			(Vector3){area->x + 4*logTextSize*(currLog->count > 1), area->y - itemY * logTextSize, 0}, 
+			currLog->text, 
+			logTextSize, 
+			logColours[currLog->type]
+		);
 
 		if(currLog->count > 1){
 			char numString[8]; sprintf(numString, "x%d", currLog->count);
-			float numRatio = bufferGLText(textBufferTex, &defaultFont, numString, 2, (SDL_FColor){1, 1, 1, 1});
-			float* numMatrix = genMatrix((Vector3){area->x, area->y - itemY * logTextSize, 0}, (Vector3){logTextSize / numRatio, 1, logTextSize}, (Vector3){HALFPI, 0, 0});
-			drawMeshOpenGL(planePrim, numMatrix, logColours[currLog->type], textBufferTex);
-			free(numMatrix);
+			drawGlText(
+				&defaultFont, 
+				(Vector3){area->x, area->y - itemY * logTextSize, 0}, 
+				numString, 
+				logTextSize, 
+				logColours[currLog->type]
+			);
 		}
 
 logDrawSkip:

@@ -523,6 +523,7 @@ SDL_AppResult SDL_AppIterate(void *appstate){
 	glUniform4fv(glLocs[GLVAL_AMBCOLOUR], 1, (float*)&flatAmb);
 
 	updatePopups();
+	renderPopups();
 
 	if(SDL_GetWindowFlags(window) & SDL_WINDOW_MOUSE_FOCUS){
 		SDL_FPoint cursorDrawPos = camMoveMode == 1 ? storedMousePos : mousePos;

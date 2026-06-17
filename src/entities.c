@@ -147,7 +147,7 @@ void playerDraw(DataObj* object){
 	drawText(renderer, &defaultFont, object->name, textProj.x - strlen(object->name) / 2 * defaultFont.kerning.x * nameScale, textProj.y - defaultFont.renderSize.y * nameScale, nameScale, (SDL_FColor){1, 1, 1, 1});
 	*/
 
-	float textRatio = bufferGLText(textBufferTex, &defaultFont, object->name, 4, (SDL_FColor){1, 1, 1, 1});
+	float textRatio = bufferGLText(textBufferTex, &defaultFont, object->name, 4);
 	float* textMatrix = genMatrix(vec3Add(object->pos, (Vector3){0, 6, 0}), (Vector3){1 / textRatio, 1, 1}, 
 		(Vector3){
 			client.gameWorld->currCamera->rot.x + HALFPI,

@@ -194,7 +194,7 @@ void openGlGenBuffers(Mesh* mesh){
 	//mesh->eleBuffer = genEBO(mesh, 0);
 }
 
-float bufferGLText(TextureRef* target, Font* font, char* text, float size, SDL_FColor colour){
+float bufferGLText(TextureRef* target, Font* font, char* text, float size){
 	Texture* tex = target->texture;
 	if(tex)
 		freeRasterTexture(tex);
@@ -202,8 +202,8 @@ float bufferGLText(TextureRef* target, Font* font, char* text, float size, SDL_F
 	tex = newRasterTexture(scale.x, scale.y);
 	target->texture = tex;
 
-	clearTex(tex, colourToInt((SDL_FColor){colour.r, colour.g, colour.b, 0}));
-	drawRasterText(tex, font, text, 0, 0, size, colourToInt(colour));
+	clearTex(tex, 0x00FFFFFF);
+	drawRasterText(tex, font, text, 0, 0, size, 0xFFFFFFFF);
 
 	//updateGlTexture(target);
 	glBindTexture(GL_TEXTURE_2D, target->glLoc);
@@ -211,6 +211,15 @@ float bufferGLText(TextureRef* target, Font* font, char* text, float size, SDL_F
 	glBindTexture(GL_TEXTURE_2D, 0);
 
 	return (float)scale.y / scale.x;
+}
+
+extern TextureRef* textBufferTex;
+extern Mesh* planePrim;
+void drawGlText(Font* font, Vector3 pos, char* text, float size, SDL_FColor colour){
+	float textRatio = bufferGLText(textBufferTex, font, text, 2);
+	float* textMatrix = genMatrix((Vector3){pos.x, pos.y, pos.z}, (Vector3){size / textRatio, 1, size}, (Vector3){HALFPI, 0, 0});
+	drawMeshOpenGL(planePrim, textMatrix, colour, textBufferTex);
+	free(textMatrix);
 }
 
 FrameBuffer* newFrameBuffer(Uint16 width, Uint16 height){

@@ -355,20 +355,25 @@ void renderPopup(NotiPopup* item, Uint32 posX, Uint32 posY){
 	//drawText(renderer, &defaultFont, item->text, posX + 2, posY + 2, 1, (SDL_FColor){1, 1, 1, 1});
 	//drawRasterText(displayTex, &defaultFont, item->text, posX + 2, posY + 2, 1, 0xFFFFFFFF);
 
-	float textRatio = bufferGLText(textBufferTex, &defaultFont, item->text, 2, (SDL_FColor){1, 1, 1, 1});
-	float textScale = screenToGL((Vector3){32 + (windowScale.x >> 1), 1, 0}).x;
-	float* textMatrix = genMatrix(screenToGL((Vector3){posX + 2, posY + 2, 0}), (Vector3){textScale, 1, textScale * textRatio}, (Vector3){HALFPI, 0, 0});
-	drawMeshOpenGL(planePrim, textMatrix, (SDL_FColor){1, 1, 1, 1}, textBufferTex);
-	free(textMatrix);
+	float textScale = screenToGL((Vector3){8 + (windowScale.x >> 1), 1, 0}).x;
+	drawGlText(&defaultFont, screenToGL((Vector3){posX + 2, posY + 2, 0}), item->text, textScale, (SDL_FColor){1, 1, 1, 1});
 }
 
 void updatePopups(){
+	NotiPopup* loopItem = popupHead;
+	while(loopItem){
+		updatePopup(loopItem);
+		
+		loopItem = loopItem->next;
+	}
+}
+
+void renderPopups(){
 	Uint32 popupCount = 0;
 	NotiPopup* loopItem = popupHead;
 	while(loopItem){
 		popupCount++;
 		renderPopup(loopItem, windowScale.x - 224, windowScale.y - (popupCount + 1) * 66);
-		updatePopup(loopItem);
 		
 		loopItem = loopItem->next;
 	}

@@ -17,7 +17,7 @@ typedef struct NotiPopup{
 typedef enum consoleLogTypes{
 	CONSOLELOG_DEFAULT,
 	CONSOLELOG_WARNING, CONSOLELOG_ERROR,
-	CONSOLELOG_EXTRA, CONSOLELOG_MAX
+	CONSOLELOG_SERVER, CONSOLELOG_EXTRA, CONSOLELOG_MAX
 } consoleLogTypes;
 
 typedef struct ConsoleLog{
@@ -49,6 +49,7 @@ DataObj* firstChildWithName(DataObj* item, char* name);
 DataObj** listChildren(DataObj* item);
 
 void sendPopup(char* string, SDL_Texture* image, SDL_FRect* rect, float life);
+void renderPopups();
 void updatePopups();
 
 void logToConsole(char* string, Uint32 type);

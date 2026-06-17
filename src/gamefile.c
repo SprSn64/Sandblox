@@ -163,8 +163,11 @@ DataObj* createObjectFromJSON(cJSON* obj, DataObj* parent) {
             sprintf(mesh->filePath, "%s", meshFile->valuestring);
         }else
             mesh = loadMeshFromObj(meshFile->valuestring, false);
-        if(!mesh)
-            printf("Failed to load mesh from file: %s\n", meshFile->valuestring);
+        if(!mesh){
+            char* warningLog = malloc(512);
+		sprintf(warningLog, "Failed to load mesh from %s\n", meshFile->valuestring);
+		logToConsole(warningLog, CONSOLELOG_WARNING);
+        }
     } else if(meshType && meshParams && cJSON_IsString(meshType)) {
         mesh = createMeshByType(meshType->valuestring, meshParams);
         if(!mesh)
@@ -184,8 +187,8 @@ DataObj* createObjectFromJSON(cJSON* obj, DataObj* parent) {
             tex = loadTexture(texture->valuestring, false);
 	  
         if(!tex){
-            char* warningLog = malloc(256);
-		sprintf(warningLog, "Failed to load texture from file: %s\n", texture->valuestring);
+            char* warningLog = malloc(512);
+		sprintf(warningLog, "Failed to load texture from %s\n", texture->valuestring);
 		logToConsole(warningLog, CONSOLELOG_WARNING);
         }
     }
