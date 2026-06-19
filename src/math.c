@@ -112,17 +112,12 @@ float *multMatrix(mat4 matrixA, mat4 matrixB){
 	return output;
 }
 
+extern float* defaultMatrix;
 float *axisRotMatrix(Uint8 axis, float angle){ //axis 0 = x (yz planes), axis 1 = y (xz planes), axis 2 = z (xy planes)
-	float *output;
-	output = malloc(sizeof(mat4));;
+	float *output = malloc(sizeof(mat4));
+	memcpy(output, defaultMatrix, sizeof(mat4));
 	float angSin = SDL_sin(angle);
 	float angCos = SDL_cos(angle);
-	float tempMatrix[16] = {
-		1, 0, 0, 0, 
-		0, 1, 0, 0, 
-		0, 0, 1, 0, 
-		0, 0, 0, 1
-	};
 	
 	/* = {
 		angCos * axis + !axis, -angSin * (axis == 2) + (axis != 2), angSin * (axis == 1) + (axis != 1), 1,
@@ -133,25 +128,20 @@ float *axisRotMatrix(Uint8 axis, float angle){ //axis 0 = x (yz planes), axis 1 
 	
 	switch(axis){
 		case 0: //x
-			tempMatrix[5] = angCos; tempMatrix[6] = -angSin; tempMatrix[9] = angSin; tempMatrix[10] = angCos;
+			output[5] = angCos; output[6] = -angSin; output[9] = angSin; output[10] = angCos;
 			break;
 		case 1: //y
-			tempMatrix[0] = angCos; tempMatrix[2] = angSin; tempMatrix[8] = -angSin; tempMatrix[10] = angCos;
+			output[0] = angCos; output[2] = angSin; output[8] = -angSin; output[10] = angCos;
 			break;
 		case 2: //z
-			tempMatrix[0] = angCos; tempMatrix[1] = -angSin; tempMatrix[4] = angSin; tempMatrix[5] = angCos;
+			output[0] = angCos; output[1] = -angSin; output[4] = angSin; output[5] = angCos;
 			break;
 	}
 	
-	memcpy(output, &tempMatrix, sizeof(mat4));
 	return output;
 } // probably needs fixing
 
 float *rotateMatrix(mat4 matrix, Vector3 angle, Uint32 rotOrder){ //rotOrder is the order of the rotations, XYZ, YXZ, all that kind of stuff
-	(void)rotOrder;
-	float *output;
-	output = malloc(sizeof(mat4));
-
 	float *xMatrix; float *yMatrix; float *zMatrix;
 
 	switch(rotOrder){
@@ -159,34 +149,25 @@ float *rotateMatrix(mat4 matrix, Vector3 angle, Uint32 rotOrder){ //rotOrder is 
 			yMatrix = multMatrix(matrix, axisRotMatrix(1, angle.y));
 			xMatrix = multMatrix(yMatrix, axisRotMatrix(0, angle.x));
 			zMatrix = multMatrix(xMatrix, axisRotMatrix(2, angle.z));
-	
-			memcpy(output, zMatrix, sizeof(mat4));
 			break;
 		default: 
 			xMatrix = multMatrix(matrix, axisRotMatrix(0, angle.x));
 			yMatrix = multMatrix(xMatrix, axisRotMatrix(1, angle.y));
 			zMatrix = multMatrix(yMatrix, axisRotMatrix(2, angle.z));
-	
-			memcpy(output, zMatrix, sizeof(mat4));
 			break;
 	}
 
-	free(xMatrix); free(yMatrix); free(zMatrix); 
-	return output;
+	free(xMatrix); free(yMatrix);
+	return zMatrix;
 }
 
-extern float* defaultMatrix;
 float *genMatrix(Vector3 pos, Vector3 scale, Vector3 rot){
-	float *output;
-	output = malloc(sizeof(mat4));
-	
 	float *scaled = scaleMatrix(defaultMatrix, scale);
 	float *rotated = rotateMatrix(scaled, rot, ROT_XYZ);
 	float *translated = translateMatrix(rotated, pos);
 	
-	memcpy(output, translated, sizeof(mat4));
-	free(translated); free(scaled); free(rotated); 
-	return output;
+	free(scaled); free(rotated); 
+	return translated;
 }
 
 float *projMatrix(float fov, float aspect, float zNear, float zFar){

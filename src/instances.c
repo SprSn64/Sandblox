@@ -46,31 +46,28 @@ DataObj gameHeader = {
 };
 
 extern Mesh *cubePrim;
-void updateObjects(DataObj* item, int nodeDepth, int *idCount){
-	item->rot = (Vector3){fmod(item->rot.x, 6.28318), fmod(item->rot.y, 6.28318), fmod(item->rot.z, 6.28318)};
+void updateObjects(DataObj* item){
+	item->rot = (Vector3){fmod(item->rot.x, PI * 2), fmod(item->rot.y, PI * 2), fmod(item->rot.z, PI * 2)};
 	if(item->classData->update)item->classData->update(item);
 
 	DataObj* child = item->child;
 	while (child) {
 		DataObj *next = child->next;
-		updateObjects(child, nodeDepth + 1, idCount);
+		updateObjects(child);
 		child = next;
 	}
 }
 
-extern bool doZBuffer;
-void drawObjects(DataObj* item, int nodeDepth, int *idCount){
-	if(item->parent && item->parent->studioOpen == true)
-		objListLength += item->parent->studioOpen;
+void drawObjects(DataObj* item){
 	if(!item->classData->draw) goto noDraw;
 
 	item->transform = genMatrix(item->pos, item->scale, item->rot);
 	
 	item->classData->draw(item);
 	if(item == focusObject && client.studio){
-		doZBuffer = false;
+		setGlValue(GL_DEPTH_TEST, false);
 		drawMeshOpenGL(cubePrim, item->transform, (SDL_FColor){1, 1, 1, fabs(SDL_sin(timer * 2)) * 0.25}, NULL);
-		doZBuffer = true;
+		setGlValue(GL_DEPTH_TEST, true);
 	}
 	free(item->transform);
 
@@ -78,7 +75,7 @@ noDraw:
 	DataObj* child = item->child;
 	while (child) {
 		DataObj *next = child->next;
-		drawObjects(child, nodeDepth + 1, idCount);
+		drawObjects(child);
 		child = next;
 	}
 }
@@ -170,7 +167,9 @@ void removeObject(DataObj* object){
 	DataObj *nextItem = object->next; 
 	DataObj *parentItem = object->parent ? object->parent : game.headObj;
 	DataObj *childItem = object->child;
-	
+
+	if(focusObject == object)
+		focusObject = NULL;
 	if(prevItem)
 		prevItem->next = nextItem;
 	if(nextItem)

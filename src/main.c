@@ -157,8 +157,8 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[]){
 		if(!strcmp("-server", argv[i])) printf("cant join server '%s'... not implemented yet sorry\n", argv[i+1]);
 			//connectServer(argv[i++]);
 	}
-	debugServer = serverInit(8080);
-	client.server = debugServer;
+	//debugServer = serverInit(8080);
+	//client.server = debugServer;
 	
 	if(!SDL_Init(SDL_INIT_VIDEO)){
 		SDL_Log("Couldn't initialize SDL: %s", SDL_GetError());
@@ -413,17 +413,16 @@ SDL_AppResult SDL_AppIterate(void *appstate){
 	currentCamera.rot = (Vector3){fmod(min(max(currentCamera.rot.x, -HALFPI), HALFPI), 6.28318), fmod(currentCamera.rot.y, 6.28318), fmod(currentCamera.rot.z, 6.28318)};
 	currentCamera.focusDist = min(max(currentCamera.focusDist + (keyList[KEYBIND_I].down - keyList[KEYBIND_O].down) * 4 * max(1, sqrt(currentCamera.focusDist)) * deltaTime, 0), 64);
 
-	int idCounter = 0;
-	objListLength = 0;
 	if(!client.pause){
 		if(playerEnabled && !client.gameWorld->currPlayer){
 			if(client.gameWorld->playerRespawn >= 3) loadPlayerAvatar();
 			client.gameWorld->playerRespawn += deltaTime;
 		}
-		updateObjects(client.gameWorld->headObj, 0, &idCounter);
+		updateObjects(client.gameWorld->headObj);
 	}
 
 	glViewport(0, 0, windowScale.x, windowScale.y);
+	//panelHead.split = (sin(timer / 4) + 1) * 0.5;
 
 	//freeFrameBuffer(gameBuffer);
 	//gameBuffer = newFrameBuffer(windowScale.x, windowScale.y);
@@ -489,17 +488,18 @@ SDL_AppResult SDL_AppIterate(void *appstate){
 	glUniform4fv(glLocs[GLVAL_LIGHTCOLOUR], 1, (float*)&lightColour);
 	glUniform4fv(glLocs[GLVAL_AMBCOLOUR], 1, (float*)&lightAmbient);
 	
-	idCounter = 0;
-	drawObjects(client.gameWorld->headObj, 0, &idCounter);
+	drawObjects(client.gameWorld->headObj);
 
-	if(client.studio)updateSplit(&panelHead, &(SDL_FRect){-aspectRatio, 1, 2 * aspectRatio, 2});
-	if(focusObject)drawStudioOverlay();
+	if(client.studio){
+		updateSplit(&panelHead, &(SDL_FRect){-aspectRatio, 1, 2 * aspectRatio, 2});
+		if(focusObject)drawStudioOverlay();
+	}
 
 	//drawSkip:
 
 	//updateStudio();
 		
-	static char fpsText[256] = "FPS: 0";
+	/*static char fpsText[256] = "FPS: 0";
 	static char rotText[256] = "Camera Rot: 0, 0";
 	static double lastDebugUpdate = 0;
 	if ((Uint32)(timer*100)%64 == 0)
@@ -513,6 +513,7 @@ SDL_AppResult SDL_AppIterate(void *appstate){
 	drawText(renderer, &defaultFont, rotText, 0, 16, 2, (SDL_FColor){1, 1, 1, 1});
 	
 	if(client.pause)drawText(renderer, &defaultFont, "Game Paused", 0, windowScale.y - 16, 2, (SDL_FColor){1, 1, 1, 1});
+	*/
 
 	setGlValue(GL_DEPTH_TEST, false); setGlValue(GL_BLEND, true);
 	glUniformMatrix4fv(glLocs[GLVAL_PROJMATRIX], 1, GL_FALSE, guiMatrix);
@@ -553,8 +554,8 @@ SDL_AppResult SDL_AppIterate(void *appstate){
 
 	free(guiMatrix); setGlValue(GL_BLEND, false);
 
-	free(currentCamera.transform);
-	free(currentCamera.proj);
+	free(client.gameWorld->currCamera->transform);
+	free(client.gameWorld->currCamera->proj);
 	
 	SDL_GL_SwapWindow(window);
 

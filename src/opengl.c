@@ -53,6 +53,8 @@ Uint32 loadShader(char* vertPath, char* fragPath){
 	glShaderSource(fragShader, 1, &fragSource, NULL);
 	
 	glCompileShader(vertShader); glCompileShader(fragShader);
+
+	//free(vertSource); free(fragSource);
 	
 	Uint32 shaderProg = glCreateProgram();
 	glAttachShader(shaderProg, vertShader); glAttachShader(shaderProg, fragShader);
@@ -199,15 +201,15 @@ float bufferGLText(TextureRef* target, Font* font, char* text, float size){
 	if(tex)
 		freeRasterTexture(tex);
 	SDL_Point scale = {font->renderSize.x + max(font->kerning.x * size * strlen(text), font->renderSize.x * size), font->renderSize.y * size};
-	tex = newRasterTexture(scale.x, scale.y);
-	target->texture = tex;
+	Texture* newTex = newRasterTexture(scale.x, scale.y);
+	target->texture = newTex;
 
-	clearTex(tex, 0x00FFFFFF);
-	drawRasterText(tex, font, text, 0, 0, size, 0xFFFFFFFF);
+	clearTex(newTex, 0x00FFFFFF);
+	drawRasterText(newTex, font, text, 0, 0, size, 0xFFFFFFFF);
 
 	//updateGlTexture(target);
 	glBindTexture(GL_TEXTURE_2D, target->glLoc);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, tex->width, tex->height, 0, GL_RGBA, GL_UNSIGNED_BYTE, tex->pixels);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, newTex->width, newTex->height, 0, GL_RGBA, GL_UNSIGNED_BYTE, newTex->pixels);
 	glBindTexture(GL_TEXTURE_2D, 0);
 
 	return (float)scale.y / scale.x;

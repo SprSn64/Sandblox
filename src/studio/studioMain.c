@@ -17,9 +17,6 @@
 
 #include "../softwarerender/main.h"
 
-TextureRef* studioTexRef = NULL;
-Texture* studioTex = NULL;
-
 extern ClientData client;
 
 bool studioActive = false;
@@ -81,19 +78,6 @@ bool studioFocus = false;
 void initStudio(){
 	//printf("Studio Initiated\n");
 	if(!client.studio){printf("Studio not enabled!\n"); return;}
-	
-	studioTexRef = malloc(sizeof(TextureRef));
-	studioTexRef->texture = newRasterTexture(studioWindowScale.x, studioWindowScale.y);
-	studioTex = studioTexRef->texture;
-
-	glGenTextures(1, &studioTexRef->glLoc);
-	glActiveTexture(GL_TEXTURE0);
-	glBindTexture(GL_TEXTURE_2D, studioTexRef->glLoc);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, studioTexRef->texture->width, studioTexRef->texture->height, 0, GL_RGBA, GL_UNSIGNED_BYTE, studioTexRef->texture->pixels);
-	glGenerateMipmap(GL_TEXTURE_2D);
-	glBindTexture(GL_TEXTURE_2D, 0);
 
 	studioActive = true;
 	
@@ -116,7 +100,7 @@ void initStudio(){
 	toolButtonTex = loadTexture("assets/textures/studio/toolbuttons.png", true);
 
 	//studioFontTex = IMG_LoadTexture(studioRenderer, "assets/textures/font.png");
-	studioFont = (Font){(TextureRef*)studioFontTex, NULL, 32, (SDL_Point){32, 32}, (SDL_Point){8, 8}, (SDL_FPoint){6, 0}, 16};
+	//studioFont = (Font){(TextureRef*)studioFontTex, NULL, 32, (SDL_Point){32, 32}, (SDL_Point){8, 8}, (SDL_FPoint){6, 0}, 16};
 	
 	addObjButton = newImageButton(buttonAddObject, stuButtonTex->texture, (SDL_FRect){224, 304, 16, 16}, (SDL_FRect){16, 0, 16, 16});
 	removeObjButton = newImageButton(buttonRemoveObject, stuButtonTex->texture, (SDL_FRect){206, 304, 16, 16}, (SDL_FRect){32, 0, 16, 16});
@@ -137,30 +121,6 @@ void studioCameraUpdate(Camera* cam);
 
 void updateStudio(){
 	if(!studioActive) return;
-	
-	StudioHandleKeys();
-	
-	//SDL_SetRenderDrawColor(studioRenderer, 148, 150, 152, 255);
-	//SDL_RenderClear(studioRenderer);
-	clearTex(studioTex, 0xFF989694);
-	
-	/*studioFocus = SDL_GetWindowFlags(studioWindow) & SDL_WINDOW_INPUT_FOCUS;
-	for(int i=0; i<3; i++){
-		stuMouseButtons[i].down = studioFocus && (mouseState & stuMouseButtons[i].code);
-		if(stuMouseButtons[i].down){
-			if(!stuMouseButtons[i].pressCheck){
-				stuMouseButtons[i].pressCheck = true;
-				stuMouseButtons[i].pressed = true;
-			}else{
-				stuMouseButtons[i].pressed = false;
-			}
-		}else stuMouseButtons[i].pressCheck = false;
-	}*/
-	SDL_SetCursor(SDL_CreateSystemCursor(SDL_SYSTEM_CURSOR_DEFAULT));
-	
-	/*if(client.pause)
-		studioCameraUpdate(client.gameWorld->currCamera);
-	*/
 
 	if(stuKeyList[0].pressed && focusObject){
 		if(focusObject == client.gameWorld->currPlayer)
@@ -196,26 +156,21 @@ void updateStudio(){
 		sendPopup("undid history!", NULL, NULL, 2);
 	}
 ctrlSkip:
-
-	int idCounter = 0;
-	drawObjectList(client.gameWorld->headObj, 0, &idCounter);
 	
-	if(objListLength > floor(objListRect.h / 16) + 2){
+	/*if(objListLength > floor(objListRect.h / 16) + 2){
 		//SDL_SetRenderDrawColor(studioRenderer, 192, 193, 196, SDL_ALPHA_OPAQUE);
 		float scrollHeight = objListRect.h / max(1, (objListLength - floor(objListRect.h / 16)));
 		float scrollT = min(1, max(0, objListScroll / (objListLength - objListRect.h / 16)));
 		//SDL_RenderFillRect(studioRenderer, &(SDL_FRect){objListRect.x + objListRect.w - 8, objListRect.y + (objListRect.h - scrollHeight) * scrollT, 8, scrollHeight});
 		drawRect(studioTex, objListRect.x + objListRect.w - 8, objListRect.y + (objListRect.h - scrollHeight) * scrollT, 8, scrollHeight, 0xFFC4C1C0);
-	}
+	}*/
 		
 	//make this less shitty soon
 	//updateAndDrawButton(studioRenderer, &addObjButton); updateAndDrawButton(studioRenderer, &removeObjButton); updateAndDrawButton(studioRenderer, &pauseButton);
 	//updateAndDrawButton(studioRenderer, &loadFileButton); updateAndDrawButton(studioRenderer, &saveFileButton);
 	//updateAndDrawButton(studioRenderer, &selectWidgetButton); updateAndDrawButton(studioRenderer, &moveWidgetButton); updateAndDrawButton(studioRenderer, &scaleWidgetButton); updateAndDrawButton(studioRenderer, &rotateWidgetButton);
 	
-	drawObjectProperties(focusObject, 240);
-
-	updateGlTexture(studioTexRef);
+	//drawObjectProperties(focusObject, 240);
 	
 	//SDL_RenderPresent(studioRenderer);
 }
@@ -225,7 +180,7 @@ void studioCleanup(){
 	freeTexture(classIconTex); freeTexture(stuButtonTex); 
 	free(rotateGimbleMesh); free(translateGimbleMesh);
 
-	freeTexture(studioTexRef);
+	//freeTexture(studioTexRef);
 }
 
 void drawObjectList(DataObj* item, int nodeDepth, int *idCount){	
@@ -249,19 +204,19 @@ void drawObjectList(DataObj* item, int nodeDepth, int *idCount){
 		//SDL_SetRenderDrawColor(studioRenderer, 64, 192, 24, SDL_ALPHA_OPAQUE);
 		
 		//SDL_RenderFillRect(studioRenderer, &(SDL_FRect){objListRect.x, objListRect.y + itemYOffset, objListRect.w, 16});
-		drawRect(studioTex, objListRect.x, objListRect.y + itemYOffset, objListRect.w, 16, 0xFF18C040);
+		//drawRect(studioTex, objListRect.x, objListRect.y + itemYOffset, objListRect.w, 16, 0xFF18C040);
 	}
 	
 	//drawText(studioRenderer, &studioFont, item->name, objListRect.x + 18/**/ + (nodeDepth * 24), 18/**/ + itemYOffset, 1.5, (SDL_FColor){1, 1, 1, 1});
-	drawRasterText(studioTex, &defaultFont, item->name, objListRect.x + 18/**/ + (nodeDepth * 24), 18/**/ + itemYOffset, 1.5, 0xFFFFFFFF);
+	//drawRasterText(studioTex, &defaultFont, item->name, objListRect.x + 18/**/ + (nodeDepth * 24), 18/**/ + itemYOffset, 1.5, 0xFFFFFFFF);
 	
 	SDL_Rect iconRect = {(item->classData->id % 16) * 16, (int)floor((float)item->classData->id / 16) * 16 % 256, 16, 16};
 	SDL_Rect iconPos = {objListRect.x + nodeDepth * 24, objListRect.y/**/ + itemYOffset, 16, 16};
 	//SDL_RenderTexture(studioRenderer, classIconTex, &iconRect, &iconPos);
-	drawTexture(studioTex, classIconTex->texture, &iconRect, &iconPos, 0xFFFFFFFF);
+	//drawTexture(studioTex, classIconTex->texture, &iconRect, &iconPos, 0xFFFFFFFF);
 	
 	if(!item->studioOpen && item->child)
-		drawTexture(studioTex, classIconTex->texture, &(SDL_Rect){245, 249, 11, 7}, &(SDL_Rect){objListRect.x + nodeDepth * 24, objListRect.y + itemYOffset, 11, 7}, 0xFFFFFFFF);
+		//drawTexture(studioTex, classIconTex->texture, &(SDL_Rect){245, 249, 11, 7}, &(SDL_Rect){objListRect.x + nodeDepth * 24, objListRect.y + itemYOffset, 11, 7}, 0xFFFFFFFF);
 		//SDL_RenderTexture(studioRenderer, classIconTex, &(SDL_FRect){245, 249, 11, 7}, &(SDL_FRect){objListRect.x + nodeDepth * 24, objListRect.y + itemYOffset, 11, 7});
 	
 	listRenderSkip:
@@ -283,7 +238,7 @@ void drawObjectProperties(DataObj* item, int posY){
 	//SDL_SetRenderDrawColor(studioRenderer, 255, 255, 255, 255);
 	
 	if(!item){
-		drawRasterText(studioTex, &defaultFont, "No object selected!", 2, posY, 1.5, 0xFFFFFFFF);
+		//drawRasterText(studioTex, &defaultFont, "No object selected!", 2, posY, 1.5, 0xFFFFFFFF);
 		return;
 	}
 	
