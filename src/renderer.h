@@ -23,8 +23,7 @@ typedef struct MeshMaterial{
 
 typedef struct{
 	Uint32 vertA, vertB, vertC;
-	MeshMaterial material; //why the fuck isnt it a pointer
-	//why the fuck are you storing the entire material in each face 
+	MeshMaterial *material;
 } MeshFace;
 
 typedef enum meshTypes{

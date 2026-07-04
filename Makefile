@@ -2,7 +2,7 @@ DIRS := src src/studio src/blockcode src/network src/softwarerender src/cjosn sr
 
 CC  := gcc
 CXX := g++
-CFLAGS   := -Wall -Wextra -O3 -Iinclude # -g -fsanitize=address -fsanitize=undefined
+CFLAGS   := -Wall -Wextra -O3 -Iinclude #-g -fsanitize=address -fsanitize=undefined
 CXXFLAGS := $(CFLAGS) -std=c++17
 
 ifeq ($(OS),Windows_NT)
@@ -10,7 +10,7 @@ ifeq ($(OS),Windows_NT)
 	LDFLAGS := -lSDL3 -lSDL3_image -lgdi32 -lopengl32 -lglew32 resource.res
 else
 	TARGET := sandblox.$(shell uname -m)
-	LDFLAGS := -lm -lSDL3 -lSDL3_image -lGL -lGLEW # -fsanitize=address -fsanitize=undefined
+	LDFLAGS := -lm -lSDL3 -lSDL3_image -lGL -lGLEW #-fsanitize=address -fsanitize=undefined
 endif
 
 C_SOURCES   := $(wildcard $(addsuffix /*.c,$(DIRS)))
