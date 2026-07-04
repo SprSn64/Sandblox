@@ -141,23 +141,43 @@ float *axisRotMatrix(Uint8 axis, float angle){ //axis 0 = x (yz planes), axis 1 
 	return output;
 } // probably needs fixing
 
-float *rotateMatrix(mat4 matrix, Vector3 angle, Uint32 rotOrder){ //rotOrder is the order of the rotations, XYZ, YXZ, all that kind of stuff
-	float *xMatrix; float *yMatrix; float *zMatrix;
+float *rotateMatrix(mat4 matrix, Vector3 angle, Uint32 rotOrder) { //rotOrder is the order of the rotations, XYZ, YXZ, all that kind of stuff
+	float *xMatrix, *yMatrix, *zMatrix;
+	float *xRot, *yRot, *zRot;
 
 	switch(rotOrder){
-		case ROT_YXZ: 
-			yMatrix = multMatrix(matrix, axisRotMatrix(1, angle.y));
-			xMatrix = multMatrix(yMatrix, axisRotMatrix(0, angle.x));
-			zMatrix = multMatrix(xMatrix, axisRotMatrix(2, angle.z));
+		case ROT_YXZ:
+			yRot = axisRotMatrix(1, angle.y);
+			yMatrix = multMatrix(matrix, yRot);
+			free(yRot);
+
+			xRot = axisRotMatrix(0, angle.x);
+			xMatrix = multMatrix(yMatrix, xRot);
+			free(xRot);
+
+			zRot = axisRotMatrix(2, angle.z);
+			zMatrix = multMatrix(xMatrix, zRot);
+			free(zRot);
 			break;
-		default: 
-			xMatrix = multMatrix(matrix, axisRotMatrix(0, angle.x));
-			yMatrix = multMatrix(xMatrix, axisRotMatrix(1, angle.y));
-			zMatrix = multMatrix(yMatrix, axisRotMatrix(2, angle.z));
+
+		default:
+			xRot = axisRotMatrix(0, angle.x);
+			xMatrix = multMatrix(matrix, xRot);
+			free(xRot);
+
+			yRot = axisRotMatrix(1, angle.y);
+			yMatrix = multMatrix(xMatrix, yRot);
+			free(yRot);
+
+			zRot = axisRotMatrix(2, angle.z);
+			zMatrix = multMatrix(yMatrix, zRot);
+			free(zRot);
 			break;
 	}
 
-	free(xMatrix); free(yMatrix);
+	free(xMatrix);
+	free(yMatrix);
+
 	return zMatrix;
 }
 
