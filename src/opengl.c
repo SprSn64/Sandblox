@@ -266,7 +266,8 @@ void bindFrameBuffer(FrameBuffer* item){
 
 void freeFrameBuffer(FrameBuffer* item){
 	if(!item) return;
-	if(item->texture)freeTexture(item->texture);
+	// crashes the program...
+	//if(item->texture)freeTexture(item->texture);
 	glDeleteFramebuffers(1, &item->frameBuff); glDeleteRenderbuffers(1, &item->renderBuff);
 	free(item);
 }

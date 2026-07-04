@@ -115,6 +115,10 @@ DataObj* newObject(DataType* classData){
 	parent->child = newObj;
 	*/
 
+	for (int prop = 0; prop < OBJVAL_MAX; prop++) {
+		newObj->props[prop] = NULL;
+	}
+
 	newObj->pos = (Vector3){0,0,0};
 	newObj->transform = NULL;
 	newObj->scale = (Vector3){1,1,1};
@@ -198,6 +202,10 @@ void removeObject(DataObj* object){
 	}
 	
 	//printf("Object '%s' removed.\n", object->name);
+	/*for (int prop = 0; prop < OBJVAL_MAX; prop++) {
+		void *ptr = object->props[prop];
+		if (ptr) free(ptr);
+	}*/
 	free(object);
 }
 
