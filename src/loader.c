@@ -30,6 +30,12 @@ Texture* newRasterTexture(Uint16 width, Uint16 height){
 	}
 	newTexture->width = width; newTexture->height = height;
 	newTexture->pixels = malloc(width * height * sizeof(Uint32));
+	
+	if(!newTexture->pixels){
+	    free(newTexture);
+	    return NULL;
+	}
+	
 	printf("Succesfully made texture of size %dx%d\n", width, height);
 	return newTexture;
 }
@@ -44,7 +50,6 @@ Texture* loadRasterTexture(char* path){
 	SDL_Surface* newSurface = IMG_Load(path); if(!newSurface) return NULL;
 	Texture* newTex = newRasterTexture(newSurface->w, newSurface->h);
 
-	//printf("Pixel format of image %s is 0x%x\n", path, newSurface->format);
 	memcpy(newTex->pixels, newSurface->pixels, (Uint32)newSurface->w*newSurface->h * sizeof(Uint32)); 
 
 	SDL_DestroySurface(newSurface);
@@ -68,17 +73,17 @@ TextureRef* loadTexture(char* path, bool persistent){
 		return texCheck;
 	}
 
-	TextureRef* texItem = malloc(sizeof(TextureRef));
+	TextureRef* texItem = calloc(1, sizeof(TextureRef));
 	if(!texItem) return NULL;
 	texItem->filePath = strdup(path);
-	texItem->prev = NULL; texItem->next = NULL;
 	texItem->persistent = persistent;
 
-	//SDL_Texture* image = newTexture(path, SDL_SCALEMODE_LINEAR);
-	//if(image)texItem->image = image;
-
 	Texture* texture = loadRasterTexture(path);
-	if(!texture) return texItem;
+	if(!texture) {
+	    free(texItem->filePath);
+	    free(texItem);
+	    return NULL;
+	}
 	texItem->texture = texture;
 
 	glGenTextures(1, &texItem->glLoc);
@@ -138,7 +143,7 @@ void cleanupTextures(bool soft){
 		}
 
 		TextureRef *next = currItem->next;
-		freeTexture(currItem); //double free? what?
+		freeTexture(currItem); 
 		currItem = next;
 	}
 }
@@ -146,7 +151,7 @@ void cleanupTextures(bool soft){
 Mesh* meshExists(char* path){
 	Mesh *loopItem = headMesh;
 	while(loopItem){
-		if(loopItem->filePath == path)
+		if(strcmp(loopItem->filePath, path) == 0)
 			return loopItem;
 		loopItem = loopItem->next;
 	}
@@ -228,7 +233,6 @@ int loadMtlFile(const char *objPath, const char *mtlName, MeshMaterial *material
 
 	FILE *file = fopen(mtlPath, "r");
 	if (!file) {
-		//printf("dihhhhhhh\n");
 		return 0;
 	}
 
@@ -237,7 +241,7 @@ int loadMtlFile(const char *objPath, const char *mtlName, MeshMaterial *material
 	MeshMaterial *current = NULL;
 
 	while (fgets(line, sizeof(line), file)){
-		if (strncmp(line, "newmtl ", 7) == 0) { //compares if the first 7 letters are equal
+		if (strncmp(line, "newmtl ", 7) == 0) {
 			if (count >= maxCount) break;
 
 			current = &materials[count++];
@@ -255,131 +259,152 @@ int loadMtlFile(const char *objPath, const char *mtlName, MeshMaterial *material
 	return count;
 }
 
-/*TODO: 
-	some uvs are broken?
-	mop up this spilled spaghetti!
-*/
 Mesh* loadMeshFromObj(char *path, bool persistent) {
-	Mesh* checkMesh = meshExists(path);
-	if(checkMesh) return checkMesh;
+    Mesh* checkMesh = meshExists(path);
+    if (checkMesh) return checkMesh;
 
-	FILE *file = fopen(path, "r");
-	if (!file) return NULL;
+    FILE *file = fopen(path, "r");
+    if (!file) return NULL;
 
-	MeshMaterial *materials = malloc(sizeof(MeshMaterial) * 64);
-	int materialCount = 0;
-	char currentMaterial[128] = "";
+    MeshMaterial *materials = malloc(sizeof(MeshMaterial) * 64);
+    int materialCount = 0;
+    char currentMaterial[128] = "";
 
-	Uint32 vcount = 0, vtcount = 0, vncount = 0, tricount = 0;
-	objCount(path, &vcount, &vtcount, &vncount, &tricount);
+    Uint32 vcount = 0, vtcount = 0, vncount = 0, tricount = 0;
+    objCount(path, &vcount, &vtcount, &vncount, &tricount);
 
-	Mesh *mesh = calloc(1, sizeof(Mesh)); mesh->prev = NULL; mesh->next = NULL;
-	mesh->vertCount = vcount; mesh->faceCount = tricount;
-	mesh->verts = calloc(vcount, sizeof(MeshVert));
-	mesh->faces = calloc(tricount, sizeof(MeshFace));
+    Mesh *mesh = calloc(1, sizeof(Mesh));
 
-	mesh->materials = materials;
-    
-	mesh->meshType = MESHTYPE_FILE;
-	mesh->filePath = malloc(sizeof(char) * (strlen(path) + 1)); sprintf(mesh->filePath, "%s", path);
+    mesh->faceCount = tricount;
+    mesh->faces = calloc(tricount, sizeof(MeshFace));
+    mesh->materials = materials;
 
+    mesh->meshType = MESHTYPE_FILE;
+    mesh->filePath = strdup(path);
+
+    Vector3 *positions = calloc(vcount, sizeof(Vector3));
     SDL_FPoint *uvs = calloc(vtcount, sizeof(SDL_FPoint));
-	Vector3 *normals = calloc(vncount, sizeof(Vector3));
+    Vector3 *normals = calloc(vncount, sizeof(Vector3));
 
-	char line[512];
-	Uint32 vertItems = 0, vertUVItems = 0, vertNormalItems = 0, faceItems = 0;
-	while (fgets(line, sizeof(line), file)) {
-		if (line[0] == 'v' && line[1] == ' ') {
-			float r, g, b = 1;
-            	sscanf(line, "v %f %f %f, %f, %f, %f",
-				&mesh->verts[vertItems].pos.x,
-				&mesh->verts[vertItems].pos.y,
-				&mesh->verts[vertItems].pos.z,
-				&r,
-				&g,
-				&b
-			);
-			mesh->verts[vertItems].colour = (SDL_FColor){r, g, b, 1.0f};
-            	vertItems++;
-        	} else if (line[0] == 'v' && line[1] == 't') {
-            	sscanf(line, "vt %f %f",
-				&uvs[vertUVItems].x,
-				&uvs[vertUVItems].y
-			);
-			uvs[vertUVItems].y = 1 - uvs[vertUVItems].y;
-			vertUVItems++;
-		} else if (line[0] == 'v' && line[1] == 'n') {
-			sscanf(line, "vn %f %f %f",
-				&normals[vertNormalItems].x,
-				&normals[vertNormalItems].y,
-				&normals[vertNormalItems].z
-			);
-			vertNormalItems++;
-		} else if (line[0] == 'f' && line[1] == ' ') {
-			FaceIndex indexes[16];
-			int count = 0;
+    MeshVert *tempVerts = malloc(sizeof(MeshVert) * tricount * 3);
+    Uint32 tempVertCount = 0;
 
-			char *tok = strtok(line + 2, " \t\r\n");
-			while (tok && count < 16) {
-				indexes[count++] = parseFaceToken(tok);
-				tok = strtok(NULL, " \t\r\n");
-			}
-			for (int i = 1; i + 1 < count; i++) {
-				MeshFace *face = &mesh->faces[faceItems++];
-				MeshVert *a = &mesh->verts[indexes[0].vert];
-				MeshVert *b = &mesh->verts[indexes[i].vert];
-				MeshVert *c = &mesh->verts[indexes[i + 1].vert];
-				if (indexes[0].vertUV >= 0) a->uv = uvs[indexes[0].vertUV];
-				if (indexes[i].vertUV >= 0) b->uv = uvs[indexes[i].vertUV];
-				if (indexes[i+1].vertUV >= 0) c->uv = uvs[indexes[i+1].vertUV];
-				if (indexes[0].vertNorm >= 0) a->norm = normals[indexes[0].vertNorm];
-				if (indexes[i].vertNorm >= 0) b->norm = normals[indexes[i].vertNorm];
-				if (indexes[i+1].vertNorm >= 0) c->norm = normals[indexes[i+1].vertNorm];
-				face->vertA = indexes[0].vert;
-				face->vertB = indexes[i].vert;
-				face->vertC = indexes[i + 1].vert;
+    char line[512];
+    Uint32 v = 0, vt = 0, vn = 0, f = 0;
 
-				face->material.tex[0] = '\0';
+    while (fgets(line, sizeof(line), file)) {
+        if (line[0] == 'v' && line[1] == ' ') {
+            float r = 1, g = 1, b = 1;
 
-				for (int mtrl = 0; mtrl < materialCount; mtrl++) {
-					if (strcmp(materials[mtrl].name, currentMaterial) == 0) {
-						//problem part?
-						face->material = materials[mtrl]; //stores material into face.material as a whole memory duplicate for some reason
-						break;
-					}
-				}
-			}
-		} else if (strncmp(line, "mtllib ", 7) == 0) {
-			char mtlName[256];
-			sscanf(line, "mtllib %255s", mtlName);
-			materialCount = loadMtlFile(path, mtlName, materials, 64); //loads material
-		} else if (strncmp(line, "usemtl ", 7) == 0) {
-			sscanf(line, "usemtl %127s", currentMaterial);
-		}
-	}
+            sscanf(line,
+                   "v %f %f %f %f %f %f",
+                   &positions[v].x,
+                   &positions[v].y,
+                   &positions[v].z,
+                   &r, &g, &b
+				);
 
-	/*for(int i=0; i < 64; i++){
-		printf("Material %d: name %s, tex %s\n", i, materials[i].name, materials[i].tex);
-	}*/
+            v++;
+        }
+        else if (line[0] == 'v' && line[1] == 't') {
+            sscanf(line, "vt %f %f",
+                   &uvs[vt].x,
+                   &uvs[vt].y
+				);
 
-	fclose(file);
-	free(uvs);
-	free(normals);
+            uvs[vt].y = 1.0f - uvs[vt].y;
+            vt++;
+        }
+        else if (line[0] == 'v' && line[1] == 'n') {
+            sscanf(line, "vn %f %f %f",
+                   &normals[vn].x,
+                   &normals[vn].y,
+                   &normals[vn].z
+				);
+
+            vn++;
+        }
+        else if (line[0] == 'f' && line[1] == ' ') {
+            FaceIndex indexes[16];
+            int count = 0;
+
+            char *tok = strtok(line + 2, " \t\r\n");
+            while (tok && count < 16) {
+                indexes[count++] = parseFaceToken(tok);
+                tok = strtok(NULL, " \t\r\n");
+            }
+
+            for (int i = 1; i + 1 < count; i++) {
+                MeshFace *face = &mesh->faces[f++];
+
+                FaceIndex ia = indexes[0];
+                FaceIndex ib = indexes[i];
+                FaceIndex ic = indexes[i + 1];
+
+                // A
+                MeshVert *va = &tempVerts[tempVertCount];
+                va->pos = positions[ia.vert];
+                va->uv  = (ia.vertUV >= 0) ? uvs[ia.vertUV] : (SDL_FPoint){0,0};
+                va->norm = (ia.vertNorm >= 0) ? normals[ia.vertNorm] : (Vector3){0,0,0};
+                face->vertA = tempVertCount++;
+
+                // B
+                MeshVert *vb = &tempVerts[tempVertCount];
+                vb->pos = positions[ib.vert];
+                vb->uv  = (ib.vertUV >= 0) ? uvs[ib.vertUV] : (SDL_FPoint){0,0};
+                vb->norm = (ib.vertNorm >= 0) ? normals[ib.vertNorm] : (Vector3){0,0,0};
+                face->vertB = tempVertCount++;
+
+                // C
+                MeshVert *vc = &tempVerts[tempVertCount];
+                vc->pos = positions[ic.vert];
+                vc->uv  = (ic.vertUV >= 0) ? uvs[ic.vertUV] : (SDL_FPoint){0,0};
+                vc->norm = (ic.vertNorm >= 0) ? normals[ic.vertNorm] : (Vector3){0,0,0};
+                face->vertC = tempVertCount++;
+
+                face->material = NULL;
+
+                for (int m = 0; m < materialCount; m++) {
+                    if (strcmp(materials[m].name, currentMaterial) == 0) {
+                        face->material = &materials[m];
+                        break;
+                    }
+                }
+            }
+        } else if (strncmp(line, "mtllib ", 7) == 0) {
+            char mtlName[256];
+            sscanf(line, "mtllib %255s", mtlName);
+            materialCount = loadMtlFile(path, mtlName, materials, 64);
+        }
+        else if (strncmp(line, "usemtl ", 7) == 0) {
+            sscanf(line, "usemtl %127s", currentMaterial);
+        }
+    }
+
+    fclose(file);
+
+    free(mesh->verts);
+    mesh->verts = tempVerts;
+    mesh->vertCount = tempVertCount;
+
+    free(positions);
+    free(uvs);
+    free(normals);
 
     openGlGenBuffers(mesh);
+
     mesh->persistent = persistent;
 
-    if(!headMesh){
+    if (!headMesh) {
         headMesh = mesh;
         return mesh;
     }
 
-    Mesh *loopItem = headMesh;
-    while(loopItem->next){
-        loopItem = loopItem->next;
-    }
-    mesh->prev = loopItem;
-    loopItem->next = mesh;
+    Mesh *it = headMesh;
+    while (it->next) it = it->next;
+
+    it->next = mesh;
+    mesh->prev = it;
 
     return mesh;
 }
@@ -388,6 +413,7 @@ void freeMesh(Mesh* mesh){
 	if(!mesh) return;
 	free(mesh->verts); free(mesh->faces);
 	if(mesh->filePath) free(mesh->filePath);
+	if(mesh->materials) free(mesh->materials);
 
 	if(headMesh == mesh)
 		headMesh = mesh->next;
@@ -405,16 +431,16 @@ void cleanupMeshes(bool soft){
 			continue;
 		}
 		Mesh *next = currItem->next;
-		freeMesh(currItem); //still a double free?
+		freeMesh(currItem); 
 		currItem = next;
 	}
 }
 
-char* loadTextFile(char* dir){ //code salvaged from first attempt
+char* loadTextFile(char* dir){ 
     FILE *file = fopen(dir, "r");
     if (!file){
-        return NULL;
         printf("Couldn't find %s.\n", dir);
+        return NULL;
     }
 
     fseek(file, 0, SEEK_END);
@@ -428,14 +454,13 @@ char* loadTextFile(char* dir){ //code salvaged from first attempt
     }
 
     size_t readSize = fread(buffer, 1, size, file);
-    buffer[readSize] = '\0'; // null-terminate
+    buffer[readSize] = '\0';
 
     fclose(file);
     return buffer;
 }
 
 char* joinDirectories(char* dirA, char* dirB){
-    // "home/jerma985/johns/eviljohns" + "../../peters" -> "home/jerma985/peters"
     char *output = malloc(1024); strcpy(output, dirA);
 
     if(dirB[0] == '.' && dirB[1] == '/')
@@ -445,15 +470,14 @@ char* joinDirectories(char* dirA, char* dirB){
     return output;
 }
 
-//Stupid useless code because i was foolish! and fool was i!
 extern char* clientPath;
 char* formatDirectory(char* dir){
-    // "$CLIENT/assets/models/primitives/sphere.obj" -> "home/jerma985/epiccoolgames/Sandblox/assets/models/primitives/sphere.obj"
     char* output = malloc(512 * sizeof(Uint8));
 
     int slashLoc = strcspn(dir, "/");
-    char* stringPiece = malloc(slashLoc * sizeof(Uint8));
+    char* stringPiece = malloc((slashLoc + 1) * sizeof(Uint8));
     strncpy(stringPiece, dir, slashLoc);
+    stringPiece[slashLoc] = '\0';
 
     if(!strcmp(stringPiece, "$CLIENT")){
         sprintf(output, "%s%s", clientPath, dir + slashLoc + 1);

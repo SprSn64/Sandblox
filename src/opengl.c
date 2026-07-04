@@ -44,17 +44,18 @@ extern Uint32 VAO, VBO, EBO;
 extern void HandleKeyInput();
 
 Uint32 loadShader(char* vertPath, char* fragPath){
-	const char* vertSource = loadTextFile(vertPath);
+	char* vertSource = loadTextFile(vertPath);
 	Uint32 vertShader = glCreateShader(GL_VERTEX_SHADER);
-	glShaderSource(vertShader, 1, &vertSource, NULL);
+	glShaderSource(vertShader, 1, (const char**)&vertSource, NULL);
 	
-	const char* fragSource = loadTextFile(fragPath);
+	char* fragSource = loadTextFile(fragPath);
 	Uint32 fragShader = glCreateShader(GL_FRAGMENT_SHADER);
-	glShaderSource(fragShader, 1, &fragSource, NULL);
+	glShaderSource(fragShader, 1, (const char**)&fragSource, NULL);
 	
 	glCompileShader(vertShader); glCompileShader(fragShader);
 
-	//free(vertSource); free(fragSource);
+	free(vertSource); 
+    free(fragSource);
 	
 	Uint32 shaderProg = glCreateProgram();
 	glAttachShader(shaderProg, vertShader); glAttachShader(shaderProg, fragShader);
@@ -96,10 +97,11 @@ void drawMeshOpenGL(Mesh* mesh, mat4 transform, SDL_FColor colour, TextureRef* o
 
 	glBufferData(GL_ARRAY_BUFFER, sizeof(MeshVert) * mesh->vertCount, mesh->verts, GL_STATIC_DRAW);
     
-	if (overrideTexture && overrideTexture->glLoc)
+	if (overrideTexture && overrideTexture->glLoc) {
 		glBindTexture(GL_TEXTURE_2D, overrideTexture->glLoc);
-	else
+	} else {
 		glBindTexture(GL_TEXTURE_2D, glBlankTex);
+	}
 
 	TextureRef* lastTex = NULL;
 	GLuint currentTex = glBlankTex;
@@ -109,9 +111,14 @@ void drawMeshOpenGL(Mesh* mesh, mat4 transform, SDL_FColor colour, TextureRef* o
 
 	for (Uint32 i = 0; i < mesh->faceCount; ++i) {
 		MeshFace *face = &mesh->faces[i];
-		MeshMaterial currMaterial = face->material;
+		MeshMaterial noMat = {0};
+		MeshMaterial *currMaterial = face->material;
 
-		bool newTex = currMaterial.texture != lastTex;
+		if (!currMaterial) {
+			currMaterial = &noMat;
+		}
+
+		bool newTex = currMaterial->texture != lastTex;
 
 		if(newTex && idxCount > 0){
 			glBindTexture(GL_TEXTURE_2D, overrideTexture ? overrideTexture->glLoc : currentTex);
@@ -121,26 +128,9 @@ void drawMeshOpenGL(Mesh* mesh, mat4 transform, SDL_FColor colour, TextureRef* o
 		}
 
 		if(newTex){
-			currentTex = currMaterial.texture->glLoc ? currMaterial.texture->glLoc : glBlankTex;
-			lastTex = currMaterial.texture;
+			currentTex = currMaterial->texture && currMaterial->texture->glLoc ? currMaterial->texture->glLoc : glBlankTex;
+			lastTex = currMaterial->texture;
 		}
-
-        //char *texPath = face->material.tex;
-
-        /*bool newTexture = strcmp(lastTex, texPath) != 0;
-
-        if (newTexture && idxCount > 0) {
-            glBindTexture(GL_TEXTURE_2D, overrideTexture ? overrideTexture->glLoc : currentTex );
-            glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(GLuint) * idxCount, indices, GL_STATIC_DRAW);
-            glDrawElements(GL_TRIANGLES, idxCount, GL_UNSIGNED_INT, 0);
-            idxCount = 0;
-        }
-
-        if (newTexture) {
-            TextureRef *tref = loadTexture(texPath, false); //there is no need for this.
-            currentTex = tref && tref->glLoc ? tref->glLoc : glBlankTex;
-            strcpy(lastTex, texPath);
-        }*/
 
 		indices[idxCount++] = face->vertA;
 		indices[idxCount++] = face->vertB;
@@ -162,11 +152,11 @@ void deleteBuffer(Uint32 id){
 	glDeleteBuffers(1, &id);
 }
 
-void genVBO(Mesh* mesh, Uint32 id){ //crashes
-	glGenBuffers(1, &id);
-	glBindBuffer(GL_ARRAY_BUFFER, id);
+void genVBO(Mesh* mesh, Uint32* id){ 
+	/*glGenBuffers(1, id);
+	glBindBuffer(GL_ARRAY_BUFFER, *id);
 	glBufferData(GL_ARRAY_BUFFER, mesh->vertCount * sizeof(MeshVert), mesh->verts, GL_STATIC_DRAW);
-	glBindBuffer(GL_ARRAY_BUFFER, 0);
+	glBindBuffer(GL_ARRAY_BUFFER, 0);*/
 }
 void bindVBO(Uint32 id){
 	glBindBuffer(GL_ARRAY_BUFFER, id);
@@ -175,9 +165,12 @@ void unbindVBO(){
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 }
 
-void genEBO(Mesh* mesh, Uint32 id){
-	glGenBuffers(1, &id);
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, id);
+void genEBO(Mesh* mesh, Uint32* id){
+	// TODO? :
+	// this will not be valid because mesh->faces has a material alongside everything else...
+	// so its not even needed since we already do the materials and batching in drawMeshOpenGL
+	glGenBuffers(1, id);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, *id);
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, mesh->faceCount * sizeof(MeshFace), mesh->faces, GL_STATIC_DRAW);
 }
 void bindEBO(Uint32 id){
@@ -188,12 +181,9 @@ void unbindEBO(){
 }
 
 void openGlGenBuffers(Mesh* mesh){
-	(void)mesh;
-	//how the fuck do i get it working
-
-	//mesh->vertArray = 0;
-	//genVBO(mesh, mesh->vertBuffer);
-	//mesh->eleBuffer = genEBO(mesh, 0);
+    if(!mesh) return;
+    
+	genVBO(mesh, &mesh->vertBuffer);
 }
 
 float bufferGLText(TextureRef* target, Font* font, char* text, float size){
@@ -207,7 +197,6 @@ float bufferGLText(TextureRef* target, Font* font, char* text, float size){
 	clearTex(newTex, 0x00FFFFFF);
 	drawRasterText(newTex, font, text, 0, 0, size, 0xFFFFFFFF);
 
-	//updateGlTexture(target);
 	glBindTexture(GL_TEXTURE_2D, target->glLoc);
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, newTex->width, newTex->height, 0, GL_RGBA, GL_UNSIGNED_BYTE, newTex->pixels);
 	glBindTexture(GL_TEXTURE_2D, 0);
@@ -225,10 +214,10 @@ void drawGlText(Font* font, Vector3 pos, char* text, float size, SDL_FColor colo
 }
 
 FrameBuffer* newFrameBuffer(Uint16 width, Uint16 height){
-	FrameBuffer* newFB = malloc(sizeof(FrameBuffer));
+	FrameBuffer* newFB = calloc(1, sizeof(FrameBuffer));
 	if(!newFB) return NULL;
 
-	TextureRef* fbTexture = malloc(sizeof(TextureRef)); 
+	TextureRef* fbTexture = calloc(1, sizeof(TextureRef)); 
 	newFB->texture = fbTexture;
 	newFB->width = width; newFB->height = height;
 
@@ -266,8 +255,9 @@ void bindFrameBuffer(FrameBuffer* item){
 
 void freeFrameBuffer(FrameBuffer* item){
 	if(!item) return;
-	// crashes the program...
-	//if(item->texture)freeTexture(item->texture);
-	glDeleteFramebuffers(1, &item->frameBuff); glDeleteRenderbuffers(1, &item->renderBuff);
+	if(item->texture) freeTexture(item->texture); 
+	
+    glDeleteFramebuffers(1, &item->frameBuff); 
+    glDeleteRenderbuffers(1, &item->renderBuff);
 	free(item);
 }

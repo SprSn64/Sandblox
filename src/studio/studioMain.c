@@ -178,7 +178,9 @@ ctrlSkip:
 void studioCleanup(){
 	if(!studioActive) return;
 	freeTexture(classIconTex); freeTexture(stuButtonTex); 
-	free(rotateGimbleMesh); free(translateGimbleMesh);
+
+	//theyre freed automatically somehow?
+	//free(rotateGimbleMesh); free(translateGimbleMesh);
 
 	//freeTexture(studioTexRef);
 }
