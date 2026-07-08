@@ -54,10 +54,11 @@ void initPages(){
 	gamePageButtons[3] = newLableButton(buttonRefreshMaps, "Refresh Map List", (SDL_FRect){380, 2, 128, 16});
 	pageList[PAGE_GAME] = (Page){gamePageButtons, 4};
 
-	Button* avatarPageButtons = malloc(sizeof(Button) * 2);
+	Button* avatarPageButtons = malloc(sizeof(Button) * 3);
 	avatarPageButtons[0] = newTextboxButton(playerName, "Username", (SDL_FRect){96, 346, 128, 16});
 	avatarPageButtons[1] = newLableButton(buttonRefreshAvatar, "Refresh Avatar", (SDL_FRect){226, 346, 110, 16});
-	pageList[PAGE_AVATAR] = (Page){avatarPageButtons, 2};
+	avatarPageButtons[2] = newLableButton(buttonSaveAvatar, "Save Avatar", (SDL_FRect){96, 428, 240, 16});
+	pageList[PAGE_AVATAR] = (Page){avatarPageButtons, 3};
 
 	Button* settingsPageButtons = malloc(sizeof(Button) * 1);
 	settingsPageButtons[0] = newLableButton(NULL, "KILL EVERYONE!!!", (SDL_FRect){204, 208, 128, 16});

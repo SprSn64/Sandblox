@@ -8,8 +8,15 @@
 #include "structs.h"
 #include "renderer.h"
 
-void drawCodeBlock(SDL_Renderer* render, CodeBlock* item){
+#include "../math.h"
+#include "../opengl.h"
+
+extern Mesh* planePrim;
+extern float* defaultMatrix;
+void drawCodeBlock(CodeBlock* item, SDL_FPoint pos){
 	if(!item->classItem) return;
-	SDL_SetRenderDrawColor(render, item->classItem->colour.r * 255, item->classItem->colour.g * 255, item->classItem->colour.b * 255, 255);
-	SDL_RenderFillRect(render, &(SDL_FRect){item->pos.x, item->pos.y, 128, 24});
+
+	float* blockMatrix = genMatrix((Vector3){pos.x, pos.y, 0}, (Vector3){0.05, 1, 0.2}, (Vector3){HALFPI, 0, 0});
+	drawMeshOpenGL(planePrim, blockMatrix, item->classItem->colour, NULL);
+	free(blockMatrix);
 }

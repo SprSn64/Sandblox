@@ -157,8 +157,6 @@ DataObj* duplicateObject(DataObj* ogItem){
 }
 
 void removeObject(DataObj* object){
-	//object->onRemove(object);
-
 	if (object->classData->destroy)
 		object->classData->destroy(object);
 	
@@ -190,12 +188,10 @@ void removeObject(DataObj* object){
 			loopItem = loopItem->next;
 		}
 		
-		if(parentItem->child == NULL){
-			parentItem->child = childItem;
-		} else {
+		if(parentItem->child == NULL) parentItem->child = childItem;
+		else {
 			DataObj *lastChild = parentItem->child;
-			while(lastChild->next)
-				lastChild = lastChild->next;
+			while(lastChild->next) lastChild = lastChild->next;
 			lastChild->next = childItem;
 			childItem->prev = lastChild;
 		}

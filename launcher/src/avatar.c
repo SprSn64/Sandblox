@@ -222,3 +222,7 @@ void buttonRefreshAvatar(Button* item){
 	headAvatarItem = NULL;
 	loadAvatar();
 }
+
+void buttonSaveAvatar(Button* item){
+	(void)item;
+}

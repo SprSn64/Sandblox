@@ -194,10 +194,8 @@ void blockDraw(DataObj* object){
 	float *meshTransform = object->transform;
 	float *meshMatrix;
 	if(meshItem){
-		if(meshItem->props[OBJVAL_MESH])itemMesh = meshItem->props[OBJVAL_MESH];
-		if(meshItem->props[OBJVAL_TEXTURE]){
-			itemTex = meshItem->props[OBJVAL_TEXTURE];;
-		}
+		if(meshItem->props[OBJVAL_MESH]) itemMesh = meshItem->props[OBJVAL_MESH];
+		if(meshItem->props[OBJVAL_TEXTURE]) itemTex = meshItem->props[OBJVAL_TEXTURE];
 		meshMatrix = genMatrix(meshItem->pos, meshItem->scale, meshItem->rot);
 		meshTransform = multMatrix(meshMatrix, object->transform);
 	}

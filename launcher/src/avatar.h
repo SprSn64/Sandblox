@@ -19,5 +19,6 @@ void drawAvatar(SDL_Point pos);
 
 #include "input.h"
 void buttonRefreshAvatar(Button* item);
+void buttonSaveAvatar(Button* item);
 
 #endif

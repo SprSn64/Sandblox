@@ -4,7 +4,7 @@
 #include <structs.h>
 #include "structs.h"
 
-void drawCodeBlock(SDL_Renderer* render, CodeBlock* item);
+void drawCodeBlock(CodeBlock* item, SDL_FPoint pos);
 
 #endif
 

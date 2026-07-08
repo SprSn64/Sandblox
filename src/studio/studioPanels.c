@@ -18,8 +18,11 @@
 extern float aspectRatio;
 extern float* defaultMatrix;
 extern SDL_Point windowScale;
-extern SDL_FPoint mousePos;
 extern Mesh *planePrim;
+
+extern SDL_MouseButtonFlags mouseState;
+extern SDL_FPoint mousePos;
+extern ButtonMap mouseButtons[3];
 
 extern TextureRef* textBufferTex;
 extern Font defaultFont;
@@ -30,14 +33,14 @@ StudioPanel testGamePanel = {PANEL_GAME};
 StudioPanel testToolbarPanel = {PANEL_TOOLBAR};
 StudioPanel testExplorerPanel = {PANEL_EXPLORER};
 StudioPanel testConsolePanel = {PANEL_CONSOLE};
+StudioPanel testCodePanel = {PANEL_CODEEDITOR};
 
 StudioSplit testPanelC = {false, false, &testGamePanel, &testConsolePanel, 0.8, true};
-StudioSplit testPanelB = {true, false, &testPanelC, &testExplorerPanel, 0.85, false};
+StudioSplit testPanelD = {false, true, &testCodePanel, &testPanelC, 0.2, false};
+StudioSplit testPanelB = {true, false, &testPanelD, &testExplorerPanel, 0.85, false};
 StudioSplit panelHead = {false, true, &testToolbarPanel, &testPanelB, 0.1, true};
 
-void updatePanel(StudioPanel* item, SDL_FRect* area){
-	if(!withinRect(mousePos, *area)) return;
-}
+void updatePanel(StudioPanel* item, SDL_FRect* area);
 
 void updateSplit(StudioSplit* item, SDL_FRect* area){
 	SDL_FRect areaA; SDL_FRect areaB;
@@ -117,26 +120,36 @@ void drawSplit(StudioSplit* item, SDL_FRect* area){
 
 extern Mesh* frameBuffMesh;
 extern FrameBuffer* gameBuffer;
-void drawGamePanel(SDL_FRect* area){
+void drawGamePanel(StudioPanel* item, SDL_FRect* area){
+	(void)item;
+	
 	float* panelMatrix = genMatrix((Vector3){area->x + area->w * 0.5, area->y - area->h * 0.5, 0}, (Vector3){area->w * 0.5, area->h * 0.5, 1}, (Vector3){0, 0, 0});
 	drawMeshOpenGL(frameBuffMesh, panelMatrix, (SDL_FColor){1, 1, 1, 1}, gameBuffer->texture);
 	free(panelMatrix);
 }
 
 extern TextureRef* toolButtonTex;
-void drawToolbarPanel(SDL_FRect* area){
+void drawToolbarPanel(StudioPanel* item, SDL_FRect* area){
+	(void)item;
+	
 	float* panelMatrix = genMatrix((Vector3){area->x, area->y, 0}, (Vector3){area->w, 1, area->h}, (Vector3){HALFPI, 0, 0});
 	drawMeshOpenGL(planePrim, panelMatrix, (SDL_FColor){0.5, 0.5, 0.55, 1}, NULL);
 	free(panelMatrix);
 
-	float* placeholdMatrix = genMatrix((Vector3){area->x + area->h * 0.25, area->y - area->h * 0.25, 0}, (Vector3){area->h * 2, 1, area->h * 0.5}, (Vector3){HALFPI, 0, 0});
+	float* placeholdMatrix = genMatrix((Vector3){area->x + area->h * 0.25, area->y - area->h * 0.25, 0}, (Vector3){area->h * 4, 1, area->h * 0.5}, (Vector3){HALFPI, 0, 0});
 	drawMeshOpenGL(planePrim, placeholdMatrix, (SDL_FColor){1, 1, 1, 1}, toolButtonTex);
 	free(placeholdMatrix);
 }
 
+extern DataObj *focusObject;
 void drawExplorerItem(SDL_FRect* area, DataObj* item, int nodeDepth, int *idCount){
 	int i = (*idCount)++;
 
+	if(item == focusObject){
+		float* backMatrix = genMatrix((Vector3){area->x, area->y - i * 0.025, 0}, (Vector3){area->h * 2, 1, 0.025}, (Vector3){HALFPI, 0, 0});
+		drawMeshOpenGL(planePrim, backMatrix, (SDL_FColor){0.25, 0.75, 0.09, 1}, NULL);
+		free(backMatrix);
+	}
 	drawGlText(&defaultFont, (Vector3){area->x + nodeDepth * 0.05, area->y - i * 0.025, 0}, item->name, 0.025, (SDL_FColor){1, 1, 1, 1});
 
 	//if(!item->studioOpen) return;
@@ -150,7 +163,36 @@ void drawExplorerItem(SDL_FRect* area, DataObj* item, int nodeDepth, int *idCoun
 }
 
 extern ClientData client;
-void drawExplorerPanel(SDL_FRect* area){
+void selectExplorerItem(Vector3 area, SDL_FPoint mouse, DataObj* item, int *idCount){
+	int i = (*idCount)++;
+	if(mouseButtons[0].pressed && between(mouse.y - (i * 0.05 * windowScale.y), 0, 0.05 * windowScale.y))
+		focusObject = item;
+
+	DataObj* child = item->child;
+	while (child) {
+		DataObj *next = child->next;
+		selectExplorerItem(area, mouse, child, idCount);
+		child = next;
+	}
+}
+
+void updateExplorerPanel(StudioPanel* item, SDL_FRect* area){
+	(void)item;
+	
+	//Vector3 areaScreen = glToScreen((Vector3){area->x, area->y, 0});
+	//SDL_FPoint newMousePos = {areaScreen.x - mousePos.x, -(areaScreen.y - mousePos.y)};
+
+	/*if(!between(newMousePos.x - areaScreen.x, 0, area->w * windowScale.x) && !between(newMousePos.y - areaScreen.y, 0, area->h * windowScale.y)) return;
+	//printf("New mouse: x %f y %f\n", newMousePos.x, newMousePos.y);
+
+	int idCounter = 0;
+	selectExplorerItem(areaScreen, newMousePos, client.gameWorld->headObj, &idCounter);
+	*/
+}
+
+void drawExplorerPanel(StudioPanel* item, SDL_FRect* area){
+	(void)item;
+
 	float* panelMatrix = genMatrix((Vector3){area->x, area->y, 0}, (Vector3){area->w, 1, area->h}, (Vector3){HALFPI, 0, 0});
 	drawMeshOpenGL(planePrim, panelMatrix, (SDL_FColor){0.5, 0.5, 0.55, 1}, NULL);
 	free(panelMatrix);
@@ -168,7 +210,9 @@ SDL_FColor logColours[CONSOLELOG_MAX] = {
 float logTextSize = 0.02;
 extern ConsoleLog *consoleHead;
 int consoleScroll = 0;
-void drawConsolePanel(SDL_FRect* area){
+void drawConsolePanel(StudioPanel* item, SDL_FRect* area){
+	(void)item;
+
 	float* panelMatrix = genMatrix((Vector3){area->x, area->y, 0}, (Vector3){area->w, 1, area->h}, (Vector3){HALFPI, 0, 0});
 	drawMeshOpenGL(planePrim, panelMatrix, (SDL_FColor){0.2, 0.2, 0.23, 1}, NULL);
 	free(panelMatrix);
@@ -211,13 +255,34 @@ logDrawSkip:
 	PANEL_TOOLBAR, PANEL_CODEEDITOR,
 }*/
 
+#include "../blockcode/blockcode.h"
+extern CodeBlock testCodeBlock;
+void drawCodePanel(StudioPanel* item, SDL_FRect* area){
+	(void)item;
+
+	float* panelMatrix = genMatrix((Vector3){area->x, area->y, 0}, (Vector3){area->w, 1, area->h}, (Vector3){HALFPI, 0, 0});
+	drawMeshOpenGL(planePrim, panelMatrix, (SDL_FColor){0.2, 0.2, 0.23, 1}, NULL);
+	free(panelMatrix);
+
+	drawCodeBlock(&testCodeBlock, (SDL_FPoint){area->x, area->y});
+}
+
+void updatePanel(StudioPanel* item, SDL_FRect* area){
+	if(!item) return;
+
+	switch(item->type){
+		case PANEL_EXPLORER: updateExplorerPanel(item, area); break;
+	}
+}
+
 void drawPanel(StudioPanel* item, SDL_FRect* area){
 	if(!item) return;
 
 	switch(item->type){
-		case PANEL_GAME: drawGamePanel(area); break;
-		case PANEL_EXPLORER: drawExplorerPanel(area); break;
-		case PANEL_TOOLBAR: drawToolbarPanel(area); break;
-		case PANEL_CONSOLE: drawConsolePanel(area); break;
+		case PANEL_GAME: drawGamePanel(item, area); break;
+		case PANEL_EXPLORER: drawExplorerPanel(item, area); break;
+		case PANEL_TOOLBAR: drawToolbarPanel(item, area); break;
+		case PANEL_CONSOLE: drawConsolePanel(item, area); break;
+		case PANEL_CODEEDITOR: drawCodePanel(item, area); break;
 	}
 }

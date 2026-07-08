@@ -168,7 +168,7 @@ typedef struct{
 } ListData;
 
 typedef enum RotationOrder{
-	ROT_XYZ, ROT_YXZ
+	ROT_XYZ, ROT_YXZ, ROT_ZXY, ROT_ZYX
 } RotationOrder;
 
 #endif
