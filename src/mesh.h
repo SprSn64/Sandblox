@@ -1,5 +1,5 @@
-#ifndef LOADER_H
-#define LOADER_H
+#ifndef MESH_H
+#define MESH_H
 
 #include "structs.h"
 #include "renderer.h"
@@ -11,4 +11,4 @@ Mesh* genCylinderMesh(float btmRad, float topRad, float length, int res);
 Mesh* genPlaneMesh(float xScale, float yScale, Uint16 xRes, Uint16 yRes);
 void cleanupMeshes(bool soft);
 
-#endif
+#endif // MESH_H
