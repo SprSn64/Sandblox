@@ -5,7 +5,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 
-#include <structs.h>
+#include "structs.h"
 #include "../entities.h"
 #include "../instances.h"
 #include "../renderer.h"

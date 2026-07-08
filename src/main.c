@@ -11,11 +11,11 @@
 #include <math.h>
 #include <dirent.h>
 
-#include <structs.h>
+#include "structs.h"
 #include "instances.h"
 #include "renderer.h"
 #include "math.h"
-#include "loader.h"
+#include "mesh.h"
 #include "opengl.h"
 #include "gamefile.h"
 #include "bones.h"
@@ -288,7 +288,7 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[]){
 	
 	defaultMatrix = newMatrix();
 
-	testCodeBlock = (CodeBlock){&testBlockClass, (SDL_FPoint){24, 24}, NULL, NULL, NULL, NULL};
+	testCodeBlock = (CodeBlock){&testBlockClass, NULL, NULL, NULL, NULL};
 
 	//SDL_HideCursor();
 	

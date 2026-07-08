@@ -1,6 +1,6 @@
 #include "input.h"
-#include <structs.h>
-#include "loader.h"
+#include "structs.h"
+#include "mesh.h"
 
 #include <SDL3/SDL.h>
 #include <SDL3_image/SDL_image.h>

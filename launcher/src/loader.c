@@ -1,5 +1,5 @@
-#include "loader.h"
-#include <structs.h>
+#include "mesh.h"
+#include "structs.h"
 
 #include <SDL3/SDL.h>
 

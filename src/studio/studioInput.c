@@ -1,5 +1,5 @@
 #include "studio.h"
-#include <structs.h>
+#include "structs.h"
 
 #include <SDL3/SDL.h>
 #include <SDL3_image/SDL_image.h>
@@ -77,8 +77,8 @@ void drawColourPicker(SDL_Renderer* render, Button* item, CharColour* target){
 
 void drawButton(SDL_Renderer* render, Button* item){
 	if(item->image){
-		SDL_FRect* rect = &(SDL_FRect){0, 0, item->image->width, item->image->height};
-		if(item->imageSrc) rect = item->imageSrc;
+		//SDL_FRect* rect = &(SDL_FRect){0, 0, item->image->width, item->image->height};
+		//if(item->imageSrc) rect = item->imageSrc;
 		//SDL_RenderTexture(render, item->image, rect, &item->rect);
 		return;
 	}
@@ -137,7 +137,7 @@ void buttonAddObject(Button* item){
 	
 	if(newItem->classData == &blockClass){ //not piratesoftwaring here, add button object will have a dropdown of all the objects soon probably
 		CollisionHull *newColl = malloc(sizeof(CollisionHull));
-		newColl->shape = COLLHULL_CUBE; newItem->props[OBJVAL_COLLIDER] = newColl;
+		newColl->shape = COLLHULL_CUBE; newItem->objColl = newColl;
 	}
 	
 	parentItem->studioOpen = true;
@@ -159,7 +159,7 @@ static const SDL_DialogFileFilter mapLoadFilter[] = {
     {"JSON Map", "json"}, {"All File Types", "*"}
 };
 
-static void SDLCALL loadMapDialogue(void* userdata, const char* const* filelist, int filter){
+UNUSED static void SDLCALL loadMapDialogue(void* userdata, const char* const* filelist, int filter){
 	(void)userdata;
 	if (!filelist) {
 		printf("An error occured: %s\n", SDL_GetError());
@@ -190,7 +190,7 @@ static void SDLCALL loadMapDialogue(void* userdata, const char* const* filelist,
 	//client.gameWorld->currPlayer = playerObj;
 }
 
-static void SDLCALL saveMapDialogue(void* userdata, const char* const* filelist, int filter){
+UNUSED static void SDLCALL saveMapDialogue(void* userdata, const char* const* filelist, int filter){
 	(void)userdata;
 	if (!filelist) {
 		printf("An error occured: %s\n", SDL_GetError());

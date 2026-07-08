@@ -1,5 +1,5 @@
 #include "studio.h"
-#include <structs.h>
+#include "structs.h"
 
 #include <SDL3/SDL.h>
 #include <SDL3_image/SDL_image.h>
@@ -13,7 +13,7 @@
 #include "../math.h"
 #include "../instances.h"
 #include "../renderer.h"
-#include "../loader.h"
+#include "../mesh.h"
 
 #include "../softwarerender/main.h"
 
@@ -60,7 +60,7 @@ extern ButtonMap keyList[KEYBIND_MAX];
 extern Font defaultFont;
 
 void drawObjectList(DataObj* item, int nodeDepth, int *idCount);
-void drawObjectProperties(DataObj* item, int posY);
+void drawObjectProperties(DataObj* item, UNUSED int posY);
 
 //TODO: Make button list thing for less ugly looking button implementations
 
@@ -179,9 +179,6 @@ void studioCleanup(){
 	if(!studioActive) return;
 	freeTexture(classIconTex); freeTexture(stuButtonTex); 
 
-	//theyre freed automatically somehow?
-	//free(rotateGimbleMesh); free(translateGimbleMesh);
-
 	//freeTexture(studioTexRef);
 }
 
@@ -212,8 +209,8 @@ void drawObjectList(DataObj* item, int nodeDepth, int *idCount){
 	//drawText(studioRenderer, &studioFont, item->name, objListRect.x + 18/**/ + (nodeDepth * 24), 18/**/ + itemYOffset, 1.5, (SDL_FColor){1, 1, 1, 1});
 	//drawRasterText(studioTex, &defaultFont, item->name, objListRect.x + 18/**/ + (nodeDepth * 24), 18/**/ + itemYOffset, 1.5, 0xFFFFFFFF);
 	
-	SDL_Rect iconRect = {(item->classData->id % 16) * 16, (int)floor((float)item->classData->id / 16) * 16 % 256, 16, 16};
-	SDL_Rect iconPos = {objListRect.x + nodeDepth * 24, objListRect.y/**/ + itemYOffset, 16, 16};
+	//SDL_Rect iconRect = {(item->classData->id % 16) * 16, (int)floor((float)item->classData->id / 16) * 16 % 256, 16, 16};
+	//SDL_Rect iconPos = {objListRect.x + nodeDepth * 24, objListRect.y/**/ + itemYOffset, 16, 16};
 	//SDL_RenderTexture(studioRenderer, classIconTex, &iconRect, &iconPos);
 	//drawTexture(studioTex, classIconTex->texture, &iconRect, &iconPos, 0xFFFFFFFF);
 	
@@ -233,7 +230,7 @@ void drawObjectList(DataObj* item, int nodeDepth, int *idCount){
 	}
 }
 
-void drawObjectProperties(DataObj* item, int posY){
+void drawObjectProperties(DataObj* item, UNUSED int posY){
 	//excuse the slop
 	char string[256];
 	

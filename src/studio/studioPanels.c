@@ -1,5 +1,5 @@
 #include "studio.h"
-#include <structs.h>
+#include "structs.h"
 
 #include <SDL3/SDL.h>
 #include <SDL3_image/SDL_image.h>
@@ -177,7 +177,7 @@ void selectExplorerItem(Vector3 area, SDL_FPoint mouse, DataObj* item, int *idCo
 }
 
 void updateExplorerPanel(StudioPanel* item, SDL_FRect* area){
-	(void)item;
+	(void)item; (void)area;
 	
 	//Vector3 areaScreen = glToScreen((Vector3){area->x, area->y, 0});
 	//SDL_FPoint newMousePos = {areaScreen.x - mousePos.x, -(areaScreen.y - mousePos.y)};

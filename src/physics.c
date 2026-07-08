@@ -8,7 +8,7 @@
 // check if a point is inside a block's bounding box (AABB collision)
 // returns the Y position of the top of the block if collision, or -INFINITY if no collision
 float checkBlockCollisionY(Vector3 pos, float footY, DataObj* block){
-	CollisionHull *collider = block->props[OBJVAL_COLLIDER];
+	CollisionHull *collider = block->objColl;
 	
 	if(!collider) return -INFINITY; // collision disabled
 	
@@ -28,7 +28,7 @@ float checkBlockCollisionY(Vector3 pos, float footY, DataObj* block){
 
 extern ClientData client;
 float checkSphereCollisionY(Vector3 pos, DataObj* block){
-	CollisionHull *collider = block->props[OBJVAL_COLLIDER];
+	CollisionHull *collider = block->objColl;
 	
 	if(!collider) return -INFINITY; // collision disabled
 	
@@ -105,13 +105,13 @@ void resolveCollision(CollisionReturn* coll){
 
 extern DataType playerClass;
 void lazyCollisionLoop(DataObj* object, DataObj* item){
-	if(!object->props[OBJVAL_COLLIDER])
+	if(!object->objColl)
 		return;
 	DataObj* child = item->child;
 	while(child){
-		if(!child->props[OBJVAL_COLLIDER] || child == object) goto collideLoopSkip;
+		if(!child->objColl || child == object) goto collideLoopSkip;
 
-		CollisionReturn* collision = getCollision(object->props[OBJVAL_COLLIDER], child->props[OBJVAL_COLLIDER]);
+		CollisionReturn* collision = getCollision(object->objColl, child->objColl);
 		if(collision){
 			resolveCollision(collision);
 

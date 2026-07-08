@@ -9,11 +9,11 @@
 
 #include "softwarerender/main.h"
 
-#include <structs.h>
+#include "structs.h"
 #include "instances.h"
 #include "renderer.h"
 #include "math.h"
-#include "loader.h"
+#include "mesh.h"
 #include "entities.h"
 #include "physics.h"
 #include "opengl.h"
@@ -148,9 +148,9 @@ DataObj* duplicateObject(DataObj* ogItem){
 	newItem->name = newName;
 	
 	newItem->props[OBJVAL_SCRIPT] = ogItem->props[OBJVAL_SCRIPT];
-	if(ogItem->props[OBJVAL_COLLIDER]){
-		CollisionHull* newColl = malloc(sizeof(CollisionHull)); memcpy(newColl, ogItem->props[OBJVAL_COLLIDER], sizeof(CollisionHull));
-		newItem->props[OBJVAL_COLLIDER] = newColl;
+	if(ogItem->objColl){
+		CollisionHull* newColl = malloc(sizeof(CollisionHull)); memcpy(newColl, ogItem->objColl, sizeof(CollisionHull));
+		newItem->objColl = newColl;
 	}
 	
 	return newItem;

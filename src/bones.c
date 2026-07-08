@@ -5,12 +5,12 @@
 #include <math.h>
 #include <stdlib.h>
 
-#include <structs.h>
+#include "structs.h"
 #include "bones.h"
 #include "instances.h"
 #include "renderer.h"
 #include "math.h"
-#include "loader.h"
+#include "mesh.h"
 #include "opengl.h"
 
 extern Mesh* boneMesh;

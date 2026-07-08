@@ -6,8 +6,9 @@
 #include "instances.h"
 #include "entities.h"
 #include "renderer.h"
-#include "loader.h"
+#include "mesh.h"
 #include "math.h"
+#include "utils.h"
 
 extern ClientData client;
 extern DataObj gameHeader;
@@ -196,7 +197,7 @@ DataObj* createObjectFromJSON(cJSON* obj, DataObj* parent) {
         	newObj->props[OBJVAL_TEXTURE] = tex;
     }
     
-    //CollisionHull *block->props[OBJVAL_COLLIDER]
+    //CollisionHull *block->objColl
     if(collision && cJSON_IsObject(collision)) {
         cJSON* enabled = cJSON_GetObjectItem(collision, "enabled");
         cJSON* type = cJSON_GetObjectItem(collision, "type");
@@ -220,7 +221,7 @@ DataObj* createObjectFromJSON(cJSON* obj, DataObj* parent) {
                 free(collider); // no collision
         }
 	    colliderLoadSkip:
-	    newObj->props[OBJVAL_COLLIDER] = collider;
+	    newObj->objColl = collider;
     }
     
     if(scriptFile && cJSON_IsString(scriptFile)) {
@@ -429,7 +430,7 @@ void addObjToJsonArray(cJSON* array, DataObj* item){
 	if(itemScript && itemScript->funcName)
 		cJSON_AddStringToObject(newObj, "script", itemScript->funcName);
 	
-	CollisionHull *collider = item->props[OBJVAL_COLLIDER];
+	CollisionHull *collider = item->objColl;
 	
 	if(!collider) goto colliderSkip;
 	

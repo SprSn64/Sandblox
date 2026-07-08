@@ -2,7 +2,7 @@
 #define SOFTREND_DEPTH_H
 
 #include <SDL3/SDL.h>
-#include <structs.h>
+#include "structs.h"
 #include "main.h"
 #include "../renderer.h"
 
