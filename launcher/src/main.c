@@ -24,9 +24,9 @@ typedef enum operatingSystem{
 	Uint32 osType = OS_LINUX;
 #endif
 
-#include <structs.h>
+#include "structs.h"
 #include "input.h"
-#include "loader.h"
+#include "mesh.h"
 #include "pages.h"
 #include "avatar.h"
 

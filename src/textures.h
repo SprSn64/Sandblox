@@ -1,5 +1,5 @@
-#ifndef LOADER_H
-#define LOADER_H
+#ifndef TEXTURES_H
+#define TEXTURES_H
 
 #include "structs.h"
 #include "renderer.h"
@@ -14,12 +14,4 @@ void freeTexture(TextureRef* tex);
 void updateGlTexture(TextureRef* tex);
 void cleanupTextures(bool soft);
 
-Mesh *loadMeshFromObj(char* path, bool persistent);
-void cleanupMeshes(bool soft);
-
-char* loadTextFile(char* dir);
-
-char* joinDirectories(char* dirA, char* dirB);
-char* formatDirectory(char* dir);
-
-#endif
+#endif // TEXTURES_H

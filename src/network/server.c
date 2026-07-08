@@ -6,7 +6,7 @@
 #include <string.h>
 #include <math.h>
 
-#include <structs.h>
+#include "structs.h"
 #include "server.h"
 
 #ifndef __linux__
@@ -30,7 +30,7 @@ int socketfd;
 struct hostent* server;
 
 void sendNetwork(char* request){
-	
+	(void)request;
 }
 
 Server* serverInit(Uint16 port){

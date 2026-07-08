@@ -2,7 +2,7 @@
 #define SOFTREND_MAIN_H
 
 #include <SDL3/SDL.h>
-#include <structs.h>
+#include "structs.h"
 
 #include "../renderer.h"
 

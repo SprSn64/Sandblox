@@ -9,6 +9,7 @@
 #define HALFPI PI / 2
 #define RAD2DEG 180 / PI
 #define DEG2RAD PI / 180
+#define UNUSED __attribute__((unused))
 
 typedef enum gameKeybinds{
 	KEYBIND_W, KEYBIND_S, KEYBIND_A, KEYBIND_D,

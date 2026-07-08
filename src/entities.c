@@ -29,16 +29,16 @@ extern Font defaultFont;
 void killPlayer(){
 	if(!client.gameWorld->currPlayer) return;
 
+	char* printLog = malloc(256);
+	sprintf(printLog, "%s has died!\n", client.gameWorld->currPlayer->name);
+	logToConsole(printLog, CONSOLELOG_DEFAULT);
+
 	DataObj *loopItem = client.gameWorld->currPlayer->child;
 	while(loopItem){
 		DataObj *nextItem = loopItem->next;
 		removeObject(loopItem);
 		loopItem = nextItem;
 	}
-
-	char* printLog = malloc(256);
-	sprintf(printLog, "%s has died!\n", client.gameWorld->currPlayer->name);
-	logToConsole(printLog, CONSOLELOG_DEFAULT);
 
 	removeObject(client.gameWorld->currPlayer);
 	client.gameWorld->currPlayer = NULL;
@@ -181,7 +181,6 @@ void accessoryDraw(DataObj* object){
 	drawMeshOpenGL(object->props[OBJVAL_MESH], object->transform, ConvertSDLColour(object->colour), itemTex);
 }
 DataType accessoryClass = {"Accessory\0", 10, 0, NULL, accessoryUpdate, accessoryDraw, NULL};
-
 DataType meshClass = (DataType){"Mesh\0", 4, 0, NULL, NULL, NULL, NULL};
 
 void blockInit(DataObj* object){

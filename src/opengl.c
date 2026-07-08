@@ -9,11 +9,12 @@
 #include <string.h>
 #include <math.h>
 
-#include <structs.h>
+#include "structs.h"
 #include "opengl.h"
-#include "loader.h"
+#include "mesh.h"
 #include "renderer.h"
 #include "math.h"
+#include "utils.h"
 
 #include "softwarerender/main.h"
 
@@ -152,7 +153,7 @@ void deleteBuffer(Uint32 id){
 	glDeleteBuffers(1, &id);
 }
 
-void genVBO(Mesh* mesh, Uint32* id){ 
+void genVBO(UNUSED Mesh* mesh, UNUSED Uint32* id){ 
 	/*glGenBuffers(1, id);
 	glBindBuffer(GL_ARRAY_BUFFER, *id);
 	glBufferData(GL_ARRAY_BUFFER, mesh->vertCount * sizeof(MeshVert), mesh->verts, GL_STATIC_DRAW);

@@ -6,7 +6,7 @@
 #include <string.h>
 #include <math.h>
 
-#include <structs.h>
+#include "structs.h"
 #include "renderer.h"
 #include "math.h"
 #include "opengl.h"
@@ -80,122 +80,6 @@ void drawText(SDL_Renderer *renderLoc, Font *textFont, char* text, short posX, s
 		SDL_FRect sprPos = {posX + textFont->kerning.x * i * scale, posY + textFont->kerning.y * i * scale, textFont->renderSize.x * scale, textFont->renderSize.y * scale};
 		SDL_RenderTexture(renderLoc, textFont->texture->image, &sprRect, &sprPos);
 	}
-}
-
-Mesh* genTorusMesh(float outerRad, float innerRad, Uint16 ringRes, Uint16 ringCount){
-	if(ringRes < 3 || ringCount < 3) return NULL;
-	Uint32 vertCount = ringRes * ringCount;
-	Uint32 faceCount = vertCount * 2;
-	
-	MeshVert* newVerts = malloc(sizeof(MeshVert) * vertCount);
-	MeshFace* newFaces = malloc(sizeof(MeshFace) * faceCount);
-	
-	float angleRes = PI * 2 / ringRes;
-	float angleRing = PI * 2 / ringCount;
-	for(Uint32 i=0; i<vertCount; i++){
-		float newAngle = angleRing * floor(i / ringRes);
-		newVerts[i].pos = (Vector3){
-			(outerRad + SDL_cos(angleRes * (i % ringRes)) * innerRad) * SDL_cos(newAngle), 
-			SDL_sin(angleRes * (i % ringRes)) * innerRad, 
-			(outerRad + SDL_cos(angleRes * (i % ringRes)) * innerRad) * SDL_sin(newAngle),
-		};
-		newVerts[i].norm = (Vector3){
-			SDL_cos(angleRes * (i % ringRes)) * SDL_cos(newAngle),
-			SDL_sin(angleRes * (i % ringRes)),
-			SDL_cos(angleRes * (i % ringRes)) * SDL_sin(newAngle),
-		};
-		newVerts[i].uv = (SDL_FPoint){
-			newAngle / (2 * PI),
-			angleRes * (i % ringRes) / (2 * PI),
-		};
-	}
-	
-	for(Uint32 i=0; i<faceCount/2; i++){
-		Uint32 newI = i * 2;
-		//MeshVert *quadVerts[4] = {&newVerts[i], &newVerts[(i+1) % vertCount], &newVerts[(i + ringRes) % vertCount], &newVerts[(i+1 + ringRes) % vertCount]};
-		
-		newFaces[newI] = (MeshFace){i, (i+1) % vertCount, (i + ringRes) % vertCount, 0};
-		newFaces[(newI + 1)] = (MeshFace){(i + ringRes) % vertCount, (i+1) % vertCount, (i+1 + ringRes) % vertCount, 0};
-	}
-	
-	Mesh* newMesh = malloc(sizeof(Mesh)); newMesh->persistent = false;
-	newMesh->vertCount = vertCount; newMesh->verts = newVerts; newMesh->faceCount = faceCount; newMesh->faces = newFaces; 
-	newMesh->meshType = MESHTYPE_TORUS;
-	return newMesh;
-}
-
-Mesh* genCylinderMesh(float btmRad, float topRad, float length, int res){
-	if(fabs(btmRad) + fabs(topRad) == 0 || length == 0 || res < 3) return NULL;
-	Uint32 vertCount = res * 2;
-	Uint32 faceCount = 4 * res - 4;
-	
-	MeshVert* newVerts = malloc(sizeof(MeshVert) * vertCount);
-	MeshFace* newFaces = malloc(sizeof(MeshFace) * faceCount);
-	
-	float angleRes = PI * 2 / res;
-	for(Uint32 i=0; i<vertCount; i++){
-		float sideRad = lerp(btmRad, topRad, floor(i / res));
-		newVerts[i].pos = (Vector3){
-			SDL_cos(angleRes * (i % res)) * sideRad,
-			(1 - 2 * floor(i / res)) * length / 2,
-			SDL_sin(angleRes * (i % res)) * sideRad,
-		};
-		newVerts[i].norm = normalize3((Vector3){
-			SDL_cos(angleRes * (i % res)),
-			(1 - floor(i / res) * 2) / 2,
-			SDL_sin(angleRes * (i % res)),
-		});
-	}
-	
-	for(int i=0; i<res; i++){
-		int newI = i * 2;
-		//MeshVert *quadVerts[4] = {&newVerts[i], &newVerts[(i+1) % res], &newVerts[(i + res)], &newVerts[(i+1)%res + res]};
-		
-		newFaces[newI] = (MeshFace){i, (i+1) % res, i + res, 0};
-		newFaces[(newI + 1)] = (MeshFace){i + res, (i+1) % res, (i+1)%res + res, 0};
-	}
-	
-	for(int i=0; i<res-2; i++){
-		int newI = 2 * res + i;
-		newFaces[newI] = (MeshFace){i, 0, (i + 1) % res, 0};
-		newFaces[newI + res - 2] = (MeshFace){res, i + res, res + (i+1) % res, 0};
-	}
-	
-	Mesh* newMesh = malloc(sizeof(Mesh)); newMesh->persistent = false;
-	newMesh->vertCount = vertCount; newMesh->verts = newVerts; newMesh->faceCount = faceCount; newMesh->faces = newFaces; 
-	newMesh->meshType = MESHTYPE_CYLINDER;
-	return newMesh;
-}
-
-Mesh* genPlaneMesh(float xScale, float yScale, Uint16 xRes, Uint16 yRes){
-	if(fabs(xScale) + fabs(yScale) == 0 || xRes + yRes == 0) return 0;
-	
-	Uint32 vertCount = (xRes + 1) * (yRes + 1);
-	Uint32 faceCount = xRes * yRes * 2;
-	
-	MeshVert* newVerts = malloc(sizeof(MeshVert) * vertCount);
-	MeshFace* newFaces = malloc(sizeof(MeshFace) * faceCount);
-	
-	for(Uint32 i=0; i<vertCount; i++){
-		newVerts[i].pos = (Vector3){
-			floor(i / (xRes + 1)) * (xScale / xRes), 
-			0, 
-			(i % (xRes + 1)) * (yScale / yRes),
-		};
-		newVerts[i].norm = (Vector3){0, 1, 0};
-		newVerts[i].uv = (SDL_FPoint){floor(i / (xRes + 1)) / xRes, (i % (xRes + 1)) / yRes};
-	}
-	for(Uint32 i=0; i<faceCount/2; i++){
-		Uint32 newI = i * 2;
-		
-		newFaces[newI] = (MeshFace){i, i+1, i + xRes + 1, 0};
-		newFaces[(newI + 1)] = (MeshFace){i + xRes + 1, i+1, i + 2 + xRes, 0};
-	}
-	
-	Mesh* newMesh = malloc(sizeof(Mesh)); newMesh->persistent = false;
-	newMesh->vertCount = vertCount; newMesh->verts = newVerts; newMesh->faceCount = faceCount; newMesh->faces = newFaces; 
-	newMesh->meshType = MESHTYPE_PLANE;
-	return newMesh;
 }
 
 void setDrawColour(SDL_Renderer *render, CharColour colour){

@@ -1,7 +1,7 @@
 #ifndef GAMEOPENGL_H
 #define GAMEOPENGL_H
 
-#include <structs.h>
+#include "structs.h"
 #include "renderer.h"
 
 typedef enum glValueLocations{

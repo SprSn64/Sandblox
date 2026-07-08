@@ -1,7 +1,7 @@
 #ifndef ENTITIES_H
 #define ENTITIES_H
 
-#include <structs.h>
+#include "structs.h"
 
 /*void playerInit(DataObj* object);
 void playerUpdate(DataObj* object);

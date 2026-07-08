@@ -4,7 +4,7 @@
 #include <SDL3/SDL.h>
 #include <SDL3_image/SDL_image.h>
 
-#include <structs.h>
+#include "structs.h"
 
 typedef struct{
 	Vector3 pos, norm;
@@ -96,9 +96,5 @@ SDL_FColor ConvertSDLColour(CharColour colour);
 CharColour ConvertColour(CharColour colour, Uint32 mode);
 
 void drawBillboard(TextureRef *texture, SDL_FRect rect, Vector3 pos, SDL_FPoint offset, SDL_FPoint scale);
-
-Mesh* genTorusMesh(float outerRad, float innerRad, Uint16 ringRes, Uint16 ringCount);
-Mesh* genCylinderMesh(float btmRad, float topRad, float length, int res);
-Mesh* genPlaneMesh(float xScale, float yScale, Uint16 xRes, Uint16 yRes);
 
 #endif

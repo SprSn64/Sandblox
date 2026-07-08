@@ -1,7 +1,7 @@
 #ifndef GAMEFILE_H
 #define GAMEFILE_H
 
-#include <structs.h>
+#include "structs.h"
 
 int loadGameFile(const char* filename);
 int saveGameFile(const char* filename);

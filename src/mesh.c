@@ -5,157 +5,35 @@
 #include <stdlib.h>
 #include <math.h>
 
-#include "loader.h"
+#include "mesh.h"
 #include "opengl.h"
+#include "math.h"
 
-TextureRef* headTexture = NULL;
 Mesh* headMesh = NULL;
-
-extern SDL_Renderer* renderer;
-SDL_Texture *newTexture(char* path, SDL_ScaleMode scaleMode){
-	SDL_Texture *texture = IMG_LoadTexture(renderer, path);
-	if(texture == NULL){
-		printf("Issue with loading SDL texture %s!\n", path);
-		return NULL;
-	}
-	SDL_SetTextureScaleMode(texture, scaleMode);
-	return texture;
-}
-
-Texture* newRasterTexture(Uint16 width, Uint16 height){
-	Texture* newTexture = malloc(sizeof(Texture));
-	if(!newTexture){
-		printf("Failed to generate texture of size %dx%d\n", width, height);
-		return NULL;
-	}
-	newTexture->width = width; newTexture->height = height;
-	newTexture->pixels = malloc(width * height * sizeof(Uint32));
-	
-	if(!newTexture->pixels){
-	    free(newTexture);
-	    return NULL;
-	}
-	
-	printf("Succesfully made texture of size %dx%d\n", width, height);
-	return newTexture;
-}
-
-bool freeRasterTexture(Texture* tex){
-	if(!tex) return 1;
-	free(tex->pixels); free(tex);
-	return 0;
-}
-
-Texture* loadRasterTexture(char* path){
-	SDL_Surface* newSurface = IMG_Load(path); if(!newSurface) return NULL;
-	Texture* newTex = newRasterTexture(newSurface->w, newSurface->h);
-
-	memcpy(newTex->pixels, newSurface->pixels, (Uint32)newSurface->w*newSurface->h * sizeof(Uint32)); 
-
-	SDL_DestroySurface(newSurface);
-	return newTex;
-}
-
-TextureRef* textureExists(char* path){
-	TextureRef *loopItem = headTexture;
-	while(loopItem){
-		if(!strcmp(loopItem->filePath, path))
-			return loopItem;
-		loopItem = loopItem->next;
-	}
-	return NULL;
-}
-
-TextureRef* loadTexture(char* path, bool persistent){
-	TextureRef* texCheck = textureExists(path);
-	if(texCheck){
-		printf("Texture %s already exists...\n", path);
-		return texCheck;
-	}
-
-	TextureRef* texItem = calloc(1, sizeof(TextureRef));
-	if(!texItem) return NULL;
-	texItem->filePath = strdup(path);
-	texItem->persistent = persistent;
-
-	Texture* texture = loadRasterTexture(path);
-	if(!texture) {
-	    free(texItem->filePath);
-	    free(texItem);
-	    return NULL;
-	}
-	texItem->texture = texture;
-
-	glGenTextures(1, &texItem->glLoc);
-	glActiveTexture(GL_TEXTURE0);
-	glBindTexture(GL_TEXTURE_2D, texItem->glLoc);
-
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-	
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, texture->width, texture->height, 0, GL_RGBA, GL_UNSIGNED_BYTE, texture->pixels);
-	glGenerateMipmap(GL_TEXTURE_2D);
-
-	glBindTexture(GL_TEXTURE_2D, 0);
-
-	if(!headTexture){
-		headTexture = texItem;
-		return texItem;
-	}
-
-	TextureRef *loopItem = headTexture;
-	while(loopItem->next){
-		loopItem = loopItem->next;
-	}
-	texItem->prev = loopItem;
-	loopItem->next = texItem;
-
-	return texItem;
-}
-
-void updateGlTexture(TextureRef* tex){
-	glBindTexture(GL_TEXTURE_2D, tex->glLoc);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, tex->texture->width, tex->texture->height, 0, GL_RGBA, GL_UNSIGNED_BYTE, tex->texture->pixels);
-	glBindTexture(GL_TEXTURE_2D, 0);
-}
-
-void freeTexture(TextureRef* tex){
-	if(!tex) return;
-	if(tex->image)SDL_DestroyTexture(tex->image);
-	if(tex->texture)freeRasterTexture(tex->texture);
-	if(tex->glLoc)glDeleteTextures(1, &tex->glLoc);
-	if(tex->filePath)free(tex->filePath);
-
-	if(headTexture == tex)
-		headTexture = tex->next;
-
-	if(tex->next)tex->next->prev = tex->prev;
-	if(tex->prev)tex->prev->next = tex->next;
-	free(tex);
-}
-
-void cleanupTextures(bool soft){
-	TextureRef* currItem = headTexture;
-	while (currItem) {
-		if(soft && currItem->persistent){
-			currItem = currItem->next;
-			continue;
-		}
-
-		TextureRef *next = currItem->next;
-		freeTexture(currItem); 
-		currItem = next;
-	}
-}
 
 Mesh* meshExists(char* path){
 	Mesh *loopItem = headMesh;
 	while(loopItem){
-		if(strcmp(loopItem->filePath, path) == 0)
-			return loopItem;
+        if (loopItem->filePath) {
+            if(strcmp(loopItem->filePath, path) == 0)
+                return loopItem;
+        }
 		loopItem = loopItem->next;
 	}
 	return NULL;
+}
+
+Mesh *addMeshToList(Mesh* mesh) {
+    if (!headMesh) {
+        return headMesh = mesh;
+    }
+
+    Mesh *it = headMesh;
+    while (it->next) it = it->next;
+
+    it->next = mesh;
+    mesh->prev = it;
+    return mesh;
 }
 
 typedef struct {
@@ -266,7 +144,7 @@ Mesh* loadMeshFromObj(char *path, bool persistent) {
     FILE *file = fopen(path, "r");
     if (!file) return NULL;
 
-    MeshMaterial *materials = malloc(sizeof(MeshMaterial) * 64);
+    MeshMaterial *materials = calloc(1, sizeof(MeshMaterial) * 64);
     int materialCount = 0;
     char currentMaterial[128] = "";
 
@@ -286,7 +164,7 @@ Mesh* loadMeshFromObj(char *path, bool persistent) {
     SDL_FPoint *uvs = calloc(vtcount, sizeof(SDL_FPoint));
     Vector3 *normals = calloc(vncount, sizeof(Vector3));
 
-    MeshVert *tempVerts = malloc(sizeof(MeshVert) * tricount * 3);
+    MeshVert *tempVerts = calloc(1, sizeof(MeshVert) * tricount * 3);
     Uint32 tempVertCount = 0;
 
     char line[512];
@@ -395,18 +273,124 @@ Mesh* loadMeshFromObj(char *path, bool persistent) {
 
     mesh->persistent = persistent;
 
-    if (!headMesh) {
-        headMesh = mesh;
-        return mesh;
-    }
+    return addMeshToList(mesh);
+}
 
-    Mesh *it = headMesh;
-    while (it->next) it = it->next;
+Mesh* genTorusMesh(float outerRad, float innerRad, Uint16 ringRes, Uint16 ringCount){
+	if(ringRes < 3 || ringCount < 3) return NULL;
+	Uint32 vertCount = ringRes * ringCount;
+	Uint32 faceCount = vertCount * 2;
+	
+	MeshVert* newVerts = calloc(1, sizeof(MeshVert) * vertCount);
+	MeshFace* newFaces = calloc(1, sizeof(MeshFace) * faceCount);
+	
+	float angleRes = PI * 2 / ringRes;
+	float angleRing = PI * 2 / ringCount;
+	for(Uint32 i=0; i<vertCount; i++){
+		float newAngle = angleRing * floor(i / ringRes);
+		newVerts[i].pos = (Vector3){
+			(outerRad + SDL_cos(angleRes * (i % ringRes)) * innerRad) * SDL_cos(newAngle), 
+			SDL_sin(angleRes * (i % ringRes)) * innerRad, 
+			(outerRad + SDL_cos(angleRes * (i % ringRes)) * innerRad) * SDL_sin(newAngle),
+		};
+		newVerts[i].norm = (Vector3){
+			SDL_cos(angleRes * (i % ringRes)) * SDL_cos(newAngle),
+			SDL_sin(angleRes * (i % ringRes)),
+			SDL_cos(angleRes * (i % ringRes)) * SDL_sin(newAngle),
+		};
+		newVerts[i].uv = (SDL_FPoint){
+			newAngle / (2 * PI),
+			angleRes * (i % ringRes) / (2 * PI),
+		};
+	}
+	
+	for(Uint32 i=0; i<faceCount/2; i++){
+		Uint32 newI = i * 2;
+		//MeshVert *quadVerts[4] = {&newVerts[i], &newVerts[(i+1) % vertCount], &newVerts[(i + ringRes) % vertCount], &newVerts[(i+1 + ringRes) % vertCount]};
+		
+		newFaces[newI] = (MeshFace){i, (i+1) % vertCount, (i + ringRes) % vertCount, 0};
+		newFaces[(newI + 1)] = (MeshFace){(i + ringRes) % vertCount, (i+1) % vertCount, (i+1 + ringRes) % vertCount, 0};
+	}
+	
+	Mesh* newMesh = calloc(1, sizeof(Mesh)); newMesh->persistent = false;
+	newMesh->vertCount = vertCount; newMesh->verts = newVerts; newMesh->faceCount = faceCount; newMesh->faces = newFaces; 
+	newMesh->meshType = MESHTYPE_TORUS;
 
-    it->next = mesh;
-    mesh->prev = it;
+	return addMeshToList(newMesh);
+}
 
-    return mesh;
+Mesh* genCylinderMesh(float btmRad, float topRad, float length, int res){
+	if(fabs(btmRad) + fabs(topRad) == 0 || length == 0 || res < 3) return NULL;
+	Uint32 vertCount = res * 2;
+	Uint32 faceCount = 4 * res - 4;
+	
+	MeshVert* newVerts = calloc(1, sizeof(MeshVert) * vertCount);
+	MeshFace* newFaces = calloc(1, sizeof(MeshFace) * faceCount);
+	
+	float angleRes = PI * 2 / res;
+	for(Uint32 i=0; i<vertCount; i++){
+		float sideRad = lerp(btmRad, topRad, floor(i / res));
+		newVerts[i].pos = (Vector3){
+			SDL_cos(angleRes * (i % res)) * sideRad,
+			(1 - 2 * floor(i / res)) * length / 2,
+			SDL_sin(angleRes * (i % res)) * sideRad,
+		};
+		newVerts[i].norm = normalize3((Vector3){
+			SDL_cos(angleRes * (i % res)),
+			(1 - floor(i / res) * 2) / 2,
+			SDL_sin(angleRes * (i % res)),
+		});
+	}
+	
+	for(int i=0; i<res; i++){
+		int newI = i * 2;
+		//MeshVert *quadVerts[4] = {&newVerts[i], &newVerts[(i+1) % res], &newVerts[(i + res)], &newVerts[(i+1)%res + res]};
+		
+		newFaces[newI] = (MeshFace){i, (i+1) % res, i + res, 0};
+		newFaces[(newI + 1)] = (MeshFace){i + res, (i+1) % res, (i+1)%res + res, 0};
+	}
+	
+	for(int i=0; i<res-2; i++){
+		int newI = 2 * res + i;
+		newFaces[newI] = (MeshFace){i, 0, (i + 1) % res, 0};
+		newFaces[newI + res - 2] = (MeshFace){res, i + res, res + (i+1) % res, 0};
+	}
+	
+	Mesh* newMesh = calloc(1, sizeof(Mesh)); newMesh->persistent = false;
+	newMesh->vertCount = vertCount; newMesh->verts = newVerts; newMesh->faceCount = faceCount; newMesh->faces = newFaces; 
+	newMesh->meshType = MESHTYPE_CYLINDER;
+	return addMeshToList(newMesh);
+}
+
+Mesh* genPlaneMesh(float xScale, float yScale, Uint16 xRes, Uint16 yRes){
+	if(fabs(xScale) + fabs(yScale) == 0 || xRes + yRes == 0) return 0;
+	
+	Uint32 vertCount = (xRes + 1) * (yRes + 1);
+	Uint32 faceCount = xRes * yRes * 2;
+	
+	MeshVert* newVerts = calloc(1, sizeof(MeshVert) * vertCount);
+	MeshFace* newFaces = calloc(1, sizeof(MeshFace) * faceCount);
+	
+	for(Uint32 i=0; i<vertCount; i++){
+		newVerts[i].pos = (Vector3){
+			floor(i / (xRes + 1)) * (xScale / xRes), 
+			0, 
+			(i % (xRes + 1)) * (yScale / yRes),
+		};
+		newVerts[i].norm = (Vector3){0, 1, 0};
+		newVerts[i].uv = (SDL_FPoint){floor(i / (xRes + 1)) / xRes, (i % (xRes + 1)) / yRes};
+	}
+	for(Uint32 i=0; i<faceCount/2; i++){
+		Uint32 newI = i * 2;
+		
+		newFaces[newI] = (MeshFace){i, i+1, i + xRes + 1, 0};
+		newFaces[(newI + 1)] = (MeshFace){i + xRes + 1, i+1, i + 2 + xRes, 0};
+	}
+	
+	Mesh* newMesh = calloc(1, sizeof(Mesh)); newMesh->persistent = false;
+	newMesh->vertCount = vertCount; newMesh->verts = newVerts; newMesh->faceCount = faceCount; newMesh->faces = newFaces; 
+	newMesh->meshType = MESHTYPE_PLANE;
+	return addMeshToList(newMesh);
 }
 
 void freeMesh(Mesh* mesh){
@@ -434,60 +418,4 @@ void cleanupMeshes(bool soft){
 		freeMesh(currItem); 
 		currItem = next;
 	}
-}
-
-char* loadTextFile(char* dir){ 
-    FILE *file = fopen(dir, "r");
-    if (!file){
-        printf("Couldn't find %s.\n", dir);
-        return NULL;
-    }
-
-    fseek(file, 0, SEEK_END);
-    long size = ftell(file);
-    rewind(file);
-
-    char *buffer = malloc(size + 1);
-    if (!buffer){
-        fclose(file);
-        return NULL;
-    }
-
-    size_t readSize = fread(buffer, 1, size, file);
-    buffer[readSize] = '\0';
-
-    fclose(file);
-    return buffer;
-}
-
-char* joinDirectories(char* dirA, char* dirB){
-    char *output = malloc(1024); strcpy(output, dirA);
-
-    if(dirB[0] == '.' && dirB[1] == '/')
-        sprintf(output, "%s%s", dirA, dirB + 1);
-
-    printf("%s\n", output);
-    return output;
-}
-
-extern char* clientPath;
-char* formatDirectory(char* dir){
-    char* output = malloc(512 * sizeof(Uint8));
-
-    int slashLoc = strcspn(dir, "/");
-    char* stringPiece = malloc((slashLoc + 1) * sizeof(Uint8));
-    strncpy(stringPiece, dir, slashLoc);
-    stringPiece[slashLoc] = '\0';
-
-    if(!strcmp(stringPiece, "$CLIENT")){
-        sprintf(output, "%s%s", clientPath, dir + slashLoc + 1);
-        printf("!-- String %s is in client\n", output);
-    }else
-        strcpy(output, dir);
-
-    printf("!-- output is %s\n", output);
-
-    free(stringPiece);
-
-    return output;
 }

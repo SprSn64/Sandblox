@@ -3,7 +3,7 @@
 
 #include <SDL3/SDL.h>
 
-#include <structs.h>
+#include "structs.h"
 
 typedef struct NotiPopup{
 	char* text;
