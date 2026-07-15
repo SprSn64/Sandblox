@@ -203,6 +203,7 @@ DataObj* createObjectFromJSON(cJSON* obj, DataObj* parent) {
         cJSON* type = cJSON_GetObjectItem(collision, "type");
 	  
 	    CollisionHull *collider = malloc(sizeof(CollisionHull));
+	    collider->offset = (Vector3){0, 0, 0}; collider->scale = newObj->scale;
         
         if(!(enabled && cJSON_IsBool(enabled))) {
 		  free(collider); goto colliderLoadSkip;

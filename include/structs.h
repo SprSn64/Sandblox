@@ -149,7 +149,7 @@ typedef enum CollisionHullShapes{
 typedef struct CollisionHull{
 	DataObj* parent;
 	Uint32 shape;
-	Vector3 pos, rot, scale;
+	Vector3 pos, rot, scale, offset;
 
 	bool active; //no physics when false
 	float mass; //either this or density

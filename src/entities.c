@@ -63,7 +63,7 @@ void playerInit(DataObj* object){
 	object->objColl = calloc(1, sizeof(CollisionHull));
 	CollisionHull* collision = object->objColl;
 	collision->parent = object; collision->shape = COLLHULL_CUBE;
-	collision->pos = (Vector3){-0.5, 4, -0.5}; collision->scale = (Vector3){1, 4, 1};
+	collision->offset = (Vector3){-0.5, 4, -0.5}; collision->scale = (Vector3){1, 4, 1};
 	collision->active = true;
 }
 void playerUpdate(DataObj* object){
@@ -87,24 +87,24 @@ void playerUpdate(DataObj* object){
 		object->rot.y = game.currCamera->rot.y;
 	}
 	
-	float floorY = findFloorY(object->pos, object->pos.y, game.headObj);
-	//lazyCollisionLoop(object, game.headObj);
+	//float floorY = findFloorY(object->pos, object->pos.y, game.headObj);
 	
-	float friction = 0.90 - 0.005 * (floorY > -INFINITY && object->pos.y <= floorY);
+	playerVel->y += deltaTime * (-60 + 30 * (keyList[KEYBIND_SPACE].down && playerVel->y > 0));
+
+	bool collided = lazyCollisionLoop(object, game.headObj);
+
+	float friction = 0.90 - 0.005 * collided;
 	float acc = 1.2;
 	
 	playerVel->x = (playerVel->x + playerMove.x * acc) * friction;
 	playerVel->z = (playerVel->z + playerMove.y * acc) * friction;
 
-	playerVel->y += deltaTime * (-60 + 30 * (keyList[KEYBIND_SPACE].down && playerVel->y > 0));
+	if(collided){
+		playerVel->y = 20 * keyList[KEYBIND_SPACE].pressed;
+	}
 	
 	if(fabs(playerVel->x) + fabs(playerVel->z) > 0.008 || playerVel->y != 0)
 		object->pos = (Vector3){object->pos.x + playerVel->x * deltaTime, object->pos.y + playerVel->y * deltaTime, object->pos.z + playerVel->z * deltaTime};
-
-	if(floorY > -INFINITY && object->pos.y <= floorY){
-		object->pos.y = floorY;
-		playerVel->y = 20 * keyList[KEYBIND_SPACE].pressed;
-	}
 
 	object->colour.a = min(game.currCamera->focusDist / 2, 1) * 255;
 	game.currCamera->pos = (Vector3){

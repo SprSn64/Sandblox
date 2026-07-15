@@ -49,6 +49,8 @@ extern Mesh *cubePrim;
 void updateObjects(DataObj* item){
 	item->rot = (Vector3){fmod(item->rot.x, PI * 2), fmod(item->rot.y, PI * 2), fmod(item->rot.z, PI * 2)};
 	if(item->classData->update)item->classData->update(item);
+	CollisionHull* collision = item->objColl;
+	if(collision)collision->pos = vec3Add(item->pos, collision->offset);
 
 	DataObj* child = item->child;
 	while (child) {
@@ -61,8 +63,14 @@ void updateObjects(DataObj* item){
 void drawObjects(DataObj* item){
 	if(!item->classData->draw) goto noDraw;
 
-	item->transform = genMatrix(item->pos, item->scale, item->rot);
+	/*CollisionHull *collider = item->objColl;
+	if(collider && collider->shape == COLLHULL_CUBE){
+		float* collTransform = genMatrix(collider->pos, collider->scale, (Vector3){0, 0, 0});
+		drawMeshOpenGL(cubePrim, collTransform, (SDL_FColor){1, 0, 0, 0.5}, NULL);
+		free(collTransform);
+	}*/
 	
+	item->transform = genMatrix(item->pos, item->scale, item->rot);
 	item->classData->draw(item);
 	if(item == focusObject && client.studio){
 		setGlValue(GL_DEPTH_TEST, false);
