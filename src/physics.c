@@ -5,6 +5,8 @@
 #include "physics.h"
 #include "math.h"
 
+#include "instances.h"
+
 // check if a point is inside a block's bounding box (AABB collision)
 // returns the Y position of the top of the block if collision, or -INFINITY if no collision
 float checkBlockCollisionY(Vector3 pos, float footY, DataObj* block){
@@ -75,8 +77,33 @@ CollisionReturn* getCollision(CollisionHull* itemA, CollisionHull* itemB){
 			return NULL;
 		
 		output = malloc(sizeof(CollisionReturn));
-		output->outNorm = (Vector3){0, itemB->pos.y - itemA->pos.y + itemA->scale.y, 0};
 		output->hullA = itemA; output->hullB = itemB;
+
+		float distList[6] = {
+/*MINDIST_PX*/	fabs(itemB->pos.x - itemA->pos.x - itemA->scale.x),
+/*MINDIST_NX*/	fabs((itemB->pos.x + itemB->scale.x) - itemA->pos.x),
+/*MINDIST_PY*/	fabs(itemB->pos.y - itemA->pos.y + itemA->scale.y),// - 1.2,
+/*MINDIST_NY*/	fabs((itemB->pos.y + itemB->scale.y) - (itemA->pos.y + itemA->scale.y)),
+/*MINDIST_PZ*/	fabs(itemB->pos.z - itemA->pos.z - itemA->scale.z),
+/*MINDIST_NZ*/	fabs((itemB->pos.z + itemB->scale.z) - itemA->pos.z),
+		};
+
+		Uint16 smallestIndex = minIndex(distList, 6);
+		//char* smallIndex = malloc(64); sprintf(smallIndex, "Smallest Index: %d (%f)", smallestIndex, distList[smallestIndex]);
+		//sendPopup(smallIndex, NULL, NULL, 0.06);
+		switch(smallestIndex){
+			case MINDIST_PX: output->outNorm = (Vector3){itemB->pos.x - itemA->pos.x - itemA->scale.x, 0, 0}; break;
+			case MINDIST_NX: output->outNorm = (Vector3){(itemB->pos.x + itemB->scale.x) - itemA->pos.x, 0, 0}; break;
+
+			case MINDIST_PY: output->outNorm = (Vector3){0, itemB->pos.y - itemA->pos.y + itemA->scale.y, 0}; break;
+			case MINDIST_NY: output->outNorm = (Vector3){0, (itemA->pos.y + itemA->scale.y) - (itemB->pos.y + itemB->scale.y), 0}; break;
+
+			case MINDIST_PZ: output->outNorm = (Vector3){0, 0, itemB->pos.z - itemA->pos.z - itemA->scale.z}; break;
+			case MINDIST_NZ: output->outNorm = (Vector3){0, 0, (itemB->pos.z + itemB->scale.z) - itemA->pos.z}; break;
+
+			default: output->outNorm = (Vector3){0, itemB->pos.y - itemA->pos.y + itemA->scale.y, 0}; break;
+		}
+		
 		return output;
 	}
 
@@ -98,24 +125,25 @@ CollisionReturn* getCollision(CollisionHull* itemA, CollisionHull* itemB){
 }
 
 void resolveCollision(CollisionReturn* coll){
-	if(!coll->hullA->active && !coll->hullB->active) return;
+	//if(!coll->hullA->active && !coll->hullB->active) return;
 
 	bool bothFix = (!coll->hullA->active && !coll->hullB->active) && (coll->hullA->active != coll->hullB->active);
 	(void)bothFix;
 
 	DataObj* itemA = coll->hullA->parent;
-	DataObj* itemB = coll->hullB->parent;
-	if(!itemA || !itemB) return;
+	//DataObj* itemB = coll->hullB->parent;
+	//if(!itemA || !itemB) return;
+	if(!itemA) return;
 	itemA->pos = (Vector3){itemA->pos.x + coll->outNorm.x, itemA->pos.y + coll->outNorm.y, itemA->pos.z + coll->outNorm.z};
 
 	//printf("Resolved collision between %s and %s with an intersect normal of %f, %f, %f\n", itemA->name, itemB->name, coll->outNorm.x, coll->outNorm.y, coll->outNorm.z);
 }
 
 extern DataType playerClass;
-bool lazyCollisionLoop(DataObj* object, DataObj* item){
+Vector3 lazyCollisionLoop(DataObj* object, DataObj* item){
 	if(!object->objColl)
-		return false;
-	bool collided = false;
+		return (Vector3){0, 0, 0};
+	Vector3 totalOut = {0, 0, 0};
 	DataObj* child = item->child;
 	while(child){
 		if(!child->objColl || child == object) goto collideLoopSkip;
@@ -123,13 +151,12 @@ bool lazyCollisionLoop(DataObj* object, DataObj* item){
 		CollisionReturn* collision = getCollision(object->objColl, child->objColl);
 		if(collision){
 			resolveCollision(collision);
+			totalOut = vec3Add(totalOut, collision->outNorm);
 			free(collision);
-
-			collided = true;
 		}
 collideLoopSkip:
-		collided = lazyCollisionLoop(object, child) || collided;
+		totalOut = vec3Add(totalOut, lazyCollisionLoop(object, child));
 		child = child->next;
 	}
-	return collided;
+	return totalOut;
 }

@@ -7,16 +7,19 @@ float dotProd2(SDL_FPoint vecA, SDL_FPoint vecB);
 float dotProd3(Vector3 vecA, Vector3 vecB);
 float closest(float input, float snap);
 bool between(float input, float min, float max);
-SDL_FPoint normalize2(SDL_FPoint vec);
 
 bool withinRect(SDL_FPoint pos, SDL_FRect rect);
 
 float clamp(float value, float min, float max);
 
+SDL_FPoint normalize2(SDL_FPoint vec);
 Vector3 normalize3(Vector3 vec);
 Vector3 reflect(Vector3 incident, Vector3 normal);
+
 Vector3 vec3Add(Vector3 vecA, Vector3 vecB);
+Vector3 vec3Sub(Vector3 vecA, Vector3 vecB);
 Vector3 vec3Mult(Vector3 vecA, Vector3 vecB);
+
 Vector4 vec3ToVec4(Vector3 vec);
 Vector3 vec4ToVec3(Vector4 vec);
 Vector3 rotToNorm3(Vector3 rot);
@@ -44,5 +47,8 @@ float *isoProjMatrix(float scale, float aspect, float zNear, float zFar);
 Vector3 extractTranslation(mat4 matrix);
 Vector3 extractScale(mat4 matrix);
 void extractRotMatrix(mat4 matrix, mat4 outputLoc);
+
+Uint16 minIndex(float* array, Uint16 length);
+Uint16 maxIndex(float* array, Uint16 length);
 
 #endif

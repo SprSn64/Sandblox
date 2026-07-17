@@ -32,6 +32,8 @@ Vector3 reflect(Vector3 incident, Vector3 normal){
 }
 Vector3 vec3Add(Vector3 vecA, Vector3 vecB){
 	return (Vector3){vecA.x + vecB.x, vecA.y + vecB.y, vecA.z + vecB.z};}
+Vector3 vec3Sub(Vector3 vecA, Vector3 vecB){
+	return (Vector3){vecA.x - vecB.x, vecA.y - vecB.y, vecA.z - vecB.z};}
 Vector3 vec3Mult(Vector3 vecA, Vector3 vecB){
 	return (Vector3){vecA.x * vecB.x, vecA.y * vecB.y, vecA.z * vecB.z};}
 	
@@ -239,4 +241,28 @@ void extractRotMatrix(mat4 matrix, mat4 outputLoc){
 
 bool withinRect(SDL_FPoint pos, SDL_FRect rect){
 	return between(pos.x - rect.x, 0, rect.w) && between(pos.y - rect.y, 0, rect.h);
+}
+
+Uint16 minIndex(float* array, Uint16 length){
+	float smallest = array[0];
+	Uint16 index = 0;
+
+	for(int i=0; i<length; i++){
+		if(array[i] >= smallest) continue;
+		smallest = array[i]; index = i;
+	}
+
+	return index;
+}
+
+Uint16 maxIndex(float* array, Uint16 length){
+	float largest = array[0];
+	Uint16 index = 0;
+
+	for(int i=0; i<length; i++){
+		if(array[i] <= largest) continue;
+		largest = array[i]; index = i;
+	}
+
+	return index;
 }

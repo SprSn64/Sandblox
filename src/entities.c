@@ -88,20 +88,34 @@ void playerUpdate(DataObj* object){
 	}
 	
 	//float floorY = findFloorY(object->pos, object->pos.y, game.headObj);
-	
-	playerVel->y += deltaTime * (-60 + 30 * (keyList[KEYBIND_SPACE].down && playerVel->y > 0));
 
-	bool collided = lazyCollisionLoop(object, game.headObj);
+	Vector3 collOut = lazyCollisionLoop(object, game.headObj);
+	bool landed = false;
 
-	float friction = 0.90 - 0.005 * collided;
+	if(fabs(collOut.x) + fabs(collOut.y) + fabs(collOut.z) == 0) goto collisionSkip;
+
+	Vector3 collNorm = normalize3(collOut);
+
+	landed = between(dotProd3(collNorm, (Vector3){0, 1, 0}), 0.5, 1);
+	if(landed){
+		playerVel->y = 20 * keyList[KEYBIND_SPACE].pressed;
+	}
+	if(between(fabs(dotProd3(collNorm, (Vector3){1, 0, 0})), 0.5, 1)){
+		playerVel->x = 0;
+	}
+	if(between(fabs(dotProd3(collNorm, (Vector3){0, 0, 1})), 0.5, 1)){
+		playerVel->z = 0;
+	}
+
+collisionSkip:
+
+	float friction = 0.90 - 0.005 * landed;
 	float acc = 1.2;
+
+	playerVel->y += landed ? 0 : deltaTime * (-60 + 30 * (keyList[KEYBIND_SPACE].down && playerVel->y > 0));
 	
 	playerVel->x = (playerVel->x + playerMove.x * acc) * friction;
 	playerVel->z = (playerVel->z + playerMove.y * acc) * friction;
-
-	if(collided){
-		playerVel->y = 20 * keyList[KEYBIND_SPACE].pressed;
-	}
 	
 	if(fabs(playerVel->x) + fabs(playerVel->z) > 0.008 || playerVel->y != 0)
 		object->pos = (Vector3){object->pos.x + playerVel->x * deltaTime, object->pos.y + playerVel->y * deltaTime, object->pos.z + playerVel->z * deltaTime};

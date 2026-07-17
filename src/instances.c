@@ -45,7 +45,6 @@ DataObj gameHeader = {
 	.studioOpen = true,
 };
 
-extern Mesh *cubePrim;
 void updateObjects(DataObj* item){
 	item->rot = (Vector3){fmod(item->rot.x, PI * 2), fmod(item->rot.y, PI * 2), fmod(item->rot.z, PI * 2)};
 	if(item->classData->update)item->classData->update(item);
@@ -60,15 +59,24 @@ void updateObjects(DataObj* item){
 	}
 }
 
+extern Mesh *cubePrim;
+extern Mesh *spherePrim;
 void drawObjects(DataObj* item){
 	if(!item->classData->draw) goto noDraw;
 
-	/*CollisionHull *collider = item->objColl;
-	if(collider && collider->shape == COLLHULL_CUBE){
+	CollisionHull *collider = item->objColl;
+	if(collider && (collider->shape == COLLHULL_CUBE || collider->shape == COLLHULL_SPHERE)){
+		Mesh* collMesh = cubePrim;
+		switch(collider->shape){
+			case COLLHULL_SPHERE: collMesh = spherePrim; break;
+		}
+
+		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 		float* collTransform = genMatrix(collider->pos, collider->scale, (Vector3){0, 0, 0});
-		drawMeshOpenGL(cubePrim, collTransform, (SDL_FColor){1, 0, 0, 0.5}, NULL);
+		drawMeshOpenGL(collMesh, collTransform, (SDL_FColor){1, 0, 0, 1}, NULL);
 		free(collTransform);
-	}*/
+		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+	}
 	
 	item->transform = genMatrix(item->pos, item->scale, item->rot);
 	item->classData->draw(item);
@@ -338,6 +346,7 @@ void updatePopup(NotiPopup* item){
 	if(item->age >= item->life){
 		if(popupHead == item) popupHead = NULL;
 		if(item->prev) item->prev->next = NULL;
+		free(item->text);
 		free(item);
 	}
 }
