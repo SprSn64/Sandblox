@@ -51,6 +51,7 @@ Vector3 normToRot3(Vector3 norm){
 
 float closest(float input, float snap){return floor(input / snap) * snap;}
 bool between(float input, float min, float max){return(input >= min && input <= max);}
+bool lesserBetween(float input, float min, float max){return(input > min && input < max);}
 
 float *newMatrix(){
 	float *output;

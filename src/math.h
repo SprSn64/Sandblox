@@ -7,6 +7,7 @@ float dotProd2(SDL_FPoint vecA, SDL_FPoint vecB);
 float dotProd3(Vector3 vecA, Vector3 vecB);
 float closest(float input, float snap);
 bool between(float input, float min, float max);
+bool lesserBetween(float input, float min, float max);
 
 bool withinRect(SDL_FPoint pos, SDL_FRect rect);
 

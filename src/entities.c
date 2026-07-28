@@ -26,6 +26,9 @@ extern TextureRef *homerTex;
 extern TextureRef *textBufferTex;
 extern Font defaultFont;
 
+extern float* defaultMatrix;
+extern float timer;
+
 void killPlayer(){
 	if(!client.gameWorld->currPlayer) return;
 
@@ -278,6 +281,113 @@ void armatureDestroy(DataObj* object){
 	free(object->props[OBJVAL_OTHER]);
 }
 DataType armatureClass = {"Armature\0", 11, 0, armatureInit, armatureUpdate, armatureDraw, armatureDestroy};
+
+Particle* addParticle(ParticleEmitter* emitter, Vector3 pos){
+	if(!emitter) return NULL;
+	Particle* newParticle = malloc(sizeof(Particle));
+	if(!newParticle) return NULL;
+
+	newParticle->pos = pos; newParticle->vel = (Vector3){0, 0, 0};
+	newParticle->life = 3; newParticle->parent = emitter;
+	newParticle->colour = (CharColour){255, 255, 255, 255, 0, COLOURMODE_RGB};
+
+	newParticle->prev = NULL; newParticle->next = NULL;
+
+	if(!emitter->headParticle){
+		emitter->headParticle = newParticle;
+		return newParticle;
+	}
+
+	Particle* currParticle = emitter->headParticle;
+	while(currParticle->next){
+		currParticle = currParticle->next;
+	}
+	currParticle->next = newParticle;
+	newParticle->prev = currParticle;
+
+	return newParticle;
+}
+void freeParticle(Particle* particle){
+	if(!particle) return;
+
+	if(particle->next)particle->next->prev = particle->prev;
+	if(particle->prev)particle->prev->next = particle->next;
+
+	if(particle->parent->headParticle == particle) 
+		particle->parent->headParticle = particle->next;
+
+	free(particle);
+}
+
+void particleInit(DataObj* object){
+	ParticleEmitter* emitter = malloc(sizeof(ParticleEmitter));
+
+	emitter->headParticle = NULL;
+
+	emitter->waitTime = 0.2;
+	emitter->timer = emitter->waitTime;
+
+	emitter->initVel = (Vector3){0, 4, 0};
+
+	object->objOther = emitter;
+}
+void particleUpdate(DataObj* object){
+	ParticleEmitter* emitter = (ParticleEmitter*)object->objOther;
+	if(!emitter) return;
+
+	emitter->timer -= deltaTime;
+	if(emitter->timer <= 0){
+		emitter->timer = 0.2;
+		Particle* newParticle = addParticle(emitter, object->pos);
+
+		newParticle->vel = vec3Add(emitter->initVel, (Vector3){sin(timer * 6), 0, cos(timer * 6)});
+	}
+
+	Particle* currParticle = emitter->headParticle;
+	while(currParticle){
+		Particle* nextParticle = currParticle->next;
+		currParticle->pos = vec3Add(currParticle->pos, vec3Mult(currParticle->vel, (Vector3){deltaTime, deltaTime, deltaTime}));
+
+		currParticle->life -= deltaTime;
+		if(currParticle->life <= 0)
+			freeParticle(currParticle);
+
+		currParticle = nextParticle;
+	}
+}
+void particleDraw(DataObj* object){
+	ParticleEmitter* emitter = (ParticleEmitter*)object->objOther;
+	if(!emitter) return;
+
+	Particle* currParticle = emitter->headParticle;
+	while(currParticle){
+		float* centerTrans = translateMatrix(defaultMatrix, (Vector3){-0.5, 0, -0.5});
+		float* partRot = rotateMatrix(centerTrans, (Vector3){
+			client.gameWorld->currCamera->rot.x + HALFPI,
+			client.gameWorld->currCamera->rot.y,
+			0,
+		}, ROT_XYZ);
+		float* partTranslate = translateMatrix(partRot, currParticle->pos);
+		drawMeshOpenGL(planePrim, partTranslate, ConvertSDLColour(currParticle->colour), object->objTex);
+		free(centerTrans); free(partRot); free(partTranslate);
+
+		currParticle = currParticle->next;
+	}
+}
+void particleDestroy(DataObj* object){
+	ParticleEmitter* emitter = (ParticleEmitter*)object->objOther;
+	if(!emitter) return;
+
+	Particle* currParticle = emitter->headParticle;
+	while(currParticle){
+		Particle* nextParticle = currParticle->next;
+		freeParticle(currParticle);
+		currParticle = nextParticle;
+	}
+
+	free(emitter);
+}
+DataType particleClass = {"Particles\0", 12, 0, particleInit, particleUpdate, particleDraw, particleDestroy};
 
 void objSpinFunc(DataObj* object){
 	object->parent->rot = vec3Add(object->parent->rot, (Vector3){0.02, 0.01, 0.005});

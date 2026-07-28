@@ -70,9 +70,9 @@ CollisionReturn* getCollision(CollisionHull* itemA, CollisionHull* itemB){
 	
 	if(itemA->shape == COLLHULL_CUBE && itemB->shape == COLLHULL_CUBE){
 		if(!(
-			between(itemA->pos.x - itemB->pos.x, -itemA->scale.x, itemB->scale.x) && 
-			between(itemB->pos.y - itemA->pos.y, -itemA->scale.y, itemB->scale.y) && 
-			between(itemA->pos.z - itemB->pos.z, -itemA->scale.z, itemB->scale.z)
+			lesserBetween(itemA->pos.x - itemB->pos.x, -itemA->scale.x, itemB->scale.x) && 
+			lesserBetween(itemB->pos.y - itemA->pos.y, -itemA->scale.y, itemB->scale.y) && 
+			lesserBetween(itemA->pos.z - itemB->pos.z, -itemA->scale.z, itemB->scale.z)
 		)) 
 			return NULL;
 		
@@ -83,7 +83,7 @@ CollisionReturn* getCollision(CollisionHull* itemA, CollisionHull* itemB){
 /*MINDIST_PX*/	fabs(itemB->pos.x - itemA->pos.x - itemA->scale.x),
 /*MINDIST_NX*/	fabs((itemB->pos.x + itemB->scale.x) - itemA->pos.x),
 /*MINDIST_PY*/	fabs(itemB->pos.y - itemA->pos.y + itemA->scale.y) - 1,
-/*MINDIST_NY*/	fabs(itemB->pos.y - itemA->pos.y - itemB->scale.y),
+/*MINDIST_NY*/	fabs((itemB->pos.y + itemB->scale.y) - itemA->pos.y),
 /*MINDIST_PZ*/	fabs(itemB->pos.z - itemA->pos.z - itemA->scale.z),
 /*MINDIST_NZ*/	fabs((itemB->pos.z + itemB->scale.z) - itemA->pos.z),
 		};
