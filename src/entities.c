@@ -71,7 +71,7 @@ void playerInit(DataObj* object){
 
 	PlayerData* plrData = calloc(1, sizeof(PlayerData));
 	plrData->moveSpeed = 1.2; plrData->jumpStrength = 20; 
-	plrData->coyote = 10; plrData->coyoteMax = 2;
+	plrData->coyote = 10; plrData->coyoteMax = 0.15;
 	object->objOther = plrData;
 }
 void playerUpdate(DataObj* object){
@@ -99,11 +99,9 @@ void playerUpdate(DataObj* object){
 	//float floorY = findFloorY(object->pos, object->pos.y, game.headObj);
 
 	Vector3 collOut = lazyCollisionLoop(object, game.headObj);
-
 	if(fabs(collOut.x) + fabs(collOut.y) + fabs(collOut.z) == 0) goto collisionSkip;
 
 	Vector3 collNorm = normalize3(collOut);
-
 	if(between(dotProd3(collNorm, (Vector3){0, 1, 0}), 0.5, 1)){
 		playerVel->y = 0;
 		if(between(fabs(dotProd3(collNorm, (Vector3){0, 1, 0})), 0.5, 1))
@@ -116,10 +114,10 @@ void playerUpdate(DataObj* object){
 		playerVel->z = 0;
 	}
 
+collisionSkip:
+
 	if(plrData->coyote < plrData->coyoteMax && keyList[KEYBIND_SPACE].pressed)
 		playerVel->y = plrData->jumpStrength;
-
-collisionSkip:
 
 	float friction = 0.90 - 0.005 * (plrData->coyote >= plrData->coyoteMax);
 

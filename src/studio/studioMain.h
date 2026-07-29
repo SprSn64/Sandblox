@@ -45,6 +45,9 @@ typedef enum panelTypes{
 
 typedef struct StudioPanel{
 	Uint32 type;
+
+	SDL_FPoint mousePos;
+	bool mouseWithin;
 	//add something for extra tabs on a single panel
 } StudioPanel;
 

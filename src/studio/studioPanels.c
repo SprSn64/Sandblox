@@ -29,11 +29,11 @@ extern Font defaultFont;
 
 extern TextureRef* homerTex;
 
-StudioPanel testGamePanel = {PANEL_GAME};
-StudioPanel testToolbarPanel = {PANEL_TOOLBAR};
-StudioPanel testExplorerPanel = {PANEL_EXPLORER};
-StudioPanel testConsolePanel = {PANEL_CONSOLE};
-StudioPanel testCodePanel = {PANEL_CODEEDITOR};
+StudioPanel testGamePanel = {PANEL_GAME, (SDL_FPoint){0, 0}, false};
+StudioPanel testToolbarPanel = {PANEL_TOOLBAR, (SDL_FPoint){0, 0}, false};
+StudioPanel testExplorerPanel = {PANEL_EXPLORER, (SDL_FPoint){0, 0}, false};
+StudioPanel testConsolePanel = {PANEL_CONSOLE, (SDL_FPoint){0, 0}, false};
+StudioPanel testCodePanel = {PANEL_CODEEDITOR, (SDL_FPoint){0, 0}, false};
 
 StudioSplit testPanelC = {false, false, &testGamePanel, &testConsolePanel, 0.8, true};
 StudioSplit testPanelD = {false, true, &testCodePanel, &testPanelC, 0.2, false};
@@ -270,6 +270,22 @@ void drawCodePanel(StudioPanel* item, SDL_FRect* area){
 void updatePanel(StudioPanel* item, SDL_FRect* area){
 	if(!item) return;
 
+	/*areaA = (SDL_FRect){
+		area->x, area->y, 
+		area->w, area->h
+	};*/
+
+	Vector3 screenX = glToScreen((Vector3){area->x, area->w + (windowScale.y >> 1), 0});
+	Vector3 screenY = glToScreen((Vector3){area->y, area->h + (windowScale.y >> 1), 0});
+
+	item->mousePos = (SDL_FPoint){mousePos.x - screenX.x, mousePos.y - screenY.x};
+	if(lesserBetween(mousePos.x - screenX.x, 0, screenX.y) && lesserBetween(mousePos.y - screenY.x, 0, screenY.y)){
+		item->mouseWithin = true;
+		//item->mousePos = (SDL_FPoint){mousePos.x - screenX.x, mousePos.y - screenY.x};
+	}else{
+		item->mouseWithin = false;
+	}
+
 	switch(item->type){
 		case PANEL_EXPLORER: updateExplorerPanel(item, area); break;
 	}
@@ -285,4 +301,14 @@ void drawPanel(StudioPanel* item, SDL_FRect* area){
 		case PANEL_CONSOLE: drawConsolePanel(item, area); break;
 		case PANEL_CODEEDITOR: drawCodePanel(item, area); break;
 	}
+
+	Vector3 screenMouse = screenToGL((Vector3){item->mousePos.x, item->mousePos.y, 1});
+	float* cursorMatrix = genMatrix((Vector3){area->x + screenMouse.x, area->y + screenMouse.y, 0}, (Vector3){0.125, 1, 0.125}, (Vector3){HALFPI, 0, 0});
+	drawMeshOpenGL(planePrim, cursorMatrix, (SDL_FColor){0, 0, 0, 1}, NULL);
+	free(cursorMatrix);
+
+	if(!item->mouseWithin) return;
+	float* panelMatrix = genMatrix((Vector3){area->x, area->y, 0}, (Vector3){area->w, 1, area->h}, (Vector3){HALFPI, 0, 0});
+	drawMeshOpenGL(planePrim, panelMatrix, (SDL_FColor){1, 0, 0, 0.25}, NULL);
+	free(panelMatrix);
 }
