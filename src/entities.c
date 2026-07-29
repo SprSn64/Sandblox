@@ -68,11 +68,17 @@ void playerInit(DataObj* object){
 	collision->parent = object; collision->shape = COLLHULL_CUBE;
 	collision->offset = (Vector3){-0.5, 4, -0.5}; collision->scale = (Vector3){1, 4, 1};
 	collision->active = true;
+
+	PlayerData* plrData = calloc(1, sizeof(PlayerData));
+	plrData->moveSpeed = 1.2; plrData->jumpStrength = 20; 
+	plrData->coyote = 10; plrData->coyoteMax = 2;
+	object->objOther = plrData;
 }
 void playerUpdate(DataObj* object){
 	if(!game.currPlayer || object != game.currPlayer) return;
 	
 	Vector3 *playerVel = object->objVel;
+	PlayerData *plrData = object->objOther;
 	//Vector3 gravity = {-object->pos.x, object->pos.y, -object->pos.z};
 	
 	SDL_FPoint playerMove = {0, 0};
@@ -83,7 +89,7 @@ void playerUpdate(DataObj* object){
 			(SDL_cos(game.currCamera->rot.y) * (keyList[KEYBIND_D].down - keyList[KEYBIND_A].down)) + (SDL_sin(game.currCamera->rot.y) * (keyList[KEYBIND_S].down - keyList[KEYBIND_W].down)),
 			(-SDL_sin(game.currCamera->rot.y) * (keyList[KEYBIND_D].down - keyList[KEYBIND_A].down)) + (SDL_cos(game.currCamera->rot.y) * (keyList[KEYBIND_S].down - keyList[KEYBIND_W].down)),
 		});
-		object->rot.y = atan2(playerMove.x, playerMove.y) + 3.14159;
+		object->rot.y = atan2(playerMove.x, playerMove.y) + PI;
 	}
 	
 	if(game.currCamera->focusDist == 0){
@@ -93,15 +99,15 @@ void playerUpdate(DataObj* object){
 	//float floorY = findFloorY(object->pos, object->pos.y, game.headObj);
 
 	Vector3 collOut = lazyCollisionLoop(object, game.headObj);
-	bool landed = false;
 
 	if(fabs(collOut.x) + fabs(collOut.y) + fabs(collOut.z) == 0) goto collisionSkip;
 
 	Vector3 collNorm = normalize3(collOut);
 
-	landed = between(dotProd3(collNorm, (Vector3){0, 1, 0}), 0.5, 1);
-	if(landed){
-		playerVel->y = 20 * keyList[KEYBIND_SPACE].pressed;
+	if(between(dotProd3(collNorm, (Vector3){0, 1, 0}), 0.5, 1)){
+		playerVel->y = 0;
+		if(between(fabs(dotProd3(collNorm, (Vector3){0, 1, 0})), 0.5, 1))
+			plrData->coyote = 0;
 	}
 	if(between(fabs(dotProd3(collNorm, (Vector3){1, 0, 0})), 0.5, 1)){
 		playerVel->x = 0;
@@ -110,17 +116,19 @@ void playerUpdate(DataObj* object){
 		playerVel->z = 0;
 	}
 
+	if(plrData->coyote < plrData->coyoteMax && keyList[KEYBIND_SPACE].pressed)
+		playerVel->y = plrData->jumpStrength;
+
 collisionSkip:
 
-	float friction = 0.90 - 0.005 * landed;
-	float acc = 1.2;
+	float friction = 0.90 - 0.005 * (plrData->coyote >= plrData->coyoteMax);
 
-	playerVel->y += landed ? 0 : deltaTime * (-60 + 30 * (keyList[KEYBIND_SPACE].down && playerVel->y > 0));
+	playerVel->y += deltaTime * (-60 + 30 * (keyList[KEYBIND_SPACE].down && playerVel->y > 0));
 	
-	playerVel->x = (playerVel->x + playerMove.x * acc) * friction;
-	playerVel->z = (playerVel->z + playerMove.y * acc) * friction;
+	playerVel->x = (playerVel->x + playerMove.x * plrData->moveSpeed) * friction;
+	playerVel->z = (playerVel->z + playerMove.y * plrData->moveSpeed) * friction;
 	
-	if(fabs(playerVel->x) + fabs(playerVel->z) > 0.008 || playerVel->y != 0)
+	if(fabs(playerVel->x) + fabs(playerVel->y) + fabs(playerVel->z) > 0.008)
 		object->pos = (Vector3){object->pos.x + playerVel->x * deltaTime, object->pos.y + playerVel->y * deltaTime, object->pos.z + playerVel->z * deltaTime};
 
 	object->colour.a = min(game.currCamera->focusDist / 2, 1) * 255;
@@ -129,6 +137,8 @@ collisionSkip:
 		object->pos.y + pow(1 - min(game.currCamera->focusDist / 8, 1), 2) + 2.8 * object->scale.y - SDL_sin(game.currCamera->rot.x) * game.currCamera->focusDist, 
 		object->pos.z + (SDL_cos(game.currCamera->rot.x) * SDL_cos(game.currCamera->rot.y)) * game.currCamera->focusDist
 	};
+
+	plrData->coyote += deltaTime;
 
 	if(object->pos.y < -128){
 		/*object->pos = (Vector3){0, 5, 0};
@@ -177,6 +187,7 @@ void playerDraw(DataObj* object){
 }
 void playerDestroy(DataObj* object){
 	free(object->objVel); free(object->objColl);
+	if(object->objOther)free(object->objOther);
 }
 DataType playerClass = {"Player\0", 2, 0, playerInit, playerUpdate, playerDraw, playerDestroy};
 

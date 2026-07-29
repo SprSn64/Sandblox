@@ -4,8 +4,19 @@
 #include "structs.h"
 #include "renderer.h"
 
-typedef struct ParticleEmitter ParticleEmitter;
+typedef struct PlayerData{
+	Uint16 playerID;
+	bool movement;
 
+	float moveSpeed;
+	float jumpStrength;
+
+	float coyote; //Coyote time
+	float coyoteMax;
+} PlayerData;
+extern DataType playerClass;
+
+typedef struct ParticleEmitter ParticleEmitter;
 typedef struct Particle{
 	ParticleEmitter* parent;
 	TextureRef* texture;
@@ -18,7 +29,6 @@ typedef struct Particle{
 	struct Particle* prev;
 	struct Particle* next;
 } Particle;
-
 typedef struct ParticleEmitter{
 	Particle* headParticle;
 	Vector3 initVel;
@@ -27,6 +37,7 @@ typedef struct ParticleEmitter{
 	float waitTime; //time between making new particles
 	float timer;
 } ParticleEmitter;
+extern DataType particleClass;
 
 /*void playerInit(DataObj* object);
 void playerUpdate(DataObj* object);
@@ -36,7 +47,6 @@ void homerDraw(DataObj* object);
 
 void scriptUpdate(dataObj* object);*/
 
-extern DataType playerClass;
 extern DataType blockClass;
 extern DataType meshClass;
 extern DataType groupClass;
@@ -46,7 +56,6 @@ extern DataType imageClass;
 extern DataType scriptClass;
 extern DataType accessoryClass;
 extern DataType armatureClass;
-extern DataType particleClass;
 
 extern DataType fuckingBeerdrinkerClass;
 
