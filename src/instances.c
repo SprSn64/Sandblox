@@ -142,6 +142,7 @@ DataObj* newObject(DataType* classData){
 	newObj->colour = (CharColour){255, 255, 255, 255, 0, COLOURMODE_RGB};
 	newObj->name = classData->name;
 	newObj->classData = classData;
+	newObj->networkExists = false;
 	
 	newObj->studioOpen = false;
 	//newObj->values = NULL;

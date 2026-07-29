@@ -1,26 +1,26 @@
 #ifndef NETWORK_SERVER_H
 #define NETWORK_SERVER_H
 
-Server* serverInit(Uint16 port);
-int serverUpdate();
+#include <stdbool.h>
+#include "structs.h"
 
-/*CLIENT JOIN BASIC METHOD PROBABLY:
-	Client sends enter request with player ID to server
-	Server sends client enter approval ping on success, or a kick ping if theyre banned
-	Add player to server player list
+typedef enum {
+    PKT_PLAYER = 1,
+} PacketType;
 
-	Server sends all current instance data to client
-	Once all data is sent, load in the player character or something else
-*/
+typedef struct {
+    uint8_t type;
+    Vector3 pos;
+    Vector3 rot;
+} PacketPlayer;
 
-/*CLIENT TO SERVER UPDATE LOOP BASIC METHOD:
-	Client sends ping to server with the ping start time
-	Server retrieves ping and stores the time between the client ping and when it retrieved the ping
-	If server doesn't retrieve a ping from the client for 15-30 seconds, remove the player from the server
+bool netInitHost(Uint16 port);
+bool netInitClient(const char* ip, Uint16 port);
+void netSend(void*data, size_t size);
+bool netReceive(void *out, size_t size);
+void netCleanup(void);
 
-	Client sends all local instance updates to server
-	Server sends all global instance updates to client
-	Retrieve unloaded image, model and sound assets from server
-*/
+void netSendPlayer(DataObj* player);
+void netReceivePlayer(DataObj* player);
 
 #endif

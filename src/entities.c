@@ -13,6 +13,7 @@
 #include "physics.h"
 #include "opengl.h"
 #include "bones.h"
+#include "network/server.h"
 
 extern ClientData client;
 extern GameWorld game;
@@ -143,10 +144,14 @@ collisionSkip:
 		*playerVel = (Vector3){0, 0, 0};*/
 		killPlayer();
 	}
+	if (object == game.currPlayer) {
+		netSendPlayer(object);
+	}
 }
 extern Mesh *playerMesh;
 extern Mesh *playerFemMesh;
 void playerDraw(DataObj* object){
+	if (!object->networkExists && object != client.gameWorld->currPlayer) return;
 	SDL_FColor plrColour = ConvertSDLColour(object->colour);
 	Mesh* plrMesh = playerMesh;
 	DataObj* femBody = firstChildWithName(object, "femBody");
