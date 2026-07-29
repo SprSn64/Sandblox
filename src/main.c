@@ -318,15 +318,10 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[]){
 	// more than 2 players working
 	if (isHostMode) {
         if (netInitHost(8080)) {
-            networkPlayer = newObject(&playerClass);
-            networkPlayer->name = "Client";
-            parentObject(networkPlayer, client.gameWorld->headObj);
+            // lol idk? you hosted succesfully the fuck do you want now
         }
     } else if (isClientMode) {
 		if (netInitClient(targetIp, 8080)) {
-			networkPlayer = newObject(&playerClass);
-			networkPlayer->name = "Host";
-			parentObject(networkPlayer, client.gameWorld->headObj);
 			netSendJoin("Client"); 
 		}
 	}

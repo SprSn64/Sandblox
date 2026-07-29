@@ -5,6 +5,10 @@
 #include <SDL3/SDL.h>
 
 #include "server.h"
+#include "../instances.h"
+#include "../entities.h"
+extern DataObj* networkPlayer;
+extern ClientData client;
 
 #ifdef __linux__
 #include <netinet/in.h>
@@ -131,8 +135,12 @@ void netPoll(DataObj **networkPlayerPtr) {
                 PacketJoin* pkt = (PacketJoin*)buffer;
                 printf("[NET] Player '%s' joined the game!\n", pkt->name);
 
-                DataObj* player = *networkPlayerPtr;
-                player->networkExists = true;
+                networkPlayer = newObject(&playerClass);
+                // other player (player 2) is always id 1, and you are id 0
+                networkPlayer->networkPlayerID = client.gameWorld->currPlayer->networkPlayerID + 1;
+                networkPlayer->name = strdup(pkt->name);
+                networkPlayer->networkExists = true;
+                parentObject(networkPlayer, client.gameWorld->headObj);
                 
                 if (isNetworkHost) {
                     netSendJoin("Host");
@@ -143,7 +151,8 @@ void netPoll(DataObj **networkPlayerPtr) {
                 printf("[NET] Player left the game!\n");
 
                 DataObj* player = *networkPlayerPtr;
-                player->networkExists = false;
+                free(player->name);
+                removeObject(player);
             
                 if (isNetworkHost) {
                     hasRemote = false;
