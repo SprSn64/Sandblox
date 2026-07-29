@@ -4,6 +4,16 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include "structs.h"
+#ifdef _WIN32
+#include <winsock2.h>
+#include <ws2tcpip.h>
+#else
+#include <netinet/in.h>
+#include <arpa/inet.h>
+#include <sys/socket.h>
+#endif
+
+#define MAX_NET_PLAYERS 16
 
 typedef enum {
     PKT_JOIN = 1,
@@ -12,19 +22,31 @@ typedef enum {
 } PacketType;
 
 typedef struct {
+    struct sockaddr_in addr;
+    bool active;
+    uint8_t id;
+    DataObj* obj;
+} NetClient;
+
+#pragma pack(push, 1)
+typedef struct {
     uint8_t type;
-    char name[32];
-} PacketJoin;
+    uint8_t id;
+    char name[31];
+} NetPacketJoin;
 
 typedef struct {
     uint8_t type;
-} PacketLeave;
+    uint8_t id;
+} NetPacketLeave;
 
 typedef struct {
     uint8_t type;
+    uint8_t id;
     Vector3 pos;
     Vector3 rot;
-} PacketPlayer;
+} NetPacketPlayer;
+#pragma pack(pop)
 
 bool netInitHost(Uint16 port);
 bool netInitClient(const char* ip, Uint16 port);
@@ -35,6 +57,6 @@ void netSendJoin(const char* name);
 void netSendLeave(void);
 void netSendPlayer(DataObj* player);
 
-void netPoll(DataObj** networkPlayerPtr);
+void netPoll(void);
 
 #endif

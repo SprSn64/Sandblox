@@ -55,7 +55,6 @@ TextureRef *textBufferTex;
 ClientData client;
 GameWorld game;
 
-DataObj* networkPlayer = NULL;
 extern DataType playerClass;
 
 //SDL_Point windowScaleIntent = {320, 240};
@@ -322,7 +321,7 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[]){
         }
     } else if (isClientMode) {
 		if (netInitClient(targetIp, 8080)) {
-			netSendJoin("Client"); 
+			netSendJoin("Player"); 
 		}
 	}
 	
@@ -388,7 +387,7 @@ SDL_AppResult SDL_AppIterate(void *appstate){
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     if (!client.pause) {
-		netPoll(&networkPlayer);
+		netPoll();
 	}
 
 	//SDL_ShowCursor();
