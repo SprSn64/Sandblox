@@ -12,16 +12,17 @@
 extern ClientData client;
 extern DataType playerClass;
 
-#ifdef __linux__
-#include <fcntl.h>
-#include <unistd.h>
-
-static int sockfd = -1;
 static bool isNetworkHost = false;
 static struct sockaddr_in serverAddr;
 static NetClient netClients[MAX_NET_PLAYERS];
 static uint8_t localNetId = 0;
 static uint8_t nextHostAssignId = 1;
+
+#ifdef __linux__
+#include <fcntl.h>
+#include <unistd.h>
+
+static int sockfd = -1;
 
 bool netInitHost(Uint16 port) {
     sockfd = socket(AF_INET, SOCK_DGRAM, 0);
@@ -95,6 +96,10 @@ void netSend(void* data, size_t size) {
     }
 }
 
+ssize_t netGet(void *buffer, size_t size, struct sockaddr_in *fromAddr, socklen_t *addrLen) {
+    return recvfrom(sockfd, buffer, size, 0, (struct sockaddr*)fromAddr, addrLen);
+}
+
 void netCleanup(void) {
     if (sockfd >= 0) {
         netSendLeave();
@@ -105,7 +110,10 @@ void netCleanup(void) {
 #else
 bool netInitHost(Uint16 port) { (void)port; return false; }
 bool netInitClient(const char* ip, Uint16 port) { (void)ip; (void)port; return false; }
+void netBroadcast(void* data, size_t size, int excludeIdx){ (void)data; (void)size; (void)excludeIdx; }
 void netSend(void* data, size_t size) { (void)data; (void)size; }
+void netSendTo(void* data, size_t size, struct sockaddr_in* target) { (void)data; (void)size; (void)target; }
+ssize_t netGet(void *buffer, size_t size, struct sockaddr_in *fromAddr, socklen_t *addrLen) { (void)buffer; (void)size; (void)fromAddr, (void)addrLen; return 0; }
 void netCleanup(void) {}
 #endif
 
@@ -124,7 +132,7 @@ void netSendLeave(void) {
 }
 
 void netSendPlayer(DataObj *player) {
-    if (!player || sockfd < 0) return;
+    if (!player) return;
     NetPacketPlayer pkt = {
         .type = PKT_PLAYER,
         .id = localNetId,
@@ -179,14 +187,12 @@ static void removeClient(int idx) {
 }
 
 void netPoll(void) {
-    if (sockfd < 0) return;
-
     uint8_t buffer[512];
     struct sockaddr_in fromAddr;
     socklen_t addrLen = sizeof(fromAddr);
 
     while (1) {
-        ssize_t bytes = recvfrom(sockfd, buffer, sizeof(buffer), 0, (struct sockaddr*)&fromAddr, &addrLen);
+        ssize_t bytes = netGet(buffer, sizeof(buffer), &fromAddr, &addrLen);
         if (bytes <= 0) break;
 
         uint8_t type = buffer[0];
