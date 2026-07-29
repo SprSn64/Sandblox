@@ -169,7 +169,7 @@ void playerDraw(DataObj* object){
 		hatItem = hatItem->next;
 	}
 
-	if(object == game.currPlayer && !client.pause) return;
+	//if(object == game.currPlayer && !client.pause) return;
 	/*Vector3 textPos = vec3Add(object->pos, (Vector3){0, 5, 0});
 	Vector3 textProj = projToScreen(viewProj(worldToCamera(textPos)));
 	if(textProj.z >= 0) return;

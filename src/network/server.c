@@ -6,8 +6,6 @@
 
 #include "server.h"
 
-extern DataObj* networkPlayer;
-
 #ifdef __linux__
 #include <netinet/in.h>
 #include <arpa/inet.h>
@@ -69,32 +67,15 @@ bool netInitClient(const char* ip, Uint16 port) {
     return true;
 }
 
-void netSend(void*data, size_t size) {
+void netSend(void* data, size_t size) {
     if (sockfd < 0 || !hasRemote) return;
 
     sendto(sockfd, data, size, 0, (struct sockaddr*)&remoteAddr, sizeof(remoteAddr));
 }
 
-bool netReceive(void *out, size_t size) {
-    if (sockfd < 0) return false;
-
-    struct sockaddr_in fromAddr;
-    socklen_t addrLen = sizeof(fromAddr);
-
-    ssize_t bytes = recvfrom(sockfd, out, size, 0, (struct sockaddr*)&fromAddr, &addrLen);
-    if (bytes ==size) {
-        if (isNetworkHost && !hasRemote) {
-            remoteAddr = fromAddr;
-            hasRemote = true;
-            printf("[NET] Host received connection from client!\n");
-        }
-        return true;
-    }
-    return false;
-}
-
 void netCleanup(void) {
     if (sockfd >= 0) {
+        netSendLeave();
         close(sockfd);
         sockfd = -1;
     }
@@ -102,14 +83,23 @@ void netCleanup(void) {
 #else
 bool netInitHost(Uint16 port) { (void)port; return false; }
 bool netInitClient(const char* ip, Uint16 port) { (void)ip; (void)port; return false; }
-void netSend(void*data, size_t size) { (void)data; (void)size; }
-bool netReceive(void *out, size_t size) { (void)out; (void)size; return false; }
+void netSend(void* data, size_t size) { (void)data; (void)size; }
 void netCleanup(void) {}
 #endif
 
-// outside of platform specific stuff
+void netSendJoin(const char *name) {
+    PacketJoin pkt = { .type = PKT_JOIN };
+    if (name) strncpy(pkt.name, name, 31);
+    netSend(&pkt, sizeof(pkt));
+}
 
-void netSendPlayer(DataObj* player) {
+void netSendLeave(void) {
+    PacketLeave pkt = { .type = PKT_LEAVE };
+    netSend(&pkt, sizeof(pkt));
+}
+
+void netSendPlayer(DataObj *player) {
+    if (!player) return;
     PacketPlayer pkt = {
         .type = PKT_PLAYER,
         .pos = player->pos,
@@ -118,13 +108,57 @@ void netSendPlayer(DataObj* player) {
     netSend(&pkt, sizeof(pkt));
 }
 
-void netReceivePlayer(DataObj* player) {
-    PacketPlayer pkt;
-    while (netReceive(&pkt, sizeof(pkt))) {
-        if (pkt.type == PKT_PLAYER) {
-            player->pos = pkt.pos;
-            player->rot = pkt.rot;
-            player->networkExists = true;
+void netPoll(DataObj **networkPlayerPtr) {
+    if (sockfd < 0) return;
+
+    uint8_t buffer[512];
+    struct sockaddr_in fromAddr;
+    socklen_t addrLen = sizeof(fromAddr);
+
+    while (1) {
+        ssize_t bytes = recvfrom(sockfd, buffer, sizeof(buffer), 0, (struct sockaddr*)&fromAddr, &addrLen);
+        if (bytes <= 0) break;
+
+        if (isNetworkHost && !hasRemote) {
+            remoteAddr = fromAddr;
+            hasRemote = true;
+            printf("[NET] Host received remote connection!\n");
+        }
+
+        uint8_t type = buffer[0];
+        switch (type) {
+            case PKT_JOIN: {
+                PacketJoin* pkt = (PacketJoin*)buffer;
+                printf("[NET] Player '%s' joined the game!\n", pkt->name);
+
+                DataObj* player = *networkPlayerPtr;
+                player->networkExists = true;
+                
+                if (isNetworkHost) {
+                    netSendJoin("Host");
+                }
+                break;
+            }
+            case PKT_LEAVE: {
+                printf("[NET] Player left the game!\n");
+
+                DataObj* player = *networkPlayerPtr;
+                player->networkExists = false;
+            
+                if (isNetworkHost) {
+                    hasRemote = false;
+                }
+                break;
+            }
+            case PKT_PLAYER: {
+                if (bytes == sizeof(PacketPlayer) && networkPlayerPtr && *networkPlayerPtr) {
+                    PacketPlayer* pkt = (PacketPlayer*)buffer;
+                    DataObj* player = *networkPlayerPtr;
+                    player->pos = pkt->pos;
+                    player->rot = pkt->rot;
+                }
+                break;
+            }
         }
     }
 }

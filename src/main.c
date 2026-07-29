@@ -319,20 +319,17 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[]){
 	if (isHostMode) {
         if (netInitHost(8080)) {
             networkPlayer = newObject(&playerClass);
-            if (networkPlayer) {
-                networkPlayer->name = "Client";
-                parentObject(networkPlayer, client.gameWorld->headObj);
-            }
+            networkPlayer->name = "Client";
+            parentObject(networkPlayer, client.gameWorld->headObj);
         }
     } else if (isClientMode) {
-        if (netInitClient(targetIp, 8080)) {
-            networkPlayer = newObject(&playerClass);
-            if (networkPlayer) {
-                networkPlayer->name = "Host";
-                parentObject(networkPlayer, client.gameWorld->headObj);
-            }
-        }
-    }
+		if (netInitClient(targetIp, 8080)) {
+			networkPlayer = newObject(&playerClass);
+			networkPlayer->name = "Host";
+			parentObject(networkPlayer, client.gameWorld->headObj);
+			netSendJoin("Client"); 
+		}
+	}
 	
 	return SDL_APP_CONTINUE;
 }	
@@ -395,8 +392,8 @@ SDL_AppResult SDL_AppIterate(void *appstate){
 	guiMatrix = isoProjMatrix(1, aspectRatio, 0.01, 1000);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-    if (!client.pause && networkPlayer) {
-    	netReceivePlayer(networkPlayer);
+    if (!client.pause) {
+		netPoll(&networkPlayer);
 	}
 
 	//SDL_ShowCursor();

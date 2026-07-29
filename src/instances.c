@@ -143,6 +143,7 @@ DataObj* newObject(DataType* classData){
 	newObj->name = classData->name;
 	newObj->classData = classData;
 	newObj->networkExists = false;
+	newObj->networkPlayerID = 0;
 	
 	newObj->studioOpen = false;
 	//newObj->values = NULL;

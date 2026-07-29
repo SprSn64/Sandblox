@@ -87,6 +87,7 @@ typedef struct DataObj{
 	
 	bool studioOpen;
 	bool networkExists;
+	int networkPlayerID;
 } DataObj;
 
 typedef struct{
