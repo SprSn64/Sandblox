@@ -6,14 +6,14 @@
 
 #include "server.h"
 
+extern DataObj* networkPlayer;
+
 #ifdef __linux__
 #include <netinet/in.h>
 #include <arpa/inet.h>
 #include <sys/socket.h>
 #include <fcntl.h>
 #include <unistd.h>
-
-extern DataObj* networkPlayer;
 
 static int sockfd = -1;
 static struct sockaddr_in remoteAddr;
