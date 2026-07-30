@@ -208,6 +208,9 @@ void netPoll(void) {
                         netClients[cIdx].obj->name = strdup(pkt->name);
                         printf("[NET] Player '%s' joined! Assigned ID: %d\n", pkt->name, newId);
 
+                        char* serverMsg = malloc(256); sprintf(serverMsg, "%s joined the game!\n", pkt->name);
+                		sendPopup(serverMsg, NULL, NULL, 3);
+
                         NetPacketJoin replyPkt;
                         memset(&replyPkt, 0, sizeof(replyPkt));
                         replyPkt.type = PKT_JOIN;
@@ -239,6 +242,9 @@ void netPoll(void) {
                 }
             } else if (type == PKT_LEAVE) {
                 if (cIdx != -1) {
+                	char* serverMsg = malloc(256); sprintf(serverMsg, "Player ID %d left the game!\n", netClients[cIdx].id);
+                	sendPopup(serverMsg, NULL, NULL, 3);
+
                     printf("[NET] Player ID %d left the game!\n", netClients[cIdx].id);
                     netBroadcast(buffer, bytes, cIdx);
                     removeClient(cIdx);

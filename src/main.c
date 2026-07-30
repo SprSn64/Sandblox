@@ -318,6 +318,8 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[]){
 	if (isHostMode) {
         if (netInitHost(8080)) {
             // lol idk? you hosted succesfully the fuck do you want now
+            char newWindowName[256]; sprintf(newWindowName, "Sandblox v%s (Hosting server)", client.version);
+            SDL_SetWindowTitle(window, newWindowName);
         }
     } else if (isClientMode) {
 		if (netInitClient(targetIp, 8080)) {

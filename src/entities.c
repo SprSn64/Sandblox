@@ -362,6 +362,8 @@ void particleUpdate(DataObj* object){
 		Particle* nextParticle = currParticle->next;
 		currParticle->pos = vec3Add(currParticle->pos, vec3Mult(currParticle->vel, (Vector3){deltaTime, deltaTime, deltaTime}));
 
+		currParticle->colour.a = min(currParticle->life * 255, 255);
+
 		currParticle->life -= deltaTime;
 		if(currParticle->life <= 0)
 			freeParticle(currParticle);
