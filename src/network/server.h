@@ -17,8 +17,10 @@
 
 typedef enum {
     PKT_JOIN = 1,
-    PKT_LEAVE = 2,
-    PKT_PLAYER = 3,
+    PKT_ASSIGN_ID,
+    PKT_SYNC_PLAYER,
+    PKT_LEAVE,
+    PKT_PLAYER,
 } PacketType;
 
 typedef struct {
@@ -34,6 +36,17 @@ typedef struct {
     uint8_t id;
     char name[31];
 } NetPacketJoin;
+
+typedef struct {
+    uint8_t type;
+    uint8_t assignedId;
+} NetPacketAssignID;
+
+typedef struct {
+    uint8_t type;
+    uint8_t id;
+    char name[30];
+} NetPacketSyncPlayer;
 
 typedef struct {
     uint8_t type;
