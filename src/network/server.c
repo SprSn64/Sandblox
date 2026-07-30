@@ -113,7 +113,7 @@ bool netInitClient(const char* ip, Uint16 port) { (void)ip; (void)port; return f
 void netBroadcast(void* data, size_t size, int excludeIdx){ (void)data; (void)size; (void)excludeIdx; }
 void netSend(void* data, size_t size) { (void)data; (void)size; }
 void netSendTo(void* data, size_t size, struct sockaddr_in* target) { (void)data; (void)size; (void)target; }
-ssize_t netGet(void *buffer, size_t size, struct sockaddr_in *fromAddr, socklen_t *addrLen) { (void)buffer; (void)size; (void)fromAddr, (void)addrLen; return 0; }
+ssize_t netGet(void *buffer, size_t size, struct sockaddr_in *fromAddr, socklen_t *addrLen) { (void)buffer; (void)size; (void)fromAddr; (void)addrLen; return 0; }
 void netCleanup(void) {}
 #endif
 
@@ -121,9 +121,30 @@ void netSendJoin(const char *name) {
     NetPacketJoin pkt;
     memset(&pkt, 0, sizeof(pkt));
     pkt.type = PKT_JOIN;
-    pkt.id = localNetId;
-    if (name) strncpy(pkt.name, name, 30);
+    if (name) strncpy(pkt.name, name, sizeof(pkt.name) - 1);
     netSend(&pkt, sizeof(pkt));
+}
+
+void netSendAssignId(uint8_t assignedId, struct sockaddr_in* target) {
+    NetPacketAssignID pkt;
+    memset(&pkt, 0, sizeof(pkt));
+    pkt.type = PKT_ASSIGN_ID;
+    pkt.assignedId = assignedId;
+    netSendTo(&pkt, sizeof(pkt), target);
+}
+
+void netSendSyncPlayer(uint8_t id, const char* name, struct sockaddr_in* target) {
+    NetPacketSyncPlayer pkt;
+    memset(&pkt, 0, sizeof(pkt));
+    pkt.type = PKT_SYNC_PLAYER;
+    pkt.id = id;
+    if (name) strncpy(pkt.name, name, sizeof(pkt.name) - 1);
+
+    if (target) {
+        netSendTo(&pkt, sizeof(pkt), target);
+    } else {
+        netSend(&pkt, sizeof(pkt));
+    }
 }
 
 void netSendLeave(void) {
@@ -198,104 +219,113 @@ void netPoll(void) {
         uint8_t type = buffer[0];
         int cIdx = findClientByAddr(&fromAddr);
 
-        if (isNetworkHost) {
-            if (type == PKT_JOIN) {
-                NetPacketJoin* pkt = (NetPacketJoin*)buffer;
-                if (cIdx == -1) {
+        switch (type) {
+            case PKT_JOIN: {
+                if (isNetworkHost && cIdx == -1) {
+                    NetPacketJoin* pkt = (NetPacketJoin*)buffer;
                     uint8_t newId = nextHostAssignId++;
+                    
                     cIdx = addClient(&fromAddr, newId);
                     if (cIdx != -1) {
                         netClients[cIdx].obj->name = strdup(pkt->name);
                         printf("[NET] Player '%s' joined! Assigned ID: %d\n", pkt->name, newId);
 
                         char* serverMsg = malloc(256); sprintf(serverMsg, "%s joined the game!\n", pkt->name);
-                		sendPopup(serverMsg, NULL, NULL, 3);
+                        sendPopup(serverMsg, NULL, NULL, 3);
 
-                        NetPacketJoin replyPkt;
-                        memset(&replyPkt, 0, sizeof(replyPkt));
-                        replyPkt.type = PKT_JOIN;
-                        replyPkt.id = newId;
-                        strncpy(replyPkt.name, "AssignID", 30);
-                        netSendTo(&replyPkt, sizeof(replyPkt), &fromAddr);
+                        netSendAssignId(newId, &fromAddr);
+                        netSendSyncPlayer(0, "Host", &fromAddr);
 
                         for (int i = 0; i < MAX_NET_PLAYERS; i++) {
                             if (netClients[i].active && i != cIdx) {
-                                NetPacketJoin syncPkt;
-                                memset(&syncPkt, 0, sizeof(syncPkt));
-                                syncPkt.type = PKT_JOIN;
-                                syncPkt.id = netClients[i].id;
-                                strncpy(syncPkt.name, netClients[i].obj->name ? netClients[i].obj->name : "Player", 30);
-                                netSendTo(&syncPkt, sizeof(syncPkt), &fromAddr);
+                                netSendSyncPlayer(
+                                    netClients[i].id,
+                                    netClients[i].obj->name ? netClients[i].obj->name : "Player",
+                                    &fromAddr
+                                );
                             }
                         }
 
-                        NetPacketJoin hostPkt;
-                        memset(&hostPkt, 0, sizeof(hostPkt));
-                        hostPkt.type = PKT_JOIN;
-                        hostPkt.id = 0;
-                        strncpy(hostPkt.name, "Host", 30);
-                        netSendTo(&hostPkt, sizeof(hostPkt), &fromAddr);
-
-                        pkt->id = newId;
-                        netBroadcast(buffer, bytes, cIdx);
+                        for (int i = 0; i < MAX_NET_PLAYERS; i++) {
+                            if (netClients[i].active && i != cIdx) {
+                                netSendSyncPlayer(newId, pkt->name, &netClients[i].addr);
+                            }
+                        }
                     }
                 }
-            } else if (type == PKT_LEAVE) {
-                if (cIdx != -1) {
-                	char* serverMsg = malloc(256); sprintf(serverMsg, "Player ID %d left the game!\n", netClients[cIdx].id);
-                	sendPopup(serverMsg, NULL, NULL, 3);
-
-                    printf("[NET] Player ID %d left the game!\n", netClients[cIdx].id);
-                    netBroadcast(buffer, bytes, cIdx);
-                    removeClient(cIdx);
-                }
-            } else if (type == PKT_PLAYER) {
-                if (cIdx != -1 && bytes == sizeof(NetPacketPlayer)) {
-                    NetPacketPlayer* pkt = (NetPacketPlayer*)buffer;
-                    pkt->id = netClients[cIdx].id;
-                    netClients[cIdx].obj->pos = pkt->pos;
-                    netClients[cIdx].obj->rot = pkt->rot;
-                    netBroadcast(buffer, bytes, cIdx);
-                }
+                break;
             }
-        } else {
-            if (type == PKT_JOIN) {
-                NetPacketJoin* pkt = (NetPacketJoin*)buffer;
-                if (strncmp(pkt->name, "AssignID", 8) == 0) {
-                    localNetId = pkt->id;
+
+            case PKT_ASSIGN_ID: {
+                if (!isNetworkHost) {
+                    NetPacketAssignID* pkt = (NetPacketAssignID*)buffer;
+                    localNetId = pkt->assignedId;
+
                     if (client.gameWorld->currPlayer) {
                         client.gameWorld->currPlayer->networkPlayerID = localNetId;
                     }
                     printf("[NET] Connected to host! Assigned ID: %d\n", localNetId);
-                } else {
-                    int existIdx = findClientById(pkt->id);
-                    if (existIdx == -1) {
-                        int newIdx = addClient(&serverAddr, pkt->id);
-                        if (newIdx != -1) {
-                            netClients[newIdx].obj->name = strdup(pkt->name);
-                            printf("[NET] Remote player '%s' added (ID: %d)\n", pkt->name, pkt->id);
+                }
+                break;
+            }
+
+            case PKT_SYNC_PLAYER: {
+                if (!isNetworkHost) {
+                    NetPacketSyncPlayer* pkt = (NetPacketSyncPlayer*)buffer;
+
+                    if (pkt->id != localNetId) {
+                        int existIdx = findClientById(pkt->id);
+                        if (existIdx == -1) {
+                            int newIdx = addClient(&serverAddr, pkt->id);
+                            if (newIdx != -1) {
+                                netClients[newIdx].obj->name = strdup(pkt->name);
+                                printf("[NET] Sync: Remote player '%s' added (ID: %d)\n", pkt->name, pkt->id);
+                            }
                         }
                     }
                 }
-            } else if (type == PKT_LEAVE) {
+                break;
+            }
+
+            case PKT_LEAVE: {
                 NetPacketLeave* pkt = (NetPacketLeave*)buffer;
                 int remIdx = findClientById(pkt->id);
+                
                 if (remIdx != -1) {
-                    printf("[NET] Remote player ID %d left\n", pkt->id);
+                    printf("[NET] Player ID %d left\n", pkt->id);
+
+                    if (isNetworkHost) {
+                        char* serverMsg = malloc(256); sprintf(serverMsg, "Player ID %d left the game!\n", netClients[cIdx].id);
+                        sendPopup(serverMsg, NULL, NULL, 3);
+                        netBroadcast(buffer, bytes, remIdx);
+                    }
+
                     removeClient(remIdx);
                 }
-            } else if (type == PKT_PLAYER) {
+                break;
+            }
+
+            case PKT_PLAYER: {
                 if (bytes == sizeof(NetPacketPlayer)) {
                     NetPacketPlayer* pkt = (NetPacketPlayer*)buffer;
+                    
                     if (pkt->id != localNetId) {
                         int pIdx = findClientById(pkt->id);
                         if (pIdx != -1) {
                             netClients[pIdx].obj->pos = pkt->pos;
                             netClients[pIdx].obj->rot = pkt->rot;
+
+                            if (isNetworkHost) {
+                                netBroadcast(buffer, bytes, pIdx);
+                            }
                         }
                     }
                 }
+                break;
             }
+
+            default:
+                break;
         }
     }
 }
