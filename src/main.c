@@ -24,7 +24,6 @@
 
 #include "studio/studio.h"
 
-#include "network/network.h"
 #include "network/server.h"
 
 #include "softwarerender/main.h"
@@ -55,6 +54,8 @@ TextureRef *textBufferTex;
 
 ClientData client;
 GameWorld game;
+
+extern DataType playerClass;
 
 //SDL_Point windowScaleIntent = {320, 240};
 //double scaleFactor;
@@ -121,8 +122,6 @@ float* guiMatrix = NULL;
 char* clientPath;
 char* basePath;
 
-Server* debugServer = NULL;
-
 cBlockClass testBlockClass = {0, (SDL_FColor){1, 0.83, 0.31, 1}, 0};
 CodeBlock testCodeBlock;
 
@@ -145,18 +144,23 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[]){
 
 	char *mapToLoad = "assets/gamefile.json";
 
-	for(int i=0; i < argc; i++){
-		//printf("%s\n", argv[i]); 
-		if(!strcmp("-debug", argv[i]))client.debug = true;
-		if(!strcmp("-studio", argv[i]))client.studio = true; //currently broken!!!
-		
-		if(!strcmp("-mapfile", argv[i]))
-			mapToLoad = argv[++i];
-		if(!strcmp("-host", argv[i])) printf("cant host server at '%s'... not implemented yet sorry\n", argv[i+1]);
-			//debugServer = serverInit(8080); //argv[i+1]
-		if(!strcmp("-server", argv[i])) printf("cant join server '%s'... not implemented yet sorry\n", argv[i+1]);
-			//connectServer(argv[i++]);
-	}
+	bool isHostMode = false;
+    bool isClientMode = false;
+    char targetIp[64] = "127.0.0.1";
+
+    for (int i = 0; i < argc; i++) {
+        if (!strcmp("-debug", argv[i])) client.debug = true;
+        if (!strcmp("-studio", argv[i])) client.studio = true;
+        if (!strcmp("-mapfile", argv[i])) mapToLoad = argv[++i];
+        
+        if (!strcmp("-host", argv[i])) {
+            isHostMode = true;
+        }
+        if (!strcmp("-server", argv[i])) {
+            isClientMode = true;
+            if (i + 1 < argc) strncpy(targetIp, argv[++i], 63);
+        }
+    }
 	//debugServer = serverInit(8080);
 	//client.server = debugServer;
 	
@@ -308,6 +312,18 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[]){
 	}
 	
 	focusObject = client.gameWorld->currPlayer;
+
+	// shitty host and client 2 player thing, need to revamp to get
+	// more than 2 players working
+	if (isHostMode) {
+        if (netInitHost(8080)) {
+            // lol idk? you hosted succesfully the fuck do you want now
+        }
+    } else if (isClientMode) {
+		if (netInitClient(targetIp, 8080)) {
+			netSendJoin("Player"); 
+		}
+	}
 	
 	return SDL_APP_CONTINUE;
 }	
@@ -370,9 +386,10 @@ SDL_AppResult SDL_AppIterate(void *appstate){
 	guiMatrix = isoProjMatrix(1, aspectRatio, 0.01, 1000);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-	if(debugServer)
-		serverUpdate();
-	
+    if (!client.pause) {
+		netPoll();
+	}
+
 	//SDL_ShowCursor();
 	bool mainWindowFocus = SDL_GetWindowFlags(window) & SDL_WINDOW_INPUT_FOCUS;
 	if(currentCamera.focusDist == 0 && !client.pause){
@@ -566,6 +583,7 @@ void SDL_AppQuit(void *appstate, SDL_AppResult result){
 	(void)appstate; (void)result;
 	cleanupObjects(client.gameWorld->headObj);
 	studioCleanup();
+	netCleanup();
 	cleanupTextures(false); cleanupMeshes(false); clearConsole();
 
 	free(defaultMatrix);

@@ -36,7 +36,7 @@ Texture* newRasterTexture(Uint16 width, Uint16 height){
 	    return NULL;
 	}
 	
-	printf("Succesfully made texture of size %dx%d\n", width, height);
+	//printf("Succesfully made texture of size %dx%d\n", width, height);
 	return newTexture;
 }
 

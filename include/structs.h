@@ -86,7 +86,9 @@ typedef struct DataObj{
 	struct DataObj* child;
 	
 	bool studioOpen;
-	Uint32 serverID; //unique ID for object updates through server stuff or something
+	Uint32 serverID; //id SPECIFICALLY for objects staying constant over multiple clients and servers
+	bool networkExists;
+	int networkPlayerID; //connects object to specific player? other client updates object?
 } DataObj;
 
 typedef struct{
@@ -107,28 +109,11 @@ typedef struct{
 
 	float playerRespawn;
 } GameWorld;
-
-typedef struct{
-	Uint8 IPv4[4];
-	Uint16 IPv6[8];
-} IPAddress;
-
-typedef struct{
-	IPAddress serverIP;
-	IPAddress* clientIP;
-	Uint16 port;
-	char* version;
-	float avgPing;
-	
-	//i dont really know how to do server stuff so
-} Server;
-
 typedef struct{
 	bool debug, pause, studio, online, hosting;
 	char* version;
 	Uint32 playerID;
 	GameWorld *gameWorld;
-	Server *server;
 } ClientData;
 
 typedef struct{

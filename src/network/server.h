@@ -1,26 +1,62 @@
 #ifndef NETWORK_SERVER_H
 #define NETWORK_SERVER_H
 
-Server* serverInit(Uint16 port);
-int serverUpdate();
+#include <stdbool.h>
+#include <stdint.h>
+#include "structs.h"
+#ifdef _WIN32
+#include <winsock2.h>
+#include <ws2tcpip.h>
+#else
+#include <netinet/in.h>
+#include <arpa/inet.h>
+#include <sys/socket.h>
+#endif
 
-/*CLIENT JOIN BASIC METHOD PROBABLY:
-	Client sends enter request with player ID to server
-	Server sends client enter approval ping on success, or a kick ping if theyre banned
-	Add player to server player list
+#define MAX_NET_PLAYERS 16
 
-	Server sends all current instance data to client
-	Once all data is sent, load in the player character or something else
-*/
+typedef enum {
+    PKT_JOIN = 1,
+    PKT_LEAVE = 2,
+    PKT_PLAYER = 3,
+} PacketType;
 
-/*CLIENT TO SERVER UPDATE LOOP BASIC METHOD:
-	Client sends ping to server with the ping start time
-	Server retrieves ping and stores the time between the client ping and when it retrieved the ping
-	If server doesn't retrieve a ping from the client for 15-30 seconds, remove the player from the server
+typedef struct {
+    struct sockaddr_in addr;
+    bool active;
+    uint8_t id;
+    DataObj* obj;
+} NetClient;
 
-	Client sends all local instance updates to server
-	Server sends all global instance updates to client
-	Retrieve unloaded image, model and sound assets from server
-*/
+#pragma pack(push, 1)
+typedef struct {
+    uint8_t type;
+    uint8_t id;
+    char name[31];
+} NetPacketJoin;
+
+typedef struct {
+    uint8_t type;
+    uint8_t id;
+} NetPacketLeave;
+
+typedef struct {
+    uint8_t type;
+    uint8_t id;
+    Vector3 pos;
+    Vector3 rot;
+} NetPacketPlayer;
+#pragma pack(pop)
+
+bool netInitHost(Uint16 port);
+bool netInitClient(const char* ip, Uint16 port);
+void netSend(void* data, size_t size);
+void netCleanup(void);
+
+void netSendJoin(const char* name);
+void netSendLeave(void);
+void netSendPlayer(DataObj* player);
+
+void netPoll(void);
 
 #endif
