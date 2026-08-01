@@ -50,7 +50,6 @@ void roundPlate_grow(DataObj *plate){
 	CollisionHull *collider = plate->objColl; if(!collider) return;
 	collider->scale = (Vector3){plate->scale.x, plate->scale.y, plate->scale.z};
 }
-
 void roundPlate_shrink(DataObj *plate){
 	plate->scale = vec3Add(plate->scale, (Vector3){-1, 0, -1});
 	plate->pos = vec3Add(plate->pos, (Vector3){0.5, 0, 0.5});
@@ -59,16 +58,46 @@ void roundPlate_shrink(DataObj *plate){
 	collider->scale = (Vector3){plate->scale.x, plate->scale.y, plate->scale.z};
 }
 
+void roundPlate_raise(DataObj *plate){
+	plate->pos = vec3Add(plate->pos, (Vector3){0, 4, 0});
+}
+void roundPlate_lower(DataObj *plate){
+	plate->pos = vec3Add(plate->pos, (Vector3){0, -4, 0});
+}
+
 void roundPlayer_green(DataObj *plr){
 	plr->colour = (CharColour){0, 255, 0, 255, 0, COLOURMODE_RGB};
 }
 
 DataObj* plateHead = NULL;
+
+Uint8 plateFuncCount = 4;
+void (*plateFuncs[4])(DataObj*) = {roundPlate_grow, roundPlate_shrink, roundPlate_raise, roundPlate_lower};
+
+DataObj* getRandomChild(DataObj* item){
+	if(!item->child) return NULL;
+
+	Uint16 childCount = 0;
+	DataObj* currItem = item->child;
+	while(currItem){
+		childCount++;
+		currItem = currItem->next;
+	}
+
+	Uint16 randChild = SDL_rand(childCount);
+	currItem = item->child;
+	for(int i=0; i<randChild; i++){
+		if(!currItem->next) break;
+		currItem = currItem->next;
+	}
+	return currItem;
+}
+
 void PLATE_doRound(){
 	if(!plateHead) return;
 
 	if(!plateHead->child) return;
-	roundPlate_grow(plateHead->child);
+	plateFuncs[SDL_rand(plateFuncCount)](getRandomChild(plateHead));
 }
 
 float roundInterval = 10; //time between rounds

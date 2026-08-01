@@ -51,6 +51,18 @@
 			}]
 		},
 		{
+			"name": "Lava",
+			"class": "Block",
+			"pos": 	[12, -32, 12],
+			"scale": 	[220, 64, 220],
+			"colour":	[255, 192, 64, 255],
+			"collision":	{
+				"enabled":	true,
+				"type":	"block"
+			},
+			"children": [{"name": "KillScript", "class": "Script", "script": "killBrickFunc"}]
+		},
+		{
 			"name": "Plates",
 			"class": "Script",
 			"pos":	[12.000000, 0.000000, 12.000000],
