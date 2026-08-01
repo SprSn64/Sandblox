@@ -1,4 +1,5 @@
 {
+	"name": "Spamton",
 	"objects":	[{
 			"name":	"Baseplate",
 			"class":	"Block",

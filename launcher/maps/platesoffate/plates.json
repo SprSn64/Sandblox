@@ -1,0 +1,60 @@
+{
+	"name": "Plates au Fate",
+	"objects":	[
+		{
+			"name": "Lobby",
+			"class": "Group",
+			"children": [{
+				"name": "Baseplate",
+				"class": "Block",
+				"pos":	[-12.000000, 0.000000, -12.000000],
+				"scale":	[232.000000, 256.000000, 24.000000],
+				"rot":	[0.000000, 0.000000, 0.000000],
+				"colour":	[192, 192, 192, 255],
+				"collision":	{
+					"enabled":	true,
+					"type":	"block"
+				}
+			},{
+				"name": "Baseplate",
+				"class": "Block",
+				"pos":	[220.000000, 0.000000, -12.000000],
+				"scale":	[24.000000, 256.000000, 232.000000],
+				"rot":	[0.000000, 0.000000, 0.000000],
+				"colour":	[192, 192, 192, 255],
+				"collision":	{
+					"enabled":	true,
+					"type":	"block"
+				}
+			},{
+				"name": "Baseplate",
+				"class": "Block",
+				"pos":	[12.000000, 0.000000, 220.000000],
+				"scale":	[232.000000, 256.000000, 24.000000],
+				"rot":	[0.000000, 0.000000, 0.000000],
+				"colour":	[192, 192, 192, 255],
+				"collision":	{
+					"enabled":	true,
+					"type":	"block"
+				}
+			},{
+				"name": "Baseplate",
+				"class": "Block",
+				"pos":	[-12.000000, 0.000000, 12.000000],
+				"scale":	[24.000000, 256.000000, 232.000000],
+				"rot":	[0.000000, 0.000000, 0.000000],
+				"colour":	[192, 192, 192, 255],
+				"collision":	{
+					"enabled":	true,
+					"type":	"block"
+				}
+			}]
+		},
+		{
+			"name": "Plates",
+			"class": "Script",
+			"pos":	[12.000000, 0.000000, 12.000000],
+			"script": "PLATE_mainLoop"
+		}
+	]
+}

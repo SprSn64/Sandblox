@@ -40,6 +40,8 @@ void (*getFunctionByName(const char* name))(DataObj*) {
     if(!strcmp(name, "killBrickFunc")) return killBrickFunc;
     if(!strcmp(name, "soulControlFunc")) return soulControlFunc;
     if(!strcmp(name, "knightHoverFunc")) return knightHoverFunc;
+
+    if(!strcmp(name, "PLATE_mainLoop")) return PLATE_mainLoop;
     return NULL;
 }
 

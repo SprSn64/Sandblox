@@ -18,6 +18,8 @@ static NetClient netClients[MAX_NET_PLAYERS];
 static uint8_t localNetId = 0;
 static uint8_t nextHostAssignId = 1;
 
+Uint16 playerCount = 1;
+
 #ifdef __linux__
 #include <fcntl.h>
 #include <unistd.h>
