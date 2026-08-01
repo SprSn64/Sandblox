@@ -295,10 +295,6 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[]){
 	testCodeBlock = (CodeBlock){&testBlockClass, NULL, NULL, NULL, NULL};
 
 	//SDL_HideCursor();
-	
-	//if(glEnabled) goto openGlInitSkip;
-
-//openGlInitSkip:
 
 	if(mapLoaded) return SDL_APP_CONTINUE;
 	

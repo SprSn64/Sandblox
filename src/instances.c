@@ -65,7 +65,7 @@ void drawObjects(DataObj* item){
 	if(!item->classData->draw) goto noDraw;
 
 	CollisionHull *collider = item->objColl;
-	if(collider && (collider->shape == COLLHULL_CUBE || collider->shape == COLLHULL_SPHERE)){
+	if(collider && (collider->shape == COLLHULL_CUBE || collider->shape == COLLHULL_SPHERE) && client.debug){
 		Mesh* collMesh = cubePrim;
 		switch(collider->shape){
 			case COLLHULL_SPHERE: collMesh = spherePrim; break;
