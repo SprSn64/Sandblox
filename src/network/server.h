@@ -53,12 +53,14 @@ typedef struct {
     uint8_t id;
 } NetPacketLeave;
 
-typedef struct {
-    uint8_t type;
-    uint8_t id;
-    Vector3 pos;
-    Vector3 rot;
+typedef struct NetPacketPlayer{
+	uint8_t type;
+	uint8_t id;
+	Vector3 pos;
+	Vector3 rot;
+	CharColour colour;
 } NetPacketPlayer;
+
 #pragma pack(pop)
 
 bool netInitHost(Uint16 port);

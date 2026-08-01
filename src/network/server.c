@@ -160,7 +160,8 @@ void netSendPlayer(DataObj *player) {
         .type = PKT_PLAYER,
         .id = localNetId,
         .pos = player->pos,
-        .rot = player->rot
+        .rot = player->rot,
+        .colour = player->colour
     };
     netSend(&pkt, sizeof(pkt));
 }
@@ -316,6 +317,7 @@ void netPoll(void) {
                         if (pIdx != -1) {
                             netClients[pIdx].obj->pos = pkt->pos;
                             netClients[pIdx].obj->rot = pkt->rot;
+                            netClients[pIdx].obj->colour = pkt->colour;
 
                             if (isNetworkHost) {
                                 netBroadcast(buffer, bytes, pIdx);
