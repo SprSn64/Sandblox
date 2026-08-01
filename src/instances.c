@@ -362,23 +362,25 @@ extern TextureRef* textBufferTex;
 void renderPopup(NotiPopup* item, Uint32 posX, Uint32 posY){
 	if(item->age >= item->life) return;
 	
-	SDL_SetRenderDrawColor(renderer, 0, 0, 0, 128);
-	SDL_RenderFillRect(renderer, &(SDL_FRect){posX, posY, 224, 64});
+	//SDL_SetRenderDrawColor(renderer, 0, 0, 0, 128);
+	//SDL_RenderFillRect(renderer, &(SDL_FRect){posX, posY, 224, 64});
 	//drawRect(displayTex, posX, posY, 224, 64, 0x80000000);
+
+	float alpha = max(0, min(item->life - item->age, 1));
 
 	float* backMatrix = genMatrix(
 		screenToGL((Vector3){posX, posY, 0}),
 		(Vector3){(224.f / windowScale.x) * aspectRatio * 2, 1, (64.f / windowScale.y) * 2}, 
 		(Vector3){HALFPI, 0, 0}
 	);
-	drawMeshOpenGL(planePrim, backMatrix, (SDL_FColor){0, 0, 0, 0.5}, NULL);
+	drawMeshOpenGL(planePrim, backMatrix, (SDL_FColor){0, 0, 0, alpha * 0.5}, NULL);
 	free(backMatrix);
 	
 	//drawText(renderer, &defaultFont, item->text, posX + 2, posY + 2, 1, (SDL_FColor){1, 1, 1, 1});
 	//drawRasterText(displayTex, &defaultFont, item->text, posX + 2, posY + 2, 1, 0xFFFFFFFF);
 
 	float textScale = screenToGL((Vector3){8 + (windowScale.x >> 1), 1, 0}).x;
-	drawGlText(&defaultFont, screenToGL((Vector3){posX + 2, posY + 2, 0}), item->text, textScale, (SDL_FColor){1, 1, 1, 1});
+	drawGlText(&defaultFont, screenToGL((Vector3){posX + 2, posY + 2, 0}), item->text, textScale, (SDL_FColor){1, 1, 1, alpha});
 }
 
 void updatePopups(){
