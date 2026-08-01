@@ -130,7 +130,6 @@ collisionSkip:
 	if(fabs(playerVel->x) + fabs(playerVel->y) + fabs(playerVel->z) > 0.008)
 		object->pos = (Vector3){object->pos.x + playerVel->x * deltaTime, object->pos.y + playerVel->y * deltaTime, object->pos.z + playerVel->z * deltaTime};
 
-	object->colour.a = min(game.currCamera->focusDist / 2, 1) * 255;
 	game.currCamera->pos = (Vector3){
 		object->pos.x + (SDL_cos(game.currCamera->rot.x) * SDL_sin(game.currCamera->rot.y)) * game.currCamera->focusDist, 
 		object->pos.y + pow(1 - min(game.currCamera->focusDist / 8, 1), 2) + 2.8 * object->scale.y - SDL_sin(game.currCamera->rot.x) * game.currCamera->focusDist, 
@@ -153,6 +152,7 @@ extern Mesh *playerFemMesh;
 void playerDraw(DataObj* object){
 	if (!object->networkExists && object != client.gameWorld->currPlayer) return;
 	SDL_FColor plrColour = ConvertSDLColour(object->colour);
+	plrColour.a *= object == client.gameWorld->currPlayer ? min(game.currCamera->focusDist / 2, 1) : 1;
 	Mesh* plrMesh = playerMesh;
 	DataObj* femBody = firstChildWithName(object, "femBody");
 	if(femBody && femBody->classData->id == groupClass.id)
