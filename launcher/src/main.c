@@ -26,7 +26,7 @@ typedef enum operatingSystem{
 
 #include "structs.h"
 #include "input.h"
-#include "mesh.h"
+#include "loader.h"
 #include "pages.h"
 #include "avatar.h"
 
