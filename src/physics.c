@@ -83,7 +83,7 @@ CollisionReturn* getCollision(CollisionHull* itemA, CollisionHull* itemB){
 /*MINDIST_PX*/	fabs(itemB->pos.x - itemA->pos.x - itemA->scale.x),
 /*MINDIST_NX*/	fabs((itemB->pos.x + itemB->scale.x) - itemA->pos.x),
 /*MINDIST_PY*/	fabs(itemB->pos.y - itemA->pos.y + itemA->scale.y) - 1,
-/*MINDIST_NY*/	fabs((itemB->pos.y + itemB->scale.y) - itemA->pos.y),
+/*MINDIST_NY*/	fabs((itemB->pos.y - itemB->scale.y) - itemA->pos.y),
 /*MINDIST_PZ*/	fabs(itemB->pos.z - itemA->pos.z - itemA->scale.z),
 /*MINDIST_NZ*/	fabs((itemB->pos.z + itemB->scale.z) - itemA->pos.z),
 		};
@@ -96,7 +96,7 @@ CollisionReturn* getCollision(CollisionHull* itemA, CollisionHull* itemB){
 			case MINDIST_NX: output->outNorm = (Vector3){(itemB->pos.x + itemB->scale.x) - itemA->pos.x, 0, 0}; break;
 
 			case MINDIST_PY: output->outNorm = (Vector3){0, itemB->pos.y - itemA->pos.y + itemA->scale.y, 0}; break;
-			case MINDIST_NY: output->outNorm = (Vector3){0, itemB->pos.y - itemA->pos.y + itemB->scale.y, 0}; break;
+			case MINDIST_NY: output->outNorm = (Vector3){0, (itemB->pos.y - itemB->scale.y) - itemA->pos.y, 0}; break;
 
 			case MINDIST_PZ: output->outNorm = (Vector3){0, 0, itemB->pos.z - itemA->pos.z - itemA->scale.z}; break;
 			case MINDIST_NZ: output->outNorm = (Vector3){0, 0, (itemB->pos.z + itemB->scale.z) - itemA->pos.z}; break;

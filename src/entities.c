@@ -103,9 +103,9 @@ void playerUpdate(DataObj* object){
 	if(fabs(collOut.x) + fabs(collOut.y) + fabs(collOut.z) == 0) goto collisionSkip;
 
 	Vector3 collNorm = normalize3(collOut);
-	if(between(dotProd3(collNorm, (Vector3){0, 1, 0}), 0.5, 1)){
+	if(between(fabs(dotProd3(collNorm, (Vector3){0, 1, 0})), 0.5, 1)){
 		playerVel->y = 0;
-		if(between(fabs(dotProd3(collNorm, (Vector3){0, 1, 0})), 0.5, 1))
+		if(between(dotProd3(collNorm, (Vector3){0, 1, 0}), 0.5, 1))
 			plrData->coyote = 0;
 	}
 	if(between(fabs(dotProd3(collNorm, (Vector3){1, 0, 0})), 0.5, 1)){
