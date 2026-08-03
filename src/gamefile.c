@@ -522,7 +522,7 @@ DataObj* loadPlayerAvatar(){
 
 	cJSON* name = cJSON_GetObjectItem(json, "name");
 	if(name && cJSON_IsString(name))
-		newPlayer->name = strdup(name->valuestring);
+		newPlayer->name = strndup(name->valuestring, 20);
 
 	cJSON* femBody = cJSON_GetObjectItem(json, "femBody");
       if(femBody && cJSON_IsBool(femBody) && cJSON_IsTrue(femBody)){

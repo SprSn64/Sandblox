@@ -130,10 +130,26 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[]){
 	return SDL_APP_CONTINUE;
 }	
 
+extern Uint16 textCursor;
 SDL_AppResult SDL_AppEvent(void *appstate, SDL_Event *event){
 	(void)appstate;
-	if(event->type == SDL_EVENT_QUIT){
-		return SDL_APP_SUCCESS;
+
+	char* string;
+	switch(event->type){
+		case SDL_EVENT_QUIT: return SDL_APP_SUCCESS;
+		case SDL_EVENT_TEXT_INPUT:
+			if(!currButtonItem || !currButtonItem->target || textCursor >= 20) break;
+			string = currButtonItem->target;
+
+			string[textCursor] = *event->text.text; textCursor++;
+			break;
+		case SDL_EVENT_KEY_DOWN:
+			if(!currButtonItem || !currButtonItem->target) break;
+			if(event->key.scancode != SDL_SCANCODE_BACKSPACE || textCursor == 0) break;
+			string = currButtonItem->target;
+			string[textCursor - 1] = 0x00; textCursor--;
+
+			break;
 	}
 	return SDL_APP_CONTINUE;
 }

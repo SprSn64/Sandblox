@@ -59,6 +59,7 @@ extern char *clientLoc;
 extern char *basePath;
 
 Button* currButtonItem;
+Uint16 textCursor = 0;
 
 bool between(float input, float min, float max);
 
@@ -84,7 +85,7 @@ bool updateButton(Button* item){
 		item->down = true;
 
 		switch(item->buttonType){
-			case INPUTTYPE_TEXT: currButtonItem = item; SDL_StartTextInput(window); break;
+			case INPUTTYPE_TEXT: currButtonItem = item; SDL_StartTextInput(window); textCursor = strlen(item->target); break;
 			default: item->pressed(item); break;
 		}
 	}
@@ -125,6 +126,12 @@ void drawButton(SDL_Renderer* render, Button* item){
 
 	if(item->buttonType == INPUTTYPE_TEXT && item->target){
 		drawText(render, &defaultFont, item->target, item->rect.x + 2, item->rect.y + 2, 1, (SDL_FColor){0, 0, 0, 1});
+
+		if(currButtonItem == item){
+			SDL_SetRenderDrawColor(render, 0, 0, 0, 255);
+			SDL_RenderFillRect(render, &(SDL_FRect){item->rect.x + 6 * (textCursor) + 2, item->rect.y + 2, 1, 8});
+		}
+
 		if(strlen(item->target))return;
 	}
 
