@@ -1,0 +1,38 @@
+{
+	"init": [
+		{
+			"type": "comment",
+			"content": "Script ran on script instance initiation"
+		},{
+			"type": "print",
+			"content": "Hello, World!"
+		}
+	],
+	
+	"update": [
+		{
+			"type": "comment",
+			"content": "Script ran on script instance update"
+		},{
+			"type": "if",
+			"content": [{"type": "bool", "content": 1}, [{"type": "setColour",
+					"content": [{"type": "getParent"}, [{"type": "fRand", "content": [0, 1]}, {"type": "fRand", "content": [0, 1]}, {"type": "fRand", "content": [0, 1]}, 1]]
+				}]
+			]
+		}
+	],
+	
+	"render": [
+		{
+			"type": "comment",
+			"content": "Script ran on script instance render"
+		}
+	],
+	
+	"destroy": [
+		{
+			"type": "comment",
+			"content": "Script ran on script instance removal"
+		}
+	]
+}
