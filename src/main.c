@@ -122,7 +122,7 @@ float* guiMatrix = NULL;
 char* clientPath;
 char* basePath;
 
-cBlockClass testBlockClass = {0, (SDL_FColor){1, 0.83, 0.31, 1}, 0};
+CodeBlockClass testBlockClass = {0, (SDL_FColor){1, 0.83, 0.31, 1}, 0, CODEBLOCK_NORMAL};
 CodeBlock testCodeBlock;
 
 //extern Uint64 memoryCount;
@@ -292,7 +292,10 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[]){
 	
 	defaultMatrix = newMatrix();
 
-	testCodeBlock = (CodeBlock){&testBlockClass, NULL, NULL, NULL, NULL};
+	now = SDL_GetTicks();
+	srand(now);
+
+	testCodeBlock = (CodeBlock){&testBlockClass, NULL, NULL, NULL, NULL, NULL, NULL};
 
 	//SDL_HideCursor();
 

@@ -14,9 +14,9 @@
 extern Mesh* planePrim;
 extern float* defaultMatrix;
 void drawCodeBlock(CodeBlock* item, SDL_FPoint pos){
-	if(!item->classItem) return;
+	if(!item->blockClass) return;
 
 	float* blockMatrix = genMatrix((Vector3){pos.x, pos.y, 0}, (Vector3){0.2, 1, 0.05}, (Vector3){HALFPI, 0, 0});
-	drawMeshOpenGL(planePrim, blockMatrix, item->classItem->colour, NULL);
+	drawMeshOpenGL(planePrim, blockMatrix, item->blockClass->colour, NULL);
 	free(blockMatrix);
 }
