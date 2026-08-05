@@ -7,3 +7,26 @@
 #include <structs.h>
 #include "structs.h"
 #include "logic.h"
+
+#include "../instances.h"
+#include "../math.h"
+
+void codeblock_print(CodeBlock* block){
+	if(!block->content){
+		char* logText = malloc(64); sprintf(logText, "why print nothing... shaking my head!");
+		logToConsole(logText, CONSOLELOG_DEFAULT); 
+		return;
+	}
+	
+	char* logText = strdup(block->content);
+	logToConsole(logText, CONSOLELOG_DEFAULT);
+}
+
+void codeblock_fRand(CodeBlock* block){
+	if(block->content)
+		free(block->content);
+	float* randFloat = malloc(sizeof(float));
+	block->content = randFloat;
+
+	*randFloat = fRand(0, 1);
+}

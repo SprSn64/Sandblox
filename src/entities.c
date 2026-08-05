@@ -342,6 +342,7 @@ void particleInit(DataObj* object){
 	emitter->waitTime = 0.2;
 	emitter->timer = emitter->waitTime;
 
+	emitter->velRand = 1;
 	emitter->initVel = (Vector3){0, 4, 0};
 
 	object->objOther = emitter;
@@ -355,7 +356,11 @@ void particleUpdate(DataObj* object){
 		emitter->timer = 0.2;
 		Particle* newParticle = addParticle(emitter, object->pos);
 
-		newParticle->vel = vec3Add(emitter->initVel, (Vector3){sin(timer * 6), 0, cos(timer * 6)});
+		newParticle->vel = vec3Add(emitter->initVel, (Vector3){
+			fRand(-emitter->velRand, emitter->velRand), 
+			fRand(-emitter->velRand, emitter->velRand), 
+			fRand(-emitter->velRand, emitter->velRand)
+		});
 	}
 
 	Particle* currParticle = emitter->headParticle;

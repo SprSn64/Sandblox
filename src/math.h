@@ -52,4 +52,6 @@ void extractRotMatrix(mat4 matrix, mat4 outputLoc);
 Uint16 minIndex(float* array, Uint16 length);
 Uint16 maxIndex(float* array, Uint16 length);
 
+float fRand(float min, float max);
+
 #endif

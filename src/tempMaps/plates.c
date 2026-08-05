@@ -16,7 +16,7 @@
 
 extern double deltaTime;
 
-//game zone = 220x220
+//game zone = 208x208
 bool platesMade = false;
 SDL_Point plateArea = {6, 6};
 void PLATE_genPlates(DataObj *item){

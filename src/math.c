@@ -267,3 +267,7 @@ Uint16 maxIndex(float* array, Uint16 length){
 
 	return index;
 }
+
+float fRand(float min, float max){
+	return lerp(min, max, (float)(Uint16)rand() / 0xFFFF);
+}

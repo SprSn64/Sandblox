@@ -54,7 +54,7 @@
 			"name": "Lava",
 			"class": "Block",
 			"pos": 	[12, -32, 12],
-			"scale": 	[220, 64, 220],
+			"scale": 	[208, 64, 208],
 			"colour":	[255, 192, 64, 255],
 			"collision":	{
 				"enabled":	true,

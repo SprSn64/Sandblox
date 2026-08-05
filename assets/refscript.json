@@ -1,38 +1,55 @@
 {
-	"init": [
-		{
-			"type": "comment",
-			"content": "Script ran on script instance initiation"
-		},{
-			"type": "print",
-			"content": "Hello, World!"
-		}
-	],
+	"init": {
+		"pos": [0, 0],
+		"content": [
+			{
+				"type": "comment",
+				"content": [{"type": "string", "content": ["Script ran on script instance initiation"]}]
+			},{
+				"type": "print",
+				"content": [{"type": "string", "content": ["Hello, World!"]}]
+			}
+		]
+	},
 	
-	"update": [
-		{
-			"type": "comment",
-			"content": "Script ran on script instance update"
-		},{
-			"type": "if",
-			"content": [{"type": "bool", "content": 1}, [{"type": "setColour",
-					"content": [{"type": "getParent"}, [{"type": "fRand", "content": [0, 1]}, {"type": "fRand", "content": [0, 1]}, {"type": "fRand", "content": [0, 1]}, 1]]
-				}]
-			]
-		}
-	],
+	"update": {
+		"pos": [16, 0],
+		"content": [
+			{
+				"type": "comment",
+				"content": [{"type": "string", "content": ["Script ran on script instance update"]}]
+			},{
+				"type": "if",
+				"content": [{"type": "bool", "content": [1]}, [{"type": "setColour",
+					"content": [{"type": "getParent"}, [{"type": "fRand", "content": [0, 1]}, {"type": "fRand", "content": [0, 1]}, {"type": "fRand", "content": [0, 1]}, 1]]}]
+				]
+			}
+		]
+	},
 	
-	"render": [
-		{
-			"type": "comment",
-			"content": "Script ran on script instance render"
-		}
-	],
+	"render": {
+		"pos": [32, 0],
+		"content": [
+			{
+				"type": "comment",
+				"content": [{"type": "string", "content": ["Script ran on script instance render"]}]
+			},{
+				"type": "print",
+				"content": [{"type": "string", "content": ["Script removed"]}]
+			}
+		]
+	},
 	
-	"destroy": [
-		{
-			"type": "comment",
-			"content": "Script ran on script instance removal"
-		}
-	]
+	"destroy": {
+		"pos": [48, 0],
+		"content": [
+			{
+				"type": "comment",
+				"content": [{"type": "string", "content": ["Script ran on script instance removal"]}]
+			},{
+				"type": "print",
+				"content": [{"type": "string", "content": ["Script removed"]}]
+			}
+		]
+	}
 }
