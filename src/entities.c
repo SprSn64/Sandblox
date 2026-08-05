@@ -120,12 +120,13 @@ collisionSkip:
 	if(plrData->coyote < plrData->coyoteMax && keyList[KEYBIND_SPACE].pressed)
 		playerVel->y = plrData->jumpStrength;
 
-	float friction = 0.90 - 0.005 * (plrData->coyote >= plrData->coyoteMax);
+	float friction = 6 + .3 * (plrData->coyote >= plrData->coyoteMax);
+	float fricMult = max(1.f - friction * deltaTime, 0);
 
 	playerVel->y += deltaTime * (-60 + 30 * (keyList[KEYBIND_SPACE].down && playerVel->y > 0));
 	
-	playerVel->x = (playerVel->x + playerMove.x * plrData->moveSpeed) * friction;
-	playerVel->z = (playerVel->z + playerMove.y * plrData->moveSpeed) * friction;
+	playerVel->x = (playerVel->x + playerMove.x * plrData->moveSpeed) * fricMult;
+	playerVel->z = (playerVel->z + playerMove.y * plrData->moveSpeed) * fricMult;
 	
 	if(fabs(playerVel->x) + fabs(playerVel->y) + fabs(playerVel->z) > 0.008)
 		object->pos = (Vector3){object->pos.x + playerVel->x * deltaTime, object->pos.y + playerVel->y * deltaTime, object->pos.z + playerVel->z * deltaTime};
