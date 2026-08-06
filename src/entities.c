@@ -151,13 +151,14 @@ collisionSkip:
 extern Mesh *playerMesh;
 extern Mesh *playerFemMesh;
 void playerDraw(DataObj* object){
-	if (!object->networkExists && object != client.gameWorld->currPlayer) return;
+	//if (!object->networkExists && object != client.gameWorld->currPlayer) return;
 	SDL_FColor plrColour = ConvertSDLColour(object->colour);
 	plrColour.a *= object == client.gameWorld->currPlayer ? min(game.currCamera->focusDist / 2, 1) : 1;
 	Mesh* plrMesh = playerMesh;
 	DataObj* femBody = firstChildWithName(object, "femBody");
 	if(femBody && femBody->classData->id == groupClass.id)
 		plrMesh = playerFemMesh;
+
 	drawMeshOpenGL(plrMesh, object->transform, plrColour, NULL);
 	
 	DataObj *hatItem = object->child;

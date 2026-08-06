@@ -21,6 +21,7 @@ typedef struct{
 } Font;
 
 typedef struct MapEntry{
+	bool folder;
 	char* path;
 	char* name;
 	struct MapEntry* prev;

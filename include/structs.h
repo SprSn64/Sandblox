@@ -116,6 +116,15 @@ typedef struct{
 	GameWorld *gameWorld;
 } ClientData;
 
+typedef struct PlayerEntry{
+	Uint32 playerID;
+	char* name;
+	DataObj* character;
+
+	//ip address goes here probably
+	Uint16 ping;
+} PlayerEntry;
+
 typedef struct{
 	bool down, pressed, released, pressCheck;
 	Uint32 code;

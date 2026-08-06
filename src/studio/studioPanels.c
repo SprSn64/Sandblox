@@ -275,8 +275,8 @@ void updatePanel(StudioPanel* item, SDL_FRect* area){
 		area->w, area->h
 	};*/
 
-	Vector3 screenX = glToScreen((Vector3){area->x, area->w - (windowScale.y >> 1), 0});
-	Vector3 screenY = glToScreen((Vector3){area->y, area->h - (windowScale.y >> 1), 0});
+	Vector3 screenX = glToScreen((Vector3){area->x + 0.5, area->w - (windowScale.y >> 1), 0});
+	Vector3 screenY = glToScreen((Vector3){area->y + 0.5, area->h - (windowScale.y >> 1), 0});
 
 	item->mousePos = (SDL_FPoint){mousePos.x - screenX.x, mousePos.y - screenY.x};
 	if(lesserBetween(mousePos.x - screenX.x, 0, screenX.y) && lesserBetween(mousePos.y - screenY.x, 0, screenY.y)){
@@ -302,8 +302,8 @@ void drawPanel(StudioPanel* item, SDL_FRect* area){
 		case PANEL_CODEEDITOR: drawCodePanel(item, area); break;
 	}
 
-	Vector3 screenMouse = screenToGL((Vector3){item->mousePos.x, item->mousePos.y, 1});
+	Vector3 screenMouse = screenToGL((Vector3){item->mousePos.x + (windowScale.x >> 1), item->mousePos.y + (windowScale.y >> 1), 1});
 	float* cursorMatrix = genMatrix((Vector3){area->x + screenMouse.x, area->y + screenMouse.y, 0}, (Vector3){32.f / (windowScale.y >> 1), 1, 32.f / (windowScale.y >> 1)}, (Vector3){HALFPI, 0, 0});
-	drawMeshOpenGL(planePrim, cursorMatrix, (SDL_FColor){item->mouseWithin, 0, 0, 1}, NULL);
+	drawMeshOpenGL(planePrim, cursorMatrix, (SDL_FColor){item->mouseWithin, 0, (float)item->type / 8, 1}, NULL);
 	free(cursorMatrix);
 }

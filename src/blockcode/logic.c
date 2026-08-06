@@ -23,10 +23,10 @@ void codeblock_print(CodeBlock* block){
 }
 
 void codeblock_fRand(CodeBlock* block){
-	if(block->content)
-		free(block->content);
+	if(block->output)
+		free(block->output);
 	float* randFloat = malloc(sizeof(float));
-	block->content = randFloat;
+	block->output = randFloat;
 
 	*randFloat = fRand(0, 1);
 }

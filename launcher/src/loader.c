@@ -8,6 +8,8 @@
 #include <string.h>
 #include <dirent.h>
 
+#include <sys/stat.h>
+
 MapEntry* mapListHead = NULL;
 MapEntry* addMapEntry(char* path, char* name){
 	MapEntry* newEntry = malloc(sizeof(MapEntry));
@@ -61,6 +63,9 @@ bool loadMapDir(char* path){
 
 		char* extChar = strrchr(entry->d_name, '.');
 		if(!extChar) continue;
+
+		struct stat fileStat; stat(path, &fileStat);
+		printf("%d\n", S_ISREG(fileStat.st_mode));
 
 		if(!strcmp(extChar, ".json"))
 			addMapEntry(fullPath, entry->d_name);
