@@ -144,9 +144,9 @@ collisionSkip:
 		*playerVel = (Vector3){0, 0, 0};*/
 		killPlayer();
 	}
-	if (object == game.currPlayer) {
-		netSendPlayer(object);
-	}
+	//if (object == game.currPlayer) {
+	//	netSendPlayer(object);
+	//}
 }
 extern Mesh *playerMesh;
 extern Mesh *playerFemMesh;

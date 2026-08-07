@@ -144,23 +144,23 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[]){
 
 	char *mapToLoad = "assets/gamefile.json";
 
-	bool isHostMode = false;
-    bool isClientMode = false;
-    char targetIp[64] = "127.0.0.1";
+	//bool isHostMode = false;
+	//bool isClientMode = false;
+	//char targetIp[64] = "127.0.0.1";
 
-    for (int i = 0; i < argc; i++) {
-        if (!strcmp("-debug", argv[i])) client.debug = true;
-        if (!strcmp("-studio", argv[i])) client.studio = true;
-        if (!strcmp("-mapfile", argv[i])) mapToLoad = argv[++i];
+	for (int i = 0; i < argc; i++) {
+		if (!strcmp("-debug", argv[i])) client.debug = true;
+		if (!strcmp("-studio", argv[i])) client.studio = true;
+		if (!strcmp("-mapfile", argv[i])) mapToLoad = argv[++i];
         
-        if (!strcmp("-host", argv[i])) {
-            isHostMode = true;
-        }
-        if (!strcmp("-server", argv[i])) {
-            isClientMode = true;
-            if (i + 1 < argc) strncpy(targetIp, argv[++i], 63);
-        }
-    }
+		if (!strcmp("-host", argv[i])) {
+			//isHostMode = true;
+		}
+		if (!strcmp("-server", argv[i])) {
+			//isClientMode = true;
+			//if (i + 1 < argc) strncpy(targetIp, argv[++i], 63);
+		}
+	}
 	//debugServer = serverInit(8080);
 	//client.server = debugServer;
 	
@@ -311,20 +311,6 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[]){
 	}
 	
 	focusObject = client.gameWorld->currPlayer;
-
-	// shitty host and client 2 player thing, need to revamp to get
-	// more than 2 players working
-	if (isHostMode) {
-        if (netInitHost(8080)) {
-            // lol idk? you hosted succesfully the fuck do you want now
-            char newWindowName[256]; sprintf(newWindowName, "Sandblox v%s (Hosting server)", client.version);
-            SDL_SetWindowTitle(window, newWindowName);
-        }
-    } else if (isClientMode) {
-		if (netInitClient(targetIp, 8080)) {
-			netSendJoin("Player"); 
-		}
-	}
 	
 	return SDL_APP_CONTINUE;
 }	
@@ -387,9 +373,9 @@ SDL_AppResult SDL_AppIterate(void *appstate){
 	guiMatrix = isoProjMatrix(1, aspectRatio, 0.01, 1000);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-    if (!client.pause) {
-		netPoll();
-	}
+	//if (!client.pause) {
+	//	netPoll();
+	//}
 
 	//SDL_ShowCursor();
 	bool mainWindowFocus = SDL_GetWindowFlags(window) & SDL_WINDOW_INPUT_FOCUS;
@@ -584,7 +570,7 @@ void SDL_AppQuit(void *appstate, SDL_AppResult result){
 	(void)appstate; (void)result;
 	cleanupObjects(client.gameWorld->headObj);
 	studioCleanup();
-	netCleanup();
+	//netCleanup();
 	cleanupTextures(false); cleanupMeshes(false); clearConsole();
 
 	free(defaultMatrix);
