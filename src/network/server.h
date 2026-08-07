@@ -15,6 +15,11 @@
 #endif
 
 bool initServer(Uint16 port);
-void closeServer();
+bool initClient(const char* ipAddr, Uint16 port);
+void closeConnection();
+
+bool sendPing();
+ssize_t retrievePing();
+void pollPings();
 
 #endif

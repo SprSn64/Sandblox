@@ -121,7 +121,7 @@ typedef struct PlayerEntry{
 	char* name;
 	DataObj* character;
 
-	//ip address goes here probably
+	char* ipAddr; //if ipAddr == hostAddr then do host things
 	Uint16 ping;
 } PlayerEntry;
 

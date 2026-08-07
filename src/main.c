@@ -148,22 +148,21 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[]){
 	//bool isClientMode = false;
 	//char targetIp[64] = "127.0.0.1";
 
-	for (int i = 0; i < argc; i++) {
-		if (!strcmp("-debug", argv[i])) client.debug = true;
-		if (!strcmp("-studio", argv[i])) client.studio = true;
-		if (!strcmp("-mapfile", argv[i])) mapToLoad = argv[++i];
+	char targetIp[16] = "127.0.0.1";
+
+	for(int i = 0; i < argc; i++){
+		if(!strcmp("-debug", argv[i])) client.debug = true;
+		if(!strcmp("-studio", argv[i])) client.studio = true;
+		if(!strcmp("-mapfile", argv[i])) mapToLoad = argv[++i];
         
-		if (!strcmp("-host", argv[i])) {
+		if(!strcmp("-host", argv[i])) {
 			//isHostMode = true;
 			client.hosting = initServer(8080);
-		}
-		if (!strcmp("-server", argv[i])) {
-			//isClientMode = true;
-			//if (i + 1 < argc) strncpy(targetIp, argv[++i], 63);
+		}else if(!strcmp("-server", argv[i])) {
+			if(i+1 < argc)strncpy(targetIp, argv[i + 1], 15);
+			client.online = initClient(targetIp, 8080);
 		}
 	}
-	//debugServer = serverInit(8080);
-	//client.server = debugServer;
 	
 	if(!SDL_Init(SDL_INIT_VIDEO)){
 		SDL_Log("Couldn't initialize SDL: %s", SDL_GetError());
@@ -300,7 +299,11 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[]){
 
 	//SDL_HideCursor();
 
-	if(mapLoaded/* || client.online*/) return SDL_APP_CONTINUE;
+	if(client.online){
+		client.pause = true;
+		return SDL_APP_CONTINUE;
+	}
+	if(mapLoaded) return SDL_APP_CONTINUE;
 	
 	if(mapToLoad && loadGameFile(mapToLoad) == 0){
 		gameFileLoaded = true;
@@ -425,6 +428,9 @@ SDL_AppResult SDL_AppIterate(void *appstate){
 		}
 		updateObjects(client.gameWorld->headObj);
 	}
+
+	if(client.online || client.hosting)
+		pollPings();
 
 	glViewport(0, 0, windowScale.x, windowScale.y);
 	//panelHead.split = (sin(timer / 4) + 1) * 0.5;
@@ -569,7 +575,7 @@ SDL_AppResult SDL_AppIterate(void *appstate){
 
 void SDL_AppQuit(void *appstate, SDL_AppResult result){
 	(void)appstate; (void)result;
-	closeServer();
+	closeConnection();
 
 	cleanupObjects(client.gameWorld->headObj);
 	studioCleanup();
