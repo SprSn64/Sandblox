@@ -14,6 +14,7 @@
 	#include <sys/socket.h>
 #endif
 
-
+bool initServer(Uint16 port);
+void closeServer();
 
 #endif

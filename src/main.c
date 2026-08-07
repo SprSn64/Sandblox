@@ -155,6 +155,7 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[]){
         
 		if (!strcmp("-host", argv[i])) {
 			//isHostMode = true;
+			client.hosting = initServer(8080);
 		}
 		if (!strcmp("-server", argv[i])) {
 			//isClientMode = true;
@@ -299,7 +300,7 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[]){
 
 	//SDL_HideCursor();
 
-	if(mapLoaded) return SDL_APP_CONTINUE;
+	if(mapLoaded/* || client.online*/) return SDL_APP_CONTINUE;
 	
 	if(mapToLoad && loadGameFile(mapToLoad) == 0){
 		gameFileLoaded = true;
@@ -568,6 +569,8 @@ SDL_AppResult SDL_AppIterate(void *appstate){
 
 void SDL_AppQuit(void *appstate, SDL_AppResult result){
 	(void)appstate; (void)result;
+	closeServer();
+
 	cleanupObjects(client.gameWorld->headObj);
 	studioCleanup();
 	//netCleanup();
