@@ -99,6 +99,18 @@ typedef struct{
 	float *proj;
 } Camera;
 
+typedef struct PlayerEntry{
+	Uint32 playerID;
+	char* name;
+	DataObj* character;
+
+	char* ipAddr; //if ipAddr == hostAddr then do host things
+	Uint16 ping;
+
+	struct PlayerEntry* prev;
+	struct PlayerEntry* next;
+} PlayerEntry;
+
 typedef struct TextureRef TextureRef;
 typedef struct{
 	DataObj* headObj;
@@ -112,18 +124,9 @@ typedef struct{
 typedef struct{
 	bool debug, pause, studio, online, hosting;
 	char* version;
-	Uint32 playerID;
+	Uint32 playerID; PlayerEntry* selfEntry;
 	GameWorld *gameWorld;
 } ClientData;
-
-typedef struct PlayerEntry{
-	Uint32 playerID;
-	char* name;
-	DataObj* character;
-
-	char* ipAddr; //if ipAddr == hostAddr then do host things
-	Uint16 ping;
-} PlayerEntry;
 
 typedef struct{
 	bool down, pressed, released, pressCheck;

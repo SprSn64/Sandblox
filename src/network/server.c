@@ -22,6 +22,12 @@ static int sockfd = -1;
 #define SUCCESS true
 #define FAILURE false
 
+PlayerEntry* headPlayer = NULL;
+
+PlayerEntry* playerFromAddr(struct sockaddr_in* addr){
+	return NULL;
+}
+
 bool initServer(Uint16 port){
 	sockfd = socket(AF_INET, SOCK_DGRAM, 0);
 	if(sockfd < 0) return FAILURE;
@@ -78,7 +84,17 @@ ssize_t retrievePing(void *storeLoc, size_t size, struct sockaddr_in *fromAddr, 
 }
 
 void pollPings(){
+	Uint8 buffer[512];
+	struct sockaddr_in currAddr;
+	socklen_t addrLen = sizeof(currAddr);
 
+	while(true){ //repeat until no more data in buffer
+		size_t bytes = retrievePing(buffer, sizeof(buffer), &currAddr, &addrLen);
+        	if (bytes <= 0) break;
+
+        	Uint8 type = buffer[0];
+        	PlayerEntry* currClient = playerFromAddr(&currAddr);
+	}
 }
 
 #else
