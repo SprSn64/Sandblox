@@ -52,4 +52,10 @@ bool sendPing();
 ssize_t retrievePing();
 void pollPings();
 
+void pingJoin();
+
+PlayerEntry* addPlayer(Uint32 addr);
+void removePlayer(PlayerEntry* player);
+PlayerEntry* playerFromAddr(Uint32 addr);
+
 #endif

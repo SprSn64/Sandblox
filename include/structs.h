@@ -104,7 +104,7 @@ typedef struct PlayerEntry{
 	char* name;
 	DataObj* character;
 
-	char* ipAddr; //if ipAddr == hostAddr then do host things
+	Uint32 addr; //if addr == hostAddr then do host things
 	Uint16 ping;
 
 	struct PlayerEntry* prev;

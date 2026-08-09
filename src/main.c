@@ -300,6 +300,7 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[]){
 	//SDL_HideCursor();
 
 	if(client.online){
+		pingJoin();
 		client.pause = true;
 		return SDL_APP_CONTINUE;
 	}
@@ -429,8 +430,9 @@ SDL_AppResult SDL_AppIterate(void *appstate){
 		updateObjects(client.gameWorld->headObj);
 	}
 
-	if(client.online || client.hosting)
+	if(client.online || client.hosting){
 		pollPings();
+	}
 
 	glViewport(0, 0, windowScale.x, windowScale.y);
 	//panelHead.split = (sin(timer / 4) + 1) * 0.5;
