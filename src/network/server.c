@@ -23,6 +23,8 @@ static int sockfd = -1;
 #define FAILURE false
 
 PlayerEntry* headPlayer = NULL;
+Uint32 nextNetID = 0;
+
 extern ClientData client;
 
 Uint32 addrToInt(struct sockaddr_in* addr){
@@ -33,6 +35,10 @@ char* addrToString(Uint32 addr){
 	char* string = malloc(16);
 	sprintf(string, "%d.%d.%d.%d", (Uint8)(addr & 0xFF), (Uint8)((addr & 0xFF00) >> 8), (Uint8)((addr & 0xFF0000) >> 16), (Uint8)((addr & 0xFF000000) >> 24));
 	return string;
+}
+
+void addSelfPlayer(){
+	client.selfEntry = addPlayer(addrToInt(&serverAddr));
 }
 
 PlayerEntry* addPlayer(Uint32 addr){
@@ -70,6 +76,32 @@ PlayerEntry* playerFromAddr(Uint32 addr){
 	while(currPlayer){
 		if(currPlayer->addr == addr) return currPlayer;
 		currPlayer = currPlayer->next;
+	}
+
+	return NULL;
+}
+
+void setupID(DataObj* head){
+	DataObj* child = head->child;
+	while (child) {
+		DataObj *next = child->next;
+		setupID(child);
+		nextNetID++;
+		child = next;
+	}
+}
+
+DataObj* instFromID(DataObj* head, Uint32 id){
+	if(id == 0) return head;
+
+	DataObj* child = head->child;
+	while (child) {
+		if(child->netId == id) return child;
+		DataObj *next = child->next;
+
+		DataObj* foundItem = instFromID(child, id);
+		if(foundItem) return foundItem;
+		child = next;
 	}
 
 	return NULL;
@@ -139,26 +171,30 @@ ssize_t retrievePing(void *storeLoc, size_t size, struct sockaddr_in *fromAddr, 
 	return recvfrom(sockfd, storeLoc, size, 0, (struct sockaddr*)fromAddr, addrLen);
 }
 
+void sendInitObj(DataObj* head, struct sockaddr_in* target);
 void pollPings(){
 	if(sockfd < 0) return;
 
-	Uint8 buffer[512];
+	Uint8* buffer = malloc(512);
 	struct sockaddr_in currAddr;
 	socklen_t addrLen = sizeof(currAddr);
 
 	char* ipString = NULL;
+	char* serverMsg = NULL;
 
 	bool bytesLeft = true;
 	while(bytesLeft){
 		ssize_t bytes = retrievePing(buffer, sizeof(buffer), &currAddr, &addrLen);
 		if (bytes <= 0){
 			bytesLeft = false;
-			return;
+			break;
 		}
 
 		Uint8 type = buffer[0];
 		Uint32 addr = addrToInt(&currAddr);
 		PlayerEntry* currPlayer = playerFromAddr(addr);
+
+		printf("Buffer: %s\n", buffer);
 
 		switch(type){
 		case PACKET_CONNECT: 
@@ -169,7 +205,11 @@ void pollPings(){
 
 			ipString = addrToString(addr);
 			printf("Client %s connected!\n", ipString);
+			serverMsg = malloc(256); sprintf(serverMsg, "Client %s joined!\n", ipString);
+			sendPopup(serverMsg, NULL, NULL, 5);
 			free(ipString);
+
+			sendInitObj(client.gameWorld->headObj, &currAddr);
 			break;
 		case PACKET_DISCONNECT: 
 			if(!currPlayer) break;
@@ -178,10 +218,40 @@ void pollPings(){
 
 			ipString = addrToString(addr);
 			printf("Client %s disconnected\n", ipString);
+			serverMsg = malloc(256); sprintf(serverMsg, "Client %s left\n", ipString);
+			sendPopup(serverMsg, NULL, NULL, 5);
 			free(ipString);
+			break;
+
+		case PACKET_NEWINST:
+			if(bytes < 4 + sizeof(DataObj)){
+				printf("packet too short...!\n");
+				break;
+			}
+
+			DataObj* parent = instFromID(client.gameWorld->headObj, (buffer[0] << 24) + (buffer[1] << 16) + (buffer[2] << 8) + buffer[3]);
+			if(!parent){
+				printf("no parents found...\n");
+				break;
+			}
+
+			DataObj* newItem = malloc(sizeof(DataObj) + 4);
+			DataObj* tempNewItem = memcpy(newItem, &buffer[4], sizeof(DataObj));
+			if(tempNewItem)
+				newItem = tempNewItem;
+			else{
+				free(newItem);
+				break;
+			}
+			newItem->prev = NULL; newItem->next = NULL;
+			for(int i=0; i<OBJVAL_MAX;i++){newItem->props[i] = NULL;}
+
+			parentObject(newItem, parent);
 			break;
 		}
 	}
+
+	free(buffer);
 }
 
 void pingJoin(){
@@ -197,6 +267,26 @@ void pingDisconnect(){
 	char* newPack = createPack(PACKET_DISCONNECT, NULL, 0);
 	sendPing(newPack, 1, &serverAddr);
 	free(newPack);
+}
+void pingAddInst(DataObj* item, struct sockaddr_in* target){
+	if(sockfd <= 0) return;
+
+	char* objData = malloc(4 + sizeof(DataObj));
+	sprintf(objData, "%d", item->parent->netId);
+	memcpy(&objData[4], item, sizeof(DataObj));
+
+	char* newPack = createPack(PACKET_NEWINST, objData, 0);
+	sendPing(newPack, 4 + sizeof(DataObj), target);
+	free(newPack); free(objData);
+}
+
+void sendInitObj(DataObj* head, struct sockaddr_in* target){
+	DataObj* child = head->child;
+	while (child) {
+		DataObj *next = child->next;
+		pingAddInst(child, target);
+		child = next;
+	}
 }
 
 void closeConnection(){

@@ -43,6 +43,7 @@ DataObj gameHeader = {
 	.props = {NULL},
 	.prev = NULL, .next = NULL, .parent = NULL, .child = NULL,
 	.studioOpen = true,
+	.netId = 0,
 };
 
 void updateObjects(DataObj* item){
@@ -104,32 +105,6 @@ DataObj* newObject(DataType* classData){
 		logToConsole(errorLog, CONSOLELOG_ERROR);
 		return NULL;
 	}
-	/*newObj->parent = parent;
-	if (parent == NULL) parent = game.headObj;
-	
-	// first added is first rendered/updated, last added is last rendered/updated
-	newObj->next = NULL;
-	//newObj->next = parent->child;
-	if(!parent->child){
-		parent->child = newObj;
-	}else{
-		DataObj *loopItem = parent->child;
-		while(loopItem->next){
-			loopItem = loopItem->next;
-		}
-		loopItem->next = newObj;
-		newObj->prev = loopItem;
-	}*/
-	
-	
-	// first added is last rendered/updated, last added is first rendered/updated
-	/*
-	newObj->prev = NULL;
-	newObj->next = parent->child;
-	if (parent->child)
-		parent->child->prev = newObj;
-	parent->child = newObj;
-	*/
 
 	for (int prop = 0; prop < OBJVAL_MAX; prop++) {
 		newObj->props[prop] = NULL;
@@ -142,8 +117,7 @@ DataObj* newObject(DataType* classData){
 	newObj->colour = (CharColour){255, 255, 255, 255, 0, COLOURMODE_RGB};
 	newObj->name = classData->name;
 	newObj->classData = classData;
-	newObj->networkExists = false;
-	newObj->networkPlayerID = 0;
+	newObj->netId = 0xFFFFFF;
 	
 	newObj->studioOpen = false;
 	//newObj->values = NULL;

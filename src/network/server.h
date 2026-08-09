@@ -41,7 +41,7 @@ typedef enum PacketFlags{
 	PACKET_PING = 0x03,
 	PACKET_UPDATE = 0x04,
 
-	PACKET_NEWINST = 0x0001 << 8
+	PACKET_NEWINST = 0x05,
 } PacketFlags;
 
 bool initServer(Uint16 port);
@@ -57,5 +57,9 @@ void pingJoin();
 PlayerEntry* addPlayer(Uint32 addr);
 void removePlayer(PlayerEntry* player);
 PlayerEntry* playerFromAddr(Uint32 addr);
+void addSelfPlayer();
+
+void setupID(DataObj* head);
+DataObj* instFromID(DataObj* head, Uint32 id);
 
 #endif

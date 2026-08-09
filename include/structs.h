@@ -86,9 +86,8 @@ typedef struct DataObj{
 	struct DataObj* child;
 	
 	bool studioOpen;
-	Uint32 serverID; //id SPECIFICALLY for objects staying constant over multiple clients and servers
-	bool networkExists;
-	int networkPlayerID; //connects object to specific player? other client updates object?
+	Uint32 netId; //id SPECIFICALLY for objects staying constant over multiple clients and servers
+	bool netSync;
 } DataObj;
 
 typedef struct{

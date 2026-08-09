@@ -158,9 +158,11 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[]){
 		if(!strcmp("-host", argv[i])) {
 			//isHostMode = true;
 			client.hosting = initServer(8080);
+			if(client.hosting) addSelfPlayer();
 		}else if(!strcmp("-server", argv[i])) {
 			if(i+1 < argc)strncpy(targetIp, argv[i + 1], 15);
 			client.online = initClient(targetIp, 8080);
+			if(client.online) addSelfPlayer();
 		}
 	}
 	

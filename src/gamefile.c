@@ -9,6 +9,7 @@
 #include "mesh.h"
 #include "math.h"
 #include "utils.h"
+#include "network/server.h"
 
 extern ClientData client;
 extern DataObj gameHeader;
@@ -257,6 +258,7 @@ DataObj* createObjectFromJSON(cJSON* obj, DataObj* parent) {
 }
 
 extern bool playerEnabled;
+extern Uint32 nextNetID;
 int loadGameFile(const char* filename) {
     printf("Loading game file: %s...\n", filename);
     
@@ -368,6 +370,8 @@ int loadGameFile(const char* filename) {
         if(obj)
             /*DataObj* newObj = */createObjectFromJSON(obj, NULL);
     }
+
+	nextNetID = 1; setupID(client.gameWorld->headObj);
 	
     client.gameWorld->playerRespawn = 10;
     if(loadedPlayer){
