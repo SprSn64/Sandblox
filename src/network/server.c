@@ -185,7 +185,7 @@ void pollPings(){
 	bool bytesLeft = true;
 	while(bytesLeft){
 		ssize_t bytes = retrievePing(buffer, sizeof(buffer), &currAddr, &addrLen);
-		if (bytes <= 0){
+		if(bytes <= 0){
 			bytesLeft = false;
 			break;
 		}
@@ -209,6 +209,7 @@ void pollPings(){
 			sendPopup(serverMsg, NULL, NULL, 5);
 			free(ipString);
 
+			nextNetID = 0;
 			sendInitObj(client.gameWorld->headObj, &currAddr);
 			break;
 		case PACKET_DISCONNECT: 
@@ -224,19 +225,19 @@ void pollPings(){
 			break;
 
 		case PACKET_NEWINST:
-			if(bytes < 4 + sizeof(DataObj)){
+			if((Uint16)bytes < 4 + sizeof(DataObj)){
 				printf("packet too short...!\n");
 				break;
 			}
 
-			DataObj* parent = instFromID(client.gameWorld->headObj, (buffer[0] << 24) + (buffer[1] << 16) + (buffer[2] << 8) + buffer[3]);
+			DataObj* parent = instFromID(client.gameWorld->headObj, (buffer[1] << 24) + (buffer[2] << 16) + (buffer[3] << 8) + buffer[4]);
 			if(!parent){
 				printf("no parents found...\n");
 				break;
 			}
 
 			DataObj* newItem = malloc(sizeof(DataObj) + 4);
-			DataObj* tempNewItem = memcpy(newItem, &buffer[4], sizeof(DataObj));
+			DataObj* tempNewItem = memcpy(newItem, &buffer[5], sizeof(DataObj));
 			if(tempNewItem)
 				newItem = tempNewItem;
 			else{
@@ -275,9 +276,11 @@ void pingAddInst(DataObj* item, struct sockaddr_in* target){
 	sprintf(objData, "%d", item->parent->netId);
 	memcpy(&objData[4], item, sizeof(DataObj));
 
-	char* newPack = createPack(PACKET_NEWINST, objData, 0);
+	char* newPack = createPack(PACKET_NEWINST, objData, 4 + sizeof(DataObj));
 	sendPing(newPack, 4 + sizeof(DataObj), target);
 	free(newPack); free(objData);
+
+	nextNetID++;
 }
 
 void sendInitObj(DataObj* head, struct sockaddr_in* target){
