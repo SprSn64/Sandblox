@@ -9,18 +9,14 @@
 #include "../instances.h"
 #include "../entities.h"
 
+#define SUCCESS true
+#define FAILURE false
+
 extern ClientData client;
 extern DataType playerClass;
 
 static struct sockaddr_in serverAddr;
 static int sockfd = -1;
-
-#ifdef __linux__
-#include <fcntl.h>
-#include <unistd.h>
-
-#define SUCCESS true
-#define FAILURE false
 
 PlayerEntry* headPlayer = NULL;
 Uint32 nextNetID = 0;
@@ -106,6 +102,10 @@ DataObj* instFromID(DataObj* head, Uint32 id){
 
 	return NULL;
 }
+
+#ifdef __linux__
+#include <fcntl.h>
+#include <unistd.h>
 
 bool initServer(Uint16 port){
 	sockfd = socket(AF_INET, SOCK_DGRAM, 0);
@@ -303,11 +303,13 @@ void closeConnection(){
 }
 
 #else
-void initServer(Uint16 port){}
+bool initServer(Uint16 port){}
 void closeConnection(){}
 bool initClient(const char* ipAddr, Uint16 port){return FAILURE;}
 
 bool sendPing(void* packet, size_t size, struct sockaddr_in* target){return FAILURE;}
 ssize_t retrievePing(void *storeLoc, size_t size, struct sockaddr_in *fromAddr, socklen_t *addrLen){return 0;}
 void pollPings(){}
+
+void pingJoin(){}
 #endif

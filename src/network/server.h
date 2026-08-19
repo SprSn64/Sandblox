@@ -44,12 +44,14 @@ typedef enum PacketFlags{
 	PACKET_NEWINST = 0x05,
 } PacketFlags;
 
+Uint32 addrToInt(struct sockaddr_in* addr);
+
 bool initServer(Uint16 port);
 bool initClient(const char* ipAddr, Uint16 port);
 void closeConnection();
 
-bool sendPing();
-ssize_t retrievePing();
+bool sendPing(void* packet, size_t size, struct sockaddr_in* target);
+ssize_t retrievePing(void *storeLoc, size_t size, struct sockaddr_in *fromAddr, socklen_t *addrLen);
 void pollPings();
 
 void pingJoin();
