@@ -117,6 +117,8 @@ typedef struct{
 	DataObj* currPlayer;
 
 	TextureRef* skybox;
+	SDL_FColor fogColour;
+	SDL_FPoint fogRange;
 
 	float playerRespawn;
 } GameWorld;

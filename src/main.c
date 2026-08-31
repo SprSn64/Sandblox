@@ -255,6 +255,9 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[]){
 	glLocs[GLVAL_CAMERANORM] = glGetUniformLocation(mainShader, "cameraNorm");
 	glLocs[GLVAL_RESOLUTION] = glGetUniformLocation(mainShader, "resolution");
 
+	glLocs[GLVAL_FOGRANGE] = glGetUniformLocation(mainShader, "fogRange");
+	glLocs[GLVAL_FOGCOLOUR] = glGetUniformLocation(mainShader, "fogColour");
+
 	glLocs[GLVAL_TEXTURE0] = glGetUniformLocation(mainShader, "tex0");
 
 	//glUniform1i(glLocs[GLVAL_TEXTURE0], 0);
@@ -289,6 +292,8 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[]){
 	client.gameWorld->currCamera = &currentCamera;
 	client.gameWorld->playerRespawn = 5;
 	client.gameWorld->skybox = NULL;
+	client.gameWorld->fogRange = (SDL_FPoint){128, 1024};
+	client.gameWorld->fogColour = (SDL_FColor){1, 1, 1, 1};
 
 	client.debug = true;
 	
@@ -412,7 +417,8 @@ SDL_AppResult SDL_AppIterate(void *appstate){
 	}else camMoveMode = 0;
 
 	if(keyList[KEYBIND_SWAPRENDER].pressed){
-		sendPopup("fuck", NULL, NULL, 3);
+		char* testString = malloc(16); sprintf(testString, "fuck");
+		sendPopup(testString, NULL, NULL, 3);
 	}
 
 	if(keyList[KEYBIND_MENU].pressed){
@@ -476,6 +482,9 @@ SDL_AppResult SDL_AppIterate(void *appstate){
 	glUniform4fv(glLocs[GLVAL_LIGHTCOLOUR], 1, (float*)&flatLight);
 	glUniform4fv(glLocs[GLVAL_AMBCOLOUR], 1, (float*)&flatAmb);
 
+	float fogRangeFloat[2] = {0, 0};
+	glUniform2fv(glLocs[GLVAL_FOGRANGE], 1, (float*)&fogRangeFloat);
+
 		skyboxMatrix = translateMatrix(defaultMatrix, currentCamera.pos);
 		TextureRef* skyboxTex = skyTex;
 		if(client.gameWorld->skybox)
@@ -491,6 +500,9 @@ SDL_AppResult SDL_AppIterate(void *appstate){
 
 	resFloat[0] = windowScale.x; resFloat[1] = windowScale.y;
 	glUniform2fv(glLocs[GLVAL_RESOLUTION], 1, resFloat);
+
+	glUniform2fv(glLocs[GLVAL_FOGRANGE], 1, (float*)&client.gameWorld->fogRange);
+	glUniform4fv(glLocs[GLVAL_FOGCOLOUR], 1, (float*)&client.gameWorld->fogColour);
 
 	Uint32 glError = glGetError();
 	if(glError != GL_NO_ERROR)

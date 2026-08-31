@@ -13,7 +13,7 @@ uniform mat4 proj;
 uniform sampler2D tex0;
 
 uniform vec4 fogColour = vec4(1, 1, 1, 1);
-uniform vec2 fogDist = vec2(128, 0);
+uniform vec2 fogRange = vec2(128, 0);
 
 uniform vec2 resolution;
 
@@ -30,7 +30,7 @@ void main(){
 		if(baseColour.a <= alphaDither) discard;
 	}
 
-	float fogStrength = fogDist.y > 0 ? min(max(0, (sqrt(pos.x * pos.x + pos.y * pos.y + pos.z * pos.z) - fogDist.x)/fogDist.y), 1) : 0;
+	float fogStrength = fogRange.y > 0 ? min(max(0, (sqrt(pos.x * pos.x + pos.y * pos.y + pos.z * pos.z) - fogRange.x)/fogRange.y), 1) : 0;
 
 	vec3 reflectSource = normalize(reflect(-normalize(lightNorm), norm));
 	float specular = min(pow(max(dot(cameraNorm, reflectSource), 0), 16), 1);
