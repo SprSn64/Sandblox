@@ -44,7 +44,7 @@ Uint32 mainShader;
 Uint32 glVersion[2] = {0, 0};
 Uint32 glBlankTex; Uint32 blankColour = 0xFFFFFFFF;
 
-SDL_FColor flatAmb = {1, 1, 1, 1}; SDL_FColor flatLight = {0, 0, 0, 1};
+SDL_FColor flatAmb = {1, 1, 1, 1}; SDL_FColor flatLight = {0, 0, 0, 0};
 
 extern TextureRef* studioTexRef;
 
@@ -501,9 +501,6 @@ SDL_AppResult SDL_AppIterate(void *appstate){
 	resFloat[0] = windowScale.x; resFloat[1] = windowScale.y;
 	glUniform2fv(glLocs[GLVAL_RESOLUTION], 1, resFloat);
 
-	glUniform2fv(glLocs[GLVAL_FOGRANGE], 1, (float*)&client.gameWorld->fogRange);
-	glUniform4fv(glLocs[GLVAL_FOGCOLOUR], 1, (float*)&client.gameWorld->fogColour);
-
 	Uint32 glError = glGetError();
 	if(glError != GL_NO_ERROR)
 		printf("GL ERROR: %d\n", glError);
@@ -514,6 +511,8 @@ SDL_AppResult SDL_AppIterate(void *appstate){
 
 	glUniform4fv(glLocs[GLVAL_LIGHTCOLOUR], 1, (float*)&lightColour);
 	glUniform4fv(glLocs[GLVAL_AMBCOLOUR], 1, (float*)&lightAmbient);
+	glUniform2fv(glLocs[GLVAL_FOGRANGE], 1, (float*)&client.gameWorld->fogRange);
+	glUniform4fv(glLocs[GLVAL_FOGCOLOUR], 1, (float*)&client.gameWorld->fogColour);
 	
 	drawObjects(client.gameWorld->headObj);
 

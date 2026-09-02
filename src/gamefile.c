@@ -332,19 +332,43 @@ int loadGameFile(const char* filename) {
             (float)(cJSON_GetArrayItem(lightCol, 2)->valueint) / 255,
             (float)(cJSON_GetArrayItem(lightCol, 3)->valueint) / 255
         };
-    }else
+    }else{
         lightColour = (SDL_FColor){1, 1, 1, 1};
+  }
 
-    cJSON* lightAmb = cJSON_GetObjectItem(json, "lightAmb");
-    if(lightAmb && cJSON_IsArray(lightAmb) && cJSON_GetArraySize(lightAmb) >= 4){
+	cJSON* lightAmb = cJSON_GetObjectItem(json, "lightAmb");
+	if(lightAmb && cJSON_IsArray(lightAmb) && cJSON_GetArraySize(lightAmb) >= 4){
         lightAmbient = (SDL_FColor){
             (float)(cJSON_GetArrayItem(lightAmb, 0)->valueint) / 255,
             (float)(cJSON_GetArrayItem(lightAmb, 1)->valueint) / 255,
-            (float)(cJSON_GetArrayItem(lightAmb, 2)->valueint) / 255,
-            (float)(cJSON_GetArrayItem(lightAmb, 3)->valueint) / 255
-        };
-    }else
-        lightAmbient = (SDL_FColor){0.25, 0.25, 0.3, 1};
+			(float)(cJSON_GetArrayItem(lightAmb, 2)->valueint) / 255,
+			(float)(cJSON_GetArrayItem(lightAmb, 3)->valueint) / 255
+		};
+	}else{
+		lightAmbient = (SDL_FColor){0.25, 0.25, 0.3, 1};
+      }
+
+	cJSON* fogColour = cJSON_GetObjectItem(json, "fogColour");
+	if(fogColour && cJSON_IsArray(fogColour) && cJSON_GetArraySize(fogColour) >= 4){
+		client.gameWorld->fogColour = (SDL_FColor){
+			(float)(cJSON_GetArrayItem(fogColour, 0)->valueint) / 255,
+			(float)(cJSON_GetArrayItem(fogColour, 1)->valueint) / 255,
+			(float)(cJSON_GetArrayItem(fogColour, 2)->valueint) / 255,
+			(float)(cJSON_GetArrayItem(fogColour, 3)->valueint) / 255
+		};
+	}else{
+		client.gameWorld->fogColour = (SDL_FColor){1, 1, 1, 1};
+	}
+
+	cJSON* fogRange = cJSON_GetObjectItem(json, "fogRange");
+	if(fogRange && cJSON_IsArray(fogRange) && cJSON_GetArraySize(fogRange) >= 2){
+		client.gameWorld->fogRange = (SDL_FPoint){
+			(float)(cJSON_GetArrayItem(fogRange, 0)->valuedouble),
+			(float)(cJSON_GetArrayItem(fogRange, 1)->valuedouble)
+		};
+	}else{
+		client.gameWorld->fogRange = (SDL_FPoint){128, 0};
+	}
 
     cJSON* skybox = cJSON_GetObjectItem(json, "skybox");
     TextureRef* skyboxTex = NULL;
