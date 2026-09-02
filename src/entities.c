@@ -20,6 +20,12 @@ extern GameWorld game;
 extern double deltaTime;
 extern ButtonMap keyList[KEYBIND_MAX];
 
+extern Uint32 glLocs[GLVAL_MAX];
+extern float flatLight[4];
+extern float flatAmb[4];
+extern SDL_FColor lightColour;
+extern SDL_FColor lightAmbient;
+
 extern Mesh *cubePrim;
 extern Mesh *planePrim;
 extern TextureRef *homerTex;
@@ -123,7 +129,7 @@ collisionSkip:
 	float friction = 6 + .3 * (plrData->coyote >= plrData->coyoteMax);
 	float fricMult = max(1.f - friction * deltaTime, 0);
 
-	playerVel->y += deltaTime * (-60 + 30 * (keyList[KEYBIND_SPACE].down && playerVel->y > 0));
+	playerVel->y += (-60 + 30 * (keyList[KEYBIND_SPACE].down && playerVel->y > 0)) * deltaTime;
 	
 	playerVel->x = (playerVel->x + playerMove.x * plrData->moveSpeed) * fricMult;
 	playerVel->z = (playerVel->z + playerMove.y * plrData->moveSpeed) * fricMult;
@@ -344,7 +350,8 @@ void particleInit(DataObj* object){
 	emitter->timer = emitter->waitTime;
 
 	emitter->velRand = 1;
-	emitter->initVel = (Vector3){0, 4, 0};
+	emitter->initVel = (Vector3){0, 12, 0};
+	emitter->accel = (Vector3){0, -12, 0};
 
 	object->objOther = emitter;
 }
@@ -367,6 +374,7 @@ void particleUpdate(DataObj* object){
 	Particle* currParticle = emitter->headParticle;
 	while(currParticle){
 		Particle* nextParticle = currParticle->next;
+		currParticle->vel = vec3Add(currParticle->vel, vec3Mult(emitter->accel, (Vector3){deltaTime, deltaTime, deltaTime}));
 		currParticle->pos = vec3Add(currParticle->pos, vec3Mult(currParticle->vel, (Vector3){deltaTime, deltaTime, deltaTime}));
 
 		currParticle->colour.a = min(currParticle->life * 255, 255);
@@ -382,6 +390,9 @@ void particleDraw(DataObj* object){
 	ParticleEmitter* emitter = (ParticleEmitter*)object->objOther;
 	if(!emitter) return;
 
+	glUniform4fv(glLocs[GLVAL_LIGHTCOLOUR], 1, (float*)&flatLight);
+	glUniform4fv(glLocs[GLVAL_AMBCOLOUR], 1, (float*)&flatAmb);
+
 	Particle* currParticle = emitter->headParticle;
 	while(currParticle){
 		float* centerTrans = translateMatrix(defaultMatrix, (Vector3){-0.5, 0, -0.5});
@@ -396,6 +407,9 @@ void particleDraw(DataObj* object){
 
 		currParticle = currParticle->next;
 	}
+
+	glUniform4fv(glLocs[GLVAL_LIGHTCOLOUR], 1, (float*)&lightColour);
+	glUniform4fv(glLocs[GLVAL_AMBCOLOUR], 1, (float*)&lightAmbient);
 }
 void particleDestroy(DataObj* object){
 	ParticleEmitter* emitter = (ParticleEmitter*)object->objOther;
