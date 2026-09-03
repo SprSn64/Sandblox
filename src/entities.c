@@ -184,7 +184,8 @@ void playerDraw(DataObj* object){
 	float nameScale = 2;
 	drawText(renderer, &defaultFont, object->name, textProj.x - strlen(object->name) / 2 * defaultFont.kerning.x * nameScale, textProj.y - defaultFont.renderSize.y * nameScale, nameScale, (SDL_FColor){1, 1, 1, 1});
 	*/
-
+	glUniform4fv(glLocs[GLVAL_LIGHTCOLOUR], 1, (float*)&flatLight);
+	glUniform4fv(glLocs[GLVAL_AMBCOLOUR], 1, (float*)&flatAmb);
 	float textRatio = bufferGLText(textBufferTex, &defaultFont, object->name, 4);
 	float* textMatrix = genMatrix(vec3Add(object->pos, (Vector3){0, 6, 0}), (Vector3){1 / textRatio, 1, 1}, 
 		(Vector3){
@@ -195,6 +196,8 @@ void playerDraw(DataObj* object){
 	);
 	drawMeshOpenGL(planePrim, textMatrix, (SDL_FColor){1, 1, 1, 1}, textBufferTex);
 	free(textMatrix);
+	glUniform4fv(glLocs[GLVAL_LIGHTCOLOUR], 1, (float*)&lightColour);
+	glUniform4fv(glLocs[GLVAL_AMBCOLOUR], 1, (float*)&lightAmbient);
 }
 void playerDestroy(DataObj* object){
 	free(object->objVel); free(object->objColl);
@@ -361,7 +364,7 @@ void particleUpdate(DataObj* object){
 
 	emitter->timer -= deltaTime;
 	if(emitter->timer <= 0){
-		emitter->timer = 0.2;
+		emitter->timer = emitter->waitTime;
 		Particle* newParticle = addParticle(emitter, object->pos);
 
 		newParticle->vel = vec3Add(emitter->initVel, (Vector3){
