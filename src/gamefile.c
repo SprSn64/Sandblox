@@ -126,38 +126,76 @@ DataObj* createObjectFromJSON(cJSON* obj, DataObj* parent) {
     if(isPlayer && cJSON_IsBool(isPlayer) && cJSON_IsTrue(isPlayer) && !loadedPlayer)
 	    loadedPlayer = newObj;
     
-    if(name && cJSON_IsString(name))
+	if(name && cJSON_IsString(name))
         newObj->name = strdup(name->valuestring);
     
-    if(pos && cJSON_IsArray(pos) && cJSON_GetArraySize(pos) >= 3)
+	if(pos && cJSON_IsArray(pos) && cJSON_GetArraySize(pos) >= 3){
         newObj->pos = (Vector3){
             cJSON_GetArrayItem(pos, 0)->valuedouble,
             cJSON_GetArrayItem(pos, 1)->valuedouble,
             cJSON_GetArrayItem(pos, 2)->valuedouble
         };
+	}
     
-    if(scale && cJSON_IsArray(scale) && cJSON_GetArraySize(scale) >= 3)
+	if(scale && cJSON_IsArray(scale) && cJSON_GetArraySize(scale) >= 3){
         newObj->scale = (Vector3){
             cJSON_GetArrayItem(scale, 0)->valuedouble,
             cJSON_GetArrayItem(scale, 1)->valuedouble,
             cJSON_GetArrayItem(scale, 2)->valuedouble
         };
+	}
     
-    if(rot && cJSON_IsArray(rot) && cJSON_GetArraySize(rot) >= 3)
+	if(rot && cJSON_IsArray(rot) && cJSON_GetArraySize(rot) >= 3){
         newObj->rot = (Vector3){
             cJSON_GetArrayItem(rot, 0)->valuedouble * DEG2RAD,
             cJSON_GetArrayItem(rot, 1)->valuedouble * DEG2RAD,
             cJSON_GetArrayItem(rot, 2)->valuedouble * DEG2RAD
         };
+	}
     
-    if(colour && cJSON_IsArray(colour) && cJSON_GetArraySize(colour) >= 4)
-        newObj->colour = (CharColour){
-            cJSON_GetArrayItem(colour, 0)->valueint,
-            cJSON_GetArrayItem(colour, 1)->valueint,
-            cJSON_GetArrayItem(colour, 2)->valueint,
-            cJSON_GetArrayItem(colour, 3)->valueint,
-            0, COLOURMODE_RGB
-        };
+	if(colour && cJSON_IsArray(colour) && cJSON_GetArraySize(colour) >= 4){
+		newObj->colour = (CharColour){
+			cJSON_GetArrayItem(colour, 0)->valueint,
+			cJSON_GetArrayItem(colour, 1)->valueint,
+			cJSON_GetArrayItem(colour, 2)->valueint,
+			cJSON_GetArrayItem(colour, 3)->valueint,
+			0, COLOURMODE_RGB
+		};
+	}
+
+	if(objClass->id != particleClass.id) goto particleSkip;
+	ParticleEmitter* emitter = (ParticleEmitter*)newObj->objOther;
+	if(!emitter) goto particleSkip;
+
+	cJSON* emitterVel = cJSON_GetObjectItem(obj, "emitterVel");
+	if(emitterVel && cJSON_IsArray(emitterVel) && cJSON_GetArraySize(emitterVel) >= 3){
+		emitter->initVel = (Vector3){
+			cJSON_GetArrayItem(emitterVel, 0)->valuedouble,
+			cJSON_GetArrayItem(emitterVel, 1)->valuedouble,
+			cJSON_GetArrayItem(emitterVel, 2)->valuedouble,
+		};
+	}
+
+	cJSON* emitterAcc = cJSON_GetObjectItem(obj, "emitterAcc");
+	if(emitterAcc && cJSON_IsArray(emitterAcc) && cJSON_GetArraySize(emitterAcc) >= 3){
+		emitter->accel = (Vector3){
+			cJSON_GetArrayItem(emitterAcc, 0)->valuedouble,
+			cJSON_GetArrayItem(emitterAcc, 1)->valuedouble,
+			cJSON_GetArrayItem(emitterAcc, 2)->valuedouble,
+		};
+	}
+
+	cJSON* emitterWait = cJSON_GetObjectItem(obj, "emitterWait");
+	if(emitterWait && cJSON_IsNumber(emitterWait)){
+		emitter->waitTime = emitterVel->valuedouble;
+	}
+
+	cJSON* emitterLife = cJSON_GetObjectItem(obj, "emitterLife");
+	if(emitterLife && cJSON_IsNumber(emitterLife)){
+		emitter->life = emitterLife->valuedouble;
+	}
+
+particleSkip:
     
     Mesh* mesh = NULL;
     if(meshFile && cJSON_IsString(meshFile)) {

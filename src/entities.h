@@ -32,7 +32,7 @@ typedef struct Particle{
 typedef struct ParticleEmitter{
 	Particle* headParticle;
 	Vector3 initVel; Vector3 accel;
-	float velRand;
+	float velRand; float life;
 
 	float waitTime; //time between making new particles
 	float timer;

@@ -313,8 +313,9 @@ Particle* addParticle(ParticleEmitter* emitter, Vector3 pos){
 	if(!newParticle) return NULL;
 
 	newParticle->pos = pos; newParticle->vel = (Vector3){0, 0, 0};
-	newParticle->life = 3; newParticle->parent = emitter;
+	newParticle->life = emitter->life; newParticle->parent = emitter;
 	newParticle->colour = (CharColour){255, 255, 255, 255, 0, COLOURMODE_RGB};
+	newParticle->size = 0.2;
 
 	newParticle->prev = NULL; newParticle->next = NULL;
 
@@ -351,6 +352,7 @@ void particleInit(DataObj* object){
 
 	emitter->waitTime = 0.2;
 	emitter->timer = emitter->waitTime;
+	emitter->life = 3;
 
 	emitter->velRand = 1;
 	emitter->initVel = (Vector3){0, 12, 0};
