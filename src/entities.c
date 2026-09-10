@@ -77,6 +77,7 @@ void playerInit(DataObj* object){
 	collision->active = true;
 
 	PlayerData* plrData = calloc(1, sizeof(PlayerData));
+	plrData->femBody = false;
 	plrData->moveSpeed = 1.2; plrData->jumpStrength = 20; 
 	plrData->coyote = 10; plrData->coyoteMax = 0.15;
 	object->objOther = plrData;
@@ -157,20 +158,17 @@ collisionSkip:
 extern Mesh *playerMesh;
 extern Mesh *playerFemMesh;
 void playerDraw(DataObj* object){
+	PlayerData *plrData = object->objOther;
 	//if (!object->networkExists && object != client.gameWorld->currPlayer) return;
 	SDL_FColor plrColour = ConvertSDLColour(object->colour);
 	plrColour.a *= object == client.gameWorld->currPlayer ? min(game.currCamera->focusDist / 2, 1) : 1;
-	Mesh* plrMesh = playerMesh;
-	DataObj* femBody = firstChildWithName(object, "femBody");
-	if(femBody && femBody->classData->id == groupClass.id)
-		plrMesh = playerFemMesh;
 
-	drawMeshOpenGL(plrMesh, object->transform, plrColour, NULL);
+	drawMeshOpenGL(plrData->femBody ? playerFemMesh : playerMesh, object->transform, plrColour, NULL);
 	
 	DataObj *hatItem = object->child;
 	while(hatItem){
 		if(hatItem->classData->id == accessoryClass.id){
-			SDL_FColor hatCol = ConvertSDLColour(hatItem->colour); hatCol.a = plrColour.a;
+			SDL_FColor hatCol = ConvertSDLColour(hatItem->colour); hatCol.a *= plrColour.a;
 			TextureRef *itemTex = hatItem->props[OBJVAL_TEXTURE];
 			drawMeshOpenGL(hatItem->props[OBJVAL_MESH], object->transform, hatCol, itemTex);
 		}

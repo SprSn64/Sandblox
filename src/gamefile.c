@@ -591,11 +591,7 @@ DataObj* loadPlayerAvatar(){
 		newPlayer->name = strndup(name->valuestring, 20);
 
 	cJSON* femBody = cJSON_GetObjectItem(json, "femBody");
-      if(femBody && cJSON_IsBool(femBody) && cJSON_IsTrue(femBody)){
-      	DataObj* femBodyItem = newObject(&groupClass);
-      	femBodyItem->name = strdup("femBody");
-		parentObject(femBodyItem, newPlayer);
-      }
+      plrData->femBody = femBody && cJSON_IsBool(femBody) && cJSON_IsTrue(femBody);
 
 	cJSON* colour = cJSON_GetObjectItem(json, "colour");
 	if(colour && cJSON_IsArray(colour) && cJSON_GetArraySize(colour) >= 4)

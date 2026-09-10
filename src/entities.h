@@ -6,6 +6,7 @@
 
 typedef struct PlayerData{
 	Uint16 playerID;
+	bool femBody;
 	bool movement;
 
 	float moveSpeed;
