@@ -61,6 +61,9 @@ extern char *basePath;
 Button* currButtonItem;
 Uint16 textCursor = 0;
 
+char serverIp[16] = "127.0.0.1";
+Uint16 serverPort = 8080;
+
 bool between(float input, float min, float max);
 
 Button newLableButton(void* func, char* text, SDL_FRect rect){

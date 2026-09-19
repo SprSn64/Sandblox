@@ -6,6 +6,7 @@
 
 typedef struct PlayerData{
 	Uint16 playerID;
+	bool femBody;
 	bool movement;
 
 	float moveSpeed;
@@ -31,8 +32,8 @@ typedef struct Particle{
 } Particle;
 typedef struct ParticleEmitter{
 	Particle* headParticle;
-	Vector3 initVel;
-	float velRand;
+	Vector3 initVel; Vector3 accel;
+	float velRand; float life;
 
 	float waitTime; //time between making new particles
 	float timer;

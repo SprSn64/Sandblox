@@ -20,6 +20,9 @@ extern char** langStrings;
 
 extern char* playerName;
 
+extern char serverIp[24];
+extern Uint16 serverPort;
+
 Uint32 currPage = PAGE_GAME;
 Page pageList[PAGE_MAX];
 
@@ -47,12 +50,15 @@ void initPages(){
 	sidePanelButtons[4] = newImageButton(buttonOpenLink, buttonTex, (SDL_FRect){32, 448, 32, 32}, (SDL_FRect){32, 0, 32, 32});
 	sidePanel.buttonList = sidePanelButtons;
 
-	Button* gamePageButtons = malloc(sizeof(Button) * 4);
+	Button* gamePageButtons = malloc(sizeof(Button) * 5);
 	gamePageButtons[0] = newLableButton(regularButtonLaunch, "Launch Sandblox", (SDL_FRect){66, 446, 284, 32});
 	gamePageButtons[1] = newLableButton(studioButtonLaunch, "Launch In Studio", (SDL_FRect){352, 446, 284, 32});
 	gamePageButtons[2] = newLableButton(buttonSelectClient, "Set Client", (SDL_FRect){510, 2, 128, 16});
 	gamePageButtons[3] = newLableButton(buttonRefreshMaps, "Refresh Map List", (SDL_FRect){380, 2, 128, 16});
-	pageList[PAGE_GAME] = (Page){gamePageButtons, 4};
+
+	gamePageButtons[4] = newTextboxButton(serverIp, "Server IP", (SDL_FRect){66, 428, 128, 16});
+	//gamePageButtons[5] = newLableButton(serverButtonLaunch, "Join Server", (SDL_FRect){380, 2, 128, 16});
+	pageList[PAGE_GAME] = (Page){gamePageButtons, 5};
 
 	Button* avatarPageButtons = malloc(sizeof(Button) * 3);
 	avatarPageButtons[0] = newTextboxButton(playerName, "Username", (SDL_FRect){96, 346, 128, 16});

@@ -9,6 +9,7 @@
 #include "mesh.h"
 #include "math.h"
 #include "utils.h"
+#include "network/server.h"
 
 extern ClientData client;
 extern DataObj gameHeader;
@@ -125,38 +126,76 @@ DataObj* createObjectFromJSON(cJSON* obj, DataObj* parent) {
     if(isPlayer && cJSON_IsBool(isPlayer) && cJSON_IsTrue(isPlayer) && !loadedPlayer)
 	    loadedPlayer = newObj;
     
-    if(name && cJSON_IsString(name))
+	if(name && cJSON_IsString(name))
         newObj->name = strdup(name->valuestring);
     
-    if(pos && cJSON_IsArray(pos) && cJSON_GetArraySize(pos) >= 3)
+	if(pos && cJSON_IsArray(pos) && cJSON_GetArraySize(pos) >= 3){
         newObj->pos = (Vector3){
             cJSON_GetArrayItem(pos, 0)->valuedouble,
             cJSON_GetArrayItem(pos, 1)->valuedouble,
             cJSON_GetArrayItem(pos, 2)->valuedouble
         };
+	}
     
-    if(scale && cJSON_IsArray(scale) && cJSON_GetArraySize(scale) >= 3)
+	if(scale && cJSON_IsArray(scale) && cJSON_GetArraySize(scale) >= 3){
         newObj->scale = (Vector3){
             cJSON_GetArrayItem(scale, 0)->valuedouble,
             cJSON_GetArrayItem(scale, 1)->valuedouble,
             cJSON_GetArrayItem(scale, 2)->valuedouble
         };
+	}
     
-    if(rot && cJSON_IsArray(rot) && cJSON_GetArraySize(rot) >= 3)
+	if(rot && cJSON_IsArray(rot) && cJSON_GetArraySize(rot) >= 3){
         newObj->rot = (Vector3){
             cJSON_GetArrayItem(rot, 0)->valuedouble * DEG2RAD,
             cJSON_GetArrayItem(rot, 1)->valuedouble * DEG2RAD,
             cJSON_GetArrayItem(rot, 2)->valuedouble * DEG2RAD
         };
+	}
     
-    if(colour && cJSON_IsArray(colour) && cJSON_GetArraySize(colour) >= 4)
-        newObj->colour = (CharColour){
-            cJSON_GetArrayItem(colour, 0)->valueint,
-            cJSON_GetArrayItem(colour, 1)->valueint,
-            cJSON_GetArrayItem(colour, 2)->valueint,
-            cJSON_GetArrayItem(colour, 3)->valueint,
-            0, COLOURMODE_RGB
-        };
+	if(colour && cJSON_IsArray(colour) && cJSON_GetArraySize(colour) >= 4){
+		newObj->colour = (CharColour){
+			cJSON_GetArrayItem(colour, 0)->valueint,
+			cJSON_GetArrayItem(colour, 1)->valueint,
+			cJSON_GetArrayItem(colour, 2)->valueint,
+			cJSON_GetArrayItem(colour, 3)->valueint,
+			0, COLOURMODE_RGB
+		};
+	}
+
+	if(objClass->id != particleClass.id) goto particleSkip;
+	ParticleEmitter* emitter = (ParticleEmitter*)newObj->objOther;
+	if(!emitter) goto particleSkip;
+
+	cJSON* emitterVel = cJSON_GetObjectItem(obj, "emitterVel");
+	if(emitterVel && cJSON_IsArray(emitterVel) && cJSON_GetArraySize(emitterVel) >= 3){
+		emitter->initVel = (Vector3){
+			cJSON_GetArrayItem(emitterVel, 0)->valuedouble,
+			cJSON_GetArrayItem(emitterVel, 1)->valuedouble,
+			cJSON_GetArrayItem(emitterVel, 2)->valuedouble,
+		};
+	}
+
+	cJSON* emitterAcc = cJSON_GetObjectItem(obj, "emitterAcc");
+	if(emitterAcc && cJSON_IsArray(emitterAcc) && cJSON_GetArraySize(emitterAcc) >= 3){
+		emitter->accel = (Vector3){
+			cJSON_GetArrayItem(emitterAcc, 0)->valuedouble,
+			cJSON_GetArrayItem(emitterAcc, 1)->valuedouble,
+			cJSON_GetArrayItem(emitterAcc, 2)->valuedouble,
+		};
+	}
+
+	cJSON* emitterWait = cJSON_GetObjectItem(obj, "emitterWait");
+	if(emitterWait && cJSON_IsNumber(emitterWait)){
+		emitter->waitTime = emitterVel->valuedouble;
+	}
+
+	cJSON* emitterLife = cJSON_GetObjectItem(obj, "emitterLife");
+	if(emitterLife && cJSON_IsNumber(emitterLife)){
+		emitter->life = emitterLife->valuedouble;
+	}
+
+particleSkip:
     
     Mesh* mesh = NULL;
     if(meshFile && cJSON_IsString(meshFile)) {
@@ -257,6 +296,7 @@ DataObj* createObjectFromJSON(cJSON* obj, DataObj* parent) {
 }
 
 extern bool playerEnabled;
+extern Uint32 nextNetID;
 int loadGameFile(const char* filename) {
     printf("Loading game file: %s...\n", filename);
     
@@ -330,19 +370,43 @@ int loadGameFile(const char* filename) {
             (float)(cJSON_GetArrayItem(lightCol, 2)->valueint) / 255,
             (float)(cJSON_GetArrayItem(lightCol, 3)->valueint) / 255
         };
-    }else
+    }else{
         lightColour = (SDL_FColor){1, 1, 1, 1};
+  }
 
-    cJSON* lightAmb = cJSON_GetObjectItem(json, "lightAmb");
-    if(lightAmb && cJSON_IsArray(lightAmb) && cJSON_GetArraySize(lightAmb) >= 4){
+	cJSON* lightAmb = cJSON_GetObjectItem(json, "lightAmb");
+	if(lightAmb && cJSON_IsArray(lightAmb) && cJSON_GetArraySize(lightAmb) >= 4){
         lightAmbient = (SDL_FColor){
             (float)(cJSON_GetArrayItem(lightAmb, 0)->valueint) / 255,
             (float)(cJSON_GetArrayItem(lightAmb, 1)->valueint) / 255,
-            (float)(cJSON_GetArrayItem(lightAmb, 2)->valueint) / 255,
-            (float)(cJSON_GetArrayItem(lightAmb, 3)->valueint) / 255
-        };
-    }else
-        lightAmbient = (SDL_FColor){0.25, 0.25, 0.3, 1};
+			(float)(cJSON_GetArrayItem(lightAmb, 2)->valueint) / 255,
+			(float)(cJSON_GetArrayItem(lightAmb, 3)->valueint) / 255
+		};
+	}else{
+		lightAmbient = (SDL_FColor){0.25, 0.25, 0.3, 1};
+      }
+
+	cJSON* fogColour = cJSON_GetObjectItem(json, "fogColour");
+	if(fogColour && cJSON_IsArray(fogColour) && cJSON_GetArraySize(fogColour) >= 4){
+		client.gameWorld->fogColour = (SDL_FColor){
+			(float)(cJSON_GetArrayItem(fogColour, 0)->valueint) / 255,
+			(float)(cJSON_GetArrayItem(fogColour, 1)->valueint) / 255,
+			(float)(cJSON_GetArrayItem(fogColour, 2)->valueint) / 255,
+			(float)(cJSON_GetArrayItem(fogColour, 3)->valueint) / 255
+		};
+	}else{
+		client.gameWorld->fogColour = (SDL_FColor){1, 1, 1, 1};
+	}
+
+	cJSON* fogRange = cJSON_GetObjectItem(json, "fogRange");
+	if(fogRange && cJSON_IsArray(fogRange) && cJSON_GetArraySize(fogRange) >= 2){
+		client.gameWorld->fogRange = (SDL_FPoint){
+			(float)(cJSON_GetArrayItem(fogRange, 0)->valuedouble),
+			(float)(cJSON_GetArrayItem(fogRange, 1)->valuedouble)
+		};
+	}else{
+		client.gameWorld->fogRange = (SDL_FPoint){128, 0};
+	}
 
     cJSON* skybox = cJSON_GetObjectItem(json, "skybox");
     TextureRef* skyboxTex = NULL;
@@ -368,6 +432,8 @@ int loadGameFile(const char* filename) {
         if(obj)
             /*DataObj* newObj = */createObjectFromJSON(obj, NULL);
     }
+
+	nextNetID = 1; setupID(client.gameWorld->headObj);
 	
     client.gameWorld->playerRespawn = 10;
     if(loadedPlayer){
@@ -525,11 +591,7 @@ DataObj* loadPlayerAvatar(){
 		newPlayer->name = strndup(name->valuestring, 20);
 
 	cJSON* femBody = cJSON_GetObjectItem(json, "femBody");
-      if(femBody && cJSON_IsBool(femBody) && cJSON_IsTrue(femBody)){
-      	DataObj* femBodyItem = newObject(&groupClass);
-      	femBodyItem->name = strdup("femBody");
-		parentObject(femBodyItem, newPlayer);
-      }
+      plrData->femBody = femBody && cJSON_IsBool(femBody) && cJSON_IsTrue(femBody);
 
 	cJSON* colour = cJSON_GetObjectItem(json, "colour");
 	if(colour && cJSON_IsArray(colour) && cJSON_GetArraySize(colour) >= 4)

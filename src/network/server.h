@@ -4,74 +4,64 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include "structs.h"
+
 #ifdef _WIN32
-#include <winsock2.h>
-#include <ws2tcpip.h>
+	#include <winsock2.h>
+	#include <ws2tcpip.h>
 #else
-#include <netinet/in.h>
-#include <arpa/inet.h>
-#include <sys/socket.h>
+	#include <netinet/in.h>
+	#include <arpa/inet.h>
+	#include <sys/socket.h>
 #endif
 
-#define MAX_NET_PLAYERS 16
+/*CLIENT JOIN BASIC METHOD PROBABLY:
+	Client sends enter request with player ID to server
+	Server sends client enter approval ping on success, or a kick ping if theyre banned
+	Add player to server player list
 
-typedef enum {
-    PKT_JOIN = 1,
-    PKT_ASSIGN_ID,
-    PKT_SYNC_PLAYER,
-    PKT_LEAVE,
-    PKT_PLAYER,
-} PacketType;
+	Server sends all current instance data to client
+	Once all data is sent, load in the player character or something else
+*/
 
-typedef struct {
-    struct sockaddr_in addr;
-    bool active;
-    uint8_t id;
-    DataObj* obj;
-} NetClient;
+/*CLIENT TO SERVER UPDATE LOOP BASIC METHOD:
+	Client sends ping to server with the ping start time
+	Server retrieves ping and stores the time between the client ping and when it retrieved the ping
+	If server doesn't retrieve a ping from the client for 15-30 seconds, remove the player from the server
 
-#pragma pack(push, 1)
-typedef struct {
-    uint8_t type;
-    uint8_t id;
-    char name[31];
-} NetPacketJoin;
+	Client sends all local instance updates to server
+	Server sends all global instance updates to client
+	Retrieve unloaded image, model and sound assets from server
+*/
 
-typedef struct {
-    uint8_t type;
-    uint8_t assignedId;
-} NetPacketAssignID;
+typedef enum PacketFlags{
+	PACKET_NONE = 0x00,
+	PACKET_CONNECT = 0x01,
+	PACKET_DISCONNECT = 0x02,
 
-typedef struct {
-    uint8_t type;
-    uint8_t id;
-    char name[30];
-} NetPacketSyncPlayer;
+	PACKET_PING = 0x03,
+	PACKET_UPDATE = 0x04,
 
-typedef struct {
-    uint8_t type;
-    uint8_t id;
-} NetPacketLeave;
+	PACKET_NEWINST = 0x05,
+} PacketFlags;
 
-typedef struct NetPacketPlayer{
-	uint8_t type;
-	uint8_t id;
-	Vector3 pos;
-	Vector3 rot;
-	CharColour colour;
-} NetPacketPlayer;
+Uint32 addrToInt(struct sockaddr_in* addr);
 
-#pragma pack(pop)
+bool initServer(Uint16 port);
+bool initClient(const char* ipAddr, Uint16 port);
+void closeConnection();
 
-bool netInitHost(Uint16 port);
-bool netInitClient(const char* ip, Uint16 port);
-void netSend(void* data, size_t size);
-void netCleanup(void);
+bool sendPing(void* packet, size_t size, struct sockaddr_in* target);
+ssize_t retrievePing(void *storeLoc, size_t size, struct sockaddr_in *fromAddr, socklen_t *addrLen);
+void pollPings();
 
-void netSendJoin(const char* name);
-void netSendLeave(void);
-void netSendPlayer(DataObj* player);
+void pingJoin();
 
-void netPoll(void);
+PlayerEntry* addPlayer(Uint32 addr);
+void removePlayer(PlayerEntry* player);
+PlayerEntry* playerFromAddr(Uint32 addr);
+void addSelfPlayer();
+
+void setupID(DataObj* head);
+DataObj* instFromID(DataObj* head, Uint32 id);
 
 #endif

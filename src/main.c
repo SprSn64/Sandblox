@@ -44,7 +44,7 @@ Uint32 mainShader;
 Uint32 glVersion[2] = {0, 0};
 Uint32 glBlankTex; Uint32 blankColour = 0xFFFFFFFF;
 
-SDL_FColor flatAmb = {1, 1, 1, 1}; SDL_FColor flatLight = {0, 0, 0, 1};
+SDL_FColor flatAmb = {1, 1, 1, 1}; SDL_FColor flatLight = {0, 0, 0, 0};
 
 extern TextureRef* studioTexRef;
 
@@ -144,25 +144,27 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[]){
 
 	char *mapToLoad = "assets/gamefile.json";
 
-	bool isHostMode = false;
-    bool isClientMode = false;
-    char targetIp[64] = "127.0.0.1";
+	//bool isHostMode = false;
+	//bool isClientMode = false;
+	//char targetIp[64] = "127.0.0.1";
 
-    for (int i = 0; i < argc; i++) {
-        if (!strcmp("-debug", argv[i])) client.debug = true;
-        if (!strcmp("-studio", argv[i])) client.studio = true;
-        if (!strcmp("-mapfile", argv[i])) mapToLoad = argv[++i];
+	char targetIp[16] = "127.0.0.1";
+
+	for(int i = 0; i < argc; i++){
+		if(!strcmp("-debug", argv[i])) client.debug = true;
+		if(!strcmp("-studio", argv[i])) client.studio = true;
+		if(!strcmp("-mapfile", argv[i])) mapToLoad = argv[++i];
         
-        if (!strcmp("-host", argv[i])) {
-            isHostMode = true;
-        }
-        if (!strcmp("-server", argv[i])) {
-            isClientMode = true;
-            if (i + 1 < argc) strncpy(targetIp, argv[++i], 63);
-        }
-    }
-	//debugServer = serverInit(8080);
-	//client.server = debugServer;
+		if(!strcmp("-host", argv[i])) {
+			//isHostMode = true;
+			client.hosting = initServer(8080);
+			if(client.hosting) addSelfPlayer();
+		}else if(!strcmp("-server", argv[i])) {
+			if(i+1 < argc)strncpy(targetIp, argv[i + 1], 15);
+			client.online = initClient(targetIp, 8080);
+			if(client.online) addSelfPlayer();
+		}
+	}
 	
 	if(!SDL_Init(SDL_INIT_VIDEO)){
 		SDL_Log("Couldn't initialize SDL: %s", SDL_GetError());
@@ -253,6 +255,9 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[]){
 	glLocs[GLVAL_CAMERANORM] = glGetUniformLocation(mainShader, "cameraNorm");
 	glLocs[GLVAL_RESOLUTION] = glGetUniformLocation(mainShader, "resolution");
 
+	glLocs[GLVAL_FOGRANGE] = glGetUniformLocation(mainShader, "fogRange");
+	glLocs[GLVAL_FOGCOLOUR] = glGetUniformLocation(mainShader, "fogColour");
+
 	glLocs[GLVAL_TEXTURE0] = glGetUniformLocation(mainShader, "tex0");
 
 	//glUniform1i(glLocs[GLVAL_TEXTURE0], 0);
@@ -287,6 +292,8 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[]){
 	client.gameWorld->currCamera = &currentCamera;
 	client.gameWorld->playerRespawn = 5;
 	client.gameWorld->skybox = NULL;
+	client.gameWorld->fogRange = (SDL_FPoint){128, 1024};
+	client.gameWorld->fogColour = (SDL_FColor){1, 1, 1, 1};
 
 	client.debug = true;
 	
@@ -299,6 +306,11 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[]){
 
 	//SDL_HideCursor();
 
+	if(client.online){
+		pingJoin();
+		client.pause = true;
+		return SDL_APP_CONTINUE;
+	}
 	if(mapLoaded) return SDL_APP_CONTINUE;
 	
 	if(mapToLoad && loadGameFile(mapToLoad) == 0){
@@ -311,20 +323,6 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[]){
 	}
 	
 	focusObject = client.gameWorld->currPlayer;
-
-	// shitty host and client 2 player thing, need to revamp to get
-	// more than 2 players working
-	if (isHostMode) {
-        if (netInitHost(8080)) {
-            // lol idk? you hosted succesfully the fuck do you want now
-            char newWindowName[256]; sprintf(newWindowName, "Sandblox v%s (Hosting server)", client.version);
-            SDL_SetWindowTitle(window, newWindowName);
-        }
-    } else if (isClientMode) {
-		if (netInitClient(targetIp, 8080)) {
-			netSendJoin("Player"); 
-		}
-	}
 	
 	return SDL_APP_CONTINUE;
 }	
@@ -387,9 +385,9 @@ SDL_AppResult SDL_AppIterate(void *appstate){
 	guiMatrix = isoProjMatrix(1, aspectRatio, 0.01, 1000);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-    if (!client.pause) {
-		netPoll();
-	}
+	//if (!client.pause) {
+	//	netPoll();
+	//}
 
 	//SDL_ShowCursor();
 	bool mainWindowFocus = SDL_GetWindowFlags(window) & SDL_WINDOW_INPUT_FOCUS;
@@ -419,7 +417,8 @@ SDL_AppResult SDL_AppIterate(void *appstate){
 	}else camMoveMode = 0;
 
 	if(keyList[KEYBIND_SWAPRENDER].pressed){
-		sendPopup("fuck", NULL, NULL, 3);
+		char* testString = malloc(16); sprintf(testString, "fuck");
+		sendPopup(testString, NULL, NULL, 3);
 	}
 
 	if(keyList[KEYBIND_MENU].pressed){
@@ -437,6 +436,10 @@ SDL_AppResult SDL_AppIterate(void *appstate){
 			client.gameWorld->playerRespawn += deltaTime;
 		}
 		updateObjects(client.gameWorld->headObj);
+	}
+
+	if(client.online || client.hosting){
+		pollPings();
 	}
 
 	glViewport(0, 0, windowScale.x, windowScale.y);
@@ -479,6 +482,9 @@ SDL_AppResult SDL_AppIterate(void *appstate){
 	glUniform4fv(glLocs[GLVAL_LIGHTCOLOUR], 1, (float*)&flatLight);
 	glUniform4fv(glLocs[GLVAL_AMBCOLOUR], 1, (float*)&flatAmb);
 
+	float fogRangeFloat[2] = {0, 0};
+	glUniform2fv(glLocs[GLVAL_FOGRANGE], 1, (float*)&fogRangeFloat);
+
 		skyboxMatrix = translateMatrix(defaultMatrix, currentCamera.pos);
 		TextureRef* skyboxTex = skyTex;
 		if(client.gameWorld->skybox)
@@ -505,6 +511,8 @@ SDL_AppResult SDL_AppIterate(void *appstate){
 
 	glUniform4fv(glLocs[GLVAL_LIGHTCOLOUR], 1, (float*)&lightColour);
 	glUniform4fv(glLocs[GLVAL_AMBCOLOUR], 1, (float*)&lightAmbient);
+	glUniform2fv(glLocs[GLVAL_FOGRANGE], 1, (float*)&client.gameWorld->fogRange);
+	glUniform4fv(glLocs[GLVAL_FOGCOLOUR], 1, (float*)&client.gameWorld->fogColour);
 	
 	drawObjects(client.gameWorld->headObj);
 
@@ -582,9 +590,11 @@ SDL_AppResult SDL_AppIterate(void *appstate){
 
 void SDL_AppQuit(void *appstate, SDL_AppResult result){
 	(void)appstate; (void)result;
+	closeConnection();
+
 	cleanupObjects(client.gameWorld->headObj);
 	studioCleanup();
-	netCleanup();
+	//netCleanup();
 	cleanupTextures(false); cleanupMeshes(false); clearConsole();
 
 	free(defaultMatrix);

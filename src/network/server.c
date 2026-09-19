@@ -9,327 +9,307 @@
 #include "../instances.h"
 #include "../entities.h"
 
+#define SUCCESS true
+#define FAILURE false
+
 extern ClientData client;
 extern DataType playerClass;
 
-static bool isNetworkHost = false;
 static struct sockaddr_in serverAddr;
-static NetClient netClients[MAX_NET_PLAYERS];
-static uint8_t localNetId = 0;
-static uint8_t nextHostAssignId = 1;
+static int sockfd = -1;
 
-Uint16 playerCount = 1;
+PlayerEntry* headPlayer = NULL;
+Uint32 nextNetID = 0;
+
+extern ClientData client;
+
+Uint32 addrToInt(struct sockaddr_in* addr){
+	return addr->sin_addr.s_addr;
+}
+
+char* addrToString(Uint32 addr){
+	char* string = malloc(16);
+	sprintf(string, "%d.%d.%d.%d", (Uint8)(addr & 0xFF), (Uint8)((addr & 0xFF00) >> 8), (Uint8)((addr & 0xFF0000) >> 16), (Uint8)((addr & 0xFF000000) >> 24));
+	return string;
+}
+
+void addSelfPlayer(){
+	client.selfEntry = addPlayer(addrToInt(&serverAddr));
+}
+
+PlayerEntry* addPlayer(Uint32 addr){
+	PlayerEntry* newEntry = malloc(sizeof(PlayerEntry));
+	if(!newEntry) return NULL;
+
+	newEntry->addr = addr;
+	newEntry->prev = NULL; newEntry->next = NULL;
+
+	if(!headPlayer){
+		headPlayer = newEntry;
+		return newEntry;
+	}
+
+	PlayerEntry* currPlayer = headPlayer;
+	while(currPlayer->next){
+		currPlayer = currPlayer->next;
+	}
+	currPlayer->next = newEntry;
+	newEntry->prev = currPlayer;
+
+	return newEntry;
+}
+
+void removePlayer(PlayerEntry* player){
+	if(!player) return;
+
+	if(player->prev)player->prev->next = player->next;
+	if(player->next)player->next->prev = player->prev;
+	free(player);
+}
+
+PlayerEntry* playerFromAddr(Uint32 addr){
+	PlayerEntry* currPlayer = headPlayer;
+	while(currPlayer){
+		if(currPlayer->addr == addr) return currPlayer;
+		currPlayer = currPlayer->next;
+	}
+
+	return NULL;
+}
+
+void setupID(DataObj* head){
+	DataObj* child = head->child;
+	while (child) {
+		DataObj *next = child->next;
+		setupID(child);
+		nextNetID++;
+		child = next;
+	}
+}
+
+DataObj* instFromID(DataObj* head, Uint32 id){
+	if(id == 0) return head;
+
+	DataObj* child = head->child;
+	while (child) {
+		if(child->netId == id) return child;
+		DataObj *next = child->next;
+
+		DataObj* foundItem = instFromID(child, id);
+		if(foundItem) return foundItem;
+		child = next;
+	}
+
+	return NULL;
+}
 
 #ifdef __linux__
 #include <fcntl.h>
 #include <unistd.h>
 
-static int sockfd = -1;
+bool initServer(Uint16 port){
+	sockfd = socket(AF_INET, SOCK_DGRAM, 0);
+	if(sockfd < 0) return FAILURE;
 
-bool netInitHost(Uint16 port) {
-    sockfd = socket(AF_INET, SOCK_DGRAM, 0);
-    if (sockfd < 0) return false;
+	int socketFlags = fcntl(sockfd, F_GETFL, 0);
+	fcntl(sockfd, F_SETFL, socketFlags | O_NONBLOCK);
 
-    int flags = fcntl(sockfd, F_GETFL, 0);
-    fcntl(sockfd, F_SETFL, flags | O_NONBLOCK);
+	struct sockaddr_in localAddr; memset(&localAddr, 0, sizeof(localAddr));
+	localAddr.sin_family = AF_INET;
+	localAddr.sin_port = htons(port);
+	localAddr.sin_addr.s_addr = INADDR_ANY;
 
-    struct sockaddr_in localAddr;
-    memset(&localAddr, 0, sizeof(localAddr));
-    localAddr.sin_family = AF_INET;
-    localAddr.sin_port = htons(port);
-    localAddr.sin_addr.s_addr = INADDR_ANY;
+	if(bind(sockfd, (struct sockaddr*)&localAddr, sizeof(localAddr)) < 0){
+		close(sockfd); sockfd = -1;
+		printf("Failed to bind host to %d\n", port);
+		return FAILURE;
+	}
 
-    if (bind(sockfd, (struct sockaddr*)&localAddr, sizeof(localAddr)) < 0) {
-        close(sockfd);
-        sockfd = -1;
-        printf("[NET] Host bind failed on port %d\n", port);
-        return false;
-    }
+	printf("Initialised host server on %d!\n", port);
+	return SUCCESS;
+}
+bool initClient(const char* ipAddr, Uint16 port){
+	sockfd = socket(AF_INET, SOCK_DGRAM, 0);
+	if(sockfd < 0) return FAILURE;
 
-    isNetworkHost = true;
-    localNetId = 0;
-    memset(netClients, 0, sizeof(netClients));
-    printf("[NET] Hosting UDP on port %d...\n", port);
-    return true;
+	int socketFlags = fcntl(sockfd, F_GETFL, 0);
+	fcntl(sockfd, F_SETFL, socketFlags | O_NONBLOCK);
+
+	memset(&serverAddr, 0, sizeof(serverAddr));
+	serverAddr.sin_family = AF_INET;
+	serverAddr.sin_port = htons(port);
+	
+	if(inet_pton(AF_INET, ipAddr, &serverAddr.sin_addr) <= 0){
+		close(sockfd); sockfd = -1;
+		printf("Address %s is invalid\n", ipAddr);
+		return FAILURE;
+	}
+
+	printf("Connecting to server at %s:%d...\n", ipAddr, port);
+	return SUCCESS;
 }
 
-bool netInitClient(const char* ip, Uint16 port) {
-    sockfd = socket(AF_INET, SOCK_DGRAM, 0);
-    if (sockfd < 0) return false;
+char* createPack(Uint8 type, void* data, size_t size){
+	char* newPack = malloc(size + 1);
+	if(!newPack) return NULL;
 
-    int flags = fcntl(sockfd, F_GETFL, 0);
-    fcntl(sockfd, F_SETFL, flags | O_NONBLOCK);
+	newPack[0] = type;
+	if(data || size > 0)memcpy(&newPack[1], data, size);
 
-    memset(&serverAddr, 0, sizeof(serverAddr));
-    serverAddr.sin_family = AF_INET;
-    serverAddr.sin_port = htons(port);
-    if (inet_pton(AF_INET, ip, &serverAddr.sin_addr) <= 0) {
-        close(sockfd);
-        sockfd = -1;
-        printf("[NET] Invalid IP: %s\n", ip);
-        return false;
-    }
-
-    isNetworkHost = false;
-    localNetId = 255;
-    memset(netClients, 0, sizeof(netClients));
-    printf("[NET] Connecting to host %s:%d...\n", ip, port);
-    return true;
+	return newPack;
 }
 
-void netSendTo(void* data, size_t size, struct sockaddr_in* target) {
-    if (sockfd < 0) return;
-    sendto(sockfd, data, size, 0, (struct sockaddr*)target, sizeof(*target));
+bool sendPing(void* packet, size_t size, struct sockaddr_in* target){
+	if(sockfd < 0) return FAILURE;
+
+	sendto(sockfd, packet, size, 0, (struct sockaddr*)target, sizeof(*target));
+	return SUCCESS;
 }
 
-void netBroadcast(void* data, size_t size, int excludeIdx) {
-    for (int i = 0; i < MAX_NET_PLAYERS; i++) {
-        if (netClients[i].active && i != excludeIdx) {
-            netSendTo(data, size, &netClients[i].addr);
-        }
-    }
+//stores retrieved data in storeLoc
+ssize_t retrievePing(void *storeLoc, size_t size, struct sockaddr_in *fromAddr, socklen_t *addrLen){
+	return recvfrom(sockfd, storeLoc, size, 0, (struct sockaddr*)fromAddr, addrLen);
 }
 
-void netSend(void* data, size_t size) {
-    if (isNetworkHost) {
-        netBroadcast(data, size, -1);
-    } else {
-        netSendTo(data, size, &serverAddr);
-    }
+void sendInitObj(DataObj* head, struct sockaddr_in* target);
+void pollPings(){
+	if(sockfd < 0) return;
+
+	Uint8* buffer = malloc(512);
+	struct sockaddr_in currAddr;
+	socklen_t addrLen = sizeof(currAddr);
+
+	char* ipString = NULL;
+	char* serverMsg = NULL;
+
+	bool bytesLeft = true;
+	while(bytesLeft){
+		ssize_t bytes = retrievePing(buffer, sizeof(buffer), &currAddr, &addrLen);
+		if(bytes <= 0){
+			bytesLeft = false;
+			break;
+		}
+
+		Uint8 type = buffer[0];
+		Uint32 addr = addrToInt(&currAddr);
+		PlayerEntry* currPlayer = playerFromAddr(addr);
+
+		printf("Buffer: %s\n", buffer);
+
+		switch(type){
+		case PACKET_CONNECT: 
+			if(currPlayer) break;
+
+			PlayerEntry* newEntry = addPlayer(addr);
+			if(!newEntry) break;
+
+			ipString = addrToString(addr);
+			printf("Client %s connected!\n", ipString);
+			serverMsg = malloc(256); sprintf(serverMsg, "Client %s joined!\n", ipString);
+			sendPopup(serverMsg, NULL, NULL, 5);
+			free(ipString);
+
+			nextNetID = 0;
+			sendInitObj(client.gameWorld->headObj, &currAddr);
+			break;
+		case PACKET_DISCONNECT: 
+			if(!currPlayer) break;
+
+			removePlayer(currPlayer);
+
+			ipString = addrToString(addr);
+			printf("Client %s disconnected\n", ipString);
+			serverMsg = malloc(256); sprintf(serverMsg, "Client %s left\n", ipString);
+			sendPopup(serverMsg, NULL, NULL, 5);
+			free(ipString);
+			break;
+
+		case PACKET_NEWINST:
+			if((Uint16)bytes < 4 + sizeof(DataObj)){
+				printf("packet too short...!\n");
+				break;
+			}
+
+			DataObj* parent = instFromID(client.gameWorld->headObj, (buffer[1] << 24) + (buffer[2] << 16) + (buffer[3] << 8) + buffer[4]);
+			if(!parent){
+				printf("no parents found...\n");
+				break;
+			}
+
+			DataObj* newItem = malloc(sizeof(DataObj) + 4);
+			DataObj* tempNewItem = memcpy(newItem, &buffer[5], sizeof(DataObj));
+			if(tempNewItem)
+				newItem = tempNewItem;
+			else{
+				free(newItem);
+				break;
+			}
+			newItem->prev = NULL; newItem->next = NULL;
+			for(int i=0; i<OBJVAL_MAX;i++){newItem->props[i] = NULL;}
+
+			parentObject(newItem, parent);
+			break;
+		}
+	}
+
+	free(buffer);
 }
 
-ssize_t netGet(void *buffer, size_t size, struct sockaddr_in *fromAddr, socklen_t *addrLen) {
-    return recvfrom(sockfd, buffer, size, 0, (struct sockaddr*)fromAddr, addrLen);
+void pingJoin(){
+	if(sockfd <= 0) return;
+
+	char* newPack = createPack(PACKET_CONNECT, NULL, 0);
+	sendPing(newPack, 1, &serverAddr);
+	free(newPack);
+}
+void pingDisconnect(){
+	if(sockfd <= 0) return;
+
+	char* newPack = createPack(PACKET_DISCONNECT, NULL, 0);
+	sendPing(newPack, 1, &serverAddr);
+	free(newPack);
+}
+void pingAddInst(DataObj* item, struct sockaddr_in* target){
+	if(sockfd <= 0) return;
+
+	char* objData = malloc(4 + sizeof(DataObj));
+	sprintf(objData, "%d", item->parent->netId);
+	memcpy(&objData[4], item, sizeof(DataObj));
+
+	char* newPack = createPack(PACKET_NEWINST, objData, 4 + sizeof(DataObj));
+	sendPing(newPack, 4 + sizeof(DataObj), target);
+	free(newPack); free(objData);
+
+	nextNetID++;
 }
 
-void netCleanup(void) {
-    if (sockfd >= 0) {
-        netSendLeave();
-        close(sockfd);
-        sockfd = -1;
-    }
+void sendInitObj(DataObj* head, struct sockaddr_in* target){
+	DataObj* child = head->child;
+	while (child) {
+		DataObj *next = child->next;
+		pingAddInst(child, target);
+		child = next;
+	}
 }
+
+void closeConnection(){
+	if(sockfd < 0) return;
+
+	if(client.selfEntry)
+		pingDisconnect();
+
+	close(sockfd);
+	sockfd = -1;
+}
+
 #else
-bool netInitHost(Uint16 port) { (void)port; return false; }
-bool netInitClient(const char* ip, Uint16 port) { (void)ip; (void)port; return false; }
-void netBroadcast(void* data, size_t size, int excludeIdx){ (void)data; (void)size; (void)excludeIdx; }
-void netSend(void* data, size_t size) { (void)data; (void)size; }
-void netSendTo(void* data, size_t size, struct sockaddr_in* target) { (void)data; (void)size; (void)target; }
-ssize_t netGet(void *buffer, size_t size, struct sockaddr_in *fromAddr, socklen_t *addrLen) { (void)buffer; (void)size; (void)fromAddr; (void)addrLen; return 0; }
-void netCleanup(void) {}
+bool initServer(Uint16 port){}
+void closeConnection(){}
+bool initClient(const char* ipAddr, Uint16 port){return FAILURE;}
+
+bool sendPing(void* packet, size_t size, struct sockaddr_in* target){return FAILURE;}
+ssize_t retrievePing(void *storeLoc, size_t size, struct sockaddr_in *fromAddr, socklen_t *addrLen){return 0;}
+void pollPings(){}
+
+void pingJoin(){}
 #endif
-
-void netSendJoin(const char *name) {
-    NetPacketJoin pkt;
-    memset(&pkt, 0, sizeof(pkt));
-    pkt.type = PKT_JOIN;
-    if (name) strncpy(pkt.name, name, sizeof(pkt.name) - 1);
-    netSend(&pkt, sizeof(pkt));
-}
-
-void netSendAssignId(uint8_t assignedId, struct sockaddr_in* target) {
-    NetPacketAssignID pkt;
-    memset(&pkt, 0, sizeof(pkt));
-    pkt.type = PKT_ASSIGN_ID;
-    pkt.assignedId = assignedId;
-    netSendTo(&pkt, sizeof(pkt), target);
-}
-
-void netSendSyncPlayer(uint8_t id, const char* name, struct sockaddr_in* target) {
-    NetPacketSyncPlayer pkt;
-    memset(&pkt, 0, sizeof(pkt));
-    pkt.type = PKT_SYNC_PLAYER;
-    pkt.id = id;
-    if (name) strncpy(pkt.name, name, sizeof(pkt.name) - 1);
-
-    if (target) {
-        netSendTo(&pkt, sizeof(pkt), target);
-    } else {
-        netSend(&pkt, sizeof(pkt));
-    }
-}
-
-void netSendLeave(void) {
-    NetPacketLeave pkt = { .type = PKT_LEAVE, .id = localNetId };
-    netSend(&pkt, sizeof(pkt));
-}
-
-void netSendPlayer(DataObj *player) {
-    if (!player) return;
-    NetPacketPlayer pkt = {
-        .type = PKT_PLAYER,
-        .id = localNetId,
-        .pos = player->pos,
-        .rot = player->rot,
-        .colour = player->colour
-    };
-    netSend(&pkt, sizeof(pkt));
-}
-
-static int findClientById(uint8_t id) {
-    for (int i = 0; i < MAX_NET_PLAYERS; i++) {
-        if (netClients[i].active && netClients[i].id == id) return i;
-    }
-    return -1;
-}
-
-static int findClientByAddr(struct sockaddr_in* addr) {
-    for (int i = 0; i < MAX_NET_PLAYERS; i++) {
-        if (netClients[i].active &&
-            netClients[i].addr.sin_addr.s_addr == addr->sin_addr.s_addr &&
-            netClients[i].addr.sin_port == addr->sin_port) {
-            return i;
-        }
-    }
-    return -1;
-}
-
-static int addClient(struct sockaddr_in* addr, uint8_t id) {
-    for (int i = 0; i < MAX_NET_PLAYERS; i++) {
-        if (!netClients[i].active) {
-            netClients[i].active = true;
-            netClients[i].addr = *addr;
-            netClients[i].id = id;
-            netClients[i].obj = newObject(&playerClass);
-            netClients[i].obj->networkPlayerID = id;
-            netClients[i].obj->networkExists = true;
-            parentObject(netClients[i].obj, client.gameWorld->headObj);
-            return i;
-        }
-    }
-    return -1;
-}
-
-static void removeClient(int idx) {
-    if (idx >= 0 && idx < MAX_NET_PLAYERS && netClients[idx].active) {
-        if (netClients[idx].obj) {
-            if (netClients[idx].obj->name) free(netClients[idx].obj->name);
-            removeObject(netClients[idx].obj);
-        }
-        netClients[idx].active = false;
-    }
-}
-
-void netPoll(void) {
-    uint8_t buffer[512];
-    struct sockaddr_in fromAddr;
-    socklen_t addrLen = sizeof(fromAddr);
-
-    while (1) {
-        ssize_t bytes = netGet(buffer, sizeof(buffer), &fromAddr, &addrLen);
-        if (bytes <= 0) break;
-
-        uint8_t type = buffer[0];
-        int cIdx = findClientByAddr(&fromAddr);
-
-        switch (type) {
-            case PKT_JOIN: {
-                if (isNetworkHost && cIdx == -1) {
-                    NetPacketJoin* pkt = (NetPacketJoin*)buffer;
-                    uint8_t newId = nextHostAssignId++;
-                    
-                    cIdx = addClient(&fromAddr, newId);
-                    if (cIdx != -1) {
-                        netClients[cIdx].obj->name = strdup(pkt->name);
-                        printf("[NET] Player '%s' joined! Assigned ID: %d\n", pkt->name, newId);
-
-                        char* serverMsg = malloc(256); sprintf(serverMsg, "%s joined the game!\n", pkt->name);
-                        sendPopup(serverMsg, NULL, NULL, 3);
-
-                        netSendAssignId(newId, &fromAddr);
-                        netSendSyncPlayer(0, "Host", &fromAddr);
-
-                        for (int i = 0; i < MAX_NET_PLAYERS; i++) {
-                            if (netClients[i].active && i != cIdx) {
-                                netSendSyncPlayer(
-                                    netClients[i].id,
-                                    netClients[i].obj->name ? netClients[i].obj->name : "Player",
-                                    &fromAddr
-                                );
-                            }
-                        }
-
-                        for (int i = 0; i < MAX_NET_PLAYERS; i++) {
-                            if (netClients[i].active && i != cIdx) {
-                                netSendSyncPlayer(newId, pkt->name, &netClients[i].addr);
-                            }
-                        }
-                    }
-                }
-                break;
-            }
-
-            case PKT_ASSIGN_ID: {
-                if (!isNetworkHost) {
-                    NetPacketAssignID* pkt = (NetPacketAssignID*)buffer;
-                    localNetId = pkt->assignedId;
-
-                    if (client.gameWorld->currPlayer) {
-                        client.gameWorld->currPlayer->networkPlayerID = localNetId;
-                    }
-                    printf("[NET] Connected to host! Assigned ID: %d\n", localNetId);
-                }
-                break;
-            }
-
-            case PKT_SYNC_PLAYER: {
-                if (!isNetworkHost) {
-                    NetPacketSyncPlayer* pkt = (NetPacketSyncPlayer*)buffer;
-
-                    if (pkt->id != localNetId) {
-                        int existIdx = findClientById(pkt->id);
-                        if (existIdx == -1) {
-                            int newIdx = addClient(&serverAddr, pkt->id);
-                            if (newIdx != -1) {
-                                netClients[newIdx].obj->name = strdup(pkt->name);
-                                printf("[NET] Sync: Remote player '%s' added (ID: %d)\n", pkt->name, pkt->id);
-                            }
-                        }
-                    }
-                }
-                break;
-            }
-
-            case PKT_LEAVE: {
-                NetPacketLeave* pkt = (NetPacketLeave*)buffer;
-                int remIdx = findClientById(pkt->id);
-                
-                if (remIdx != -1) {
-                    printf("[NET] Player ID %d left\n", pkt->id);
-
-                    if (isNetworkHost) {
-                        char* serverMsg = malloc(256); sprintf(serverMsg, "Player ID %d left the game!\n", netClients[cIdx].id);
-                        sendPopup(serverMsg, NULL, NULL, 3);
-                        netBroadcast(buffer, bytes, remIdx);
-                    }
-
-                    removeClient(remIdx);
-                }
-                break;
-            }
-
-            case PKT_PLAYER: {
-                if (bytes == sizeof(NetPacketPlayer)) {
-                    NetPacketPlayer* pkt = (NetPacketPlayer*)buffer;
-                    
-                    if (pkt->id != localNetId) {
-                        int pIdx = findClientById(pkt->id);
-                        if (pIdx != -1) {
-                            netClients[pIdx].obj->pos = pkt->pos;
-                            netClients[pIdx].obj->rot = pkt->rot;
-                            netClients[pIdx].obj->colour = pkt->colour;
-
-                            if (isNetworkHost) {
-                                netBroadcast(buffer, bytes, pIdx);
-                            }
-                        }
-                    }
-                }
-                break;
-            }
-
-            default:
-                break;
-        }
-    }
-}

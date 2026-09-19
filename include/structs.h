@@ -86,9 +86,8 @@ typedef struct DataObj{
 	struct DataObj* child;
 	
 	bool studioOpen;
-	Uint32 serverID; //id SPECIFICALLY for objects staying constant over multiple clients and servers
-	bool networkExists;
-	int networkPlayerID; //connects object to specific player? other client updates object?
+	Uint32 netId; //id SPECIFICALLY for objects staying constant over multiple clients and servers
+	bool netSync;
 } DataObj;
 
 typedef struct{
@@ -99,6 +98,18 @@ typedef struct{
 	float *proj;
 } Camera;
 
+typedef struct PlayerEntry{
+	Uint32 playerID;
+	char* name;
+	DataObj* character;
+
+	Uint32 addr; //if addr == hostAddr then do host things
+	Uint16 ping;
+
+	struct PlayerEntry* prev;
+	struct PlayerEntry* next;
+} PlayerEntry;
+
 typedef struct TextureRef TextureRef;
 typedef struct{
 	DataObj* headObj;
@@ -106,24 +117,17 @@ typedef struct{
 	DataObj* currPlayer;
 
 	TextureRef* skybox;
+	SDL_FColor fogColour;
+	SDL_FPoint fogRange;
 
 	float playerRespawn;
 } GameWorld;
 typedef struct{
 	bool debug, pause, studio, online, hosting;
 	char* version;
-	Uint32 playerID;
+	Uint32 playerID; PlayerEntry* selfEntry;
 	GameWorld *gameWorld;
 } ClientData;
-
-typedef struct PlayerEntry{
-	Uint32 playerID;
-	char* name;
-	DataObj* character;
-
-	//ip address goes here probably
-	Uint16 ping;
-} PlayerEntry;
 
 typedef struct{
 	bool down, pressed, released, pressCheck;

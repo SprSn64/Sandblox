@@ -20,6 +20,12 @@ extern GameWorld game;
 extern double deltaTime;
 extern ButtonMap keyList[KEYBIND_MAX];
 
+extern Uint32 glLocs[GLVAL_MAX];
+extern float flatLight[4];
+extern float flatAmb[4];
+extern SDL_FColor lightColour;
+extern SDL_FColor lightAmbient;
+
 extern Mesh *cubePrim;
 extern Mesh *planePrim;
 extern TextureRef *homerTex;
@@ -71,6 +77,7 @@ void playerInit(DataObj* object){
 	collision->active = true;
 
 	PlayerData* plrData = calloc(1, sizeof(PlayerData));
+	plrData->femBody = false;
 	plrData->moveSpeed = 1.2; plrData->jumpStrength = 20; 
 	plrData->coyote = 10; plrData->coyoteMax = 0.15;
 	object->objOther = plrData;
@@ -123,7 +130,7 @@ collisionSkip:
 	float friction = 6 + .3 * (plrData->coyote >= plrData->coyoteMax);
 	float fricMult = max(1.f - friction * deltaTime, 0);
 
-	playerVel->y += deltaTime * (-60 + 30 * (keyList[KEYBIND_SPACE].down && playerVel->y > 0));
+	playerVel->y += (-60 + 30 * (keyList[KEYBIND_SPACE].down && playerVel->y > 0)) * deltaTime;
 	
 	playerVel->x = (playerVel->x + playerMove.x * plrData->moveSpeed) * fricMult;
 	playerVel->z = (playerVel->z + playerMove.y * plrData->moveSpeed) * fricMult;
@@ -144,27 +151,24 @@ collisionSkip:
 		*playerVel = (Vector3){0, 0, 0};*/
 		killPlayer();
 	}
-	if (object == game.currPlayer) {
-		netSendPlayer(object);
-	}
+	//if (object == game.currPlayer) {
+	//	netSendPlayer(object);
+	//}
 }
 extern Mesh *playerMesh;
 extern Mesh *playerFemMesh;
 void playerDraw(DataObj* object){
+	PlayerData *plrData = object->objOther;
 	//if (!object->networkExists && object != client.gameWorld->currPlayer) return;
 	SDL_FColor plrColour = ConvertSDLColour(object->colour);
 	plrColour.a *= object == client.gameWorld->currPlayer ? min(game.currCamera->focusDist / 2, 1) : 1;
-	Mesh* plrMesh = playerMesh;
-	DataObj* femBody = firstChildWithName(object, "femBody");
-	if(femBody && femBody->classData->id == groupClass.id)
-		plrMesh = playerFemMesh;
 
-	drawMeshOpenGL(plrMesh, object->transform, plrColour, NULL);
+	drawMeshOpenGL(plrData->femBody ? playerFemMesh : playerMesh, object->transform, plrColour, NULL);
 	
 	DataObj *hatItem = object->child;
 	while(hatItem){
 		if(hatItem->classData->id == accessoryClass.id){
-			SDL_FColor hatCol = ConvertSDLColour(hatItem->colour); hatCol.a = plrColour.a;
+			SDL_FColor hatCol = ConvertSDLColour(hatItem->colour); hatCol.a *= plrColour.a;
 			TextureRef *itemTex = hatItem->props[OBJVAL_TEXTURE];
 			drawMeshOpenGL(hatItem->props[OBJVAL_MESH], object->transform, hatCol, itemTex);
 		}
@@ -178,7 +182,8 @@ void playerDraw(DataObj* object){
 	float nameScale = 2;
 	drawText(renderer, &defaultFont, object->name, textProj.x - strlen(object->name) / 2 * defaultFont.kerning.x * nameScale, textProj.y - defaultFont.renderSize.y * nameScale, nameScale, (SDL_FColor){1, 1, 1, 1});
 	*/
-
+	glUniform4fv(glLocs[GLVAL_LIGHTCOLOUR], 1, (float*)&flatLight);
+	glUniform4fv(glLocs[GLVAL_AMBCOLOUR], 1, (float*)&flatAmb);
 	float textRatio = bufferGLText(textBufferTex, &defaultFont, object->name, 4);
 	float* textMatrix = genMatrix(vec3Add(object->pos, (Vector3){0, 6, 0}), (Vector3){1 / textRatio, 1, 1}, 
 		(Vector3){
@@ -189,6 +194,8 @@ void playerDraw(DataObj* object){
 	);
 	drawMeshOpenGL(planePrim, textMatrix, (SDL_FColor){1, 1, 1, 1}, textBufferTex);
 	free(textMatrix);
+	glUniform4fv(glLocs[GLVAL_LIGHTCOLOUR], 1, (float*)&lightColour);
+	glUniform4fv(glLocs[GLVAL_AMBCOLOUR], 1, (float*)&lightAmbient);
 }
 void playerDestroy(DataObj* object){
 	free(object->objVel); free(object->objColl);
@@ -304,8 +311,9 @@ Particle* addParticle(ParticleEmitter* emitter, Vector3 pos){
 	if(!newParticle) return NULL;
 
 	newParticle->pos = pos; newParticle->vel = (Vector3){0, 0, 0};
-	newParticle->life = 3; newParticle->parent = emitter;
+	newParticle->life = emitter->life; newParticle->parent = emitter;
 	newParticle->colour = (CharColour){255, 255, 255, 255, 0, COLOURMODE_RGB};
+	newParticle->size = 0.2;
 
 	newParticle->prev = NULL; newParticle->next = NULL;
 
@@ -342,9 +350,11 @@ void particleInit(DataObj* object){
 
 	emitter->waitTime = 0.2;
 	emitter->timer = emitter->waitTime;
+	emitter->life = 3;
 
 	emitter->velRand = 1;
-	emitter->initVel = (Vector3){0, 4, 0};
+	emitter->initVel = (Vector3){0, 12, 0};
+	emitter->accel = (Vector3){0, -12, 0};
 
 	object->objOther = emitter;
 }
@@ -354,7 +364,7 @@ void particleUpdate(DataObj* object){
 
 	emitter->timer -= deltaTime;
 	if(emitter->timer <= 0){
-		emitter->timer = 0.2;
+		emitter->timer = emitter->waitTime;
 		Particle* newParticle = addParticle(emitter, object->pos);
 
 		newParticle->vel = vec3Add(emitter->initVel, (Vector3){
@@ -367,6 +377,7 @@ void particleUpdate(DataObj* object){
 	Particle* currParticle = emitter->headParticle;
 	while(currParticle){
 		Particle* nextParticle = currParticle->next;
+		currParticle->vel = vec3Add(currParticle->vel, vec3Mult(emitter->accel, (Vector3){deltaTime, deltaTime, deltaTime}));
 		currParticle->pos = vec3Add(currParticle->pos, vec3Mult(currParticle->vel, (Vector3){deltaTime, deltaTime, deltaTime}));
 
 		currParticle->colour.a = min(currParticle->life * 255, 255);
@@ -382,6 +393,9 @@ void particleDraw(DataObj* object){
 	ParticleEmitter* emitter = (ParticleEmitter*)object->objOther;
 	if(!emitter) return;
 
+	glUniform4fv(glLocs[GLVAL_LIGHTCOLOUR], 1, (float*)&flatLight);
+	glUniform4fv(glLocs[GLVAL_AMBCOLOUR], 1, (float*)&flatAmb);
+
 	Particle* currParticle = emitter->headParticle;
 	while(currParticle){
 		float* centerTrans = translateMatrix(defaultMatrix, (Vector3){-0.5, 0, -0.5});
@@ -396,6 +410,9 @@ void particleDraw(DataObj* object){
 
 		currParticle = currParticle->next;
 	}
+
+	glUniform4fv(glLocs[GLVAL_LIGHTCOLOUR], 1, (float*)&lightColour);
+	glUniform4fv(glLocs[GLVAL_AMBCOLOUR], 1, (float*)&lightAmbient);
 }
 void particleDestroy(DataObj* object){
 	ParticleEmitter* emitter = (ParticleEmitter*)object->objOther;
