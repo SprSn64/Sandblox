@@ -463,7 +463,7 @@ SDL_AppResult SDL_AppIterate(void *appstate){
 	memcpy(client.gameWorld->currCamera->transform, camRotated, sizeof(mat4));
 	free(camTranslated); free(camRotated); 
 
-	client.gameWorld->currCamera->proj = projMatrix(currentCamera.fov, aspectRatio, 0.1, 1000000);
+	client.gameWorld->currCamera->proj = projMatrix(currentCamera.fov, aspectRatio, 0.1, 100000);
 
 	if(client.studio && focusObject)
 		updateStudioGimbles();

@@ -555,8 +555,10 @@ int saveGameFile(const char* filename){
 	return 0;
 }
 
+extern DataObj* focusObject;
 DataObj* loadPlayerAvatar(){
 	DataObj* newPlayer = newObject(&playerClass);
+	PlayerData* plrData = newPlayer->objOther;
 	parentObject(newPlayer, client.gameWorld->headObj);
 	client.gameWorld->playerRespawn = 0;
 
