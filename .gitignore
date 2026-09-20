@@ -9,3 +9,5 @@ workspace
 ignore
 launcher/sblauncher.exe
 launcher/config.txt
+# clangd stuff
+compile_commands.json

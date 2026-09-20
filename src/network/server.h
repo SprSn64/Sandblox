@@ -5,6 +5,7 @@
 #include <stdint.h>
 #include "structs.h"
 
+//winsock for windows
 #ifdef _WIN32
 	#include <winsock2.h>
 	#include <ws2tcpip.h>
@@ -14,54 +15,66 @@
 	#include <sys/socket.h>
 #endif
 
-/*CLIENT JOIN BASIC METHOD PROBABLY:
-	Client sends enter request with player ID to server
-	Server sends client enter approval ping on success, or a kick ping if theyre banned
-	Add player to server player list
+#define MAX_PLAYERS 32
 
-	Server sends all current instance data to client
-	Once all data is sent, load in the player character or something else
-*/
+typedef enum PacketType {
+	PKT_NONE = 0x00,
+	PKT_JOIN_REQ = 0x01,
+	PKT_JOIN = 0x02,
+	PKT_DISCONNECT = 0x03,
+	PKT_PLAYER = 0x04
+} PacketType;
 
-/*CLIENT TO SERVER UPDATE LOOP BASIC METHOD:
-	Client sends ping to server with the ping start time
-	Server retrieves ping and stores the time between the client ping and when it retrieved the ping
-	If server doesn't retrieve a ping from the client for 15-30 seconds, remove the player from the server
+#pragma pack(push, 1)
+typedef struct {
+	Uint8 type;
+	Uint8 destGlobalID;
+	Uint32 srcGlobalID;
+} Packet;
 
-	Client sends all local instance updates to server
-	Server sends all global instance updates to client
-	Retrieve unloaded image, model and sound assets from server
-*/
+typedef struct {
+	Uint8 type;
+	Uint8 destGlobalID;
+	Uint32 srcGlobalID;
+} PacketJoinReq;
 
-typedef enum PacketFlags{
-	PACKET_NONE = 0x00,
-	PACKET_CONNECT = 0x01,
-	PACKET_DISCONNECT = 0x02,
+typedef struct {
+	Uint8 type;
+	Uint8 destGlobalID;
+	Uint32 srcGlobalID;
+} PacketJoin;
 
-	PACKET_PING = 0x03,
-	PACKET_UPDATE = 0x04,
+typedef struct {
+	Uint8 type;
+	Uint8 destGlobalID;
+	Uint32 srcGlobalID;
+} PacketDisconnect;
 
-	PACKET_NEWINST = 0x05,
-} PacketFlags;
+typedef struct {
+	Uint8 type;
+	Uint8 destGlobalID;
+	Uint32 srcGlobalID;
+	Vector3 pos;
+	Vector3 rot;
+} PacketPlayer;
+#pragma pack(pop)
 
-Uint32 addrToInt(struct sockaddr_in* addr);
+bool osNetInitServer(Uint16 port);
+bool osNetInitClient(const char* ipAddr, Uint16 port);
+void osNetClose(void);
+bool osNetSend(void* data, size_t size, struct sockaddr_in* target);
+ssize_t osNetRecv(void* buffer, size_t size, struct sockaddr_in* fromAddr, socklen_t* addrLen);
 
 bool initServer(Uint16 port);
 bool initClient(const char* ipAddr, Uint16 port);
-void closeConnection();
+void closeConnection(void);
+void pollPackets(void);
+void netSendJoinRequest(void);
+void netSendLeave(void); 
+void netSendPlayer(DataObj* player);
 
-bool sendPing(void* packet, size_t size, struct sockaddr_in* target);
-ssize_t retrievePing(void *storeLoc, size_t size, struct sockaddr_in *fromAddr, socklen_t *addrLen);
-void pollPings();
-
-void pingJoin();
-
-PlayerEntry* addPlayer(Uint32 addr);
 void removePlayer(PlayerEntry* player);
-PlayerEntry* playerFromAddr(Uint32 addr);
-void addSelfPlayer();
-
-void setupID(DataObj* head);
-DataObj* instFromID(DataObj* head, Uint32 id);
+PlayerEntry* playerFromID(Uint32 id);
+void addSelfPlayer(void);
 
 #endif
