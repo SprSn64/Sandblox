@@ -11,6 +11,23 @@
 #include "utils.h"
 #include "network/server.h"
 
+#ifdef _WIN32
+// shitty windows deoesnt have strndup
+char *strndup(const char *s, size_t n) {
+    size_t len = 0;
+    while (len < n && s[len]) {
+        len++;
+    }
+    
+    char *p = (char *)malloc(len + 1);
+    if (p) {
+        memcpy(p, s, len);
+        p[len] = '\0';
+    }
+    return p;
+}
+#endif
+
 extern ClientData client;
 extern DataObj gameHeader;
 
@@ -296,7 +313,6 @@ particleSkip:
 }
 
 extern bool playerEnabled;
-extern Uint32 nextNetID;
 int loadGameFile(const char* filename) {
     printf("Loading game file: %s...\n", filename);
     
@@ -433,8 +449,6 @@ int loadGameFile(const char* filename) {
             /*DataObj* newObj = */createObjectFromJSON(obj, NULL);
     }
 
-	nextNetID = 1; setupID(client.gameWorld->headObj);
-	
     client.gameWorld->playerRespawn = 10;
     if(loadedPlayer){
         client.gameWorld->currPlayer = loadedPlayer;

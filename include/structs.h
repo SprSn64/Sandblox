@@ -103,7 +103,8 @@ typedef struct PlayerEntry{
 	char* name;
 	DataObj* character;
 
-	Uint32 addr; //if addr == hostAddr then do host things
+	Uint32 ip;
+	Uint16 port;
 	Uint16 ping;
 
 	struct PlayerEntry* prev;

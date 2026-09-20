@@ -307,9 +307,8 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[]){
 	//SDL_HideCursor();
 
 	if(client.online){
-		pingJoin();
+		netSendJoinRequest();
 		client.pause = true;
-		return SDL_APP_CONTINUE;
 	}
 	if(mapLoaded) return SDL_APP_CONTINUE;
 	
@@ -330,6 +329,7 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[]){
 SDL_AppResult SDL_AppEvent(void *appstate, SDL_Event *event){
 	(void)appstate;
 	if(event->type == SDL_EVENT_QUIT){
+		netSendLeave();
 		return SDL_APP_SUCCESS;
 	}
 
@@ -439,7 +439,7 @@ SDL_AppResult SDL_AppIterate(void *appstate){
 	}
 
 	if(client.online || client.hosting){
-		pollPings();
+		pollPackets();
 	}
 
 	glViewport(0, 0, windowScale.x, windowScale.y);
