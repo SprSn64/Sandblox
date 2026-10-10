@@ -468,8 +468,10 @@ SDL_AppResult SDL_AppIterate(void *appstate){
 	if(client.studio && focusObject)
 		updateStudioGimbles();
 
+	float *camRotMatrix = rotateMatrix(defaultMatrix, vec3Mult(client.gameWorld->currCamera->rot, invVec3), ROT_YXZ);
 	glUniformMatrix4fv(glLocs[GLVAL_PROJMATRIX], 1, GL_FALSE, currentCamera.proj);
-	glUniformMatrix4fv(glLocs[GLVAL_VIEWMATRIX], 1, GL_FALSE, currentCamera.transform);
+	glUniformMatrix4fv(glLocs[GLVAL_VIEWMATRIX], 1, GL_FALSE, camRotMatrix);
+	free(camRotMatrix);
 
 	float resFloat[2] = {0, 0};
 	glUniform2fv(glLocs[GLVAL_RESOLUTION], 1, resFloat);
@@ -484,19 +486,19 @@ SDL_AppResult SDL_AppIterate(void *appstate){
 
 	float fogRangeFloat[2] = {0, 0};
 	glUniform2fv(glLocs[GLVAL_FOGRANGE], 1, (float*)&fogRangeFloat);
-
-		skyboxMatrix = translateMatrix(defaultMatrix, currentCamera.pos);
 		TextureRef* skyboxTex = skyTex;
 		if(client.gameWorld->skybox)
 			skyboxTex = client.gameWorld->skybox;
-		drawMeshOpenGL(skyboxMesh, skyboxMatrix, (SDL_FColor){1,1,1,1}, skyboxTex);
+		drawMeshOpenGL(skyboxMesh, defaultMatrix, (SDL_FColor){1,1,1,1}, skyboxTex);
 		free(skyboxMatrix);
 	
-		sunMatrix = genMatrix(currentCamera.pos, (Vector3){1, 1, 1}, vec3Add(normToRot3(lightNormal), (Vector3){PI, PI, 0}));
+		sunMatrix = rotateMatrix(defaultMatrix, vec3Add(normToRot3(lightNormal), (Vector3){PI, PI, 0}), ROT_XYZ);
 		drawMeshOpenGL(sunMesh, sunMatrix, lightColour, sunTex);
 		free(sunMatrix);
 
 	setGlValue(GL_DEPTH_TEST, true); setGlValue(GL_BLEND, false);
+
+	glUniformMatrix4fv(glLocs[GLVAL_VIEWMATRIX], 1, GL_FALSE, currentCamera.transform);
 
 	resFloat[0] = windowScale.x; resFloat[1] = windowScale.y;
 	glUniform2fv(glLocs[GLVAL_RESOLUTION], 1, resFloat);
