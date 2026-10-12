@@ -381,7 +381,7 @@ void particleUpdate(DataObj* object){
 		currParticle->vel = vec3Add(currParticle->vel, vec3Mult(emitter->accel, (Vector3){deltaTime, deltaTime, deltaTime}));
 		currParticle->pos = vec3Add(currParticle->pos, vec3Mult(currParticle->vel, (Vector3){deltaTime, deltaTime, deltaTime}));
 
-		currParticle->colour.a = min(currParticle->life * 255, 255);
+		//currParticle->colour.a = min(currParticle->life * 255, 255);
 
 		currParticle->life -= deltaTime;
 		if(currParticle->life <= 0)

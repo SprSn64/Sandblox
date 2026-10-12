@@ -295,7 +295,7 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[]){
 	client.gameWorld->fogRange = (SDL_FPoint){128, 1024};
 	client.gameWorld->fogColour = (SDL_FColor){1, 1, 1, 1};
 
-	client.debug = true;
+	//client.debug = true;
 	
 	defaultMatrix = newMatrix();
 
@@ -417,8 +417,9 @@ SDL_AppResult SDL_AppIterate(void *appstate){
 	}else camMoveMode = 0;
 
 	if(keyList[KEYBIND_SWAPRENDER].pressed){
-		char* testString = malloc(16); sprintf(testString, "fuck");
-		sendPopup(testString, NULL, NULL, 3);
+		//char* testString = malloc(16); sprintf(testString, "fuck");
+		//sendPopup(testString, NULL, NULL, 3);
+		client.debug = !client.debug;
 	}
 
 	if(keyList[KEYBIND_MENU].pressed){
