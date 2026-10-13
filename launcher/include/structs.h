@@ -26,8 +26,9 @@ typedef struct MapEntry{
 	char* name;
 	struct MapEntry* prev;
 	struct MapEntry* next;
-	//struct MapEntry* parent;
-	//struct MapEntry* child;
+
+	struct MapEntry* parent;
+	struct MapEntry* child;
 } MapEntry;
 
 typedef struct ServerEntry{

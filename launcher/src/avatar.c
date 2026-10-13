@@ -116,7 +116,7 @@ void loadAvatar(){
 
 	cJSON* name = cJSON_GetObjectItem(json, "name");
 	if(name && cJSON_IsString(name)){
-		free(playerName); playerName = calloc(1, 20);
+		free(playerName); playerName = malloc(20);
 		sprintf(playerName, "%s", name->valuestring);
 	}
 

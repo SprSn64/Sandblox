@@ -642,5 +642,6 @@ DataObj* loadPlayerAvatar(){
 avatarLoadSkip:
 	free(avatarPath);
 	client.gameWorld->currPlayer = newPlayer;
+	focusObject = newPlayer;
 	return newPlayer;
 }

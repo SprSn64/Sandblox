@@ -15,9 +15,34 @@ MapEntry* addMapEntry(char* path, char* name){
 	MapEntry* newEntry = malloc(sizeof(MapEntry));
 	newEntry->path = malloc(256); sprintf(newEntry->path, "%s", path);
 	newEntry->name = malloc(256); sprintf(newEntry->name, "%s", name);
+	newEntry->folder = false;
 
 	//child->parent = parent;
-	newEntry->next = NULL;
+	newEntry->parent = NULL; newEntry->child = NULL;
+	newEntry->prev = NULL; newEntry->next = NULL;
+
+	if(!mapListHead){
+		mapListHead = newEntry;
+		return newEntry;
+	}
+
+	MapEntry *loopItem = mapListHead;
+	while(loopItem->next){
+		loopItem = loopItem->next;
+	}
+	loopItem->next = newEntry;
+	newEntry->prev = loopItem;
+
+	return newEntry;
+}
+MapEntry* addMapFolder(char* path, char* name){
+	MapEntry* newEntry = malloc(sizeof(MapEntry));
+	newEntry->path = malloc(256); sprintf(newEntry->path, "%s", path);
+	newEntry->name = malloc(256); sprintf(newEntry->name, "%s", name);
+	newEntry->folder = true;
+
+	newEntry->parent = NULL; newEntry->child = NULL;
+	newEntry->prev = NULL; newEntry->next = NULL;
 
 	if(!mapListHead){
 		mapListHead = newEntry;
@@ -61,14 +86,15 @@ bool loadMapDir(char* path){
 		printf("%s\n", entry->d_name);
 		sprintf(fullPath, "%s/%s", path, entry->d_name);
 
+		if(!strcmp(entry->d_name, ".")) continue;
+
 		char* extChar = strrchr(entry->d_name, '.');
 		if(!extChar) continue;
 
-		struct stat fileStat; stat(path, &fileStat);
-		printf("%d\n", S_ISREG(fileStat.st_mode));
-
-		if(!strcmp(extChar, ".json"))
+		if(!strcmp(extChar, ".json")){
 			addMapEntry(fullPath, entry->d_name);
+			continue;
+		}
       }
 
       sortMapItems(mapListHead);
