@@ -78,6 +78,7 @@ typedef struct DataObj{
 	char *name;
 	DataType* classData;
 
+	//replace props entirely with behaviour handler struct probably
 	void *props[OBJVAL_MAX];
 
 	struct DataObj* prev;
@@ -161,6 +162,16 @@ typedef struct{
 	CollisionHull* hullB;
 	Vector3 outNorm;
 } CollisionReturn;
+
+typedef struct{
+	Vector3 pos, norm;
+} RayCast;
+
+typedef struct{
+	float dist;
+	Vector3 hitPos;
+	CollisionHull* hit;
+} RayReturn;
 
 typedef struct{
 	void *head;

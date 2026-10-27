@@ -49,7 +49,8 @@ void drawDepthPixel(Texture* target, Uint16 x, Uint16 y, float z, Uint32 colour)
 }
 
 void drawDepthHamLine(Texture* target, Vector3 pointA, Vector3 pointB, Uint32 colourA, Uint32 colourB){
-	float scaler = max(fabs(pointB.x - pointA.x), fabs(pointB.y - pointA.y));
+	(void)target; (void)pointA; (void)pointB; (void)colourA; (void)colourB;
+	/*float scaler = max(fabs(pointB.x - pointA.x), fabs(pointB.y - pointA.y));
 	if(scaler <= 0 || !target) return;
 
 	int loopCount = (fabs(pointB.x - pointA.x) >= fabs(pointB.y - pointA.y) ? 
@@ -64,14 +65,15 @@ void drawDepthHamLine(Texture* target, Vector3 pointA, Vector3 pointB, Uint32 co
 			lerp(pointA.z, pointB.z, lerpVal * i),
 			colourLerp(colourA, colourB, lerpVal * i)
 		);
-	}
+	}*/
 }
 
 void drawDepthBar(Texture* target, int y, SDL_FPoint pointA, SDL_FPoint pointB, Uint32 colourA, Uint32 colourB){
-	float lerpVal = (float)1/(pointB.x - pointA.x);
+	(void)target; (void)y; (void)pointA; (void)pointB; (void)colourA; (void)colourB;
+	/*float lerpVal = (float)1/(pointB.x - pointA.x);
 	for(int i=0; i < min(pointB.x - pointA.x, target->width); i++){
 		drawDepthPixel(target, pointA.x + i, y, lerp(pointA.y, pointB.y, i * lerpVal), colourLerp(colourA, colourB, i * lerpVal));
-	}
+	}*/
 }
 
 Vector3 toScreen(Texture* target, Vector3 pos){

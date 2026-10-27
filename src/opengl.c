@@ -78,11 +78,9 @@ void setGlValue(Uint32 item, bool value){
 	else
 		glDisable(item);
 }
-
 void setGlShader(Uint32 shader){
 	glUseProgram(shader);
 }
-
 bool setGlTexture(Texture* tex){
 	if(!tex) return 0;
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, tex->width, tex->height, 0, GL_RGBA, GL_UNSIGNED_BYTE, tex->pixels);
@@ -187,33 +185,6 @@ void openGlGenBuffers(Mesh* mesh){
 	genVBO(mesh, &mesh->vertBuffer);
 }
 
-float bufferGLText(TextureRef* target, Font* font, char* text, float size){
-	Texture* tex = target->texture;
-	if(tex)
-		freeRasterTexture(tex);
-	SDL_Point scale = {font->renderSize.x + max(font->kerning.x * size * strlen(text), font->renderSize.x * size), font->renderSize.y * size};
-	Texture* newTex = newRasterTexture(scale.x, scale.y);
-	target->texture = newTex;
-
-	clearTex(newTex, 0x00FFFFFF);
-	drawRasterText(newTex, font, text, 0, 0, size, 0xFFFFFFFF);
-
-	glBindTexture(GL_TEXTURE_2D, target->glLoc);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, newTex->width, newTex->height, 0, GL_RGBA, GL_UNSIGNED_BYTE, newTex->pixels);
-	glBindTexture(GL_TEXTURE_2D, 0);
-
-	return (float)scale.y / scale.x;
-}
-
-extern TextureRef* textBufferTex;
-extern Mesh* planePrim;
-void drawGlText(Font* font, Vector3 pos, char* text, float size, SDL_FColor colour){
-	float textRatio = bufferGLText(textBufferTex, font, text, 2);
-	float* textMatrix = genMatrix((Vector3){pos.x, pos.y, pos.z}, (Vector3){size / textRatio, 1, size}, (Vector3){HALFPI, 0, 0});
-	drawMeshOpenGL(planePrim, textMatrix, colour, textBufferTex);
-	free(textMatrix);
-}
-
 FrameBuffer* newFrameBuffer(Uint16 width, Uint16 height){
 	FrameBuffer* newFB = calloc(1, sizeof(FrameBuffer));
 	if(!newFB) return NULL;
@@ -247,13 +218,11 @@ FrameBuffer* newFrameBuffer(Uint16 width, Uint16 height){
 
 	return newFB;
 }
-
 void bindFrameBuffer(FrameBuffer* item){
 	glBindFramebuffer(GL_FRAMEBUFFER, item ? item->frameBuff : 0);
 	if(item) glViewport(0, 0, item->width, item->height);
 	else glViewport(0, 0, windowScale.x, windowScale.y);
 }
-
 void freeFrameBuffer(FrameBuffer* item){
 	if(!item) return;
 	if(item->texture) freeTexture(item->texture); 
@@ -261,4 +230,31 @@ void freeFrameBuffer(FrameBuffer* item){
     glDeleteFramebuffers(1, &item->frameBuff); 
     glDeleteRenderbuffers(1, &item->renderBuff);
 	free(item);
+}
+
+float bufferGLText(TextureRef* target, Font* font, char* text, float size){
+	Texture* tex = target->texture;
+	if(tex)
+		freeRasterTexture(tex);
+	SDL_Point scale = {font->renderSize.x + max(font->kerning.x * size * strlen(text), font->renderSize.x * size), font->renderSize.y * size};
+	Texture* newTex = newRasterTexture(scale.x, scale.y);
+	target->texture = newTex;
+
+	clearTex(newTex, 0x00FFFFFF);
+	drawRasterText(newTex, font, text, 0, 0, size, 0xFFFFFFFF);
+
+	glBindTexture(GL_TEXTURE_2D, target->glLoc);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, newTex->width, newTex->height, 0, GL_RGBA, GL_UNSIGNED_BYTE, newTex->pixels);
+	glBindTexture(GL_TEXTURE_2D, 0);
+
+	return (float)scale.y / scale.x;
+}
+
+extern TextureRef* textBufferTex;
+extern Mesh* planePrim;
+void drawGlText(Font* font, Vector3 pos, char* text, float size, SDL_FColor colour){
+	float textRatio = bufferGLText(textBufferTex, font, text, 2);
+	float* textMatrix = genMatrix((Vector3){pos.x, pos.y, pos.z}, (Vector3){size / textRatio, 1, size}, (Vector3){HALFPI, 0, 0});
+	drawMeshOpenGL(planePrim, textMatrix, colour, textBufferTex);
+	free(textMatrix);
 }

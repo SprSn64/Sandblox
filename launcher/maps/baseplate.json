@@ -1,5 +1,6 @@
 {
-	"objects":	[{
+	"objects":	[
+		{
 			"name":	"Baseplate",
 			"class":	"Block",
 			"pos":	[-128.000000, 0.000000, -128.000000],
@@ -10,5 +11,6 @@
 				"enabled":	true,
 				"type":	"block"
 			}
-		}]
+		}
+	]
 }

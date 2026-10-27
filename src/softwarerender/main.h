@@ -11,7 +11,7 @@
 Uint32 colourToInt(SDL_FColor colour);
 SDL_FColor intToColour(Uint32 colour);
 
-Uint32 colourLerp(Uint32 colA, Uint32 colB, float t);
+SDL_FColor colourLerp(SDL_FColor colA, SDL_FColor colB, float t);
 
 void setPixel(Texture* target, Uint16 x, Uint16 y, Uint32 colour);
 Uint32 getPixel(Texture* target, Uint16 x, Uint16 y);
