@@ -214,7 +214,7 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[]){
 	glBindTexture(GL_TEXTURE_2D, 0);
 
 	rastFontTex = loadRasterTexture("assets/textures/font.png");
-	defaultFont = (Font){fontTex, rastFontTex, 32, (SDL_Point){32, 32}, (SDL_Point){8, 8}, (SDL_FPoint){6, 0}, 16};
+	defaultFont = (Font){fontTex, rastFontTex, 32, (SDL_Point){64, 64}, (SDL_Point){8, 8}, (SDL_FPoint){6, 0}, 16};
 
 	playerMesh = loadMeshFromObj("assets/models/player.obj", true); 
 	playerFemMesh = loadMeshFromObj("assets/models/playerfem.obj", true); 

@@ -185,7 +185,7 @@ void playerDraw(DataObj* object){
 	*/
 	glUniform4fv(glLocs[GLVAL_LIGHTCOLOUR], 1, (float*)&flatLight);
 	glUniform4fv(glLocs[GLVAL_AMBCOLOUR], 1, (float*)&flatAmb);
-	float textRatio = bufferGLText(textBufferTex, &defaultFont, object->name, 4);
+	float textRatio = bufferGLText(textBufferTex, &defaultFont, object->name, 8);
 	float* textMatrix = genMatrix(vec3Add(object->pos, (Vector3){0, 6, 0}), (Vector3){1 / textRatio, 1, 1}, 
 		(Vector3){
 			client.gameWorld->currCamera->rot.x + HALFPI,
@@ -261,16 +261,25 @@ void cameraInit(DataObj* object){
 }
 void cameraUpdate(DataObj* object){
 	Camera *cam = object->props[OBJVAL_OTHER];
-	if(cam != NULL){
-		free(cam->transform);
-		cam->transform = genMatrix(object->pos, object->scale, object->rot);
-	}
+	if(cam == NULL) return;
+
+	free(cam->transform);
+	cam->transform = genMatrix(object->pos, object->scale, object->rot);
+}
+void cameraDraw(DataObj* object){
+	Camera *cam = object->props[OBJVAL_OTHER];
+	if(cam == NULL) return;
+	if(!client.debug || client.gameWorld->currCamera == cam) return;
+
+	glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+	drawMeshOpenGL(cubePrim, object->transform, (SDL_FColor){1, 1, 1, 1}, NULL);
+	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 }
 void cameraDestroy(DataObj* object){
 	free(object->props[OBJVAL_OTHER]);
 }
 
-DataType cameraClass = {"Camera\0", 6, 0, cameraInit, cameraUpdate, NULL, cameraDestroy};
+DataType cameraClass = {"Camera\0", 6, 0, cameraInit, cameraUpdate, cameraDraw, cameraDestroy};
 
 extern Mesh* planePrim;
 void imageDraw(DataObj* object){
