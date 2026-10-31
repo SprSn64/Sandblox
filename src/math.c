@@ -44,9 +44,8 @@ Vector3 rotToNorm3(Vector3 rot){
 	return (Vector3){SDL_cos(rot.x) * SDL_sin(rot.y), -SDL_sin(rot.x), SDL_cos(rot.x) * SDL_cos(rot.y)};}
 	
 Vector3 normToRot3(Vector3 norm){ //figure out how to get this working
-	Vector3 normed = normalize3(norm);
-	
-	return (Vector3){atan2(atan2(normed.x, normed.z), normed.y), atan2(normed.x, normed.z), 0};
+	float yawPitch = sqrt(pow(norm.x, 2) + pow(norm.z, 2)); 
+	return (Vector3){atan2(yawPitch, norm.y), atan2(norm.x, norm.z), 0};
 }
 
 float closest(float input, float snap){return floor(input / snap) * snap;}

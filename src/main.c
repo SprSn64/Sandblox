@@ -19,6 +19,7 @@
 #include "opengl.h"
 #include "gamefile.h"
 #include "bones.h"
+#include "physics.h"
 
 #include "blockcode/blockcode.h"
 
@@ -121,6 +122,8 @@ float* guiMatrix = NULL;
 
 char* clientPath;
 char* basePath;
+
+RayCast* debugRay = NULL;
 
 CodeBlockClass testBlockClass = {0, (SDL_FColor){1, 0.83, 0.31, 1}, 0, CODEBLOCK_NORMAL};
 CodeBlock testCodeBlock;
@@ -437,6 +440,10 @@ SDL_AppResult SDL_AppIterate(void *appstate){
 			client.gameWorld->playerRespawn += deltaTime;
 		}
 		updateObjects(client.gameWorld->headObj);
+		if(debugRay){
+			free(debugRay); debugRay = false;
+		}
+		debugRay = castRay(client.gameWorld->currCamera->pos, client.gameWorld->currCamera->rot);
 	}
 
 	if(client.online || client.hosting){
@@ -518,6 +525,20 @@ SDL_AppResult SDL_AppIterate(void *appstate){
 	glUniform4fv(glLocs[GLVAL_FOGCOLOUR], 1, (float*)&client.gameWorld->fogColour);
 	
 	drawObjects(client.gameWorld->headObj);
+
+	if(debugRay && client.debug){
+		Vector3 rayEnd = rayDistPos(debugRay, 16);
+		Vector3 offset = vec3Sub(rayEnd, debugRay->pos);
+
+		float yawPitch = sqrt(pow(offset.x, 2) + pow(offset.z, 2)); 
+		float* rayMatrix = genMatrix(debugRay->pos, (Vector3){0.01, 0.01, 16}, (Vector3){
+			atan2(yawPitch, offset.y) + HALFPI, atan2(offset.x, offset.z), 0
+		});
+		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+		drawMeshOpenGL(cubePrim, rayMatrix, (SDL_FColor){1, 1, 0, 1}, NULL);
+		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+		free(rayMatrix);
+	}
 
 	if(client.studio){
 		updateSplit(&panelHead, &(SDL_FRect){-aspectRatio, 1, 2 * aspectRatio, 2});

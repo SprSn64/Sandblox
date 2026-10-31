@@ -160,3 +160,23 @@ collideLoopSkip:
 	}
 	return totalOut;
 }
+
+RayCast* castRay(Vector3 pos, Vector3 rot){
+	RayCast* newRay = malloc(sizeof(RayCast));
+	if(!newRay) return NULL;
+
+	newRay->pos = pos;
+	newRay->norm = rotToNorm3(rot);
+
+	return newRay;
+}
+
+Vector3 rayDistPos(RayCast* ray, float dist){
+	return vec3Add(ray->pos, vec3Mult(ray->norm, (Vector3){dist, dist, dist}));
+}
+
+RayReturn* rayCubeCheck(RayCast* ray, CollisionHull* hull){
+	if(!ray || !hull) return NULL;
+	if(hull->shape != COLLHULL_CUBE) return NULL;
+	return NULL;
+}
