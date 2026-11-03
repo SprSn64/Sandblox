@@ -9,6 +9,8 @@ typedef struct PlayerData{
 	bool femBody;
 	bool movement;
 
+	Vector3 vel;
+
 	float moveSpeed;
 	float jumpStrength;
 

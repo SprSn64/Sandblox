@@ -85,8 +85,8 @@ void playerInit(DataObj* object){
 void playerUpdate(DataObj* object){
 	if(!game.currPlayer || object != game.currPlayer) return;
 	
-	Vector3 *playerVel = object->objVel;
 	PlayerData *plrData = object->objOther;
+	Vector3* playerVel = &plrData->vel;
 	//Vector3 gravity = {-object->pos.x, object->pos.y, -object->pos.z};
 	
 	SDL_FPoint playerMove = {0, 0};
