@@ -47,8 +47,8 @@ DataObj gameHeader = {
 };
 
 void updateObjects(DataObj* item){
-	item->rot = (Vector3){fmod(item->rot.x, PI * 2), fmod(item->rot.y, PI * 2), fmod(item->rot.z, PI * 2)};
 	if(item->classData->update)item->classData->update(item);
+	item->rot = (Vector3){fmod(item->rot.x, PI * 2), fmod(item->rot.y, PI * 2), fmod(item->rot.z, PI * 2)};
 	CollisionHull* collision = item->objColl;
 	if(collision)collision->pos = vec3Add(item->pos, collision->offset);
 

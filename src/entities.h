@@ -42,6 +42,13 @@ typedef struct ParticleEmitter{
 } ParticleEmitter;
 extern DataType particleClass;
 
+typedef struct TextBubbleData{
+	DataObj* target;
+	SDL_FPoint size;
+	char* text;
+} TextBubbleData;
+extern DataType textBubbleClass;
+
 /*void playerInit(DataObj* object);
 void playerUpdate(DataObj* object);
 void playerDraw(DataObj* object);

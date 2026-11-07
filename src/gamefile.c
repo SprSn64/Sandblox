@@ -75,6 +75,7 @@ DataType* getClassByName(const char* name) {
     if(!strcmp(name, "Accessory")) return &accessoryClass;
     if(!strcmp(name, "Armature")) return &armatureClass;
     if(!strcmp(name, "Particles")) return &particleClass;
+    if(!strcmp(name, "Text Bubble")) return &textBubbleClass;
     return NULL;
 }
 
@@ -262,6 +263,7 @@ particleSkip:
         cJSON* type = cJSON_GetObjectItem(collision, "type");
 	  
 	    CollisionHull *collider = malloc(sizeof(CollisionHull));
+	    collider->active = false;
 	    collider->offset = (Vector3){0, 0, 0}; collider->scale = newObj->scale;
         
         if(!(enabled && cJSON_IsBool(enabled))) {

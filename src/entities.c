@@ -462,3 +462,39 @@ void scriptUpdate(DataObj* object){
 }
 
 DataType scriptClass = {"Script\0", 9, 0, NULL, scriptUpdate, NULL, NULL};
+
+void textBubbleInit(DataObj* object){
+	TextBubbleData* handler = calloc(1, sizeof(TextBubbleData));
+	handler->size = (SDL_FPoint){3, 3};
+	object->objOther = handler;
+}
+void textBubbleUpdate(DataObj* object){
+	TextBubbleData* handler = object->objOther;
+	(void)handler;
+}
+void textBubbleDraw(DataObj* object){
+	TextBubbleData* handler = object->objOther;
+
+	glUniform4fv(glLocs[GLVAL_LIGHTCOLOUR], 1, (float*)&flatLight);
+	glUniform4fv(glLocs[GLVAL_AMBCOLOUR], 1, (float*)&flatAmb);
+
+	float* partScale = scaleMatrix(defaultMatrix, (Vector3){handler->size.x, 1, handler->size.y});
+	float* centerTrans = translateMatrix(partScale, (Vector3){-handler->size.x * 0.5, 0, -handler->size.y * 0.5});
+	float* partRot = rotateMatrix(centerTrans, (Vector3){
+		client.gameWorld->currCamera->rot.x + HALFPI,
+		client.gameWorld->currCamera->rot.y,
+		0,
+	}, ROT_XYZ);
+	float* partTranslate = translateMatrix(partRot, object->pos);
+	drawMeshOpenGL(planePrim, partTranslate, (SDL_FColor){1, 1, 1, 1}, NULL);
+	free(partScale); free(centerTrans); free(partRot); free(partTranslate);
+
+	glUniform4fv(glLocs[GLVAL_LIGHTCOLOUR], 1, (float*)&lightColour);
+	glUniform4fv(glLocs[GLVAL_AMBCOLOUR], 1, (float*)&lightAmbient);
+}
+void textBubbleDestroy(DataObj* object){
+	TextBubbleData* handler = object->objOther;
+	if(handler->text)free(handler->text);
+	free(handler);
+}
+DataType textBubbleClass = {"Text Bubble\0", 13, 0, textBubbleInit, textBubbleUpdate, textBubbleDraw, textBubbleDestroy};
