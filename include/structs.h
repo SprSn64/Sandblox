@@ -168,7 +168,7 @@ typedef struct{
 } RayCast;
 
 typedef struct{
-	float dist;
+	float dist; float depth;
 	Vector3 hitPos;
 	CollisionHull* hit;
 } RayReturn;

@@ -15,6 +15,7 @@ float findFloorY(Vector3 pos, float footY, DataObj* item);
 Vector3 lazyCollisionLoop(DataObj* object, DataObj* item);
 
 RayCast* castRay(Vector3 pos, Vector3 rot);
+RayReturn* getRayIntersect(RayCast* ray, DataObj* item);
 Vector3 rayDistPos(RayCast* ray, float dist);
 
 #endif

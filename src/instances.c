@@ -74,7 +74,7 @@ void drawObjects(DataObj* item){
 
 		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 		float* collTransform = genMatrix(collider->pos, collider->scale, (Vector3){0, 0, 0});
-		drawMeshOpenGL(collMesh, collTransform, (SDL_FColor){1, 0, 0, 1}, NULL);
+		drawMeshOpenGL(collMesh, collTransform, (SDL_FColor){collider->active, 0, 0, 1}, NULL);
 		free(collTransform);
 		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 	}

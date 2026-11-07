@@ -124,6 +124,7 @@ char* clientPath;
 char* basePath;
 
 RayCast* debugRay = NULL;
+RayReturn* debugRayHit = NULL;
 
 CodeBlockClass testBlockClass = {0, (SDL_FColor){1, 0.83, 0.31, 1}, 0, CODEBLOCK_NORMAL};
 CodeBlock testCodeBlock;
@@ -441,9 +442,18 @@ SDL_AppResult SDL_AppIterate(void *appstate){
 		}
 		updateObjects(client.gameWorld->headObj);
 		if(debugRay){
-			free(debugRay); debugRay = false;
+			free(debugRay); debugRay = NULL;
 		}
-		debugRay = castRay(client.gameWorld->currCamera->pos, client.gameWorld->currCamera->rot);
+		if(debugRayHit){
+			free(debugRayHit); debugRayHit = NULL;
+		}
+		Vector3 mouseRayOffset = {
+			-(client.gameWorld->currCamera->fov * 0.5 * DEG2RAD) * (mousePos.y / (windowScale.y >> 1) - 1), 
+			-(client.gameWorld->currCamera->fov * 0.5 * DEG2RAD) * aspectRatio * (mousePos.x / (windowScale.x >> 1) - 1), 
+		0};
+		(void)mouseRayOffset;
+		debugRay = castRay(client.gameWorld->currCamera->pos, client.gameWorld->currCamera->rot);//vec3Add(client.gameWorld->currCamera->rot, mouseRayOffset));
+		debugRayHit = getRayIntersect(debugRay, client.gameWorld->headObj);
 	}
 
 	if(client.online || client.hosting){
@@ -527,17 +537,21 @@ SDL_AppResult SDL_AppIterate(void *appstate){
 	drawObjects(client.gameWorld->headObj);
 
 	if(debugRay && client.debug){
-		Vector3 rayEnd = rayDistPos(debugRay, 16);
+		Vector3 rayEnd = rayDistPos(debugRay, 256);
 		Vector3 offset = vec3Sub(rayEnd, debugRay->pos);
 
 		float yawPitch = sqrt(pow(offset.x, 2) + pow(offset.z, 2)); 
-		float* rayMatrix = genMatrix(debugRay->pos, (Vector3){0.01, 0.01, 16}, (Vector3){
+		float* rayMatrix = genMatrix(debugRay->pos, (Vector3){0.01, 0.01, 256}, (Vector3){
 			atan2(yawPitch, offset.y) + HALFPI, atan2(offset.x, offset.z), 0
 		});
-		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 		drawMeshOpenGL(cubePrim, rayMatrix, (SDL_FColor){1, 1, 0, 1}, NULL);
-		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 		free(rayMatrix);
+
+		if(debugRayHit){
+			float* hitMatrix = genMatrix(debugRayHit->hitPos, (Vector3){0.25, 0.25, 0.25}, (Vector3){0, 0, 0});
+			drawMeshOpenGL(spherePrim, hitMatrix, (SDL_FColor){1, 0, 0, 1}, NULL);
+			free(hitMatrix);
+		}
 	}
 
 	if(client.studio){

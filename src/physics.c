@@ -125,16 +125,26 @@ CollisionReturn* getCollision(CollisionHull* itemA, CollisionHull* itemB){
 }
 
 void resolveCollision(CollisionReturn* coll){
-	//if(!coll->hullA->active && !coll->hullB->active) return;
+	if(!(coll->hullA || coll->hullB)) return;
 
-	bool bothFix = (!coll->hullA->active && !coll->hullB->active) && (coll->hullA->active != coll->hullB->active);
+	bool bothFix = (coll->hullA->active && coll->hullB->active);
 	(void)bothFix;
 
 	DataObj* itemA = coll->hullA->parent;
-	//DataObj* itemB = coll->hullB->parent;
-	//if(!itemA || !itemB) return;
-	if(!itemA) return;
-	itemA->pos = (Vector3){itemA->pos.x + coll->outNorm.x, itemA->pos.y + coll->outNorm.y, itemA->pos.z + coll->outNorm.z};
+	DataObj* itemB = coll->hullB->parent;
+	if(!(itemA && itemB)) return;
+
+	DataObj* currItem;
+	if(!bothFix){
+		currItem = coll->hullA->active ? itemA : itemB;
+		Vector3 newVec = vec3Add(currItem->pos, coll->outNorm);
+		currItem->pos = newVec;
+		return;
+	}else{
+		Vector3 halfNorm = vec3Mult(coll->outNorm, (Vector3){0.5, 0.5, 0.5}); //make change based on mass or something
+		itemA->pos = vec3Add(itemA->pos, halfNorm);
+		itemB->pos = vec3Sub(itemB->pos, halfNorm);
+	}
 
 	//printf("Resolved collision between %s and %s with an intersect normal of %f, %f, %f\n", itemA->name, itemB->name, coll->outNorm.x, coll->outNorm.y, coll->outNorm.z);
 }
@@ -178,5 +188,85 @@ Vector3 rayDistPos(RayCast* ray, float dist){
 RayReturn* rayCubeCheck(RayCast* ray, CollisionHull* hull){
 	if(!ray || !hull) return NULL;
 	if(hull->shape != COLLHULL_CUBE) return NULL;
-	return NULL;
+
+	Vector3 minPos = hull->pos;
+	Vector3 maxPos = vec3Add(hull->pos, hull->scale);
+
+	float xt0 = (minPos.x - ray->pos.x) / ray->norm.x;
+	float xt1 = (maxPos.x - ray->pos.x) / ray->norm.x;
+
+	if(xt1 < xt0){
+		float temp = xt0;
+		xt0 = xt1;
+		xt1 = temp;
+	}
+
+	float yt0 = (minPos.y - ray->pos.y) / ray->norm.y;
+	float yt1 = (maxPos.y - ray->pos.y) / ray->norm.y;
+
+	if(yt1 < yt0){
+		float temp = yt0;
+		yt0 = yt1;
+		yt1 = temp;
+	}
+
+	if(xt0 > yt1 || yt0 > xt1) return NULL;
+
+	float t0 = yt0 > xt0 ? yt0 : xt0;
+	float t1 = yt1 < xt1 ? yt1 : xt1;
+
+	float zt0 = (minPos.z - ray->pos.z) / ray->norm.z;
+	float zt1 = (maxPos.z - ray->pos.z) / ray->norm.z;
+
+	if(zt1 < zt0){
+		float temp = zt0;
+		zt0 = zt1;
+		zt1 = temp;
+	}
+
+	if(t0 > zt1 || zt0 > t1) return NULL;
+
+	t0 = zt0 > t0 ? zt0 : t0;
+	t1 = zt1 < t1 ? zt1 : t1;
+
+	RayReturn* rayHit = malloc(sizeof(RayReturn));
+	if(!rayHit) return NULL;
+
+	rayHit->dist = t0; rayHit->depth = t1 - t0;
+	rayHit->hitPos = rayDistPos(ray, t0);
+	rayHit->hit = hull;
+
+	return rayHit;
+}
+
+RayReturn* getRayIntersect(RayCast* ray, DataObj* item){
+	if(!ray) return NULL;
+
+	RayReturn* closestRay = NULL;
+	DataObj* child = item->child;
+	while(child){
+		if(!child->objColl) goto rayCheckSkip;
+		RayReturn* rayHit = rayCubeCheck(ray, child->objColl);
+		if(!rayHit){
+			//printf("Ray didnt hit %s\n", child->name);
+			goto rayCheckSkip;
+		}
+		
+		if(!closestRay){
+			closestRay = rayHit;
+			goto rayCheckSkip;
+		}
+
+		if(rayHit->dist < closestRay->dist){
+			free(closestRay);
+			closestRay = rayHit;
+		}else{
+			free(rayHit);
+		}
+
+rayCheckSkip:
+		closestRay = getRayIntersect(ray, child);
+		child = child->next;
+	}
+	return closestRay;
 }
