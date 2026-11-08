@@ -239,10 +239,10 @@ RayReturn* rayCubeCheck(RayCast* ray, CollisionHull* hull){
 	return rayHit;
 }
 
-RayReturn* getRayIntersect(RayCast* ray, DataObj* item){
+RayReturn* getRayIntersect(RayCast* ray, RayReturn* oldHit, DataObj* item){
 	if(!ray) return NULL;
 
-	RayReturn* closestRay = NULL;
+	RayReturn* closestRay = oldHit;
 	DataObj* child = item->child;
 	while(child){
 		if(!child->objColl) goto rayCheckSkip;
@@ -257,7 +257,8 @@ RayReturn* getRayIntersect(RayCast* ray, DataObj* item){
 			goto rayCheckSkip;
 		}
 
-		if(rayHit->dist < closestRay->dist){
+		if(fabs(rayHit->dist) < closestRay->dist){
+			//printf("Closest ray: %f %f %f\n", closestRay->hitPos.x, closestRay->hitPos.y, closestRay->hitPos.z);
 			free(closestRay);
 			closestRay = rayHit;
 		}else{
@@ -265,7 +266,8 @@ RayReturn* getRayIntersect(RayCast* ray, DataObj* item){
 		}
 
 rayCheckSkip:
-		closestRay = getRayIntersect(ray, child);
+		RayReturn* newRay = getRayIntersect(ray, closestRay, child);
+		closestRay = newRay ? newRay : closestRay;
 		child = child->next;
 	}
 	return closestRay;

@@ -447,13 +447,16 @@ SDL_AppResult SDL_AppIterate(void *appstate){
 		if(debugRayHit){
 			free(debugRayHit); debugRayHit = NULL;
 		}
-		Vector3 mouseRayOffset = {
-			-(client.gameWorld->currCamera->fov * 0.5 * DEG2RAD) * (mousePos.y / (windowScale.y >> 1) - 1), 
-			-(client.gameWorld->currCamera->fov * 0.5 * DEG2RAD) * aspectRatio * (mousePos.x / (windowScale.x >> 1) - 1), 
-		0};
-		(void)mouseRayOffset;
-		debugRay = castRay(client.gameWorld->currCamera->pos, client.gameWorld->currCamera->rot);//vec3Add(client.gameWorld->currCamera->rot, mouseRayOffset));
-		debugRayHit = getRayIntersect(debugRay, client.gameWorld->headObj);
+		Vector3 mouseRayOffset = {0, 0, 0};
+		if(currentCamera.focusDist != 0){
+			mouseRayOffset = (Vector3){
+				-(client.gameWorld->currCamera->fov * 0.5 * DEG2RAD) * (mousePos.y / (windowScale.y >> 1) - 1), 
+				-(client.gameWorld->currCamera->fov * 0.5 * DEG2RAD) * aspectRatio * (mousePos.x / (windowScale.x >> 1) - 1), 
+				0
+			};
+		}
+		debugRay = castRay(client.gameWorld->currCamera->pos, vec3Add(client.gameWorld->currCamera->rot, mouseRayOffset));
+		debugRayHit = getRayIntersect(debugRay, NULL, client.gameWorld->headObj);
 	}
 
 	if(client.online || client.hosting){
@@ -548,7 +551,7 @@ SDL_AppResult SDL_AppIterate(void *appstate){
 		free(rayMatrix);
 
 		if(debugRayHit){
-			float* hitMatrix = genMatrix(debugRayHit->hitPos, (Vector3){0.25, 0.25, 0.25}, (Vector3){0, 0, 0});
+			float* hitMatrix = genMatrix(rayDistPos(debugRay, debugRayHit->dist), (Vector3){0.25, 0.25, 0.25}, (Vector3){0, 0, 0});
 			drawMeshOpenGL(spherePrim, hitMatrix, (SDL_FColor){1, 0, 0, 1}, NULL);
 			free(hitMatrix);
 		}

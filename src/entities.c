@@ -73,7 +73,7 @@ void playerInit(DataObj* object){
 	object->objColl = calloc(1, sizeof(CollisionHull));
 	CollisionHull* collision = object->objColl;
 	collision->parent = object; collision->shape = COLLHULL_CUBE;
-	collision->offset = (Vector3){-0.5, 4, -0.5}; collision->scale = (Vector3){1, 4, 1};
+	collision->offset = (Vector3){-0.5, 4.5, -0.5}; collision->scale = (Vector3){1, 4.5, 1};
 	collision->active = true;
 
 	PlayerData* plrData = calloc(1, sizeof(PlayerData));
@@ -138,10 +138,22 @@ collisionSkip:
 	if(fabs(playerVel->x) + fabs(playerVel->y) + fabs(playerVel->z) > 0.008)
 		object->pos = (Vector3){object->pos.x + playerVel->x * deltaTime, object->pos.y + playerVel->y * deltaTime, object->pos.z + playerVel->z * deltaTime};
 
+	/*CollisionHull* hullSave = object->objColl;
+	object->objColl = NULL;
+
+	RayCast* camDistRay = castRay(object->pos, client.gameWorld->currCamera->rot); camDistRay->norm = vec3Mult(camDistRay->norm, (Vector3){-1, -1, -1});
+	RayReturn* camRayHit = getRayIntersect(camDistRay, NULL, client.gameWorld->headObj);
+	float camDist = camRayHit && camRayHit->dist == camRayHit->dist ? min(game.currCamera->focusDist, max(fabs(camRayHit->dist) - 1, 0)) : game.currCamera->focusDist;
+	free(camDistRay); free(camRayHit);
+
+	object->objColl = hullSave;*/
+
+	float camDist = game.currCamera->focusDist;
+
 	game.currCamera->pos = (Vector3){
-		object->pos.x + (SDL_cos(game.currCamera->rot.x) * SDL_sin(game.currCamera->rot.y)) * game.currCamera->focusDist, 
-		object->pos.y + pow(1 - min(game.currCamera->focusDist / 8, 1), 2) + 2.8 * object->scale.y - SDL_sin(game.currCamera->rot.x) * game.currCamera->focusDist, 
-		object->pos.z + (SDL_cos(game.currCamera->rot.x) * SDL_cos(game.currCamera->rot.y)) * game.currCamera->focusDist
+		object->pos.x + (SDL_cos(game.currCamera->rot.x) * SDL_sin(game.currCamera->rot.y)) * camDist, 
+		object->pos.y + pow(1 - min(game.currCamera->focusDist / 8, 1), 2) + 2.8 * object->scale.y - SDL_sin(game.currCamera->rot.x) * camDist, 
+		object->pos.z + (SDL_cos(game.currCamera->rot.x) * SDL_cos(game.currCamera->rot.y)) * camDist
 	};
 
 	plrData->coyote += deltaTime;
