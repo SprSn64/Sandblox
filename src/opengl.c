@@ -258,3 +258,16 @@ void drawGlText(Font* font, Vector3 pos, char* text, float size, SDL_FColor colo
 	drawMeshOpenGL(planePrim, textMatrix, colour, textBufferTex);
 	free(textMatrix);
 }
+
+void drawGlScreenRect(SDL_FPoint pos, SDL_FPoint size, SDL_FColor colour){
+	SDL_FRect area = {
+		pos.x / (windowScale.x / 2) - 1,
+		-pos.y / (windowScale.y / 2) - 1,
+		size.x / (windowScale.y / 2),
+		size.y / (windowScale.y / 2),
+	};
+
+	float* rectMatrix = genMatrix((Vector3){area.x, area.y, 0}, (Vector3){area.w, 1, area.h}, (Vector3){HALFPI, 0, 0});
+	drawMeshOpenGL(planePrim, rectMatrix, colour, NULL);
+	free(rectMatrix);
+}

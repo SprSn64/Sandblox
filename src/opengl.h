@@ -43,4 +43,6 @@ FrameBuffer* newFrameBuffer(Uint16 width, Uint16 height);
 void bindFrameBuffer(FrameBuffer* item);
 void freeFrameBuffer(FrameBuffer* item);
 
+void drawGlScreenRect(SDL_FPoint pos, SDL_FPoint size, SDL_FColor colour);
+
 #endif

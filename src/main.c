@@ -58,8 +58,6 @@ GameWorld game;
 
 extern DataType playerClass;
 
-//SDL_Point windowScaleIntent = {320, 240};
-//double scaleFactor;
 SDL_Point windowScale = {640, 480};
 float aspectRatio = 1;
 Texture* displayTex;
@@ -308,7 +306,8 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[]){
 
 	testCodeBlock = (CodeBlock){&testBlockClass, NULL, NULL, NULL, NULL, NULL, NULL};
 
-	//SDL_HideCursor();
+	if(!client.studio)
+		SDL_HideCursor();
 
 	if(client.online){
 		netSendJoinRequest();
@@ -547,7 +546,7 @@ SDL_AppResult SDL_AppIterate(void *appstate){
 		float* rayMatrix = genMatrix(debugRay->pos, (Vector3){0.01, 0.01, 256}, (Vector3){
 			atan2(yawPitch, offset.y) + HALFPI, atan2(offset.x, offset.z), 0
 		});
-		drawMeshOpenGL(cubePrim, rayMatrix, (SDL_FColor){1, 1, 0, 1}, NULL);
+		drawMeshOpenGL(cubePrim, rayMatrix, (SDL_FColor){1, debugRayHit ? 1 : 0, 0, 1}, NULL);
 		free(rayMatrix);
 
 		if(debugRayHit){

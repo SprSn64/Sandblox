@@ -190,7 +190,10 @@ RayReturn* rayCubeCheck(RayCast* ray, CollisionHull* hull){
 	if(hull->shape != COLLHULL_CUBE) return NULL;
 
 	Vector3 minPos = hull->pos;
-	Vector3 maxPos = vec3Add(hull->pos, hull->scale);
+	Vector3 maxPos = vec3Add(hull->pos, vec3Mult(hull->scale, (Vector3){1, 1, 1}));
+
+	if(between(ray->pos.x, minPos.x, maxPos.x) && between(ray->pos.y, minPos.y, -maxPos.y) && between(ray->pos.z, minPos.z, maxPos.z))
+		return NULL;
 
 	float xt0 = (minPos.x - ray->pos.x) / ray->norm.x;
 	float xt1 = (maxPos.x - ray->pos.x) / ray->norm.x;
@@ -257,7 +260,7 @@ RayReturn* getRayIntersect(RayCast* ray, RayReturn* oldHit, DataObj* item){
 			goto rayCheckSkip;
 		}
 
-		if(fabs(rayHit->dist) < closestRay->dist){
+		if(rayHit->dist < closestRay->dist && rayHit->dist > 0){
 			//printf("Closest ray: %f %f %f\n", closestRay->hitPos.x, closestRay->hitPos.y, closestRay->hitPos.z);
 			free(closestRay);
 			closestRay = rayHit;
