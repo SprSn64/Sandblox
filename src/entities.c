@@ -266,9 +266,11 @@ DataType fuckingBeerdrinkerClass = {"beer drinker\0", 666, 0, NULL, NULL, homerD
 
 DataType groupClass = {"Group\0", 5, 0, NULL, NULL, NULL, NULL};
 
+extern float aspectRatio;
 void cameraInit(DataObj* object){
 	Camera *cam = calloc(1, sizeof(Camera));
 	cam->fov = 90; cam->zoom = 90; cam->focusDist = 16;
+	cam->proj = projMatrix(cam->fov, aspectRatio, 0.1, 100000);
 	object->props[OBJVAL_OTHER] = cam;
 }
 void cameraUpdate(DataObj* object){
@@ -278,19 +280,18 @@ void cameraUpdate(DataObj* object){
 	free(cam->transform);
 	cam->transform = genMatrix(object->pos, object->scale, object->rot);
 }
+extern Mesh *cameraMesh;
+extern TextureRef *cameraTex;
 void cameraDraw(DataObj* object){
 	Camera *cam = object->props[OBJVAL_OTHER];
 	if(cam == NULL) return;
-	if(!client.debug || client.gameWorld->currCamera == cam) return;
+	if(!client.debug || !client.pause/* || client.gameWorld->currCamera == cam*/) return;
 
-	glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-	drawMeshOpenGL(cubePrim, object->transform, (SDL_FColor){1, 1, 1, 1}, NULL);
-	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+	drawMeshOpenGL(cameraMesh, cam->transform, (SDL_FColor){1, 1, 1, 1}, cameraTex);
 }
 void cameraDestroy(DataObj* object){
 	free(object->props[OBJVAL_OTHER]);
 }
-
 DataType cameraClass = {"Camera\0", 6, 0, cameraInit, cameraUpdate, cameraDraw, cameraDestroy};
 
 extern Mesh* planePrim;

@@ -12,6 +12,7 @@
 #include <dirent.h>
 
 #include "structs.h"
+#include "entities.h"
 #include "instances.h"
 #include "renderer.h"
 #include "math.h"
@@ -86,9 +87,10 @@ Font defaultFont;
 Texture *testTex;
 Texture *rastFontTex;
 
+//make universal asset loading less shit-core please
 TextureRef *fontTex = NULL; TextureRef *playerTex = NULL; TextureRef *homerTex = NULL;
-TextureRef *boneTex = NULL; TextureRef *cursorTex = NULL; TextureRef *skyTex = NULL; TextureRef *sunTex = NULL;
-Mesh *playerMesh = NULL; Mesh *playerFemMesh = NULL; Mesh *boneMesh = NULL; Mesh *skyboxMesh = NULL; Mesh *sunMesh = NULL;
+TextureRef *boneTex = NULL; TextureRef *cursorTex = NULL; TextureRef *skyTex = NULL; TextureRef *sunTex = NULL; TextureRef *cameraTex = NULL;
+Mesh *playerMesh = NULL; Mesh *playerFemMesh = NULL; Mesh *boneMesh = NULL; Mesh *skyboxMesh = NULL; Mesh *sunMesh = NULL; Mesh *cameraMesh = NULL;
 Mesh *planePrim = NULL; Mesh *cubePrim = NULL; Mesh *spherePrim = NULL;
 Mesh *frameBuffMesh = NULL;
 
@@ -203,6 +205,7 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[]){
 	cursorTex = loadTexture("assets/textures/cursor.png", true);
 	skyTex = loadTexture("assets/textures/skybox.png", true);
 	sunTex = loadTexture("assets/textures/sunflare.png", true);
+	cameraTex = loadTexture("assets/textures/camera.png", true);
 
 	textBufferTex = malloc(sizeof(TextureRef));
 	textBufferTex->texture = newRasterTexture(16, 16);
@@ -223,6 +226,7 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[]){
 	boneMesh = loadMeshFromObj("assets/models/bone.obj", true); 
 	skyboxMesh = loadMeshFromObj("assets/models/advskybox.obj", true);
 	sunMesh = loadMeshFromObj("assets/models/skyboxsun.obj", true);
+	cameraMesh = loadMeshFromObj("assets/models/camera.obj", true);
 	frameBuffMesh = loadMeshFromObj("assets/models/framebuffer.obj", true);
 	
 	planePrim = genPlaneMesh(1, 1, 1, 1); planePrim->persistent = true;
@@ -341,12 +345,12 @@ SDL_AppResult SDL_AppEvent(void *appstate, SDL_Event *event){
 		bool studioFocus = false;//studioWindow && (SDL_GetWindowFlags(studioWindow) & SDL_WINDOW_INPUT_FOCUS);
 		
 		if(mainFocus && !client.pause){
-			float zoomSpeed = max(1, sqrt(currentCamera.focusDist));
+			float zoomSpeed = max(1, sqrt(client.gameWorld->currCamera->focusDist));
 			float zoomMin = 0.0f;
 			float zoomMax = 64.0f;
 			
-			currentCamera.focusDist += zoomSpeed * (1 - 2 * (event->wheel.y > 0)) * (event->wheel.y != 0);
-			currentCamera.focusDist = min(max(currentCamera.focusDist, zoomMin), zoomMax);
+			client.gameWorld->currCamera->focusDist += zoomSpeed * (1 - 2 * (event->wheel.y > 0)) * (event->wheel.y != 0);
+			client.gameWorld->currCamera->focusDist = min(max(client.gameWorld->currCamera->focusDist, zoomMin), zoomMax);
 		}
 		if(studioFocus && between(mousePos.x, objListRect.x, objListRect.x + objListRect.w) && between(mousePos.y, objListRect.y, objListRect.y + objListRect.h)){
 			float scrollSpeed = 1.0f;
@@ -393,8 +397,15 @@ SDL_AppResult SDL_AppIterate(void *appstate){
 	//}
 
 	//SDL_ShowCursor();
+
+	if(!client.gameWorld->currCamera){
+		DataObj* newCamera = newObject(&cameraClass);
+		parentObject(newCamera, client.gameWorld->headObj);
+		client.gameWorld->currCamera = (Camera*)newCamera->objOther;
+	}
+
 	bool mainWindowFocus = SDL_GetWindowFlags(window) & SDL_WINDOW_INPUT_FOCUS;
-	if(currentCamera.focusDist == 0 && !client.pause){
+	if(client.gameWorld->currCamera->focusDist == 0 && !client.pause){
 		if(camMoveMode != 2){
 			storedMousePos = mousePos;
 			camMoveMode = 2;
@@ -405,8 +416,8 @@ SDL_AppResult SDL_AppIterate(void *appstate){
 		if(camMoveMode == 1){
 			firstPerson:
 			float moveScale = mouseSense;// / (((float)windowScale.x + windowScale.y) / 1280);
-			currentCamera.rot.x += -(floor(mousePos.y) - floor(storedMousePos.y)) * moveScale * deltaTime;
-			currentCamera.rot.y += -(floor(mousePos.x) - floor(storedMousePos.x)) * moveScale * deltaTime;  
+			client.gameWorld->currCamera->rot.x += -(floor(mousePos.y) - floor(storedMousePos.y)) * moveScale * deltaTime;
+			client.gameWorld->currCamera->rot.y += -(floor(mousePos.x) - floor(storedMousePos.x)) * moveScale * deltaTime;  
 			camResetTimer++;
 			if(camResetTimer >= 4){
 				SDL_WarpMouseInWindow(window, storedMousePos.x, storedMousePos.y); 
@@ -429,10 +440,10 @@ SDL_AppResult SDL_AppIterate(void *appstate){
 		client.pause = !client.pause;
 	}
 	
-	currentCamera.rot.x += (keyList[KEYBIND_UP].down - keyList[KEYBIND_DOWN].down) * 1 * deltaTime;
-	currentCamera.rot.y += (keyList[KEYBIND_LEFT].down - keyList[KEYBIND_RIGHT].down) * 1 * deltaTime;
-	currentCamera.rot = (Vector3){fmod(min(max(currentCamera.rot.x, -HALFPI), HALFPI), 6.28318), fmod(currentCamera.rot.y, 6.28318), fmod(currentCamera.rot.z, 6.28318)};
-	currentCamera.focusDist = min(max(currentCamera.focusDist + (keyList[KEYBIND_I].down - keyList[KEYBIND_O].down) * 4 * max(1, sqrt(currentCamera.focusDist)) * deltaTime, 0), 64);
+	client.gameWorld->currCamera->rot.x += (keyList[KEYBIND_UP].down - keyList[KEYBIND_DOWN].down) * 1 * deltaTime;
+	client.gameWorld->currCamera->rot.y += (keyList[KEYBIND_LEFT].down - keyList[KEYBIND_RIGHT].down) * 1 * deltaTime;
+	client.gameWorld->currCamera->rot = (Vector3){fmod(min(max(client.gameWorld->currCamera->rot.x, -HALFPI), HALFPI), 6.28318), fmod(client.gameWorld->currCamera->rot.y, 6.28318), fmod(client.gameWorld->currCamera->rot.z, 6.28318)};
+	client.gameWorld->currCamera->focusDist = min(max(client.gameWorld->currCamera->focusDist + (keyList[KEYBIND_I].down - keyList[KEYBIND_O].down) * 4 * max(1, sqrt(client.gameWorld->currCamera->focusDist)) * deltaTime, 0), 64);
 
 	if(!client.pause){
 		if(playerEnabled && !client.gameWorld->currPlayer){
@@ -447,7 +458,7 @@ SDL_AppResult SDL_AppIterate(void *appstate){
 			free(debugRayHit); debugRayHit = NULL;
 		}
 		Vector3 mouseRayOffset = {0, 0, 0};
-		if(currentCamera.focusDist != 0){
+		if(client.gameWorld->currCamera->focusDist != 0){
 			mouseRayOffset = (Vector3){
 				-(client.gameWorld->currCamera->fov * 0.5 * DEG2RAD) * (mousePos.y / (windowScale.y >> 1) - 1), 
 				-(client.gameWorld->currCamera->fov * 0.5 * DEG2RAD) * aspectRatio * (mousePos.x / (windowScale.x >> 1) - 1), 
@@ -483,13 +494,13 @@ SDL_AppResult SDL_AppIterate(void *appstate){
 	memcpy(client.gameWorld->currCamera->transform, camRotated, sizeof(mat4));
 	free(camTranslated); free(camRotated); 
 
-	client.gameWorld->currCamera->proj = projMatrix(currentCamera.fov, aspectRatio, 0.1, 100000);
+	client.gameWorld->currCamera->proj = projMatrix(client.gameWorld->currCamera->fov, aspectRatio, 0.1, 100000);
 
 	if(client.studio && focusObject)
 		updateStudioGimbles();
 
 	float *camRotMatrix = rotateMatrix(defaultMatrix, vec3Mult(client.gameWorld->currCamera->rot, invVec3), ROT_YXZ);
-	glUniformMatrix4fv(glLocs[GLVAL_PROJMATRIX], 1, GL_FALSE, currentCamera.proj);
+	glUniformMatrix4fv(glLocs[GLVAL_PROJMATRIX], 1, GL_FALSE, client.gameWorld->currCamera->proj);
 	glUniformMatrix4fv(glLocs[GLVAL_VIEWMATRIX], 1, GL_FALSE, camRotMatrix);
 	free(camRotMatrix);
 
@@ -518,7 +529,7 @@ SDL_AppResult SDL_AppIterate(void *appstate){
 
 	setGlValue(GL_DEPTH_TEST, true); setGlValue(GL_BLEND, false);
 
-	glUniformMatrix4fv(glLocs[GLVAL_VIEWMATRIX], 1, GL_FALSE, currentCamera.transform);
+	glUniformMatrix4fv(glLocs[GLVAL_VIEWMATRIX], 1, GL_FALSE, client.gameWorld->currCamera->transform);
 
 	resFloat[0] = windowScale.x; resFloat[1] = windowScale.y;
 	glUniform2fv(glLocs[GLVAL_RESOLUTION], 1, resFloat);

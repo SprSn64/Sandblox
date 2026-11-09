@@ -38,8 +38,6 @@ extern SDL_FColor lightAmbient;
 DataObj* loadedPlayer = NULL;
 extern char* basePath;
 
-extern void objSpinFunc(DataObj* object);
-
 char* collTypes[6] = {"point", "sphere", "block", "cylinder", "function", "trigger"};
 
 Uint32 stringIdInList(const char* string, char** list, Uint32 listLength){
@@ -49,8 +47,8 @@ Uint32 stringIdInList(const char* string, char** list, Uint32 listLength){
     return listLength + 1;
 }
 
+//to be removed once actual script loading is added
 #include "tempMaps/mapInit.h"
-
 void (*getFunctionByName(const char* name))(DataObj*) {
     if(!name) return NULL;
     
@@ -63,6 +61,7 @@ void (*getFunctionByName(const char* name))(DataObj*) {
     return NULL;
 }
 
+//move all of this to a somewhat less shitty function
 DataType* getClassByName(const char* name) {
     if(!strcmp(name, "Player")) return &playerClass;
     if(!strcmp(name, "Block")) return &blockClass;

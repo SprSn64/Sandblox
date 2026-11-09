@@ -49,6 +49,12 @@ typedef struct TextBubbleData{
 } TextBubbleData;
 extern DataType textBubbleClass;
 
+typedef struct CameraData{
+	Camera* cam;
+	
+} CameraData;
+extern DataType cameraClass;
+
 /*void playerInit(DataObj* object);
 void playerUpdate(DataObj* object);
 void playerDraw(DataObj* object);
@@ -60,7 +66,6 @@ void scriptUpdate(dataObj* object);*/
 extern DataType blockClass;
 extern DataType meshClass;
 extern DataType groupClass;
-extern DataType cameraClass;
 //extern DataType lightClass;
 extern DataType imageClass;
 extern DataType scriptClass;
