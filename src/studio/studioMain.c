@@ -15,8 +15,6 @@
 #include "../renderer.h"
 #include "../mesh.h"
 
-#include "../softwarerender/main.h"
-
 extern ClientData client;
 
 bool studioActive = false;
@@ -30,240 +28,46 @@ extern Font defaultFont;
 Font studioFont;
 SDL_Texture *studioFontTex = NULL;
 TextureRef *classIconTex = NULL;
-TextureRef *stuButtonTex = NULL;
 TextureRef *colourPickTex = NULL;
 Mesh *rotateGimbleMesh = NULL;
 Mesh *translateGimbleMesh = NULL;
 
 TextureRef *toolButtonTex = NULL;
 
-extern Mesh *spherePrim;
-
-SDL_Point studioWindowScale = {240, 320};
-
-float objListScroll = 0;
-Uint32 objListLength = 0;
-SDL_Rect objListRect = {32, 16, 208, 240};
-
 Uint32 toolMode = STUDIOTOOL_MOVE;
-HistoryItem* historyHead = NULL;
 
 DataObj *focusObject = NULL;
 extern SDL_MouseButtonFlags mouseState;
 extern SDL_FPoint mousePos;
 extern ButtonMap mouseButtons[3];
-extern ButtonMap stuMouseButtons[3];
-
-extern ButtonMap stuKeyList[STUDIOKEYBIND_MAX];
 extern ButtonMap keyList[KEYBIND_MAX];
 
 extern Font defaultFont;
-
-void drawObjectList(DataObj* item, int nodeDepth, int *idCount);
-void drawObjectProperties(DataObj* item, UNUSED int posY);
-
-//TODO: Make button list thing for less ugly looking button implementations
-
-Button addObjButton; Button removeObjButton; Button pauseButton;
-Button saveFileButton; Button loadFileButton;
-
-Button selectWidgetButton = {"\0", (SDL_FRect){0, 16, 16, 16}, INPUTTYPE_BUTTON, buttonSetTool, NULL, true, true, false, false, NULL, &(SDL_FRect){0, 16, 16, 16}};
-Button moveWidgetButton = {"\0", (SDL_FRect){0, 32, 16, 16}, INPUTTYPE_BUTTON, buttonSetTool, NULL, true, true, false, false, NULL, &(SDL_FRect){16, 16, 16, 16}};
-Button scaleWidgetButton = {"\0", (SDL_FRect){0, 48, 16, 16}, INPUTTYPE_BUTTON, buttonSetTool, NULL, true, true, false, false, NULL, &(SDL_FRect){32, 16, 16, 16}};
-Button rotateWidgetButton = {"\0", (SDL_FRect){0, 64, 16, 16}, INPUTTYPE_BUTTON, buttonSetTool, NULL, true, true, false, false, NULL, &(SDL_FRect){48, 16, 16, 16}};
-
-Button propColourButton;
-bool studioFocus = false;
+extern Mesh *spherePrim;
 
 void initStudio(){
 	//printf("Studio Initiated\n");
 	if(!client.studio){printf("Studio not enabled!\n"); return;}
-
-	studioActive = true;
-	
-	stuKeyList[STUDIOKEYBIND_DELETE].code = SDL_SCANCODE_DELETE;
-	//shitty widget keys
-	
-	stuKeyList[STUDIOKEYBIND_UNDO].code = SDL_SCANCODE_Z; stuKeyList[STUDIOKEYBIND_REDO].code = SDL_SCANCODE_Y; 
-	stuKeyList[STUDIOKEYBIND_CUT].code = SDL_SCANCODE_X; stuKeyList[STUDIOKEYBIND_COPY].code = SDL_SCANCODE_C; stuKeyList[STUDIOKEYBIND_PASTE].code = SDL_SCANCODE_V;
-	stuKeyList[STUDIOKEYBIND_DUPE].code = SDL_SCANCODE_D;
-	stuKeyList[STUDIOKEYBIND_CTRL].code = SDL_SCANCODE_LCTRL; 
-	
-	stuMouseButtons[0].code = SDL_BUTTON_LMASK; stuMouseButtons[1].code = SDL_BUTTON_MMASK; stuMouseButtons[2].code = SDL_BUTTON_RMASK;
 	
 	classIconTex = loadTexture("assets/textures/studio/classicons.png", true);
-	stuButtonTex = loadTexture("assets/textures/studio/studiobuttons.png", true);
 	colourPickTex = loadTexture("assets/textures/studio/colourpicker.png", true);
 	rotateGimbleMesh = genTorusMesh(2, 0.1, 3, 24); rotateGimbleMesh->persistent = true;
 	translateGimbleMesh = loadMeshFromObj("assets/models/arrowwidget.obj", true);
 
 	toolButtonTex = loadTexture("assets/textures/studio/toolbuttons.png", true);
-
-	//studioFontTex = IMG_LoadTexture(studioRenderer, "assets/textures/font.png");
-	//studioFont = (Font){(TextureRef*)studioFontTex, NULL, 32, (SDL_Point){32, 32}, (SDL_Point){8, 8}, (SDL_FPoint){6, 0}, 16};
-	
-	addObjButton = newImageButton(buttonAddObject, stuButtonTex->texture, (SDL_FRect){224, 304, 16, 16}, (SDL_FRect){16, 0, 16, 16});
-	removeObjButton = newImageButton(buttonRemoveObject, stuButtonTex->texture, (SDL_FRect){206, 304, 16, 16}, (SDL_FRect){32, 0, 16, 16});
-	pauseButton = newImageButton(buttonPauseGame, stuButtonTex->texture, (SDL_FRect){0, 304, 16, 16}, (SDL_FRect){16, 32, 16, 16});
-
-	saveFileButton = newLableButton(buttonSaveMap, "Save", (SDL_FRect){0, 0, 40, 16});
-	loadFileButton = newLableButton(buttonLoadMap, "Load", (SDL_FRect){40, 0, 40, 16});
-
-	selectWidgetButton.image = stuButtonTex->texture;
-	moveWidgetButton.image = stuButtonTex->texture;
-	scaleWidgetButton.image = stuButtonTex->texture;
-	rotateWidgetButton.image = stuButtonTex->texture;
-
-	propColourButton = newColourButton(&focusObject->colour, (SDL_FRect){96, 300, 48, 12});
 }
-
-void studioCameraUpdate(Camera* cam);
 
 void updateStudio(){
+
+}
+
+void freeStudio(){
 	if(!studioActive) return;
-
-	if(stuKeyList[0].pressed && focusObject){
-		if(focusObject == client.gameWorld->currPlayer)
-			client.gameWorld->currPlayer = NULL;
-		removeObject(focusObject);
-		focusObject = NULL;
-	}
-	
-	if(!stuKeyList[STUDIOKEYBIND_CTRL].down) goto ctrlSkip;
-	if(stuKeyList[STUDIOKEYBIND_PASTE].pressed && focusObject){
-		char* clipboardText = SDL_GetClipboardText();
-		
-		if(clipboardText[0] == '#'){
-			char rHex[3]; sprintf(rHex, "%c%c", clipboardText[1], clipboardText[2]); focusObject->colour.r = (Uint8)strtol(rHex, NULL, 16);
-			char gHex[3]; sprintf(gHex, "%c%c", clipboardText[3], clipboardText[4]); focusObject->colour.g = (Uint8)strtol(gHex, NULL, 16);
-			char bHex[3]; sprintf(bHex, "%c%c", clipboardText[5], clipboardText[6]); focusObject->colour.b = (Uint8)strtol(bHex, NULL, 16);
-			
-			//strtol(str, &endptr, 10);
-		}
-		
-		free(clipboardText);
-	}
-	if(stuKeyList[STUDIOKEYBIND_COPY].pressed && focusObject){
-		char colourHex[8]; sprintf(colourHex, "#%x%x%x", focusObject->colour.r, focusObject->colour.g, focusObject->colour.b);
-		SDL_SetClipboardText(colourHex);
-	}
-	
-	if(stuKeyList[STUDIOKEYBIND_DUPE].pressed && focusObject)
-		focusObject = duplicateObject(focusObject);
-
-	if(stuKeyList[STUDIOKEYBIND_UNDO].pressed && historyHead){
-		undoHistory(historyHead);
-		sendPopup("undid history!", NULL, NULL, 2);
-	}
-ctrlSkip:
-	
-	/*if(objListLength > floor(objListRect.h / 16) + 2){
-		//SDL_SetRenderDrawColor(studioRenderer, 192, 193, 196, SDL_ALPHA_OPAQUE);
-		float scrollHeight = objListRect.h / max(1, (objListLength - floor(objListRect.h / 16)));
-		float scrollT = min(1, max(0, objListScroll / (objListLength - objListRect.h / 16)));
-		//SDL_RenderFillRect(studioRenderer, &(SDL_FRect){objListRect.x + objListRect.w - 8, objListRect.y + (objListRect.h - scrollHeight) * scrollT, 8, scrollHeight});
-		drawRect(studioTex, objListRect.x + objListRect.w - 8, objListRect.y + (objListRect.h - scrollHeight) * scrollT, 8, scrollHeight, 0xFFC4C1C0);
-	}*/
-		
-	//make this less shitty soon
-	//updateAndDrawButton(studioRenderer, &addObjButton); updateAndDrawButton(studioRenderer, &removeObjButton); updateAndDrawButton(studioRenderer, &pauseButton);
-	//updateAndDrawButton(studioRenderer, &loadFileButton); updateAndDrawButton(studioRenderer, &saveFileButton);
-	//updateAndDrawButton(studioRenderer, &selectWidgetButton); updateAndDrawButton(studioRenderer, &moveWidgetButton); updateAndDrawButton(studioRenderer, &scaleWidgetButton); updateAndDrawButton(studioRenderer, &rotateWidgetButton);
-	
-	//drawObjectProperties(focusObject, 240);
-	
-	//SDL_RenderPresent(studioRenderer);
 }
 
-void studioCleanup(){
-	if(!studioActive) return;
-	freeTexture(classIconTex); freeTexture(stuButtonTex); 
-
-	//freeTexture(studioTexRef);
-}
-
-void drawObjectList(DataObj* item, int nodeDepth, int *idCount){	
-	int i = (*idCount)++;
-	float itemYOffset = (i - objListScroll) * 16;
-	if(closest(itemYOffset - 8, 16) >= objListRect.h - 32) 
-		return;
-	
-	if(itemYOffset < 0)
-		goto listRenderSkip;
-	
-	if(between(mousePos.x, objListRect.x, objListRect.x + objListRect.w) && between(mousePos.y, objListRect.y + 3 + itemYOffset, objListRect.y + 15 + itemYOffset) && mouseButtons[0].pressed){
-		if(item == focusObject){
-			item->studioOpen = !item->studioOpen;
-		}
-		focusObject = item;
-		goto focusSkip;
-	}
-	if(focusObject == item){
-		focusSkip:
-		//SDL_SetRenderDrawColor(studioRenderer, 64, 192, 24, SDL_ALPHA_OPAQUE);
-		
-		//SDL_RenderFillRect(studioRenderer, &(SDL_FRect){objListRect.x, objListRect.y + itemYOffset, objListRect.w, 16});
-		//drawRect(studioTex, objListRect.x, objListRect.y + itemYOffset, objListRect.w, 16, 0xFF18C040);
-	}
-	
-	//drawText(studioRenderer, &studioFont, item->name, objListRect.x + 18/**/ + (nodeDepth * 24), 18/**/ + itemYOffset, 1.5, (SDL_FColor){1, 1, 1, 1});
-	//drawRasterText(studioTex, &defaultFont, item->name, objListRect.x + 18/**/ + (nodeDepth * 24), 18/**/ + itemYOffset, 1.5, 0xFFFFFFFF);
-	
-	//SDL_Rect iconRect = {(item->classData->id % 16) * 16, (int)floor((float)item->classData->id / 16) * 16 % 256, 16, 16};
-	//SDL_Rect iconPos = {objListRect.x + nodeDepth * 24, objListRect.y/**/ + itemYOffset, 16, 16};
-	//SDL_RenderTexture(studioRenderer, classIconTex, &iconRect, &iconPos);
-	//drawTexture(studioTex, classIconTex->texture, &iconRect, &iconPos, 0xFFFFFFFF);
-	
-	if(!item->studioOpen && item->child)
-		//drawTexture(studioTex, classIconTex->texture, &(SDL_Rect){245, 249, 11, 7}, &(SDL_Rect){objListRect.x + nodeDepth * 24, objListRect.y + itemYOffset, 11, 7}, 0xFFFFFFFF);
-		//SDL_RenderTexture(studioRenderer, classIconTex, &(SDL_FRect){245, 249, 11, 7}, &(SDL_FRect){objListRect.x + nodeDepth * 24, objListRect.y + itemYOffset, 11, 7});
-	
-	listRenderSkip:
-	
-	if(!item->studioOpen) return;
-	
-	DataObj* child = item->child;
-	while (child) {
-		DataObj *next = child->next;
-		drawObjectList(child, nodeDepth + 1, idCount);
-		child = next;
-	}
-}
-
-void drawObjectProperties(DataObj* item, UNUSED int posY){
-	//excuse the slop
-	char string[256];
-	
-	//SDL_SetRenderDrawColor(studioRenderer, 255, 255, 255, 255);
-	
-	if(!item){
-		//drawRasterText(studioTex, &defaultFont, "No object selected!", 2, posY, 1.5, 0xFFFFFFFF);
-		return;
-	}
-	
-	sprintf(string, "Name: %s", item->name);
-	//drawText(studioRenderer, &studioFont, string, 2, posY, 1.5, (SDL_FColor){1, 1, 1, 1});
-	sprintf(string, "Class: %s", item->classData->name);
-	//drawText(studioRenderer, &studioFont, string, 2, posY + 12, 1.5, (SDL_FColor){1, 1, 1, 1});
-	sprintf(string, "Position: %.2f, %.2f, %.2f", item->pos.x, item->pos.y, item->pos.z);
-	//drawText(studioRenderer, &studioFont, string, 2, posY + 24, 1.5, (SDL_FColor){1, 1, 1, 1});
-	sprintf(string, "Rotation: %d, %d, %d", (int)(item->rot.x * RAD2DEG), (int)(item->rot.y * RAD2DEG), (int)(item->rot.z * RAD2DEG));
-	//drawText(studioRenderer, &studioFont, string, 2, posY + 36, 1.5, (SDL_FColor){1, 1, 1, 1});
-	sprintf(string, "Scale: %.2f, %.2f, %.2f", item->scale.x, item->scale.y, item->scale.z);
-	//drawText(studioRenderer, &studioFont, string, 2, posY + 48, 1.5, (SDL_FColor){1, 1, 1, 1});
-	
-	//drawText(studioRenderer, &studioFont, "Colour: ", 2, posY + 60, 1.5, (SDL_FColor){1, 1, 1, 1});
-	//SDL_SetRenderDrawColor(studioRenderer, item->colour.r, item->colour.g, item->colour.b, 255); 
-	//SDL_RenderFillRect(studioRenderer, &(SDL_FRect){64, posY + 40, 24, 8});
-	propColourButton.target = &item->colour;
-	//updateAndDrawButton(studioRenderer, &propColourButton);
-	//SDL_SetRenderDrawColor(studioRenderer, item->colour.r * item->colour.a / 255, item->colour.g * item->colour.a / 255, item->colour.b * item->colour.a / 255, 255); 
-	//SDL_RenderFillRect(studioRenderer, &(SDL_FRect){88, posY + 40, 24, 8});
-}
-
+float camTime = 0;
 void studioCameraUpdate(Camera* cam){
 	float camSpeed = 18;
-	static float camTime = 0;
 	
 	Vector4 moveVec = {
 		(keyList[KEYBIND_D].down - keyList[KEYBIND_A].down), 
@@ -284,41 +88,4 @@ void studioCameraUpdate(Camera* cam){
 	
 	cam->pos = (Vector3){cam->pos.x + moveVec.x * timeSpeedMult * deltaTime, cam->pos.y + moveVec.y * timeSpeedMult * deltaTime, cam->pos.z + moveVec.z * timeSpeedMult * deltaTime};
 	free(camRotMatrix);
-}
-
-HistoryItem* addHistoryItem(Uint32 type, void** items){
-	HistoryItem* newItem = malloc(sizeof(HistoryItem));
-	if(!newItem) return NULL;
-
-	newItem->type = type;
-	newItem->items = items;
-	
-	newItem->prev = NULL;
-	if(historyHead)
-		historyHead->prev = newItem;
-	newItem->next = historyHead;
-	historyHead = newItem;
-
-	return NULL;
-}
-
-bool undoHistory(HistoryItem* item){
-	(void)item;
-	switch(item->type){
-		case HISTORY_CHANGEVAL:
-			item->items[0] = &item->items[1];
-			break;
-	}
-
-	if(item->prev) item->prev->next = item->next;
-	if(item->next) item->next->prev = item->prev;
-	if(item == historyHead) historyHead = NULL;
-	free(item);
-
-	return false;
-}
-
-bool redoHistory(HistoryItem* item){
-	(void)item;
-	return false;
 }

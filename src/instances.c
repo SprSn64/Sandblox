@@ -26,8 +26,6 @@ extern GameWorld game;
 extern DataObj *focusObject;
 extern float timer;
 
-extern Uint32 objListLength;
-
 DataType workspaceClass = {"Workspace", 1, 0, NULL, NULL, NULL, NULL};
 
 void logToConsole(char* string, Uint32 type);
@@ -380,8 +378,6 @@ void renderPopups(){
 ConsoleLog *consoleHead = NULL;
 ConsoleLog *consoleLast = NULL;
 
-extern int consoleScroll;
-
 void logToConsole(char* string, Uint32 type){
 	if(consoleLast && consoleLast->type == type && !strcmp(consoleLast->text, string)){
 		consoleLast->count += 1;
@@ -395,7 +391,7 @@ void logToConsole(char* string, Uint32 type){
 	newLog->type = type;
 	newLog->count = 1;
 
-	consoleScroll++;
+	//consoleScroll++;
 	
 	newLog->prev = consoleLast;
 	newLog->next = NULL;

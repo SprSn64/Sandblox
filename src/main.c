@@ -23,11 +23,8 @@
 #include "physics.h"
 
 #include "blockcode/blockcode.h"
-
 #include "studio/studio.h"
-
 #include "network/server.h"
-
 #include "softwarerender/main.h"
 
 /* TODO:
@@ -306,6 +303,7 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[]){
 	//client.debug = true;
 	
 	defaultMatrix = newMatrix();
+	guiMatrix = isoProjMatrix(1, aspectRatio, 0.01, 1000);
 
 	now = SDL_GetTicks();
 	srand(now);
@@ -360,12 +358,19 @@ SDL_AppResult SDL_AppEvent(void *appstate, SDL_Event *event){
 			objListScroll = min(max(objListScroll, 0), max(objListLength - floor(objListRect.h / 16) + 2, 0));
 		}
 	}
+
+	if(event->type == SDL_EVENT_WINDOW_RESIZED){
+		SDL_GetWindowSize(window, &windowScale.x, &windowScale.y); 
+
+		SDL_GetWindowSize(window, &windowScale.x, &windowScale.y);
+		aspectRatio = (float)windowScale.x/windowScale.y;
+
+		free(guiMatrix);
+		guiMatrix = isoProjMatrix(1, aspectRatio, 0.01, 1000);
+	}
 	
 	return SDL_APP_CONTINUE;
 }
-
-extern void studioCameraUpdate(Camera* cam);
-extern StudioSplit panelHead;
 
 void renderGame(FrameBuffer* target, Camera* cam){
 	if(!cam) return;
@@ -432,7 +437,6 @@ void renderGame(FrameBuffer* target, Camera* cam){
 	drawObjects(client.gameWorld->headObj);
 
 	if(client.studio){
-		updateSplit(&panelHead, &(SDL_FRect){-aspectRatio, 1, 2 * aspectRatio, 2});
 		if(focusObject)drawStudioOverlay();
 	}
 
@@ -476,12 +480,11 @@ void renderGame(FrameBuffer* target, Camera* cam){
 		free(cursorMatrix);
 	}
 
-	//free(guiMatrix); setGlValue(GL_BLEND, false);
-
 	free(cam->transform);
 	free(cam->proj);
 }
 
+extern void studioCameraUpdate(Camera* cam);
 SDL_AppResult SDL_AppIterate(void *appstate){
 	(void)appstate;
 	HandleKeyInput();
@@ -502,9 +505,6 @@ SDL_AppResult SDL_AppIterate(void *appstate){
 	now = SDL_GetTicks();
 	deltaTime = min(((double)now - (double)last) / 1000.0f, 1);
 	timer += deltaTime;
-	
-	SDL_GetWindowSize(window, &windowScale.x, &windowScale.y);
-	aspectRatio = (float)windowScale.x/windowScale.y;
 
 	//if (!client.pause) {
 	//	netPoll();
@@ -601,115 +601,20 @@ SDL_AppResult SDL_AppIterate(void *appstate){
 	//drawCube((Vector3){SDL_sin(timer) * 2 - 0.5, 1, SDL_cos(timer) * 2 - 0.5}, (Vector3){1, 1, 1}, (SDL_FColor){1, 0.2, 0.3, 1});
 	//SDL_SetRenderDrawColor(renderer, 255, 255, 255, SDL_ALPHA_OPAQUE);
 
-	guiMatrix = isoProjMatrix(1, aspectRatio, 0.01, 1000);
-
 	renderGame(gameBuffer, client.gameWorld->currCamera);
 	bindFrameBuffer(NULL);
 
-	/*glViewport(0, 0, windowScale.x, windowScale.y);
-
-	bindFrameBuffer(gameBuffer);
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	setGlShader(mainShader);
-
-	Vector3 invVec3 = {-1, -1, -1};
-	client.gameWorld->currCamera->transform = malloc(sizeof(mat4));
-	float *camTranslated = translateMatrix(defaultMatrix, vec3Mult(client.gameWorld->currCamera->pos, invVec3));
-	float *camRotated = rotateMatrix(camTranslated, vec3Mult(client.gameWorld->currCamera->rot, invVec3), ROT_YXZ);
-
-	memcpy(client.gameWorld->currCamera->transform, camRotated, sizeof(mat4));
-	free(camTranslated); free(camRotated); 
-
-	client.gameWorld->currCamera->proj = projMatrix(client.gameWorld->currCamera->fov, aspectRatio, 0.1, 100000);
-
-	float *camRotMatrix = rotateMatrix(defaultMatrix, vec3Mult(client.gameWorld->currCamera->rot, invVec3), ROT_YXZ);
-	glUniformMatrix4fv(glLocs[GLVAL_PROJMATRIX], 1, GL_FALSE, client.gameWorld->currCamera->proj);
-	glUniformMatrix4fv(glLocs[GLVAL_VIEWMATRIX], 1, GL_FALSE, camRotMatrix);
-	free(camRotMatrix);
-
-	float resFloat[2] = {0, 0};
-	glUniform2fv(glLocs[GLVAL_RESOLUTION], 1, resFloat);
-
-	glUniform3fv(glLocs[GLVAL_LIGHTNORM], 1, (float*)&lightNormal);
-	Vector3 cameraNormal = rotToNorm3(client.gameWorld->currCamera->rot);
-	glUniform3fv(glLocs[GLVAL_CAMERANORM], 1, (float*)&cameraNormal);
-
-	setGlValue(GL_DEPTH_TEST, false); setGlValue(GL_BLEND, true);
-	glUniform4fv(glLocs[GLVAL_LIGHTCOLOUR], 1, (float*)&flatLight);
-	glUniform4fv(glLocs[GLVAL_AMBCOLOUR], 1, (float*)&flatAmb);
-
-	float fogRangeFloat[2] = {0, 0};
-	glUniform2fv(glLocs[GLVAL_FOGRANGE], 1, (float*)&fogRangeFloat);
-		TextureRef* skyboxTex = skyTex;
-		if(client.gameWorld->skybox)
-			skyboxTex = client.gameWorld->skybox;
-		drawMeshOpenGL(skyboxMesh, defaultMatrix, (SDL_FColor){1,1,1,1}, skyboxTex);
-		free(skyboxMatrix);
-	
-		sunMatrix = rotateMatrix(defaultMatrix, vec3Add(normToRot3(lightNormal), (Vector3){PI, PI, 0}), ROT_XYZ);
-		drawMeshOpenGL(sunMesh, sunMatrix, lightColour, sunTex);
-		free(sunMatrix);
-
-	setGlValue(GL_DEPTH_TEST, true); setGlValue(GL_BLEND, false);
-
-	glUniformMatrix4fv(glLocs[GLVAL_VIEWMATRIX], 1, GL_FALSE, client.gameWorld->currCamera->transform);
-
-	resFloat[0] = windowScale.x; resFloat[1] = windowScale.y;
-	glUniform2fv(glLocs[GLVAL_RESOLUTION], 1, resFloat);
-
-	glUniform4fv(glLocs[GLVAL_LIGHTCOLOUR], 1, (float*)&lightColour);
-	glUniform4fv(glLocs[GLVAL_AMBCOLOUR], 1, (float*)&lightAmbient);
-	glUniform2fv(glLocs[GLVAL_FOGRANGE], 1, (float*)&client.gameWorld->fogRange);
-	glUniform4fv(glLocs[GLVAL_FOGCOLOUR], 1, (float*)&client.gameWorld->fogColour);
-	
-	drawObjects(client.gameWorld->headObj);
-
-	if(client.studio){
-		updateSplit(&panelHead, &(SDL_FRect){-aspectRatio, 1, 2 * aspectRatio, 2});
-		if(focusObject)drawStudioOverlay();
-	}
-
-	setGlValue(GL_DEPTH_TEST, false); setGlValue(GL_BLEND, true);
-	glUniformMatrix4fv(glLocs[GLVAL_PROJMATRIX], 1, GL_FALSE, guiMatrix);
-	glUniformMatrix4fv(glLocs[GLVAL_VIEWMATRIX], 1, GL_FALSE, defaultMatrix);
-	resFloat[0] = 0; resFloat[1] = 0;
-	glUniform2fv(glLocs[GLVAL_RESOLUTION], 1, resFloat);
-	glUniform4fv(glLocs[GLVAL_LIGHTCOLOUR], 1, (float*)&flatLight);
-	glUniform4fv(glLocs[GLVAL_AMBCOLOUR], 1, (float*)&flatAmb);
-
-	updatePopups();
-	renderPopups();
-
-	if(SDL_GetWindowFlags(window) & SDL_WINDOW_MOUSE_FOCUS){
-		SDL_FPoint cursorDrawPos = camMoveMode == 1 ? storedMousePos : mousePos;
-		if(camMoveMode == 2) cursorDrawPos = (SDL_FPoint){windowScale.x >> 1, windowScale.y >> 1};
-		float* cursorMatrix = genMatrix(
-			screenToGL((Vector3){floor(cursorDrawPos.x), floor(cursorDrawPos.y), 0}), 
-			(Vector3){(32.f / windowScale.x) * aspectRatio * 2, 1, (32.f / windowScale.y) * 2}, 
-			(Vector3){HALFPI, 0, 0});
-		drawMeshOpenGL(planePrim, cursorMatrix, (SDL_FColor){1, 1, 1, 1}, cursorTex);
-		free(cursorMatrix);
-	}*/
 	bindFrameBuffer(NULL);
 
 	if(client.studio){
-		drawSplit(&panelHead, &(SDL_FRect){-aspectRatio, 1, 2 * aspectRatio, 2});
+		(void)client.studio;
 	}else{
 		float* gameMatrix = genMatrix((Vector3){0, 0, 0}, (Vector3){aspectRatio, 1, 1}, (Vector3){0, 0, 0});
 		drawMeshOpenGL(frameBuffMesh, gameMatrix, (SDL_FColor){1, 1, 1, 1}, gameBuffer->texture);
 		free(gameMatrix);
 	}
 
-	/*if(client.studio){
-		float* studioMatrix = genMatrix((Vector3){-aspectRatio, 1, 0}, (Vector3){(240.f / windowScale.x) * aspectRatio * 2, 1, (320.f / windowScale.y) * 2}, (Vector3){HALFPI, 0, 0});
-		drawMeshOpenGL(planePrim, studioMatrix, (SDL_FColor){1, 1, 1, 1}, studioTexRef);
-		free(studioMatrix);
-	}*/
-
-	free(guiMatrix); setGlValue(GL_BLEND, false);
-
-	//free(client.gameWorld->currCamera->transform);
-	//free(client.gameWorld->currCamera->proj);
+	setGlValue(GL_BLEND, false);
 
 	Uint32 glError = glGetError();
 	if(glError != GL_NO_ERROR)
@@ -725,12 +630,11 @@ void SDL_AppQuit(void *appstate, SDL_AppResult result){
 	closeConnection();
 
 	cleanupObjects(client.gameWorld->headObj);
-	studioCleanup();
+	freeStudio();
 	//netCleanup();
 	cleanupTextures(false); cleanupMeshes(false); clearConsole();
 
-	free(defaultMatrix);
-	//free(depthBuffer); freeRasterTexture(displayTex); freeRasterTexture(rastFontTex);
+	free(defaultMatrix); free(guiMatrix);
 
 	glDeleteProgram(mainShader);
 	glDeleteBuffers(1, &VAO); glDeleteBuffers(1, &VBO); glDeleteBuffers(1, &EBO);
