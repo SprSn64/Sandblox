@@ -47,7 +47,10 @@ extern Mesh *spherePrim;
 
 void initStudio(){
 	//printf("Studio Initiated\n");
-	if(!client.studio){printf("Studio not enabled!\n"); return;}
+	if(!client.studio){
+		printf("Studio not enabled!\n"); 
+		return;
+	}
 	
 	classIconTex = loadTexture("assets/textures/studio/classicons.png", true);
 	colourPickTex = loadTexture("assets/textures/studio/colourpicker.png", true);

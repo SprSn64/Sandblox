@@ -287,7 +287,7 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[]){
 	
 	lightNormal = normalize3(lightNormal);
 	
-	initStudio();
+	if(client.studio)initStudio();
 
 	client.gameWorld = &game;
 	client.gameWorld->headObj = &gameHeader;
@@ -594,20 +594,23 @@ SDL_AppResult SDL_AppIterate(void *appstate){
 	if(client.pause)
 		studioCameraUpdate(client.gameWorld->currCamera);
 
-	if(client.studio && focusObject)
+	/*if(client.studio && focusObject)
 		updateStudioGimbles();
+	*/
 
 	//drawCube((Vector3){(2 + SDL_cos(timer)) / -2, SDL_sin(timer) + 1, (2 + SDL_cos(timer)) / -2}, (Vector3){2 + SDL_cos(timer), SDL_sin(timer) + 1, 2 + SDL_cos(timer)}, (SDL_FColor){0.6, 0.8, 1, 1});
 	//drawCube((Vector3){SDL_sin(timer) * 2 - 0.5, 1, SDL_cos(timer) * 2 - 0.5}, (Vector3){1, 1, 1}, (SDL_FColor){1, 0.2, 0.3, 1});
 	//SDL_SetRenderDrawColor(renderer, 255, 255, 255, SDL_ALPHA_OPAQUE);
 
-	renderGame(gameBuffer, client.gameWorld->currCamera);
-	bindFrameBuffer(NULL);
-
+	//if(!client.studio){
+		renderGame(gameBuffer, client.gameWorld->currCamera);
+	//}
 	bindFrameBuffer(NULL);
 
 	if(client.studio){
-		(void)client.studio;
+		float* tempStudioMatrix = genMatrix((Vector3){-1, 1, 0}, (Vector3){2, 1, 2}, (Vector3){HALFPI, 0, 0});
+		drawMeshOpenGL(planePrim, tempStudioMatrix, (SDL_FColor){1, 1, 1, 1}, fontTex);
+		free(tempStudioMatrix);
 	}else{
 		float* gameMatrix = genMatrix((Vector3){0, 0, 0}, (Vector3){aspectRatio, 1, 1}, (Vector3){0, 0, 0});
 		drawMeshOpenGL(frameBuffMesh, gameMatrix, (SDL_FColor){1, 1, 1, 1}, gameBuffer->texture);
