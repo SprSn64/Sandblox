@@ -89,7 +89,8 @@ Texture *rastFontTex;
 
 //make universal asset loading less shit-core please
 TextureRef *fontTex = NULL; TextureRef *playerTex = NULL; TextureRef *homerTex = NULL;
-TextureRef *boneTex = NULL; TextureRef *cursorTex = NULL; TextureRef *skyTex = NULL; TextureRef *sunTex = NULL; TextureRef *cameraTex = NULL;
+TextureRef *boneTex = NULL; TextureRef *cursorTex = NULL; TextureRef *skyTex = NULL; TextureRef *sunTex = NULL; 
+TextureRef *cameraTex = NULL; TextureRef *textBubbleTex = NULL;
 Mesh *playerMesh = NULL; Mesh *playerFemMesh = NULL; Mesh *boneMesh = NULL; Mesh *skyboxMesh = NULL; Mesh *sunMesh = NULL; Mesh *cameraMesh = NULL;
 Mesh *planePrim = NULL; Mesh *cubePrim = NULL; Mesh *spherePrim = NULL;
 Mesh *frameBuffMesh = NULL;
@@ -206,6 +207,7 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[]){
 	skyTex = loadTexture("assets/textures/skybox.png", true);
 	sunTex = loadTexture("assets/textures/sunflare.png", true);
 	cameraTex = loadTexture("assets/textures/camera.png", true);
+	textBubbleTex = loadTexture("assets/textures/textbubble.png", true);
 
 	textBufferTex = malloc(sizeof(TextureRef));
 	textBufferTex->texture = newRasterTexture(16, 16);

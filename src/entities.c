@@ -473,9 +473,9 @@ void scriptUpdate(DataObj* object){
 	if(scriptFunc != NULL)
 		scriptFunc->func(object);
 }
-
 DataType scriptClass = {"Script\0", 9, 0, NULL, scriptUpdate, NULL, NULL};
 
+extern TextureRef* textBubbleTex;
 void textBubbleInit(DataObj* object){
 	TextBubbleData* handler = calloc(1, sizeof(TextBubbleData));
 	handler->size = (SDL_FPoint){3, 3};
@@ -499,9 +499,25 @@ void textBubbleDraw(DataObj* object){
 		0,
 	}, ROT_XYZ);
 	float* partTranslate = translateMatrix(partRot, object->pos);
-	drawMeshOpenGL(planePrim, partTranslate, (SDL_FColor){1, 1, 1, 1}, NULL);
+	drawMeshOpenGL(planePrim, partTranslate, (SDL_FColor){1, 1, 1, 1}, textBubbleTex);
 	free(partScale); free(centerTrans); free(partRot); free(partTranslate);
 
+	if(!handler->text) goto textDrawSkip;
+	float textRatio = bufferGLText(textBufferTex, &defaultFont, handler->text, 4);
+
+	float* textScale = scaleMatrix(defaultMatrix, (Vector3){0.5 / textRatio, 1, 0.5});
+	float* textCenter = translateMatrix(textScale, (Vector3){-(0.125 / textRatio) -handler->size.x * 0.5, 0.025, -handler->size.y * 0.5});
+	float* textRot = rotateMatrix(textCenter, (Vector3){
+			client.gameWorld->currCamera->rot.x + HALFPI,
+			client.gameWorld->currCamera->rot.y,
+			0,
+		}, 
+		ROT_XYZ
+	);
+	float* textMatrix = translateMatrix(textRot, object->pos);
+	drawMeshOpenGL(planePrim, textMatrix, (SDL_FColor){0, 0, 0, 1}, textBufferTex);
+	free(textScale); free(textCenter); free(textRot); free(textMatrix);
+textDrawSkip:
 	glUniform4fv(glLocs[GLVAL_LIGHTCOLOUR], 1, (float*)&lightColour);
 	glUniform4fv(glLocs[GLVAL_AMBCOLOUR], 1, (float*)&lightAmbient);
 }
