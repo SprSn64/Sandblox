@@ -14,8 +14,13 @@
 #include "../instances.h"
 #include "../renderer.h"
 #include "../mesh.h"
+#include "../opengl.h"
+
+extern SDL_Window* window;
+extern SDL_Point windowScale;
 
 extern ClientData client;
+extern float aspectRatio;
 
 bool studioActive = false;
 
@@ -42,8 +47,9 @@ extern SDL_FPoint mousePos;
 extern ButtonMap mouseButtons[3];
 extern ButtonMap keyList[KEYBIND_MAX];
 
-extern Font defaultFont;
 extern Mesh *spherePrim;
+extern Mesh *planePrim;
+extern TextureRef *cursorTex;
 
 void initStudio(){
 	//printf("Studio Initiated\n");
@@ -51,6 +57,8 @@ void initStudio(){
 		printf("Studio not enabled!\n"); 
 		return;
 	}
+
+	client.pause = true;
 	
 	classIconTex = loadTexture("assets/textures/studio/classicons.png", true);
 	colourPickTex = loadTexture("assets/textures/studio/colourpicker.png", true);
@@ -62,6 +70,21 @@ void initStudio(){
 
 void updateStudio(){
 
+}
+
+void renderStudio(){
+	float* tempStudioMatrix = genMatrix((Vector3){-1, 1, 0}, (Vector3){2, 1, 2}, (Vector3){HALFPI, 0, 0});
+	drawMeshOpenGL(planePrim, tempStudioMatrix, (SDL_FColor){1, 1, 1, 1}, defaultFont.texture);
+	free(tempStudioMatrix);
+
+	if(SDL_GetWindowFlags(window) & SDL_WINDOW_MOUSE_FOCUS){
+		float* cursorMatrix = genMatrix(
+			screenToGL((Vector3){floor(mousePos.x), floor(mousePos.y), 0}), 
+			(Vector3){(32.f / windowScale.x) * aspectRatio * 2, 1, (32.f / windowScale.y) * 2}, 
+			(Vector3){HALFPI, 0, 0});
+		drawMeshOpenGL(planePrim, cursorMatrix, (SDL_FColor){1, 1, 1, 1}, cursorTex);
+		free(cursorMatrix);
+	}
 }
 
 void freeStudio(){

@@ -35,7 +35,7 @@ extern DataObj *focusObject;
 
 extern SDL_FPoint windowScale;
 extern SDL_FPoint mousePos;
-extern ButtonMap mouseButtons[];
+extern ButtonMap mouseButtons[3];
 
 Vector3 projectFlip(Vector3 proj){
 	float flipMult = 1 - 2 * (proj.z <= 0);

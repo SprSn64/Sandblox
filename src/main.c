@@ -308,6 +308,8 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[]){
 	now = SDL_GetTicks();
 	srand(now);
 
+	setGlShader(mainShader);
+
 	testCodeBlock = (CodeBlock){&testBlockClass, NULL, NULL, NULL, NULL, NULL, NULL};
 
 	if(!client.studio)
@@ -372,7 +374,7 @@ SDL_AppResult SDL_AppEvent(void *appstate, SDL_Event *event){
 	return SDL_APP_CONTINUE;
 }
 
-void renderGame(FrameBuffer* target, Camera* cam){
+void renderGame(FrameBuffer* target, Camera* cam, bool renderGui){
 	if(!cam) return;
 	SDL_Point renderRes = target ? (SDL_Point){target->width, target->height} : (SDL_Point){windowScale.x, windowScale.y};
 
@@ -381,8 +383,7 @@ void renderGame(FrameBuffer* target, Camera* cam){
 	glViewport(0, 0, renderRes.x, renderRes.y);
 
 	bindFrameBuffer(target);
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	setGlShader(mainShader);
+	glClear(GL_DEPTH_BUFFER_BIT);
 
 	Vector3 invVec3 = {-1, -1, -1};
 	client.gameWorld->currCamera->transform = malloc(sizeof(mat4));
@@ -458,6 +459,9 @@ void renderGame(FrameBuffer* target, Camera* cam){
 		}
 	}
 
+	if(!renderGui)
+		goto gameRenderGUISkip;
+
 	setGlValue(GL_DEPTH_TEST, false); setGlValue(GL_BLEND, true);
 	glUniformMatrix4fv(glLocs[GLVAL_PROJMATRIX], 1, GL_FALSE, guiMatrix);
 	glUniformMatrix4fv(glLocs[GLVAL_VIEWMATRIX], 1, GL_FALSE, defaultMatrix);
@@ -480,6 +484,7 @@ void renderGame(FrameBuffer* target, Camera* cam){
 		free(cursorMatrix);
 	}
 
+gameRenderGUISkip:
 	free(cam->transform);
 	free(cam->proj);
 }
@@ -602,22 +607,27 @@ SDL_AppResult SDL_AppIterate(void *appstate){
 	//drawCube((Vector3){SDL_sin(timer) * 2 - 0.5, 1, SDL_cos(timer) * 2 - 0.5}, (Vector3){1, 1, 1}, (SDL_FColor){1, 0.2, 0.3, 1});
 	//SDL_SetRenderDrawColor(renderer, 255, 255, 255, SDL_ALPHA_OPAQUE);
 
-	//if(!client.studio){
-		renderGame(gameBuffer, client.gameWorld->currCamera);
-	//}
-	bindFrameBuffer(NULL);
+	if(!client.studio){
+		renderGame(gameBuffer, client.gameWorld->currCamera, true);
+		bindFrameBuffer(NULL);
+	}
+
+	glViewport(0, 0, windowScale.x, windowScale.y);
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+	setGlValue(GL_DEPTH_TEST, false); setGlValue(GL_BLEND, true);
+	glUniformMatrix4fv(glLocs[GLVAL_PROJMATRIX], 1, GL_FALSE, guiMatrix);
+	glUniformMatrix4fv(glLocs[GLVAL_VIEWMATRIX], 1, GL_FALSE, defaultMatrix);
+	glUniform4fv(glLocs[GLVAL_LIGHTCOLOUR], 1, (float*)&flatLight);
+	glUniform4fv(glLocs[GLVAL_AMBCOLOUR], 1, (float*)&flatAmb);
 
 	if(client.studio){
-		float* tempStudioMatrix = genMatrix((Vector3){-1, 1, 0}, (Vector3){2, 1, 2}, (Vector3){HALFPI, 0, 0});
-		drawMeshOpenGL(planePrim, tempStudioMatrix, (SDL_FColor){1, 1, 1, 1}, fontTex);
-		free(tempStudioMatrix);
+		renderStudio();
 	}else{
 		float* gameMatrix = genMatrix((Vector3){0, 0, 0}, (Vector3){aspectRatio, 1, 1}, (Vector3){0, 0, 0});
 		drawMeshOpenGL(frameBuffMesh, gameMatrix, (SDL_FColor){1, 1, 1, 1}, gameBuffer->texture);
 		free(gameMatrix);
 	}
-
-	setGlValue(GL_BLEND, false);
 
 	Uint32 glError = glGetError();
 	if(glError != GL_NO_ERROR)
