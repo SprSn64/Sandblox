@@ -37,7 +37,6 @@ TextureRef *classIconTex = NULL;
 TextureRef *colourPickTex = NULL;
 Mesh *rotateGimbleMesh = NULL;
 Mesh *translateGimbleMesh = NULL;
-
 TextureRef *toolButtonTex = NULL;
 
 Uint32 toolMode = STUDIOTOOL_MOVE;
@@ -56,9 +55,24 @@ StudioPanel testGamePanel = {STUDIOPANEL_GAMEVIEW, NULL, false, NULL};
 StudioPanel testToolPanel = {STUDIOPANEL_TOOLBAR, NULL, false, NULL};
 StudioPanel testSplitPanel = {STUDIOPANEL_SPLIT, NULL, false, NULL};
 
+StudioPanel bannerSplitPanel = {STUDIOPANEL_SPLIT, NULL, false, NULL};
+StudioPanel bannarPanel = {STUDIOPANEL_BANNER, NULL, false, NULL};
+
 void initPanel(StudioPanel* panel);
 void updatePanel(StudioPanel* panel, SDL_Rect area);
 void drawPanel(StudioPanel* panel, SDL_Rect area);
+
+void parentPanel(StudioPanel* panel, StudioPanel* split, bool target){
+	if(split->type != STUDIOPANEL_SPLIT) return;
+
+	panel->parent = split;
+	SplitPanelHandler* handler = split->handler;
+
+	if(target)
+		handler->childB = panel;
+	else
+		handler->childA = panel;
+}
 
 void initStudio(){
 	//printf("Studio Initiated\n");
@@ -73,34 +87,38 @@ void initStudio(){
 	colourPickTex = loadTexture("assets/textures/studio/colourpicker.png", true);
 	rotateGimbleMesh = genTorusMesh(2, 0.1, 3, 24); rotateGimbleMesh->persistent = true;
 	translateGimbleMesh = loadMeshFromObj("assets/models/arrowwidget.obj", true);
-
-	toolButtonTex = loadTexture("assets/textures/studio/toolbuttons.png", true);
+	toolButtonTex = loadTexture("assets/textures/studio/studiobuttons.png", true);
 
 	initPanel(&testSplitPanel); initPanel(&testGamePanel); initPanel(&testToolPanel);
+	initPanel(&bannerSplitPanel); initPanel(&bannarPanel); 
+
+	parentPanel(&bannarPanel, &bannerSplitPanel, false);
+	parentPanel(&testToolPanel, &testSplitPanel, false);
+	parentPanel(&testGamePanel, &testSplitPanel, true);
+	parentPanel(&testSplitPanel, &bannerSplitPanel, true);
+
 	SplitPanelHandler* testSplitHandler = testSplitPanel.handler;
-	testSplitHandler->childA = &testToolPanel; testSplitHandler->childB = &testGamePanel; 
 	testSplitHandler->ratio = 0.05;
+
+	SplitPanelHandler* bannerSplitHandler = bannerSplitPanel.handler;
+	bannerSplitHandler->ratio = 0.1; bannerSplitHandler->vert = true;
 }
 
 void updateStudio(){
-	updatePanel(&testSplitPanel, (SDL_Rect){0, 0, windowScale.x, windowScale.y});
+	updatePanel(&bannerSplitPanel, (SDL_Rect){0, 0, windowScale.x, windowScale.y});
 }
 
 void renderStudio(){
-	float* tempStudioMatrix = genMatrix((Vector3){-1, 1, 0}, (Vector3){2, 1, 2}, (Vector3){HALFPI, 0, 0});
-	drawMeshOpenGL(planePrim, tempStudioMatrix, (SDL_FColor){1, 1, 1, 1}, defaultFont.texture);
-	free(tempStudioMatrix);
+	drawPanel(&bannerSplitPanel, (SDL_Rect){0, 0, windowScale.x, windowScale.y});
 
-	drawPanel(&testSplitPanel, (SDL_Rect){0, 0, windowScale.x, windowScale.y});
-
-	if(SDL_GetWindowFlags(window) & SDL_WINDOW_MOUSE_FOCUS){
+	/*if(SDL_GetWindowFlags(window) & SDL_WINDOW_MOUSE_FOCUS){
 		float* cursorMatrix = genMatrix(
 			screenToGL((Vector3){floor(mousePos.x), floor(mousePos.y), 0}), 
 			(Vector3){(32.f / windowScale.x) * aspectRatio * 2, 1, (32.f / windowScale.y) * 2}, 
 			(Vector3){HALFPI, 0, 0});
 		drawMeshOpenGL(planePrim, cursorMatrix, (SDL_FColor){1, 1, 1, 1}, cursorTex);
 		free(cursorMatrix);
-	}
+	}*/
 }
 
 void freeStudio(){
@@ -212,12 +230,10 @@ void gamePanelDraw(StudioPanel* panel, SDL_Rect area){
 
 	renderGame(handler->buffer, handler->camera, true);
 	bindFrameBuffer(NULL); glViewport(0, 0, windowScale.x, windowScale.y);
-
-	SDL_Rect newArea = {area.x, area.y, area.w >> 1, area.h >> 1};
-
+	
 	float* gameMatrix = genMatrix(
-		(Vector3){(float)newArea.x / (windowScale.x >> 1) * aspectRatio, (float)(-newArea.y) / (windowScale.y >> 1), 0}, 
-		(Vector3){(float)newArea.w / (windowScale.x >> 1) * aspectRatio, (float)newArea.h / (windowScale.y >> 1), 1}, 
+		(Vector3){((float)(area.x + (area.w >> 1)) / (windowScale.x >> 1) - 1) * aspectRatio, -(float)(area.y + (area.h >> 1)) / (windowScale.y >> 1) + 1, 0}, 
+		(Vector3){(float)(area.w >> 1) / (windowScale.x >> 1) * aspectRatio, (float)(area.h >> 1) / (windowScale.y >> 1), 0}, 
 		(Vector3){0, 0, 0}
 	);
 	drawMeshOpenGL(frameBuffMesh, gameMatrix, (SDL_FColor){1, 1, 1, 1}, handler->buffer->texture);
@@ -248,6 +264,14 @@ void toolbarPanelDraw(StudioPanel* panel, SDL_Rect area){
 	);
 	drawMeshOpenGL(planePrim, bgMatrix, (SDL_FColor){0.4, 0.4, 0.4, 1}, NULL);
 	free(bgMatrix);
+
+	float* buttonMatrix = genMatrix(
+		(Vector3){((float)area.x / (windowScale.x >> 1) - 1) * aspectRatio, (float)(-area.y) / (windowScale.y >> 1) + 1, 0}, 
+		(Vector3){(float)(64) / (windowScale.x >> 1) * aspectRatio, 0, (float)(64) / (windowScale.y >> 1)}, 
+		(Vector3){HALFPI, 0, 0}
+	);
+	drawMeshOpenGL(planePrim, buttonMatrix, (SDL_FColor){1, 1, 1, 1}, toolButtonTex);
+	free(buttonMatrix);
 }
 
 void initPanel(StudioPanel* panel){
