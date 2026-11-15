@@ -286,12 +286,9 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[]){
 	mouseButtons[0].code = SDL_BUTTON_LMASK; mouseButtons[1].code = SDL_BUTTON_MMASK; mouseButtons[2].code = SDL_BUTTON_RMASK;
 	
 	lightNormal = normalize3(lightNormal);
-	
-	if(client.studio)initStudio();
 
 	client.gameWorld = &game;
 	client.gameWorld->headObj = &gameHeader;
-	gameHeader.studioOpen = true;
 
 	client.gameWorld->currPlayer = NULL;
 	client.gameWorld->currCamera = &currentCamera;
@@ -299,6 +296,8 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[]){
 	client.gameWorld->skybox = NULL;
 	client.gameWorld->fogRange = (SDL_FPoint){128, 1024};
 	client.gameWorld->fogColour = (SDL_FColor){1, 1, 1, 1};
+
+	if(client.studio)initStudio();
 
 	//client.debug = true;
 	
@@ -363,8 +362,6 @@ SDL_AppResult SDL_AppEvent(void *appstate, SDL_Event *event){
 
 	if(event->type == SDL_EVENT_WINDOW_RESIZED){
 		SDL_GetWindowSize(window, &windowScale.x, &windowScale.y); 
-
-		SDL_GetWindowSize(window, &windowScale.x, &windowScale.y);
 		aspectRatio = (float)windowScale.x/windowScale.y;
 
 		free(guiMatrix);
@@ -377,8 +374,6 @@ SDL_AppResult SDL_AppEvent(void *appstate, SDL_Event *event){
 void renderGame(FrameBuffer* target, Camera* cam, bool renderGui){
 	if(!cam) return;
 	SDL_Point renderRes = target ? (SDL_Point){target->width, target->height} : (SDL_Point){windowScale.x, windowScale.y};
-
-	client.gameWorld->currCamera = cam;
 
 	glViewport(0, 0, renderRes.x, renderRes.y);
 
@@ -427,7 +422,7 @@ void renderGame(FrameBuffer* target, Camera* cam, bool renderGui){
 
 	glUniformMatrix4fv(glLocs[GLVAL_VIEWMATRIX], 1, GL_FALSE, cam->transform);
 
-	resFloat[0] = windowScale.x; resFloat[1] = windowScale.y;
+	resFloat[0] = renderRes.x; resFloat[1] = renderRes.y;
 	glUniform2fv(glLocs[GLVAL_RESOLUTION], 1, resFloat);
 
 	glUniform4fv(glLocs[GLVAL_LIGHTCOLOUR], 1, (float*)&lightColour);
@@ -610,6 +605,8 @@ SDL_AppResult SDL_AppIterate(void *appstate){
 	if(!client.studio){
 		renderGame(gameBuffer, client.gameWorld->currCamera, true);
 		bindFrameBuffer(NULL);
+	}else{
+		updateStudio();
 	}
 
 	glViewport(0, 0, windowScale.x, windowScale.y);
