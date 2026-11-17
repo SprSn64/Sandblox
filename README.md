@@ -5,11 +5,6 @@ https://discord.gg/rq9XzhFnAC
 
 Built on SDL3 https://www.libsdl.org/ and GLEW
 
-# Plans for first release:
-	Basic Launcher
-	Simple Multiplayer (no server list, only ip and port)
-
-# Plans for future versions (to add after first official release if it ever happens):
-	Avatar system with dynamic body shapes and such
-	Advanced dynamic skybox system with adding objects within the skybox and whatnot
-	Universal server list
+# AI Policy
+	AI generated contributions are not welcome here. This means contributions using AI for code, image, or anything else will have no chance of being accepted. 
+	If you even think of using AI to contribute to this, I'd advise you to pour drain cleaner down your ear canals.
