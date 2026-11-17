@@ -322,6 +322,7 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[]){
 	
 	if(mapToLoad && loadGameFile(mapToLoad) == 0){
 		gameFileLoaded = true;
+		if(client.studio) client.pause = true;
 	} else {
 		printf("Failed to load gamefile\n");
 		sendPopup("Failed to load gamefile", NULL, NULL, 3);

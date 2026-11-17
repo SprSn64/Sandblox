@@ -250,6 +250,22 @@ float bufferGLText(TextureRef* target, Font* font, char* text, float size){
 	return (float)scale.y / scale.x;
 }
 
+void bufferGlSlice(TextureRef* target, TextureRef* src, SDL_Rect slice){
+	Texture* tex = target->texture;
+	if(tex)
+		freeRasterTexture(tex);
+	Texture* newTex = newRasterTexture(slice.w, slice.h);
+	target->texture = newTex;
+
+	clearTex(newTex, 0x00FFFFFF);
+	//drawRasterText(newTex, font, text, 0, 0, size, 0xFFFFFFFF);
+	drawTexture(newTex, src->texture, &slice, &(SDL_Rect){0, 0, slice.w, slice.h}, 0xFFFFFFFF);
+
+	glBindTexture(GL_TEXTURE_2D, target->glLoc);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, newTex->width, newTex->height, 0, GL_RGBA, GL_UNSIGNED_BYTE, newTex->pixels);
+	glBindTexture(GL_TEXTURE_2D, 0);
+};
+
 extern TextureRef* textBufferTex;
 extern Mesh* planePrim;
 void drawGlText(Font* font, Vector3 pos, char* text, float size, SDL_FColor colour){

@@ -51,6 +51,8 @@ extern Mesh *spherePrim;
 extern Mesh *planePrim;
 extern TextureRef *cursorTex;
 
+extern TextureRef *textBufferTex;
+
 StudioPanel testGamePanel = {STUDIOPANEL_GAMEVIEW, NULL, false, NULL};
 StudioPanel testToolPanel = {STUDIOPANEL_TOOLBAR, NULL, false, NULL};
 StudioPanel testSplitPanel = {STUDIOPANEL_SPLIT, NULL, false, NULL};
@@ -243,7 +245,6 @@ void gamePanelDraw(StudioPanel* panel, SDL_Rect area){
 void toolbarPanelInit(StudioPanel* panel){
 	(void)panel;
 }
-
 void toolbarPanelUpdate(StudioPanel* panel, SDL_Rect area){
 	if(!panel->mouseOver) return;
 	SDL_Point localMouse = {mousePos.x - area.x, mousePos.y - area.y};
@@ -251,7 +252,6 @@ void toolbarPanelUpdate(StudioPanel* panel, SDL_Rect area){
 	if(mouseButtons[0].pressed)
 		toolMode = min((int)((float)localMouse.y / 64), STUDIOTOOL_ROTATE);
 }
-
 void toolbarPanelDraw(StudioPanel* panel, SDL_Rect area){
 	(void)panel;
 	//SplitPanelHandler* handler = panel->handler;
@@ -265,12 +265,14 @@ void toolbarPanelDraw(StudioPanel* panel, SDL_Rect area){
 	drawMeshOpenGL(planePrim, bgMatrix, (SDL_FColor){0.4, 0.4, 0.4, 1}, NULL);
 	free(bgMatrix);
 
+	bufferGlSlice(textBufferTex, toolButtonTex, (SDL_Rect){16, 16, 16, 16});
+
 	float* buttonMatrix = genMatrix(
 		(Vector3){((float)area.x / (windowScale.x >> 1) - 1) * aspectRatio, (float)(-area.y) / (windowScale.y >> 1) + 1, 0}, 
-		(Vector3){(float)(64) / (windowScale.x >> 1) * aspectRatio, 0, (float)(64) / (windowScale.y >> 1)}, 
+		(Vector3){(float)(16) / (windowScale.x >> 1) * aspectRatio, 0, (float)(16) / (windowScale.y >> 1)}, 
 		(Vector3){HALFPI, 0, 0}
 	);
-	drawMeshOpenGL(planePrim, buttonMatrix, (SDL_FColor){1, 1, 1, 1}, toolButtonTex);
+	drawMeshOpenGL(planePrim, buttonMatrix, (SDL_FColor){1, 1, 1, 1}, textBufferTex);
 	free(buttonMatrix);
 }
 

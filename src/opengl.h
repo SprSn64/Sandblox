@@ -39,6 +39,8 @@ void drawMeshOpenGL(Mesh* mesh, mat4 transform, SDL_FColor colour, TextureRef* t
 float bufferGLText(TextureRef* target, Font* font, char* text, float size);
 void drawGlText(Font* font, Vector3 pos, char* text, float size, SDL_FColor colour);
 
+void bufferGlSlice(TextureRef* target, TextureRef* src, SDL_Rect slice);
+
 FrameBuffer* newFrameBuffer(Uint16 width, Uint16 height);
 void bindFrameBuffer(FrameBuffer* item);
 void freeFrameBuffer(FrameBuffer* item);
