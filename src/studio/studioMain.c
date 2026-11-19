@@ -55,7 +55,10 @@ extern TextureRef *textBufferTex;
 
 StudioPanel testGamePanel = {STUDIOPANEL_GAMEVIEW, NULL, false, NULL};
 StudioPanel testToolPanel = {STUDIOPANEL_TOOLBAR, NULL, false, NULL};
-StudioPanel testSplitPanel = {STUDIOPANEL_SPLIT, NULL, false, NULL};
+StudioPanel toolGameSplit = {STUDIOPANEL_SPLIT, NULL, false, NULL};
+
+StudioPanel testExplorerPanel = {STUDIOPANEL_EXPLORER, NULL, false, NULL};
+StudioPanel gameExplorerSplit = {STUDIOPANEL_SPLIT, NULL, false, NULL};
 
 StudioPanel bannerSplitPanel = {STUDIOPANEL_SPLIT, NULL, false, NULL};
 StudioPanel bannarPanel = {STUDIOPANEL_BANNER, NULL, false, NULL};
@@ -91,16 +94,25 @@ void initStudio(){
 	translateGimbleMesh = loadMeshFromObj("assets/models/arrowwidget.obj", true);
 	toolButtonTex = loadTexture("assets/textures/studio/studiobuttons.png", true);
 
-	initPanel(&testSplitPanel); initPanel(&testGamePanel); initPanel(&testToolPanel);
+	initPanel(&toolGameSplit); initPanel(&testGamePanel); initPanel(&testToolPanel);
 	initPanel(&bannerSplitPanel); initPanel(&bannarPanel); 
 
-	parentPanel(&bannarPanel, &bannerSplitPanel, false);
-	parentPanel(&testToolPanel, &testSplitPanel, false);
-	parentPanel(&testGamePanel, &testSplitPanel, true);
-	parentPanel(&testSplitPanel, &bannerSplitPanel, true);
+	initPanel(&testExplorerPanel); initPanel(&gameExplorerSplit);
 
-	SplitPanelHandler* testSplitHandler = testSplitPanel.handler;
+	parentPanel(&bannarPanel, &bannerSplitPanel, false);
+	parentPanel(&testToolPanel, &toolGameSplit, false);
+	parentPanel(&testGamePanel, &toolGameSplit, true);
+
+	parentPanel(&toolGameSplit, &gameExplorerSplit, false);
+	parentPanel(&testExplorerPanel, &gameExplorerSplit, true);
+
+	parentPanel(&gameExplorerSplit, &bannerSplitPanel, true);
+
+	SplitPanelHandler* testSplitHandler = toolGameSplit.handler;
 	testSplitHandler->ratio = 0.05;
+
+	SplitPanelHandler* explorerSplitHandler = gameExplorerSplit.handler;
+	explorerSplitHandler->ratio = 0.8;
 
 	SplitPanelHandler* bannerSplitHandler = bannerSplitPanel.handler;
 	bannerSplitHandler->ratio = 0.1; bannerSplitHandler->vert = true;
@@ -186,11 +198,11 @@ void splitPanelDraw(StudioPanel* panel, SDL_Rect area){
 	SDL_Rect areaA;
 	SDL_Rect areaB;
 	if(handler->vert){
-		areaA = (SDL_Rect){area.x, area.y, area.w, area.h * handler->ratio};
-		areaB = (SDL_Rect){area.x, area.y + area.h * handler->ratio, area.w, area.h * (1 - handler->ratio)};
+		areaA = (SDL_Rect){area.x, area.y, ceil(area.w), ceil(area.h * handler->ratio)};
+		areaB = (SDL_Rect){area.x, area.y + ceil(area.h * handler->ratio), ceil(area.w), ceil(area.h * (1 - handler->ratio))};
 	}else{
-		areaA = (SDL_Rect){area.x, area.y, area.w * handler->ratio, area.h};
-		areaB = (SDL_Rect){area.x + area.w * handler->ratio, area.y, area.w * (1 - handler->ratio), area.h};
+		areaA = (SDL_Rect){area.x, area.y, ceil(area.w * handler->ratio), ceil(area.h)};
+		areaB = (SDL_Rect){area.x + ceil(area.w * handler->ratio), area.y, ceil(area.w * (1 - handler->ratio)), ceil(area.h)};
 	}
 
 	float* aMatrix = genMatrix(
@@ -276,6 +288,132 @@ void toolbarPanelDraw(StudioPanel* panel, SDL_Rect area){
 	free(buttonMatrix);
 }
 
+void bannerPanelInit(StudioPanel* panel){
+	(void)panel; 
+}
+void bannerPanelUpdate(StudioPanel* panel, SDL_Rect area){
+	StudioPanel* split = panel->parent;
+	if(!split || split->type != STUDIOPANEL_SPLIT) return;
+
+	SplitPanelHandler* splitHandler = split->handler;
+
+	if(!splitHandler->vert) return;
+	bool splitHalf = splitHandler->childB == panel ? true : false;
+
+	if(splitHalf){
+
+	}else{
+		//area.h = splitArea.h * splitRatio
+		//splitArea.h = area.h / splitRatio
+		float splitArea = area.h / splitHandler->ratio;
+		splitHandler->ratio = 64 / splitArea;
+	}
+}
+void bannerPanelDraw(StudioPanel* panel, SDL_Rect area){
+	(void)panel; 
+	float* bgMatrix = genMatrix(
+		(Vector3){((float)area.x / (windowScale.x / 2) - 1) * aspectRatio, (float)(-area.y) / (windowScale.y / 2) + 1, 0}, 
+		(Vector3){(float)area.w / (windowScale.x / 2) * aspectRatio, 0, (float)area.h / (windowScale.y / 2)}, 
+		(Vector3){HALFPI, 0, 0}
+	);
+	drawMeshOpenGL(planePrim, bgMatrix, (SDL_FColor){0.4, 0.4, 0.4, 1}, NULL);
+	free(bgMatrix);
+}
+
+float explTextSize = 16;
+void explorerPanelInit(StudioPanel* panel){
+	(void)panel; 
+}
+void updateExplorerItem(DataObj* item, SDL_Rect area, int *idCount){
+	int i = (*idCount)++;
+
+	if(mouseButtons[0].pressed && between(mousePos.y - area.y, i * explTextSize, (i + 1) * explTextSize)){
+		if(focusObject == item)
+			item->studioOpen = !item->studioOpen;
+
+		focusObject = item;
+	}
+
+	if(!item->studioOpen) return;
+	DataObj* child = item->child;
+	while(child){
+		DataObj *next = child->next;
+		updateExplorerItem(child, area, idCount);
+		child = next;
+	}
+}
+void explorerPanelUpdate(StudioPanel* panel, SDL_Rect area){
+	(void)panel;
+
+	if(!panel->mouseOver) return;
+
+	int listY = 0;
+	updateExplorerItem(client.gameWorld->headObj, area, &listY);
+}
+void drawExplorerItem(DataObj* item, SDL_Rect area, int nodeDepth, int *idCount){
+	int i = (*idCount)++;
+
+	if(item == focusObject){
+		float* backMatrix = genMatrix(
+			(Vector3){((float)(area.x) / (windowScale.x / 2) - 1) * aspectRatio, -(float)(area.y + explTextSize * i) / (windowScale.y / 2) + 1, 0}, 
+			(Vector3){(float)(area.w) / (windowScale.x / 2) * aspectRatio, 0, explTextSize / (windowScale.y / 2)}, 
+			(Vector3){HALFPI, 0, 0}
+		);
+		drawMeshOpenGL(planePrim, backMatrix, (SDL_FColor){0.25, 0.75, 0.18625, 1}, NULL);
+		free(backMatrix);
+	}
+
+	bufferGlSlice(textBufferTex, classIconTex, (SDL_Rect){(item->classData->id % 16) * 16, (int)floor((float)item->classData->id / 16) * 16 % 256, 16, 16});
+	float* iconMatrix = genMatrix(
+		(Vector3){((float)(area.x + 24 * nodeDepth) / (windowScale.x / 2) - 1) * aspectRatio, -(float)(area.y + explTextSize * i) / (windowScale.y / 2) + 1, 0}, 
+		(Vector3){(float)(16) / (windowScale.x / 2) * aspectRatio, 0, (float)(16) / (windowScale.y / 2)}, 
+		(Vector3){HALFPI, 0, 0}
+	);
+	drawMeshOpenGL(planePrim, iconMatrix, (SDL_FColor){1, 1, 1, 1}, textBufferTex);
+	free(iconMatrix);
+
+	if(!item->studioOpen && item->child){
+		bufferGlSlice(textBufferTex, classIconTex, (SDL_Rect){245, 249, 11, 7});
+		float* plusMatrix = genMatrix(
+			(Vector3){((float)(area.x + 24 * nodeDepth) / (windowScale.x / 2) - 1) * aspectRatio, -(float)(area.y + explTextSize * i) / (windowScale.y / 2) + 1, 0}, 
+			(Vector3){11.f / (windowScale.x / 2) * aspectRatio, 0, 7.f / (windowScale.y / 2)}, 
+			(Vector3){HALFPI, 0, 0}
+		);
+		drawMeshOpenGL(planePrim, plusMatrix, (SDL_FColor){1, 1, 1, 1}, textBufferTex);
+		free(plusMatrix);
+	}
+
+	float textRatio = bufferGLText(textBufferTex, &defaultFont, item->name, 2);
+	float* textMatrix = genMatrix(
+		(Vector3){((float)(24 + area.x + 24 * nodeDepth) / (windowScale.x / 2) - 1) * aspectRatio, -(float)(area.y + explTextSize * i) / (windowScale.y / 2) + 1, 0}, 
+		(Vector3){(float)(explTextSize / textRatio) / (windowScale.x / 2) * aspectRatio, 0, explTextSize / (windowScale.y / 2)}, 
+		(Vector3){HALFPI, 0, 0}
+	);
+	drawMeshOpenGL(planePrim, textMatrix, (SDL_FColor){1, 1, 1, 1}, textBufferTex);
+	free(textMatrix);
+
+	if(!item->studioOpen) return;
+	DataObj* child = item->child;
+	while(child){
+		DataObj *next = child->next;
+		drawExplorerItem(child, area, nodeDepth + 1, idCount);
+		child = next;
+	}
+}
+void explorerPanelDraw(StudioPanel* panel, SDL_Rect area){
+	(void)panel; 
+	float* bgMatrix = genMatrix(
+		(Vector3){((float)area.x / (windowScale.x / 2) - 1) * aspectRatio, (float)(-area.y) / (windowScale.y / 2) + 1, 0}, 
+		(Vector3){(float)area.w / (windowScale.x / 2) * aspectRatio, 0, (float)area.h / (windowScale.y / 2)}, 
+		(Vector3){HALFPI, 0, 0}
+	);
+	drawMeshOpenGL(planePrim, bgMatrix, (SDL_FColor){0.4, 0.4, 0.4, 1}, NULL);
+	free(bgMatrix);
+
+	int listY = 0;
+	drawExplorerItem(client.gameWorld->headObj, area, 0, &listY);
+}
+
 void initPanel(StudioPanel* panel){
 	switch(panel->type){
 		case STUDIOPANEL_GAMEVIEW: gamePanelInit(panel); return;
@@ -291,6 +429,8 @@ void updatePanel(StudioPanel* panel, SDL_Rect area){
 	switch(panel->type){
 		case STUDIOPANEL_SPLIT: splitPanelUpdate(panel, area); return;
 		case STUDIOPANEL_TOOLBAR: toolbarPanelUpdate(panel, area); return;
+		case STUDIOPANEL_BANNER: bannerPanelUpdate(panel, area); return;
+		case STUDIOPANEL_EXPLORER: explorerPanelUpdate(panel, area); return;
 		default: break;
 	}
 }
@@ -300,6 +440,8 @@ void drawPanel(StudioPanel* panel, SDL_Rect area){
 		case STUDIOPANEL_GAMEVIEW: gamePanelDraw(panel, area); return;
 		case STUDIOPANEL_SPLIT: splitPanelDraw(panel, area); return;
 		case STUDIOPANEL_TOOLBAR: toolbarPanelDraw(panel, area); return;
+		case STUDIOPANEL_BANNER: bannerPanelDraw(panel, area); return;
+		case STUDIOPANEL_EXPLORER: explorerPanelDraw(panel, area); return;
 		default: break;
 	}
 }
