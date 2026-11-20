@@ -127,7 +127,7 @@ CollisionReturn* getCollision(CollisionHull* itemA, CollisionHull* itemB){
 void resolveCollision(CollisionReturn* coll){
 	if(!(coll->hullA || coll->hullB)) return;
 
-	bool bothFix = (coll->hullA->active && coll->hullB->active);
+	bool bothFix = coll->hullA->active && coll->hullB->active;
 	(void)bothFix;
 
 	DataObj* itemA = coll->hullA->parent;
@@ -135,15 +135,14 @@ void resolveCollision(CollisionReturn* coll){
 	if(!(itemA && itemB)) return;
 
 	DataObj* currItem;
-	if(!bothFix){
-		currItem = coll->hullA->active ? itemA : itemB;
-		Vector3 newVec = vec3Add(currItem->pos, coll->outNorm);
-		currItem->pos = newVec;
-		return;
-	}else{
+	if(bothFix){
 		Vector3 halfNorm = vec3Mult(coll->outNorm, (Vector3){0.5, 0.5, 0.5}); //make change based on mass or something
 		itemA->pos = vec3Add(itemA->pos, halfNorm);
 		itemB->pos = vec3Sub(itemB->pos, halfNorm);
+	}else{
+		currItem = coll->hullA->active ? itemA : itemB;
+		Vector3 newVec = vec3Add(currItem->pos, coll->outNorm);
+		currItem->pos = newVec;
 	}
 
 	//printf("Resolved collision between %s and %s with an intersect normal of %f, %f, %f\n", itemA->name, itemB->name, coll->outNorm.x, coll->outNorm.y, coll->outNorm.z);

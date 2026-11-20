@@ -98,6 +98,7 @@ SDL_MouseButtonFlags mouseState;
 SDL_FPoint mousePos;
 SDL_FPoint storedMousePos;
 ButtonMap mouseButtons[3];
+float mouseScroll = 0;
 Uint8 camResetTimer = 0;
 
 void HandleKeyInput();
@@ -343,21 +344,9 @@ SDL_AppResult SDL_AppEvent(void *appstate, SDL_Event *event){
 	}
 
 	if(event->type == SDL_EVENT_MOUSE_WHEEL){
-		bool mainFocus = SDL_GetWindowFlags(window) & SDL_WINDOW_INPUT_FOCUS;
-		bool studioFocus = false;//studioWindow && (SDL_GetWindowFlags(studioWindow) & SDL_WINDOW_INPUT_FOCUS);
-		
-		if(mainFocus && !client.pause){
-			float zoomSpeed = max(1, sqrt(client.gameWorld->currCamera->focusDist));
-			float zoomMin = 0.0f;
-			float zoomMax = 64.0f;
-			
-			client.gameWorld->currCamera->focusDist += zoomSpeed * (1 - 2 * (event->wheel.y > 0)) * (event->wheel.y != 0);
-			client.gameWorld->currCamera->focusDist = min(max(client.gameWorld->currCamera->focusDist, zoomMin), zoomMax);
-		}
-		if(studioFocus && between(mousePos.x, objListRect.x, objListRect.x + objListRect.w) && between(mousePos.y, objListRect.y, objListRect.y + objListRect.h)){
-			float scrollSpeed = 1.0f;
-			objListScroll += scrollSpeed * (1 - 2 * (event->wheel.y > 0)) * (event->wheel.y != 0);
-			objListScroll = min(max(objListScroll, 0), max(objListLength - floor(objListRect.h / 16) + 2, 0));
+		bool focus = SDL_GetWindowFlags(window) & SDL_WINDOW_INPUT_FOCUS;
+		if(focus){
+			mouseScroll = event->wheel.y;
 		}
 	}
 
@@ -382,12 +371,10 @@ void renderGame(FrameBuffer* target, Camera* cam, bool renderGui){
 	glClear(GL_DEPTH_BUFFER_BIT);
 
 	Vector3 invVec3 = {-1, -1, -1};
-	client.gameWorld->currCamera->transform = malloc(sizeof(mat4));
 	float *camTranslated = translateMatrix(defaultMatrix, vec3Mult(cam->pos, invVec3));
-	float *camRotated = rotateMatrix(camTranslated, vec3Mult(cam->rot, invVec3), ROT_YXZ);
+	cam->transform = rotateMatrix(camTranslated, vec3Mult(cam->rot, invVec3), ROT_YXZ);
 
-	memcpy(cam->transform, camRotated, sizeof(mat4));
-	free(camTranslated); free(camRotated); 
+	free(camTranslated); 
 
 	cam->proj = projMatrix(cam->fov, aspectRatio, 0.1, 100000);
 
@@ -565,6 +552,13 @@ SDL_AppResult SDL_AppIterate(void *appstate){
 	client.gameWorld->currCamera->focusDist = min(max(client.gameWorld->currCamera->focusDist + (keyList[KEYBIND_I].down - keyList[KEYBIND_O].down) * 4 * max(1, sqrt(client.gameWorld->currCamera->focusDist)) * deltaTime, 0), 64);
 
 	if(!client.pause){
+		float zoomSpeed = max(1, sqrt(client.gameWorld->currCamera->focusDist));
+		float zoomMin = 0.0f;
+		float zoomMax = 64.0f;
+		
+		client.gameWorld->currCamera->focusDist += zoomSpeed * (1 - 2 * (mouseScroll > 0)) * (mouseScroll != 0);
+		client.gameWorld->currCamera->focusDist = min(max(client.gameWorld->currCamera->focusDist, zoomMin), zoomMax);
+
 		if(playerEnabled && !client.gameWorld->currPlayer){
 			if(client.gameWorld->playerRespawn >= 3) loadPlayerAvatar();
 			client.gameWorld->playerRespawn += deltaTime;
@@ -632,6 +626,8 @@ SDL_AppResult SDL_AppIterate(void *appstate){
 		printf("GL ERROR: %d\n", glError);
 	
 	SDL_GL_SwapWindow(window);
+
+	mouseScroll = 0;
 
 	return SDL_APP_CONTINUE;
 }
