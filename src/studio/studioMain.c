@@ -10,6 +10,7 @@
 #include <string.h>
 #include <math.h>
 
+#include "gamefile.h"
 #include "../math.h"
 #include "../entities.h"
 #include "../instances.h"
@@ -37,7 +38,9 @@ TextureRef *classIconTex = NULL;
 TextureRef *colourPickTex = NULL;
 Mesh *rotateGimbleMesh = NULL;
 Mesh *translateGimbleMesh = NULL;
+
 TextureRef *toolButtonTex = NULL;
+TextureRef *bannerButtonTex = NULL;
 
 Uint32 toolMode = STUDIOTOOL_MOVE;
 
@@ -62,6 +65,18 @@ StudioPanel gameExplorerSplit = {STUDIOPANEL_SPLIT, NULL, false, NULL};
 
 StudioPanel bannerSplitPanel = {STUDIOPANEL_SPLIT, NULL, false, NULL};
 StudioPanel bannarPanel = {STUDIOPANEL_BANNER, NULL, false, NULL};
+
+void drawTextureSlice(TextureRef* buffer, TextureRef* tex, SDL_Rect src, SDL_Rect dest){
+	bufferGlSlice(buffer, tex, src);
+
+	float* destMatrix = genMatrix(
+		(Vector3){((float)dest.x / (windowScale.x >> 1) - 1) * aspectRatio, -(float)(dest.y) / (windowScale.y >> 1) + 1, 0}, 
+		(Vector3){(float)dest.w / (windowScale.x >> 1) * aspectRatio, 0, (float)dest.h / (windowScale.y >> 1)}, 
+		(Vector3){HALFPI, 0, 0}
+	);
+	drawMeshOpenGL(planePrim, destMatrix, (SDL_FColor){1, 1, 1, 1}, buffer);
+	free(destMatrix);
+}
 
 void initPanel(StudioPanel* panel);
 void updatePanel(StudioPanel* panel, SDL_Rect area);
@@ -92,7 +107,9 @@ void initStudio(){
 	colourPickTex = loadTexture("assets/textures/studio/colourpicker.png", true);
 	rotateGimbleMesh = genTorusMesh(2, 0.1, 3, 24); rotateGimbleMesh->persistent = true;
 	translateGimbleMesh = loadMeshFromObj("assets/models/arrowwidget.obj", true);
+
 	toolButtonTex = loadTexture("assets/textures/studio/studiobuttons.png", true);
+	bannerButtonTex = loadTexture("assets/textures/studio/bannerbuttons.png", true);
 
 	initPanel(&toolGameSplit); initPanel(&testGamePanel); initPanel(&testToolPanel);
 	initPanel(&bannerSplitPanel); initPanel(&bannarPanel); 
@@ -277,20 +294,15 @@ void toolbarPanelDraw(StudioPanel* panel, SDL_Rect area){
 	drawMeshOpenGL(planePrim, bgMatrix, (SDL_FColor){0.4, 0.4, 0.4, 1}, NULL);
 	free(bgMatrix);
 
-	bufferGlSlice(textBufferTex, toolButtonTex, (SDL_Rect){16, 16, 16, 16});
-
-	float* buttonMatrix = genMatrix(
-		(Vector3){((float)area.x / (windowScale.x >> 1) - 1) * aspectRatio, (float)(-area.y) / (windowScale.y >> 1) + 1, 0}, 
-		(Vector3){(float)(16) / (windowScale.x >> 1) * aspectRatio, 0, (float)(16) / (windowScale.y >> 1)}, 
-		(Vector3){HALFPI, 0, 0}
-	);
-	drawMeshOpenGL(planePrim, buttonMatrix, (SDL_FColor){1, 1, 1, 1}, textBufferTex);
-	free(buttonMatrix);
+	drawTextureSlice(textBufferTex, toolButtonTex, (SDL_Rect){16, 16, 16, 16}, (SDL_Rect){area.x, area.y, 16, 16});
 }
 
 void bannerPanelInit(StudioPanel* panel){
 	(void)panel; 
 }
+static void SDLCALL loadMapDialogue(void* userdata, const char* const* filelist, int filter);
+static void SDLCALL saveMapDialogue(void* userdata, const char* const* filelist, int filter);
+static const SDL_DialogFileFilter mapLoadFilter[] = {{"JSON Map", "json"}, {"All File Types", "*"}};
 void bannerPanelUpdate(StudioPanel* panel, SDL_Rect area){
 	StudioPanel* split = panel->parent;
 	if(!split || split->type != STUDIOPANEL_SPLIT) return;
@@ -300,24 +312,30 @@ void bannerPanelUpdate(StudioPanel* panel, SDL_Rect area){
 	if(!splitHandler->vert) return;
 	bool splitHalf = splitHandler->childB == panel ? true : false;
 
-	if(splitHalf){
+	float splitArea = area.h / (splitHalf ? (1 - splitHandler->ratio) : splitHandler->ratio);
+	splitHandler->ratio = 64 / splitArea;
 
-	}else{
-		//area.h = splitArea.h * splitRatio
-		//splitArea.h = area.h / splitRatio
-		float splitArea = area.h / splitHandler->ratio;
-		splitHandler->ratio = 64 / splitArea;
+	if(!panel->mouseOver) return;
+
+	if(mouseButtons[0].pressed && between(mousePos.x - (area.x + 16), 0, 32) && between(mousePos.y - (area.y + 16), 0, 32)){
+		SDL_ShowSaveFileDialog(saveMapDialogue, NULL, window, mapLoadFilter, SDL_arraysize(mapLoadFilter), SDL_GetCurrentDirectory());
+	}
+	if(mouseButtons[0].pressed && between(mousePos.x - (area.x + 50), 0, 32) && between(mousePos.y - (area.y + 16), 0, 32)){
+		SDL_ShowOpenFileDialog(loadMapDialogue, NULL, window, mapLoadFilter, SDL_arraysize(mapLoadFilter), SDL_GetCurrentDirectory(), false);
 	}
 }
 void bannerPanelDraw(StudioPanel* panel, SDL_Rect area){
 	(void)panel; 
 	float* bgMatrix = genMatrix(
-		(Vector3){((float)area.x / (windowScale.x / 2) - 1) * aspectRatio, (float)(-area.y) / (windowScale.y / 2) + 1, 0}, 
+		(Vector3){((float)area.x / (windowScale.x / 2) - 1) * aspectRatio, -(float)(area.y) / (windowScale.y / 2) + 1, 0}, 
 		(Vector3){(float)area.w / (windowScale.x / 2) * aspectRatio, 0, (float)area.h / (windowScale.y / 2)}, 
 		(Vector3){HALFPI, 0, 0}
 	);
 	drawMeshOpenGL(planePrim, bgMatrix, (SDL_FColor){0.4, 0.4, 0.4, 1}, NULL);
 	free(bgMatrix);
+
+	drawTextureSlice(textBufferTex, bannerButtonTex, (SDL_Rect){32, 0, 32, 32}, (SDL_Rect){area.x + 16, area.y + 16, 32, 32});
+	drawTextureSlice(textBufferTex, bannerButtonTex, (SDL_Rect){64, 0, 32, 32}, (SDL_Rect){area.x + 50, area.y + 16, 32, 32});
 }
 
 float explTextSize = 16;
@@ -444,4 +462,21 @@ void drawPanel(StudioPanel* panel, SDL_Rect area){
 		case STUDIOPANEL_EXPLORER: explorerPanelDraw(panel, area); return;
 		default: break;
 	}
+}
+
+static void SDLCALL loadMapDialogue(void* userdata, const char* const* filelist, int filter){
+	(void)userdata; (void)filter;
+
+	if(!filelist || !*filelist) return;
+
+	client.gameWorld->headObj->child = NULL;
+	focusObject = NULL;
+	
+	loadGameFile(*filelist);
+};
+static void SDLCALL saveMapDialogue(void* userdata, const char* const* filelist, int filter){
+	(void)userdata; (void)filter;
+	if(!filelist || !*filelist) return;
+
+	saveGameFile(*filelist);
 }
