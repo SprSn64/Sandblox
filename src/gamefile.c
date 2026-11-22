@@ -461,7 +461,7 @@ int loadGameFile(const char* filename) {
     
     cJSON_Delete(json);
     free(content);
-    client.pause = false;
+    client.pause = client.studio;
     printf("Successfully loaded gamefile %s\n", filename);
     return 0;
 }

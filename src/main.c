@@ -376,7 +376,7 @@ void renderGame(FrameBuffer* target, Camera* cam, bool renderGui){
 
 	free(camTranslated); 
 
-	cam->proj = projMatrix(cam->fov, aspectRatio, 0.1, 100000);
+	cam->proj = projMatrix(cam->fov, (float)renderRes.x / renderRes.y, 0.1, 100000);
 
 	float *camRotMatrix = rotateMatrix(defaultMatrix, vec3Mult(cam->rot, invVec3), ROT_YXZ);
 	glUniformMatrix4fv(glLocs[GLVAL_PROJMATRIX], 1, GL_FALSE, cam->proj);

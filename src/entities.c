@@ -285,7 +285,7 @@ extern TextureRef *cameraTex;
 void cameraDraw(DataObj* object){
 	Camera *cam = object->props[OBJVAL_OTHER];
 	if(cam == NULL) return;
-	if(!client.debug || !client.pause/* || client.gameWorld->currCamera == cam*/) return;
+	if(!client.debug || client.gameWorld->currCamera == cam) return;
 
 	drawMeshOpenGL(cameraMesh, cam->transform, (SDL_FColor){1, 1, 1, 1}, cameraTex);
 }

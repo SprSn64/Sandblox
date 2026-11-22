@@ -252,6 +252,14 @@ void gamePanelInit(StudioPanel* panel){
 	handler->buffer = newFrameBuffer(1920, 1080);
 	panel->handler = handler;
 }
+extern SDL_Rect viewArea; 
+void gamePanelUpdate(StudioPanel* panel, SDL_Rect area){
+	if(!panel->mouseOver) return;
+	viewArea = area;
+
+	if(focusObject) updateStudioGimbles();
+}
+
 extern Mesh* frameBuffMesh;
 void renderGame(FrameBuffer* target, Camera* cam, bool renderGui);
 void gamePanelDraw(StudioPanel* panel, SDL_Rect area){
@@ -259,7 +267,15 @@ void gamePanelDraw(StudioPanel* panel, SDL_Rect area){
 	if(!handler) return;
 	if(!handler->buffer || !handler->camera) return;
 
-	renderGame(handler->buffer, handler->camera, true);
+	Camera* targetCamera = handler->camera;
+	if(focusObject && focusObject->classData == &cameraClass){
+		targetCamera = focusObject->objOther;
+	}
+
+	freeFrameBuffer(handler->buffer);
+	handler->buffer = newFrameBuffer(area.w, area.h);
+
+	renderGame(handler->buffer, targetCamera, true);
 	bindFrameBuffer(NULL); glViewport(0, 0, windowScale.x, windowScale.y);
 	
 	float* gameMatrix = genMatrix(
@@ -445,6 +461,7 @@ void updatePanel(StudioPanel* panel, SDL_Rect area){
 	panel->mouseOver = (SDL_GetWindowFlags(window) & SDL_WINDOW_MOUSE_FOCUS) ? between(mousePos.x - area.x, 0, area.w) && between(mousePos.y - area.y, 0, area.h) : false;
 
 	switch(panel->type){
+		case STUDIOPANEL_GAMEVIEW: gamePanelUpdate(panel, area); return;
 		case STUDIOPANEL_SPLIT: splitPanelUpdate(panel, area); return;
 		case STUDIOPANEL_TOOLBAR: toolbarPanelUpdate(panel, area); return;
 		case STUDIOPANEL_BANNER: bannerPanelUpdate(panel, area); return;

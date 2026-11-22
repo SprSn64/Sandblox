@@ -33,9 +33,10 @@ extern Mesh *translateGimbleMesh;
 extern Uint32 toolMode;
 extern DataObj *focusObject;
 
-extern SDL_FPoint windowScale;
 extern SDL_FPoint mousePos;
 extern ButtonMap mouseButtons[3];
+
+SDL_Rect viewArea = {0, 0, 640, 480};
 
 Vector3 projectFlip(Vector3 proj){
 	float flipMult = 1 - 2 * (proj.z <= 0);
@@ -47,7 +48,15 @@ Vector3 quickProj(Vector3 pos){
 	Camera* currCam = client.gameWorld->currCamera;
 
 	Vector4 newPos = matrixMult(matrixMult(vec3ToVec4(pos), currCam->transform), currCam->proj);
-	return glToScreen((Vector3){newPos.x / newPos.w, newPos.y / newPos.w, newPos.z});
+	//return glToScreen((Vector3){newPos.x / newPos.w, newPos.y / newPos.w, newPos.z});
+
+	//return (Vector3){(pos.x + 1) / 2 * windowScale.x, (-pos.y + 1) / 2 * windowScale.y, pos.z};
+
+	return (Vector3){
+		((newPos.x / newPos.w) + 1 - viewArea.x) / 2 * viewArea.w,
+		((newPos.y / newPos.w) + 1 - viewArea.y) / 2 * viewArea.h,
+		newPos.z
+	};
 }
 
 extern float aspectRatio;
